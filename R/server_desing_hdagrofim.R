@@ -6,16 +6,24 @@
 #' @param session shinyserver session
 ## @param dom target dom element name
 #' @param values reactive values
-#' @author Omar Benites
+#' @author Omar Benites / Ivan Perez
 #' @export
 #'
 
 server_design_agrofims <- function(input, output, session, values){
 
-  ##### Start Modulo: Save fieldbook #####
-
-  # path global para guardar las sesiones de fieldbook
-  globalpath <- "/home/obenites/HIDAP_SB_1.0.0/hidap/inst/hidap_agrofims/www/internal_files/"
+  #################### START: PATHS GENERALES ####################
+  # path global para lectura de RDS's
+  globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+  
+  # path del template para new fieldbook
+  templatepath <- "/home/obenites/AGROFIMS/template/"
+  #################### END: PATHS GENERALES ####################
+  
+  #################### START: GUARDAR SESION DEL FIELDBOOK ####################
+  # path global donde se aloja las sessiones y backups
+  sessionpath <- "/home/obenites/AGROFIMS/savesession/"
+  sessionpathbk <- "/home/obenites/AGROFIMS/savesession_bk/"
 
   # Funcion que crea lista de inputs a guardar: Experiment
   inputsExperiment <- function() {
@@ -28,7 +36,7 @@ server_design_agrofims <- function(input, output, session, values){
     df1 <- inputRds[c(4, 5, 6)]
 
     # inputs para: Funding agency type
-    if (!is.null(input$designFieldbook_fundAgencyType) && length(input$designFieldbook_fundAgencyType) >= 1) {
+    if (!is.null(input$designFieldbook_fundAgencyType) && !is.na(input$designFieldbook_fundAgencyType) && length(input$designFieldbook_fundAgencyType) >= 1) {
       for (i in 1:length(input$designFieldbook_fundAgencyType)) {
         a1[i] <- paste0("fundName_", i)
         a2[i] <- "textInput"
@@ -40,7 +48,7 @@ server_design_agrofims <- function(input, output, session, values){
     }
 
     # inputs para: Number of project management entities
-    if (!is.na(input$numProjEntity) && input$numProjEntity >= 1) {
+    if (!is.null(input$numProjEntity) && !is.na(input$numProjEntity) && input$numProjEntity >= 1) {
       for (i in 1:input$numProjEntity) {
         b1[i] <- paste0("projEntity_", i)
         b2[i] <- paste0("projEntity_", i, "_other")
@@ -63,7 +71,7 @@ server_design_agrofims <- function(input, output, session, values){
     }
 
     # inputs para: Number of experiment leads
-    if (!is.na(input$numLeads) && input$numLeads >= 1) {
+    if (!is.null(input$numLeads) && !is.na(input$numLeads) && input$numLeads >= 1) {
       for (i in 1:input$numLeads) {
         c1[i] <- paste0("projLeadEnt_", i)
         c2[i] <- paste0("tLeadCenter_", i)
@@ -104,7 +112,7 @@ server_design_agrofims <- function(input, output, session, values){
     df1 <- inputRds[c(4, 5, 6)]
 
     # inputs para: Number of personnel
-    if (!is.na(input$npersons) && input$npersons >= 1) {
+    if (!is.null(input$npersons) && !is.na(input$npersons) && input$npersons >= 1) {
       for (i in 1:input$npersons) {
         a1[i] <- paste0("personnel", i, "Type")
         a2[i] <- paste0("personnel", i, "Type_other")
@@ -169,13 +177,13 @@ server_design_agrofims <- function(input, output, session, values){
     df1 <- df1[c(4, 5, 6)]
 
     # inputs para: Monocrop
-    if (!is.na(input$croppingType) && input$croppingType == "Monocrop") {
+    if (!is.null(input$croppingType) && !is.na(input$croppingType) && input$croppingType == "Monocrop") {
       df2 <- dplyr::filter(inputRds, category == "Monocrop")
       df2 <- df2[c(4, 5, 6)]
     }
 
     # inputs para: Intercrop
-    if (!is.na(input$croppingType) && input$croppingType == "Intercrop") {
+    if (!is.null(input$croppingType) && !is.na(input$croppingType) && input$croppingType == "Intercrop") {
       # inputs para: Select crops
       if (!is.null(input$cropsSelected) && length(input$cropsSelected) >= 1) {
         for (i in 1:length(input$cropsSelected)) {
@@ -200,41 +208,356 @@ server_design_agrofims <- function(input, output, session, values){
     res <- rbind(df1, df2, df3)
     res
   }
+  
+  # Funcion que crea lista de inputs a guardar: Design
+  inputsDesign <- function() {
+    df2 <- df3 <- df4 <- data.frame()
+    
+    inputRds <- readRDS(paste0(globalpath, "inputId1_v1.rds"))
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Design")
+    df1 <- dplyr::filter(inputRds, is.na(category))
+    df1 <- df1[c(4, 5, 6)]
+    
+    # inputs para: Information on experimental unit -> plot
+    if (!is.null(input$info_experiment_unit) && !is.na(input$info_experiment_unit) && input$info_experiment_unit == "plot") {
+      df2 <- dplyr::filter(inputRds, category == "plot")
+      df2 <- df2[c(4, 5, 6)]
+    }
+    
+    # inputs para: Information on experimental unit -> field
+    if (!is.null(input$info_experiment_unit) && !is.na(input$info_experiment_unit) && input$info_experiment_unit == "field") {
+      df3 <- dplyr::filter(inputRds, category == "field")
+      df3 <- df3[c(4, 5, 6)]
+    }
+    
+    # inputs para: Information on experimental unit -> pot
+    if (!is.null(input$info_experiment_unit) && !is.na(input$info_experiment_unit) && input$info_experiment_unit == "pot") {
+      df4 <- dplyr::filter(inputRds, category == "pot")
+      df4 <- df4[c(4, 5, 6)]
+    }
+    
+    res <- rbind(df1, df2, df3, df4)
+    res
+  }
+  
+  # Funcion que crea lista de inputs a guardar: Experiment conditions
+  inputsExpCon <- function() {
+    df2 <- df3 <- df4 <- df5 <- df6 <- df7 <- df8 <- data.frame()
 
+    inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & is.na(subTabPanel))
+    df1 <- inputRds[c(6, 7, 8)]
+    
+    inp <- c()
+    z <- a <- b <- data.frame()
+    
+    if (is.null(input$selectAgroFeature) || is.na(input$selectAgroFeature)) {
+      inp <- ""
+    } else {
+      inp <- input$selectAgroFeature
+    }
+    
+    for (i in 1:length(inp)) {
+      if (inp[i] == "Harvest") {
+        df2 <- inputsExpConHarvest()
+      }
+      
+      if (inp[i] == "Irrigation") {
+        df3 <- inputsExpConIrrigation()
+      }
+      
+      if (inp[i] == "Land preparation") {
+        df4 <- inputsExpConLanPreparation()
+      }
+      
+      if (inp[i] == "Mulching and residue") {
+        df5 <- inputsExpConMulchResi()
+      }
+      
+      if (inp[i] == "Planting and transplanting") {
+        df6 <- inputsExpPlantTrans()
+      }
+      
+      if (inp[i] == "Soil fertility") {
+        df7 <- inputsExpConSoilFer()
+      }
+      
+      if (inp[i] == "Weeding") {
+        df8 <- inputsExpConWeeding()
+      }
+    }
+    
+    res <- rbind(df1, df2, df3, df4, df5, df6, df7, df8)
+    res
+  }
+  
+  # Funcion que crea lista de inputs a guardar: Experiment conditions -> Harvest
+  inputsExpConHarvest <- function() {
+    inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Harvest")
+    df1 <- inputRds[c(6, 7, 8)]
+    
+    res <- df1
+  }
+  
+  # Funcion que crea lista de inputs a guardar: Experiment conditions -> Irrigation
+  inputsExpConIrrigation <- function() {
+    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- a13 <- a14 <- a15 <- a16 <- a17 <- a18 <- a19 <- a20 <- a21 <- a22 <- a23 <- a24 <- a25 <- a26 <- a27 <- a28 <- a29 <- a30 <- a31 <- a32 <- a33 <- a34 <- a35 <- a36 <- a37 <- a38 <- a39 <- a40 <- a41 <- a42 <- a43 <- a44 <- a45 <- a46 <- a47 <- a48 <- c()
+    df2 <- data.frame()
+    
+    inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Irrigation")
+    df1 <- inputRds[c(6, 7, 8)]
+    
+    # inputs para: Number of irrigations
+    if (!is.null(input$numApplicationsIrrigation) && !is.na(input$numApplicationsIrrigation) && input$numApplicationsIrrigation >= 3) {
+      for (i in 1:input$numApplicationsIrrigation) {
+        a1[i] <- paste0("irrigationevent_start_date_", i)
+        a2[i] <- paste0("irrigationevent_end_date_", i)
+        a3[i] <- paste0("irrigation_technique_", i)
+        a4[i] <- paste0("irrigation_technique_", i, "_other")
+        a5[i] <- paste0("irrigation_using_sprinkler_systems_", i)
+        a6[i] <- paste0("irrigation_using_sprinkler_systems_", i, "_other")
+        a7[i] <- paste0("localized_irrigation_technique", i)
+        a8[i] <- paste0("localized_irrigation_technique", i, "_other")
+        a9[i] <- paste0("surface_irrigation_technique_", i)
+        a10[i] <- paste0("surface_irrigation_technique_", i, "_other")
+        a11[i] <- paste0("irrigation_source_", i)
+        a12[i] <- paste0("irrigation_source_distance_", i)
+        a13[i] <- paste0("irrigation_source_distance_", i, "unit")
+        a14[i] <- paste0("irrigation_amount_", i)
+        a15[i] <- paste0("irrigation_amount_", i, "unit")
+        a16[i] <- paste0("irrigation_notes_", i)
+        
+        a17[i] <- paste0("dateInput")
+        a18[i] <- paste0("dateInput")
+        a19[i] <- paste0("selectizeInput")
+        a20[i] <- paste0("textInput")
+        a21[i] <- paste0("selectizeInput")
+        a22[i] <- paste0("textInput")
+        a23[i] <- paste0("selectizeInput")
+        a24[i] <- paste0("textInput")
+        a25[i] <- paste0("selectizeInput")
+        a26[i] <- paste0("textInput")
+        a27[i] <- paste0("selectizeInput")
+        a28[i] <- paste0("numericInput")
+        a29[i] <- paste0("selectizeInput")
+        a30[i] <- paste0("numericInput")
+        a31[i] <- paste0("selectizeInput")
+        a32[i] <- paste0("textAreaInput")
+        
+        a33[i] <- paste0("n")
+        a34[i] <- paste0("n")
+        a35[i] <- paste0("n")
+        a36[i] <- paste0("n")
+        a37[i] <- paste0("n")
+        a38[i] <- paste0("n")
+        a39[i] <- paste0("n")
+        a40[i] <- paste0("n")
+        a41[i] <- paste0("n")
+        a42[i] <- paste0("n")
+        a43[i] <- paste0("n")
+        a44[i] <- paste0("n")
+        a45[i] <- paste0("n")
+        a46[i] <- paste0("n")
+        a47[i] <- paste0("n")
+        a48[i] <- paste0("n")
+      }
+      df2 <- data.frame(inputId = c(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16), 
+                        type = c(a17, a18, a19, a20, a21, a22, a23, a24, a25, a26, a27, a28, a29, a30, a31, a32), 
+                        create = c(a33, a34, a35, a36, a37, a38, a39, a40, a41, a42, a43, a44, a45, a46, a47, a48), stringsAsFactors = F)
+    } else {
+      df2 <- NULL
+    }
+    
+    res <- rbind(df1, df2)
+    res
+  }
+  
+  # Funcion que crea lista de inputs a guardar: Experiment conditions -> Land preparation
+  inputsExpConLanPreparation <- function() {
+    inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Land preparation")
+    df1 <- inputRds[c(6, 7, 8)]
+    
+    res <- df1
+    res
+  }
+  
+  # Funcion que crea lista de inputs a guardar: Experiment conditions -> Mulching and residue
+  inputsExpConMulchResi <- function() {
+    inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Mulching and residue")
+    df1 <- inputRds[c(6, 7, 8)]
+    
+    res <- df1
+    res
+  }
+  
+  # Funcion que crea lista de inputs a guardar: Experiment conditions -> Planting and transplanting
+  inputsExpPlantTrans <- function() {
+    inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Planting and transplanting")
+    df1 <- inputRds[c(6, 7, 8)]
+    
+    res <- df1
+    res
+  }
+  
+  # Funcion que crea lista de inputs a guardar: Experiment conditions -> Soil fertility
+  inputsExpConSoilFer <- function() {
+    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- a13 <- a14 <- a15 <- a16 <- a17 <- a18 <- a19 <- a20 <- a21 <- a22 <- a23 <- a24 <- a25 <- a26 <- a27 <- a28 <- a29 <- a30 <- a31 <- a32 <- a33 <- a34 <- a35 <- a36 <- c()
+    df2 <- data.frame()
+    
+    inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Soil fertility")
+    df1 <- inputRds[c(6, 7, 8)]
+    
+    # inputs para: Number of applications
+    if (!is.null(input$soil_fertilizer_num_apps) && !is.na(input$soil_fertilizer_num_apps) && input$soil_fertilizer_num_apps >= 1) {
+      for (i in 1:input$soil_fertilizer_num_apps) {
+        a1[i] <- paste0("select_fertilizerType_soil_table_row_", i)
+        a2[i] <- paste0("select_product_soil_table_row_", i)
+        a3[i] <- paste0("select_product_soil_table_row_", i, "_other")
+        a4[i] <- paste0("input_productRate_soil_table_row", i)
+        a5[i] <- paste0("select_element_soil_table_row_", i)
+        a6[i] <- paste0("select_element_soil_table_row_", i, "_other")
+        a7[i] <- paste0("input_elementRate_soil_table_row_", i)
+        a8[i] <- paste0("input_startdate_soil_table_row_", i)
+        a9[i] <- paste0("input_enddate_soil_table_row_", i )
+        a10[i] <- paste0("select_techinque_soil_table_row_", i)
+        a11[i] <- paste0("select_techinque_soil_table_row_", i, "_other")
+        a12[i] <- paste0("textArea_soil_table_row_", i)
+        
+        a13[i] <- paste0("selectizeInput")
+        a14[i] <- paste0("selectizeInput")
+        a15[i] <- paste0("textInput")
+        a16[i] <- paste0("textInput")
+        a17[i] <- paste0("selectizeInput")
+        a18[i] <- paste0("textInput")
+        a19[i] <- paste0("textInput")
+        a20[i] <- paste0("dateInput")
+        a21[i] <- paste0("dateInput")
+        a22[i] <- paste0("selectizeInput")
+        a23[i] <- paste0("textInput")
+        a24[i] <- paste0("textAreaInput")
+        
+        a25[i] <- paste0("n")
+        a26[i] <- paste0("n")
+        a27[i] <- paste0("n")
+        a28[i] <- paste0("n")
+        a29[i] <- paste0("n")
+        a30[i] <- paste0("n")
+        a31[i] <- paste0("n")
+        a32[i] <- paste0("n")
+        a33[i] <- paste0("n")
+        a34[i] <- paste0("n")
+        a35[i] <- paste0("n")
+        a36[i] <- paste0("n")
+      }
+      df2 <- data.frame(inputId = c(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12), 
+                        type = c(a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24), 
+                        create = c(a25, a26, a27, a28, a29, a30, a31, a32, a33, a34, a35, a36), stringsAsFactors = F)
+    } else {
+      df2 <- NULL
+    }
+    
+    res <- rbind(df1, df2)
+    res
+  }
+  
+  # Funcion que crea lista de inputs a guardar: Experiment conditions -> Weeding
+  inputsExpConWeeding <- function() {
+    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- a13 <- a14 <- a15 <- a16 <- a17 <- a18 <- a19 <- a20 <- a21 <- c()
+    df2 <- data.frame()
+    
+    inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Weeding")
+    df1 <- inputRds[c(6, 7, 8)]
+    
+    # inputs para: Number of weedings
+    if (!is.null(input$numWeeding) && !is.na(input$numWeeding) && input$numWeeding >= 1) {
+      for (i in 1:input$numWeeding) {
+        a1[i] <- paste0("weeding_start_date_", i)
+        a2[i] <- paste0("weeding_end_date_", i)
+        a3[i] <- paste0("weeding_technique_", i)
+        a4[i] <- paste0("weeding_type_", i)
+        a5[i] <- paste0("weeding_type_", i, "_other")
+        a6[i] <- paste0("weeding_traction_", i)
+        a7[i] <- paste0("weeding_traction_", i, "_other")
+        
+        a8[i] <- paste0("dateInput")
+        a9[i] <- paste0("dateInput")
+        a10[i] <- paste0("selectizeInput")
+        a11[i] <- paste0("selectizeInput")
+        a12[i] <- paste0("textInput")
+        a13[i] <- paste0("selectizeInput")
+        a14[i] <- paste0("textInput")
+        
+        a15[i] <- paste0("n")
+        a16[i] <- paste0("n")
+        a17[i] <- paste0("n")
+        a18[i] <- paste0("n")
+        a19[i] <- paste0("n")
+        a20[i] <- paste0("n")
+        a21[i] <- paste0("n")
+      }
+      df2 <- data.frame(inputId = c(a1, a2, a3, a4, a5, a6, a7), 
+                        type = c(a8, a9, a10, a11, a12, a13, a14), 
+                        create = c(a15, a16, a17, a18, a19, a20, a21), stringsAsFactors = F)
+    } else {
+      df2 <- NULL
+    }
+    
+    res <- rbind(df1, df2)
+    res
+  }
+
+  # Boton para hacer test
   observeEvent(input$xtest, {
-    print(inputs_to_save <- rbind(inputsExperiment(), inputsPersonnel(), inputsSite(), inputsCrop()))
+    print(inputsExpCon())
   })
-
-  # Save session
-  observeEvent(input$savefieldbook, {
+  
+  # Funcion que guarda la session del usuario
+  savesession <- function() {
     if(session$userData$logged){
       expid <- input$experimentId
-
-      if (file.exists(isolate(paste0(globalpath, "savesession/", expid, ".csv")))) {
-        x <- read.csv(paste0(globalpath, "savesession/", expid, ".csv"))
-        datecreate <- as.character(x[2,4])
+      
+      if (file.exists(isolate(paste0(sessionpath, expid, ".csv")))) {
+        x <- read.csv(paste0(sessionpath, expid, ".csv"))
+        datecreate <- as.character(x[2, 4])
+        datemodified <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
       } else {
         datecreate <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
+        datemodified <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
       }
-
+      
       inputs1 <- inputs2 <- inputs3 <- NULL
-      inputs_to_save <- rbind(inputsExperiment(), inputsPersonnel(), inputsSite(), inputsCrop())
-
-      case1p <- dplyr::filter(inputs_to_save, type == "textInput" | type == "numericInput" | type == "textAreaInput")
+      inputs_to_save <- rbind(inputsExperiment(), 
+                              inputsPersonnel(), 
+                              inputsSite(), 
+                              inputsCrop(), 
+                              inputsDesign(), 
+                              inputsExpCon())
+      
+      case1p <- dplyr::filter(inputs_to_save, type == "textInput" | 
+                                type == "numericInput" | 
+                                type == "textAreaInput" |
+                                type == "checkboxInput")
       case1 <- case1p[[1]]
       case1_type <- case1p[[2]]
       case1_create <- case1p[[3]]
-
+      
       case2p <- dplyr::filter(inputs_to_save, type == "dateRangeInput")
       case2 <- case2p[[1]]
       case2_type <- case2p[[2]]
       case2_create <- case2p[[3]]
-
+      
       case3p <- dplyr::filter(inputs_to_save, type == "selectizeInput" | type == "selectInput")
       case3 <- case3p[[1]]
       case3_type <- case3p[[2]]
       case3_create <- case3p[[3]]
-
+      
       for (i in 1:length(case1)) {
         # textInput && numericInput && textAreaInput
         if (is.null(input[[paste0(case1[i])]]) || is.na(input[[paste0(case1[i])]])) {
@@ -243,9 +566,8 @@ server_design_agrofims <- function(input, output, session, values){
           inputs1[i] <- input[[paste0(case1[i])]]
         }
       }
-      #inputs_data_frame1 <- data.frame(inputId = case1, type = case1_type, value = inputs1)
       inputs_data_frame1 <- data.frame(inputId = case1, type = case1_type, create = case1_create, value = inputs1)
-
+      
       for (i in 1:length(case2)) {
         # dateRangeInput
         if (is.null(input[[paste0(case2[i])]]) || is.na( input[[paste0(case2[i])]])) {
@@ -254,9 +576,8 @@ server_design_agrofims <- function(input, output, session, values){
           inputs2[i] <- paste(input[[paste0(case2[i])]], collapse = "&")
         }
       }
-      #inputs_data_frame2 <- data.frame(inputId = case2, value = inputs2)
       inputs_data_frame2 <- data.frame(inputId = case2, type = case2_type, create = case2_create, value = inputs2)
-
+      
       for (i in 1:length(case3)) {
         # selectizeInput && selectInput
         if (is.null(input[[paste0(case3[i])]]) || is.na( input[[paste0(case3[i])]])) {
@@ -265,528 +586,232 @@ server_design_agrofims <- function(input, output, session, values){
           inputs3[i] <- paste(input[[paste0(case3[i])]], collapse = "&")
         }
       }
-      #inputs_data_frame3 <- data.frame(inputId = case3, value = inputs3)
       inputs_data_frame3 <- data.frame(inputId = case3, type = case3_type, create = case3_create, value = inputs3)
-
+      
       inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame2, inputs_data_frame3)
       nr <- data.frame(inputId = "user", type = "", create = "", value = session$userData$userMail)
       nr2 <- data.frame(inputId = "datec", type = "", create = "", value = datecreate)
-      final_inputs_df <- rbind(nr, nr2, inputs_data_frame)
-
-      write.csv(final_inputs_df,  paste0(globalpath, "savesession/", input$experimentId, ".csv"), row.names = FALSE)
-      shinyalert("Success", "Saved successfully", type = "success", timer = 1500, showConfirmButton = F)
-      #output$text1 <- renderText({"Saved successfully"})
-
+      nr3 <- data.frame(inputId = "datem", type = "", create = "", value = datemodified)
+      final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame)
+      
+      write.csv(final_inputs_df, paste0(sessionpath, input$experimentId, ".csv"), row.names = FALSE)
+      write.csv(final_inputs_df, paste0(sessionpathbk, input$experimentId, ".csv"), row.names = FALSE)
+      
+      updateTextInput(session,
+                      inputId = "experimentId",
+                      value = "")
+      updateTextInput(session,
+                      inputId = "experimentId",
+                      value = expid)
+      
+      shinyalert("Saved successfully", type = "success", timer = 1500, showConfirmButton = F)
     } else {
       shinyalert("Sorry", "You must login to save avance", type = "info", timer = 1500, showConfirmButton = F)
-      #output$text1 <- renderText({"You must login to save avance"})
+    }
+  }
+
+  # Save session
+  observeEvent(input$savefieldbook, {
+    savesession()
+  })
+  
+  # Funcion reactiva que muestra las fechas de modificacion del fieldbook
+  timeExp <- reactive({
+    expid <- input$experimentId
+    
+    if (file.exists(isolate(paste0(sessionpath, expid, ".csv")))) {
+      x <- read.csv(paste0(sessionpath, expid, ".csv"))
+      datemodified <- as.character(x[3, 4])
+      datemodified <- paste0("<font color='#00a65a'>", datemodified, "</font>")
+    } else {
+      datemodified <- paste0("<font color='red'>never</font>")
+    }
+
+    datemodified
+  })
+  
+  # Renderiza el mensaje de guardado de sesion
+  output$lastsaved <- renderText({
+    paste0("Last modified: ", timeExp())
+  })
+  
+  # Funcion reactiva que muestra el id del fieldbook para generar qr
+  # idExp <- reactive({
+  #   expid <- input$experimentId
+  #   expid
+  # })
+  #################### END: GUARDAR SESION DEL FIELDBOOK ####################
+  
+  #################### START: GENERA NUEVO FIELDBOOK ####################
+  # New fieldbook button
+  observeEvent(input$newfieldbook, {
+    if (session$userData$logged) {
+      showModal(modalDialog(
+        title =
+          fluidRow(
+            column(
+              6,
+              style = ("margin-top: -20px;margin-bottom: -10px;"),
+              h3("Save fieldbook?")
+            ),
+            column(
+              6,
+              align = "right",
+              style = "margin-top: 0px;",
+              actionLink("btncancel2", "X")
+            )
+          ),
+        fluidRow(
+          column(
+            1,
+            icon("exclamation-triangle", "fa-3x")
+          ),
+          column(
+            11,
+            "Save changes to fieldbook before closing?",
+            br(),
+            "Your changes will be lost if you don’t save them."
+          )
+        ),
+        br(),
+        fluidRow(
+          column(
+            12,
+            align = "center",
+            actionButton("btnsave", "Save", class = "btn-success", style="color: #fff;", width = "95px"),
+            actionButton("btndontsave", "Don't save", width = "95px"),
+            actionButton("btncancel", "Cancel", width = "95px")
+          )
+        ),
+        footer = NULL
+      ))
+    } else {
+      shinyalert("Sorry", "You must login to create new fieldbook", type = "info", timer = 1500, showConfirmButton = F)
     }
   })
+  
+  # Boton que guarda el avance de la sesion antes que crear un nuevo fieldbook
+  observeEvent(input$btnsave, {
+    savesession()
+    resetExperiment()
+    removeModal()
+  })
+  
+  # Boton que crea un nuevo fieldbook sin guardar
+  observeEvent(input$btndontsave, {
+    resetExperiment()
+    removeModal()
+  })
+  
+  # Boton que cierra el modal
+  observeEvent(input$btncancel, {
+    removeModal()
+  })
+  
+  # Boton que cierra el modal desde el X
+  observeEvent(input$btncancel2, {
+    removeModal()
+  })
+  
+  # Funcion que separa los valores del array para la funcion reset experiment
+  getInputs<- function(valor, q) {
+    valor <- sapply(valor, as.character)
+    valor[is.na(valor)] <- " "
+    valor
+    
+    if (stringr::str_detect(valor, "&")) {
+      if (q == "start") {
+        valor <- unlist(strsplit(valor, "&"))
+        valor <- valor[[1]]
+      }
+      
+      if (q == "end") {
+        valor <- unlist(strsplit(valor, "&"))
+        valor <- valor[[2]]
+      }
+    }
+    
+    if(stringr::str_detect(valor,"&")){
+      valor<-unlist(strsplit(valor, "&"))
+    } else {
+      valor<-valor
+    }
+    
+    valor
+  }
+  
+  # Funcion que restaura por defecto los inputs: Experiment
+  resetExperiment <- function() {
+    if (session$userData$logged) {
+      if (file.exists(isolate(paste0(templatepath, "template.csv")))){
+        uploaded_inputs <- read.csv(paste0(templatepath, "template.csv"))
+        
+        for(i in 1:nrow(uploaded_inputs)) {
+          inputId <- as.character(uploaded_inputs[i, 1])
+          type <- as.character(uploaded_inputs[i, 2])
+          create <- as.character(uploaded_inputs[i, 3])
+          
+          if (type == "textInput") {
+            if (inputId == "experimentId") {
+              updateTextInput(session,
+                              inputId = uploaded_inputs$inputId[i],
+                              value = idgenerator())
+            } else {
+              updateTextInput(session,
+                              inputId = uploaded_inputs$inputId[i],
+                              value = uploaded_inputs$value[i])
+            }
+          }
+          
+          if (type == "dateRangeInput") {
+            updateDateRangeInput(session, "fbDesign_project_time_line", 
+                                 inputId = uploaded_inputs$inputId[i], 
+                                 start = Sys.Date() - 2, 
+                                 end = Sys.Date() + 20)
+          }
+          
+          if (type == "selectizeInput" && create == "n") {
+            updateSelectizeInput(session,
+                                 inputId = uploaded_inputs$inputId[i],
+                                 selected = getInputs(uploaded_inputs[i, 4], ""))
+          }
+          
+          if (type == "selectizeInput" && create == "y") {
+            updateSelectizeInput(session,
+                                 inputId = uploaded_inputs$inputId[i],
+                                 selected = getInputs(uploaded_inputs[i, 4], ""),
+                                 choices = getInputs(uploaded_inputs[i, 4], ""),
+                                 options = list('create' = TRUE))
+          }
+          
+          if (type == "textAreaInput") {
+            updateTextAreaInput(session,
+                                inputId = uploaded_inputs$inputId[i],
+                                value = uploaded_inputs$value[i])
+          }
+          
+          if (type == "numericInput") {
+            updateNumericInput(session,
+                               inputId = uploaded_inputs$inputId[i],
+                               value = uploaded_inputs$value[i])
+          }
+        }
+      }
+    } else {
+      shinyalert("Sorry", "You must login to create new fieldbook", type = "info", timer = 1500, showConfirmButton = F)
+    }
+  }
+  #################### END: GENERA NUEVO FIELDBOOK ####################
 
-  # # Save session
-  # observeEvent(input$savefieldbook, {
-  #   if(session$userData$logged){
-  #     expid <- input$experimentId
-  #
-  #     if (file.exists(isolate(paste0(globalpath, "savesession/", expid, ".csv")))) {
-  #       x <- read.csv(paste0(globalpath, "savesession/", expid, ".csv"))
-  #       datecreate <- as.character(x[2,2])
-  #     } else {
-  #       datecreate <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
-  #     }
-  #
-  #     #####
-  #     # inputs_to_save <- c(## Experiment
-  #     #   # Experiment details
-  #     #   "experimentId",
-  #     #   "experimentName",
-  #     #   "experimentProjectName",
-  #     #   "fbDesign_project_time_line",
-  #     #   "designFieldbook_typeExperiment",
-  #     #   "experimentObj",
-  #     #   # Institutions/Organizations/Agencies associated with experiment
-  #     #   "designFieldbook_fundAgencyType",
-  #     #   "fundName_1",
-  #     #   "fundName_2",
-  #     #   "fundName_3",
-  #     #   "fundName_4",
-  #     #   "fundName_5",
-  #     #   "fundName_6",
-  #     #   "fundName_7",
-  #     #   "fundName_8",
-  #     #   "fundName_9",
-  #     #   "numProjEntity",
-  #     #   "projEntity_1",
-  #     #   "projEntity_1_other",
-  #     #   "contCenter_1",
-  #     #   "contCRP_1",
-  #     #   "projEntity_2",
-  #     #   "projEntity_2_other",
-  #     #   "contCenter_2",
-  #     #   "contCRP_2",
-  #     #   "projEntity_3",
-  #     #   "projEntity_3_other",
-  #     #   "contCenter_3",
-  #     #   "contCRP_3",
-  #     #   "projEntity_4",
-  #     #   "projEntity_4_other",
-  #     #   "contCenter_4",
-  #     #   "contCRP_4",
-  #     #   "projEntity_5",
-  #     #   "projEntity_5_other",
-  #     #   "contCenter_5",
-  #     #   "contCRP_5",
-  #     #   "projEntity_6",
-  #     #   "projEntity_6_other",
-  #     #   "contCenter_6",
-  #     #   "contCRP_6",
-  #     #   "projEntity_7",
-  #     #   "projEntity_7_other",
-  #     #   "contCenter_7",
-  #     #   "contCRP_7",
-  #     #   "projEntity_8",
-  #     #   "projEntity_8_other",
-  #     #   "contCenter_8",
-  #     #   "contCRP_8",
-  #     #   "projEntity_9",
-  #     #   "projEntity_9_other",
-  #     #   "contCenter_9",
-  #     #   "contCRP_9",
-  #     #   "projEntity_10",
-  #     #   "projEntity_10_other",
-  #     #   "contCenter_10",
-  #     #   "contCRP_10",
-  #     #   # Experiment leads
-  #     #   "numLeads",
-  #     #   "projLeadEnt_1",
-  #     #   "tLeadCenter_1",
-  #     #   "lead_org_type_1_1",
-  #     #   "lead_org_type_1_1_other",
-  #     #   "leadNameOther_1",
-  #     #   "expLead_1",
-  #     #   "projLeadEnt_2",
-  #     #   "tLeadCenter_2",
-  #     #   "lead_org_type_1_2",
-  #     #   "lead_org_type_1_2_other",
-  #     #   "leadNameOther_2",
-  #     #   "expLead_2",
-  #     #   "projLeadEnt_3",
-  #     #   "tLeadCenter_3",
-  #     #   "lead_org_type_1_3",
-  #     #   "lead_org_type_1_3_other",
-  #     #   "leadNameOther_3",
-  #     #   "expLead_3",
-  #     #   "projLeadEnt_4",
-  #     #   "tLeadCenter_4",
-  #     #   "lead_org_type_1_4",
-  #     #   "lead_org_type_1_4_other",
-  #     #   "leadNameOther_4",
-  #     #   "expLead_4",
-  #     #   "projLeadEnt_5",
-  #     #   "tLeadCenter_5",
-  #     #   "lead_org_type_1_5",
-  #     #   "lead_org_type_1_5_other",
-  #     #   "leadNameOther_5",
-  #     #   "expLead_5",
-  #     #   "projLeadEnt_6",
-  #     #   "tLeadCenter_6",
-  #     #   "lead_org_type_1_6",
-  #     #   "lead_org_type_1_6_other",
-  #     #   "leadNameOther_6",
-  #     #   "expLead_6",
-  #     #   "projLeadEnt_7",
-  #     #   "tLeadCenter_7",
-  #     #   "lead_org_type_1_7",
-  #     #   "lead_org_type_1_7_other",
-  #     #   "leadNameOther_7",
-  #     #   "expLead_7",
-  #     #   "projLeadEnt_8",
-  #     #   "tLeadCenter_8",
-  #     #   "lead_org_type_1_8",
-  #     #   "lead_org_type_1_8_other",
-  #     #   "leadNameOther_8",
-  #     #   "expLead_8",
-  #     #   "projLeadEnt_9",
-  #     #   "tLeadCenter_9",
-  #     #   "lead_org_type_1_9",
-  #     #   "lead_org_type_1_9_other",
-  #     #   "leadNameOther_9",
-  #     #   "expLead_9",
-  #     #   "projLeadEnt_10",
-  #     #   "tLeadCenter_10",
-  #     #   "lead_org_type_1_10",
-  #     #   "lead_org_type_1_10_other",
-  #     #   "leadNameOther_10",
-  #     #   "expLead_10",
-  #     #   ## Personnel
-  #     #   # Personnel associated with the experiment
-  #     #   "npersons",
-  #     #   "personnel1Type",
-  #     #   "personnel1Type_other",
-  #     #   "person1FirstName",
-  #     #   "person1LastName",
-  #     #   "person1Email",
-  #     #   "person1Affiliation",
-  #     #   "person1Center",
-  #     #   "person1Affiliation_other",
-  #     #   "person1ORCID",
-  #     #   "personnel2Type",
-  #     #   "personnel2Type_other",
-  #     #   "person2FirstName",
-  #     #   "person2LastName",
-  #     #   "person2Email",
-  #     #   "person2Affiliation",
-  #     #   "person2Center",
-  #     #   "person2Affiliation_other",
-  #     #   "person2ORCID",
-  #     #   "personnel3Type",
-  #     #   "personnel3Type_other",
-  #     #   "person3FirstName",
-  #     #   "person3LastName",
-  #     #   "person3Email",
-  #     #   "person3Affiliation",
-  #     #   "person3Center",
-  #     #   "person3Affiliation_other",
-  #     #   "person3ORCID",
-  #     #   "personnel4Type",
-  #     #   "personnel4Type_other",
-  #     #   "person4FirstName",
-  #     #   "person4LastName",
-  #     #   "person4Email",
-  #     #   "person4Affiliation",
-  #     #   "person4Center",
-  #     #   "person4Affiliation_other",
-  #     #   "person4ORCID",
-  #     #   "personnel5Type",
-  #     #   "personnel5Type_other",
-  #     #   "person5FirstName",
-  #     #   "person5LastName",
-  #     #   "person5Email",
-  #     #   "person5Affiliation",
-  #     #   "person5Center",
-  #     #   "person5Affiliation_other",
-  #     #   "person5ORCID",
-  #     #   ## Site
-  #     #   "fbDesign_countryTrial",
-  #     #   "designFieldbook_sites",
-  #     #   "fbDesign_inHighLevel",
-  #     #   "fbDesign_inSiteVegetation",
-  #     #   "inSiteDescNotes",
-  #     #   ## Crop
-  #     #   "croppingType",
-  #     #   "cropCommonNameMono",
-  #     #   "cropCommonNameMono_other",
-  #     #   "cultivarNameMono",
-  #     #   "prevCropName",
-  #     #   "prevCropName_other",
-  #     #   "cropsSelected",
-  #     #   "cropCommonName1",
-  #     #   "cropVarietyName1",
-  #     #   "cropCommonName2",
-  #     #   "cropVarietyName2",
-  #     #   "cropCommonName3",
-  #     #   "cropVarietyName3",
-  #     #   "cropCommonName4",
-  #     #   "cropVarietyName4",
-  #     #   "cropCommonName5",
-  #     #   "cropVarietyName5",
-  #     #   "cropCommonName6",
-  #     #   "cropVarietyName6",
-  #     #   "cropCommonName7",
-  #     #   "cropVarietyName7",
-  #     #   "intercropValue_row_crop_1",
-  #     #   "intercropValue_row_crop_2",
-  #     #   "intercropValue_row_crop_3",
-  #     #   "intercropValue_row_crop_4",
-  #     #   "intercropValue_row_crop_5",
-  #     #   "intercropValue_row_crop_6",
-  #     #   "intercropValue_row_crop_7")
-  #     #####
-  #
-  #     inputs_to_save <- rbind(inputsExperiment(), inputsPersonnel(), inputsSite(), inputsCrop())
-  #
-  #     inputs <- NULL
-  #
-  #     # for(input.i in inputs_to_save){
-  #     #   inputs <- append(inputs, input[[input.i]])
-  #     # }
-  #
-  #     b <- readRDS(paste0(globalpath, "inputId1_v1.rds"))
-  #     #b <- dplyr::filter(as.data.frame(b), tabPanel == "Experiment")
-  #     b <- data.frame(b, stringsAsFactors = F)
-  #     bb <- b[[4]]
-  #     print(bb)
-  #
-  #     a <- dplyr::filter(inputs_to_save, type1 == "textInput" | type1 == "numericInput" | type1 == "textAreaInput")
-  #     aa <- a[[1]]
-  #     print(aa)
-  #
-  #     for (i in 1:length(aa)) {
-  #
-  #       #for (j in 1:length(a)) {
-  #         #if (aa[i] %in% bb) {
-  #
-  #           if (is.null(input[[paste0(aa[i])]])) {
-  #             inputs[i] <- ""
-  #           } else {
-  #             inputs[i] <- input[[paste0(aa[i])]]
-  #           }
-  #
-  #         #}
-  #       #}
-  #
-  #     }
-  #
-  #     inputs_data_frame <- data.frame(inputId = aa, value = inputs)
-  #     write.csv(inputs_data_frame,  paste0(globalpath, "savesession/", input$experimentId, ".csv"), row.names = FALSE)
-  #
-  #     # for(i in 1:length(inputs_to_save) ) {
-  #     #   # updateTextInput && updateNumericInput && updateTextAreaInput
-  #     #   if (inputs_to_save[i] == "experimentId" ||
-  #     #       inputs_to_save[i] == "experimentName" ||
-  #     #       inputs_to_save[i] == "experimentProjectName" ||
-  #     #       inputs_to_save[i] == "experimentObj" ||
-  #     #       inputs_to_save[i] == "fundName_1" ||
-  #     #       inputs_to_save[i] == "fundName_2" ||
-  #     #       inputs_to_save[i] == "fundName_3" ||
-  #     #       inputs_to_save[i] == "fundName_4" ||
-  #     #       inputs_to_save[i] == "fundName_5" ||
-  #     #       inputs_to_save[i] == "fundName_6" ||
-  #     #       inputs_to_save[i] == "fundName_7" ||
-  #     #       inputs_to_save[i] == "fundName_8" ||
-  #     #       inputs_to_save[i] == "fundName_9" ||
-  #     #       inputs_to_save[i] == "numProjEntity" ||
-  #     #       inputs_to_save[i] == "projEntity_1_other" ||
-  #     #       inputs_to_save[i] == "projEntity_2_other" ||
-  #     #       inputs_to_save[i] == "projEntity_3_other" ||
-  #     #       inputs_to_save[i] == "projEntity_4_other" ||
-  #     #       inputs_to_save[i] == "projEntity_5_other" ||
-  #     #       inputs_to_save[i] == "projEntity_6_other" ||
-  #     #       inputs_to_save[i] == "projEntity_7_other" ||
-  #     #       inputs_to_save[i] == "projEntity_8_other" ||
-  #     #       inputs_to_save[i] == "projEntity_9_other" ||
-  #     #       inputs_to_save[i] == "projEntity_10_other" ||
-  #     #       inputs_to_save[i] == "numLeads" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_1_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_1" ||
-  #     #       inputs_to_save[i] == "expLead_1" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_2_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_2" ||
-  #     #       inputs_to_save[i] == "expLead_2" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_3_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_3" ||
-  #     #       inputs_to_save[i] == "expLead_3" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_4_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_4" ||
-  #     #       inputs_to_save[i] == "expLead_4" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_5_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_5" ||
-  #     #       inputs_to_save[i] == "expLead_5" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_6_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_6" ||
-  #     #       inputs_to_save[i] == "expLead_6" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_7_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_7" ||
-  #     #       inputs_to_save[i] == "expLead_7" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_8_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_8" ||
-  #     #       inputs_to_save[i] == "expLead_8" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_9_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_9" ||
-  #     #       inputs_to_save[i] == "expLead_9" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_10_other" ||
-  #     #       inputs_to_save[i] == "leadNameOther_10" ||
-  #     #       inputs_to_save[i] == "expLead_10" ||
-  #     #       inputs_to_save[i] == "personnel1Type_other" ||
-  #     #       inputs_to_save[i] == "person1FirstName" ||
-  #     #       inputs_to_save[i] == "person1LastName" ||
-  #     #       inputs_to_save[i] == "person1Email" ||
-  #     #       inputs_to_save[i] == "person1Affiliation_other" ||
-  #     #       inputs_to_save[i] == "person1ORCID" ||
-  #     #       inputs_to_save[i] == "personnel2Type_other" ||
-  #     #       inputs_to_save[i] == "person2FirstName" ||
-  #     #       inputs_to_save[i] == "person2LastName" ||
-  #     #       inputs_to_save[i] == "person2Email" ||
-  #     #       inputs_to_save[i] == "person2Affiliation_other" ||
-  #     #       inputs_to_save[i] == "person2ORCID" ||
-  #     #       inputs_to_save[i] == "personnel3Type_other" ||
-  #     #       inputs_to_save[i] == "person3FirstName" ||
-  #     #       inputs_to_save[i] == "person3LastName" ||
-  #     #       inputs_to_save[i] == "person3Email" ||
-  #     #       inputs_to_save[i] == "person3Affiliation_other" ||
-  #     #       inputs_to_save[i] == "person3ORCID" ||
-  #     #       inputs_to_save[i] == "personnel4Type_other" ||
-  #     #       inputs_to_save[i] == "person4FirstName" ||
-  #     #       inputs_to_save[i] == "person4LastName" ||
-  #     #       inputs_to_save[i] == "person4Email" ||
-  #     #       inputs_to_save[i] == "person4Affiliation_other" ||
-  #     #       inputs_to_save[i] == "person4ORCID" ||
-  #     #       inputs_to_save[i] == "personnel5Type_other" ||
-  #     #       inputs_to_save[i] == "person5FirstName" ||
-  #     #       inputs_to_save[i] == "person5LastName" ||
-  #     #       inputs_to_save[i] == "person5Email" ||
-  #     #       inputs_to_save[i] == "person5Affiliation_other" ||
-  #     #       inputs_to_save[i] == "person5ORCID" ||
-  #     #       inputs_to_save[i] == "inSiteDescNotes" ||
-  #     #       inputs_to_save[i] == "cropCommonNameMono_other" ||
-  #     #       inputs_to_save[i] == "prevCropName_other" ||
-  #     #       inputs_to_save[i] == "cropCommonName1" ||
-  #     #       inputs_to_save[i] == "cropCommonName2" ||
-  #     #       inputs_to_save[i] == "cropCommonName3" ||
-  #     #       inputs_to_save[i] == "cropCommonName4" ||
-  #     #       inputs_to_save[i] == "cropCommonName5" ||
-  #     #       inputs_to_save[i] == "cropCommonName6" ||
-  #     #       inputs_to_save[i] == "cropCommonName7" ||
-  #     #       inputs_to_save[i] == "intercropValue_row_crop_1" ||
-  #     #       inputs_to_save[i] == "intercropValue_row_crop_2" ||
-  #     #       inputs_to_save[i] == "intercropValue_row_crop_3" ||
-  #     #       inputs_to_save[i] == "intercropValue_row_crop_4" ||
-  #     #       inputs_to_save[i] == "intercropValue_row_crop_5" ||
-  #     #       inputs_to_save[i] == "intercropValue_row_crop_6" ||
-  #     #       inputs_to_save[i] == "intercropValue_row_crop_7") {
-  #     #     if (is.null(input[[paste0(inputs_to_save[i])]])) {
-  #     #       inputs[i] <- ""
-  #     #     } else {
-  #     #       inputs[i] <- input[[paste0(inputs_to_save[i])]]
-  #     #     }
-  #     #   }
-  #     #
-  #     #   # updateDateRangeInput
-  #     #   if (inputs_to_save[i] == "fbDesign_project_time_line") {
-  #     #     if (is.null(input[[paste0(inputs_to_save[i])]]) || is.na( input[[paste0(inputs_to_save[i])]])) {
-  #     #       inputs[i] <- ""
-  #     #     } else {
-  #     #       inputs[i] <- paste(input[[paste0(inputs_to_save[i])]], collapse = "&")
-  #     #     }
-  #     #   }
-  #     #
-  #     #   # updateSelectizeInput && updateSelectInput
-  #     #   if (inputs_to_save[i] == "designFieldbook_typeExperiment" ||
-  #     #       inputs_to_save[i] == "designFieldbook_fundAgencyType" ||
-  #     #       inputs_to_save[i] == "projEntity_1" ||
-  #     #       inputs_to_save[i] == "contCenter_1" ||
-  #     #       inputs_to_save[i] == "contCRP_1" ||
-  #     #       inputs_to_save[i] == "projEntity_2" ||
-  #     #       inputs_to_save[i] == "contCenter_2" ||
-  #     #       inputs_to_save[i] == "contCRP_2" ||
-  #     #       inputs_to_save[i] == "projEntity_3" ||
-  #     #       inputs_to_save[i] == "contCenter_3" ||
-  #     #       inputs_to_save[i] == "contCRP_3" ||
-  #     #       inputs_to_save[i] == "projEntity_4" ||
-  #     #       inputs_to_save[i] == "contCenter_4" ||
-  #     #       inputs_to_save[i] == "contCRP_4" ||
-  #     #       inputs_to_save[i] == "projEntity_5" ||
-  #     #       inputs_to_save[i] == "contCenter_5" ||
-  #     #       inputs_to_save[i] == "contCRP_5" ||
-  #     #       inputs_to_save[i] == "projEntity_6" ||
-  #     #       inputs_to_save[i] == "contCenter_6" ||
-  #     #       inputs_to_save[i] == "contCRP_6" ||
-  #     #       inputs_to_save[i] == "projEntity_7" ||
-  #     #       inputs_to_save[i] == "contCenter_7" ||
-  #     #       inputs_to_save[i] == "contCRP_7" ||
-  #     #       inputs_to_save[i] == "projEntity_8" ||
-  #     #       inputs_to_save[i] == "contCenter_8" ||
-  #     #       inputs_to_save[i] == "contCRP_8" ||
-  #     #       inputs_to_save[i] == "projEntity_9" ||
-  #     #       inputs_to_save[i] == "contCenter_9" ||
-  #     #       inputs_to_save[i] == "contCRP_9" ||
-  #     #       inputs_to_save[i] == "projEntity_10" ||
-  #     #       inputs_to_save[i] == "contCenter_10" ||
-  #     #       inputs_to_save[i] == "contCRP_10" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_1" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_1" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_1" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_2" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_2" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_2" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_3" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_3" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_3" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_4" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_4" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_4" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_5" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_5" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_5" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_6" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_6" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_6" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_7" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_7" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_7" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_8" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_8" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_8" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_9" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_9" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_9" ||
-  #     #       inputs_to_save[i] == "projLeadEnt_10" ||
-  #     #       inputs_to_save[i] == "tLeadCenter_10" ||
-  #     #       inputs_to_save[i] == "lead_org_type_1_10" ||
-  #     #       inputs_to_save[i] == "npersons" ||
-  #     #       inputs_to_save[i] == "personnel1Type" ||
-  #     #       inputs_to_save[i] == "person1Affiliation" ||
-  #     #       inputs_to_save[i] == "person1Center" ||
-  #     #       inputs_to_save[i] == "personnel2Type" ||
-  #     #       inputs_to_save[i] == "person2Affiliation" ||
-  #     #       inputs_to_save[i] == "person2Center" ||
-  #     #       inputs_to_save[i] == "personnel3Type" ||
-  #     #       inputs_to_save[i] == "person3Affiliation" ||
-  #     #       inputs_to_save[i] == "person3Center" ||
-  #     #       inputs_to_save[i] == "personnel4Type" ||
-  #     #       inputs_to_save[i] == "person4Affiliation" ||
-  #     #       inputs_to_save[i] == "person4Center" ||
-  #     #       inputs_to_save[i] == "personnel5Type" ||
-  #     #       inputs_to_save[i] == "person5Affiliation" ||
-  #     #       inputs_to_save[i] == "person5Center" ||
-  #     #       inputs_to_save[i] == "fbDesign_countryTrial" ||
-  #     #       inputs_to_save[i] == "designFieldbook_sites" ||
-  #     #       inputs_to_save[i] == "fbDesign_inHighLevel" ||
-  #     #       inputs_to_save[i] == "fbDesign_inSiteVegetation" ||
-  #     #       inputs_to_save[i] == "croppingType" ||
-  #     #       inputs_to_save[i] == "cropCommonNameMono" ||
-  #     #       inputs_to_save[i] == "cultivarNameMono" ||
-  #     #       inputs_to_save[i] == "prevCropName" ||
-  #     #       inputs_to_save[i] == "cropsSelected" ||
-  #     #       inputs_to_save[i] == "cropVarietyName1" ||
-  #     #       inputs_to_save[i] == "cropVarietyName2" ||
-  #     #       inputs_to_save[i] == "cropVarietyName3" ||
-  #     #       inputs_to_save[i] == "cropVarietyName4" ||
-  #     #       inputs_to_save[i] == "cropVarietyName5" ||
-  #     #       inputs_to_save[i] == "cropVarietyName6" ||
-  #     #       inputs_to_save[i] == "cropVarietyName7") {
-  #     #     if (is.null(input[[paste0(inputs_to_save[i])]]) || is.na( input[[paste0(inputs_to_save[i])]])) {
-  #     #       inputs[i] <- ""
-  #     #     } else {
-  #     #       inputs[i] <- paste(input[[paste0(inputs_to_save[i])]], collapse = "&")
-  #     #     }
-  #     #   }
-  #     # }
-  #
-  #     #print(inputs)
-  #
-  #     # inputs_data_frame <- data.frame(inputId = inputs_to_save, value = inputs)
-  #     #
-  #     # nr <- data.frame(inputId = "user", value = session$userData$userMail)
-  #     # nr2 <- data.frame(inputId = "datec", value = datecreate)
-  #     # inputs_data_frame <- rbind(nr, nr2, inputs_data_frame)
-  #     #
-  #     # write.csv(inputs_data_frame,  paste0(globalpath, "savesession/", input$experimentId, ".csv"), row.names = FALSE)
-  #     shinyalert("Success", "Saved successfully", type = "success", timer = 1500, showConfirmButton = F)
-  #     #output$text1 <- renderText({"Saved successfully"})
-  #
-  #   } else {
-  #     shinyalert("Sorry", "You must login to save avance", type = "info", timer = 1500, showConfirmButton = F)
-  #     #output$text1 <- renderText({"You must login to save avance"})
-  #   }
-  #
-  # })
-
-
-  ##### End Modulo: Save fieldbook ######
-
-
-
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   # observeEvent(input$openfieldbook, {
   #   onclick = "openTab('opensession')"
@@ -810,98 +835,15 @@ server_design_agrofims <- function(input, output, session, values){
     id
   }
 
-  # input Exoeriment ID
+  # input Experiment ID
   output$experimentIdUI <- renderUI({
     disabled(textInput(inputId = "experimentId", label = "Experiment ID",
                        value = idgenerator()))
   })
+  
+  
 
-
-
-
-  ##### Muestra la grilla de sesiones
-
-  # has.new.files <- function() {
-  #   unique(list.files(globalpath))
-  # }
-  # get.files <- function() {
-  #   list.files(globalpath)
-  # }
-  #
-  # my_files <- reactivePoll(10, session, checkFunc=has.new.files, valueFunc=get.files)
-  # df <- data.frame()
-  #
-  # sessionVals <- reactiveValues()
-  # sessionVals$aux <- data.frame()
-
-  # observeEvent(input$refreshsession,{
-  #   a <- c()
-  #   b <- c()
-  #   c <- c()
-  #   d <- c()
-  #
-  #   #if (length(my_files())>1) {
-  #   for (i in 1:length(my_files())) {
-  #     q <- my_files()[i]
-  #     q <- unlist(strsplit(q, "[.]"))
-  #     a[i] <- q[1]
-  #     #print(my_files())
-  #     fl <- read.csv(paste0(globalpath, my_files()[i]))
-  #     b[i] <- as.character(fl[2,2])
-  #     c[i] <- as.character(file.info(paste0(globalpath, my_files()[i]))$ctime)
-  #     d[i] <- as.character(file.info(paste0(globalpath, my_files()[i]))$mtime)
-  #   }
-  #
-  #   df <- data.frame(a, b, c, d, stringsAsFactors=FALSE)
-  #   colnames(df) <- c("Experiment.ID", "Experiment.name", "Date.created", "Date.modified")
-  #   sessionVals$aux <- data.frame(df)
-  #   #}
-  #
-  # })
-
-  # output$dtsession <- DT::renderDataTable({
-  #   DT::datatable(sessionVals$aux, selection = 'single', options = list(
-  #     pageLength = 5
-  #   ))
-  # })
-  #
-  # selectedRow <- eventReactive(input$load_inputs,{
-  #   id <- input$dtsession_rows_selected
-  #   sessionVals$aux[id,1]
-  # })
-
-
-  #####
-
-
-  # funcion que retorna el path junto con ID en el input para cargar la sesion
-  # pathsession <- reactive({
-  #   path <- ""
-  #   path <- paste0(globalpath, input$experimentId, ".csv")
-  #   path
-  # })
-
-  # pathsession <- "/home/obenites/HIDAP_SB_1.0.0/hidap/inst/hidap_agrofims/www/internal_files/savesession/ivan.csv"
-  # pathsession <- paste0("/home/obenites/HIDAP_SB_1.0.0/hidap/inst/hidap_agrofims/www/internal_files/savesession/", input$experimentId)
-
-
-  # updateTextInput(session, "fundName_1", value = "Institution name"),
-  # updateTextInput(session, "fundName_2", value = "International Potato Center"),
-
-  # Clean inputs to new fieldbook
-  emptyInputs <- function() {
-    updateTextInput(session, "experimentId", value = idgenerator())
-    updateTextInput(session, "experimentName", value = "")
-    updateTextInput(session, "experimentProjectName", value = "")
-    updateDateRangeInput(session, "fbDesign_project_time_line", "Experiment date", start = Sys.Date() - 2, end = Sys.Date() + 20)
-    updateSelectizeInput(session, "designFieldbook_typeExperiment", selected = "")
-    updateTextAreaInput(session, "experimentObj", value = "")
-  }
-
-  # New fieldbook button
-  observeEvent(input$newfieldbook, {
-    emptyInputs()
-  })
+  
 
 
 
@@ -6213,7 +6155,8 @@ server_design_agrofims <- function(input, output, session, values){
   traitsVals$selectedRows <- list()
   traitsVals$Data <- data.table()
 
-  dict <- readRDS("/home/obenites/HIDAP_SB_1.0.0/hidap/inst/hidap_agrofims/www/internal_files/crop_measurements_v4.rds")
+  #dict <- readRDS("/home/obenites/HIDAP_SB_1.0.0/hidap/inst/hidap_agrofims/www/internal_files/crop_measurements_v4.rds")
+  dict <- readRDS(paste0(globalpath, "crop_measurements_v4.rds"))
   dict <- as.data.frame(dict, stringsAsFactors=FALSE)
 
   observe({
@@ -6498,7 +6441,8 @@ server_design_agrofims <- function(input, output, session, values){
   traitsVals2$Data <- data.table()
 
   res = reactive({
-    dict2 <- readRDS("/home/obenites/HIDAP_SB_1.0.0/hidap/inst/hidap_agrofims/www/internal_files/crop_measurements_v1_cbox.rds")
+    #dict2 <- readRDS("/home/obenites/HIDAP_SB_1.0.0/hidap/inst/hidap_agrofims/www/internal_files/crop_measurements_v1_cbox.rds")
+    dict2 <- readRDS(paste0(globalpath, "crop_measurements_v1_cbox.rds"))
     dict2 <- as.data.frame(dict2, stringsAsFactors=FALSE)
   })
 

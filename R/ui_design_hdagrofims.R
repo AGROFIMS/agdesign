@@ -235,10 +235,11 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     #   column(6, style = "margin-top: -16px; margin-bottom: 16px;", h1("Experiment description")),
     #   column(6, align = "right", style = "margin-top: 11px;",
     #          useShinyalert(),
+    #          #actionButton("xtest", "Test"),
     #          actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
-    #          actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('opensession')"),
+    #          actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('openFieldbook')"),
     #          actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
-    #          actionButton("xtest", "xtest")
+    #          htmlOutput("lastsaved")
     #          #uiOutput("saveUI")
     #   )
     # ),
@@ -354,6 +355,20 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
 
     tags$style("#dt_sel {
                     transform: scale(1.5);
+               }"),
+    
+    tags$style("#lastsaved {
+                    font-style: italic;
+                    font-size: 13px;
+                    font-weight: bold;
+                    margin-top: 4px;
+               }"),
+    
+    tags$style("#lastsaved_i {
+                    font-style: italic;
+                    font-size: 13px;
+                    font-weight: bold;
+                    margin-top: 4px;
                }"),
 
     tags$style(HTML("
