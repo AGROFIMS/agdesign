@@ -267,3 +267,38 @@ NULL
 #' @source CGIAR Big Data Platform, Bioversity, International Potato Center CIP, CIAT,  CGIAR
 NULL
 
+
+#' @name pheno_vars
+#' @title pheno_vars phenological table of variables
+#' @docType data
+#' @aliases pheno_vars
+#' @description This list contains the list of installation sheet data. Users can pick up elements on this list trough ShinyTree
+#' @references This data is related to HiDAP-Agromfims crop template
+#' @usage pheno_varsov
+#' @format A list of installation sheet data in HiDAP-AGROFIMS
+#' @source CGIAR Big Data Platform, Bioversity, International Potato Center CIP, CIAT,  CGIAR
+NULL
+
+
+#' @name weather_vars
+#' @title weather_vars weather soil_data
+#' @docType data
+#' @aliases weather_vars
+#' @description This list contains the list of installation sheet data. Users can pick up elements on this list trough ShinyTree
+#' @references This data is related to HiDAP-Agromfims crop template
+#' @usage weather_vars
+#' @format A list of installation sheet data in HiDAP-AGROFIMS
+#' @source CGIAR Big Data Platform, Bioversity, International Potato Center CIP, CIAT,  CGIAR
+NULL
+
+
+#' @name soil_data
+#' @title soil_data soil soil_data
+#' @docType data
+#' @aliases soil_data
+#' @description This list contains the list of installation sheet data. Users can pick up elements on this list trough ShinyTree
+#' @references This data is related to HiDAP-Agromfims crop template
+#' @usage soil_data
+#' @format A list of installation sheet data in HiDAP-AGROFIMS
+#' @source CGIAR Big Data Platform, Bioversity, International Potato Center CIP, CIAT,  CGIAR
+NULL

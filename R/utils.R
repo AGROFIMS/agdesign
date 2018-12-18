@@ -353,3 +353,367 @@ getDateInput<- function(input_date){
 }
 
 
+
+#' Get input id derived from AddButton event 
+#' @author Omar Benites
+#' @param addId character vector input id(s)
+#' @param pattern character pattern to replace
+#' @param replacement character value to replace some pattern
+#' 
+#' @export
+#' 
+getAddInputId <- function(addId = "", pattern= "FA_", replacement=""){
+  
+  out <- str_replace_all(addId, pattern = pattern, replacement = replacement)
+  
+}
+
+
+
+#' Get user's values from single input forms
+#'
+#' @param input input Character or Shiny input variable (\code{input$id}), conjointly, with the id. Ex. \code{input$FundingAgencyName}
+#' @param type character Three type of inputs: \code{select} for select and selectize inputs, \code{date} for date inputs, and \code{text}, for text input
+#' @param default character vector Value b
+#' @param multiple logical \code{TRUE} for multiple input values, otherwise \code{FALSE}   
+#' @param collapsed logical \code{TRUE} to separate
+#' @param format character Export \code{vector} or \code{dataframe }
+#' @param label character label name that appears in the user interface
+#' @importFrom stringr str_trim
+#' @importFrom tibble add_column
+#' @export 
+
+map_singleform_values <- function(input, type= c("select","combo box","date","text","text input"), default=NULL, multiple=FALSE, 
+                                  collapsed= FALSE, format = c("vector","data.frame"), label = "Label"){
+  
+  format <- match.arg(format)
+  type <- match.arg(type)
+  
+  #Type of input
+  if(type=="select" || type=="combo box"){
+    
+      if(is.null(input) || length(input)==0 || is.na(input)){
+        
+        input<- ""  
+        if(!is.null(default)){
+          input <- default
+        } 
+      } else {
+          input<- input
+      }
+     
+      
+    
+  } 
+  else if(type =="date"){
+    
+        if(length(input)==0 || is.null(input) || is.na(input) ){
+              input <- ""
+        } else {
+              input<- paste(input) #cast from date to character
+        }
+    
+  } 
+  else if(type =="text" || type =="text input") {
+    
+        if(length(input)==0 || is.null(input) || is.na(input) ){
+          input <- ""
+        } else {
+          input<- str_trim(input, side = "both") #trim whitespaces from string chains
+        }
+  }
+  
+  ##collapse values
+  if(collapsed){
+    res <- paste(input, collapse = ", ")
+  } 
+  else {
+    res <- paste(input)
+  }
+  
+  #output format
+  if(format=="vector"){
+    res<- res
+  }
+  if(format=="data.frame"){
+    label <- rep(label, length(res))
+    res <- data.frame(res) %>% tibble::add_column(label ,.before = 1)
+  }
+  res
+}
+
+
+
+#' Mimic the functionality of map functions and transform inputs by applying a function to each element and returning a vector the same length as the input.
+#' 
+#' @param input shinyInput input values from server side 
+#' @param id_chr character character pattern id
+#' @param id_rand character vector character random id
+#' @param format character object format to be exported. "vector" for vector data structure or "data.frame" for data frame structure 
+#' @param lbl characer Optional argument, in case format = "data.frame"
+#' @importFrom plyr compact
+#' @importFrom tibble rownames_to_column
+#' @export
+#' 
+map_values <- function(input, id_chr="designFieldbook_fundAgencyType_", id_rand, 
+                       format = c("vector","data.frame"), lbl = NULL){
+  
+  format <- match.arg(format)
+  
+  funAgenVals <- vector(mode = "list", length = length(id_rand))
+  for(i in id_rand){
+    #print("en la functions")
+    #print(id)
+    if(is.null(input[[paste0(id_chr, i)]])){
+      funAgenVals[[i]] <- "-"        
+    } else if ( input[[paste0(id_chr, i)]]=="Other"){
+      funAgenVals[[i]] <- input[[paste0(id_chr, i, "_other")]] 
+          #in case we have another NULL value
+          if(is.null(funAgenVals[[i]])){
+            funAgenVals[[i]] <-  "-"  
+          }
+      #funAgenVals[[i]] <- setdiff(funAgenVals[[i]], "")
+    } else {
+      funAgenVals[[i]] <- input[[paste0(id_chr, i)]]
+        if(funAgenVals[[i]]==""){
+          funAgenVals[[i]] <- "-"
+        }else {
+          funAgenVals[[i]] <- setdiff(funAgenVals[[i]], "")
+        }
+          
+      #funAgenVals[[i]] <- ifelse(funAgenVals[[i]]=="", "", setdiff(funAgenVals[[i]]) ) #remove ("") element from funAgenVals 
+    }
+
+  }
+  funAgenVals <- plyr::compact(funAgenVals) #remove NULL values frm List
+  res <-unlist(funAgenVals) #unlist and get input values
+  #print("fun agel vals")
+  #print(res)
+  if(format=="vector"){
+    res<- res
+  }
+  if(format=="data.frame") {
+    res <- as.data.frame(res) %>% as.tibble() #tibble::rownames_to_column()
+    #print("table")
+    #print(funAgenVals)
+    label<- paste(lbl, 1:nrow(res))
+    res <- tibble::add_column(res , label,.before = 1) #add label column in the second position
+  }
+  res
+}
+
+
+#' Mimic the functionality of map functions and transform factor-group inputs into data frame
+#' 
+#' @param input shinyInput input values from server side 
+#' @param id_chr character character pattern id
+#' @param id_rand character vector character random id
+#  @param format character object format to be exported. "vector" for vector data structure or "data.frame" for data frame structure 
+#' @param lbl characer Optional argument, in case format = "data.frame"
+#' @export
+#' 
+
+map_fgroup_values <- function(input, id_chr ="sel_factor_", id_rand,  lbl = "Factor " ){
+  
+  designVals <- data.frame(gr1= NA, gr2= NA, gr3= NA)
+  for(i in 1:length(id_rand)){
+    for(j in 1:3){
+      if(is.null(input[[paste0(id_chr, id_rand[i], "_", j)]])){
+        designVals[i,j] <- "-" #empty values
+      } else {
+        designVals[i,j] <- input[[paste0(id_chr, id_rand[i], "_", j)]]
+      }
+    }
+  }
+  lbl <- paste(lbl, 1:nrow(designVals)) 
+  designVals <- tibble::add_column(designVals , lbl, .before = 1)
+  names(designVals)<- c("NUM","GROUP","SUBGROUP","FACTOR")
+  designVals
+}  
+
+
+#' Mimic the functionality of map functions and transform level inputs into data frame
+#' 
+#' @param input shinyInput input values from server side 
+#' @param isf character If \code{isf=="yes"} is full factorial, otherwise \code{isf=="no"} is for non-full factorial
+#' @param id_type_dt data.frame Table with type of Factor and types of input form: \code{combo box}, \code{text input}, and \code{date}  
+#  @param id_chr character character pattern id
+#' @param id_rand character vector character random id
+#  @param format character object format to be exported. "vector" for vector data structure or "data.frame" for data frame structure 
+#' @param ntrt If \code{isf=="no"}, introduce the number of treatments in non-full factorials arragements.
+#' @param lbl characer Optional argument, in case format = "data.frame"
+#' @export
+#'
+
+map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("levels_", "select_factor_treatment_"),
+                             id_rand, ntrt=2, lbl= "f"){
+  
+  
+  #levelVals <- vector(mode = "list")
+  isf <- match.arg(isf)
+  id_type <- id_type_dt[,"FORM"] #get column with type of input form
+  fct <- id_type_dt[,"FACTOR"] #get vector with selected factors
+  
+  #id_chr<- match.arg(id_chr)
+  if(isf=="yes"){
+    levelVals <- vector(mode = "list")  
+    levelVals_s <- levelVals_e <- levelVals
+    numlvl <- c()
+    datelevelVals <- NULL
+    
+    for(i in 1:length(id_rand)){
+    
+      numlvl <- input[[paste0("numLevels_", id_rand[i])]]   #number of levels
+      #for(j in 1:length(id_type)){
+        
+        if(id_type[i]=="combo box" || id_type[i]=="text input"){
+            id_chr <- "levels_"
+            if(is.null(input[[paste0(id_chr, id_rand[i])]] )){
+              levelVals[[i]] <- "-"
+            } else {
+              levelVals[[i]] <- input[[paste0(id_chr, id_rand[i])]]
+            }          
+        } 
+        else if(id_type[i]=="date" && fct[i]=="Start date" && !is.null(numlvl) ){
+            id_chr_s <- "factor_start_date_"
+            
+                for(k in 1:numlvl){ 
+                       if(is.null(input[[paste0(id_chr_s, id_rand[i],"_",k)]])){
+                         print("no pasa")
+                         print(input[[paste0(id_chr_s, id_rand[i],"_",k)]]) 
+                         datelevelVals[k] <- "-"
+                       } else {
+                         print("pasa")
+                         print(input[[paste0(id_chr_s, id_rand[i],"_",k)]])
+                         datelevelVals[k] <- as.character(input[[paste0(id_chr_s, id_rand[i],"_",k)]])
+                       }
+                }
+            levelVals[[i]] <- datelevelVals 
+        } 
+        else if(id_type[i]=="date" && fct[i]=="End date" && !is.null(numlvl)) {
+              id_chr_e <- "factor_end_date_" 
+                   for(k in 1:numlvl){ 
+                           if(is.null(input[[paste0(id_chr_e, id_rand[i],"_",numlvl)]])){
+                              datelevelVals[k] <- "-"
+                           } else {
+                              datelevelVals[k] <- as.character(input[[paste0(id_chr_e, id_rand[i],"_",numlvl)]])
+                           }
+                   }
+              levelVals[[i]] <- datelevelVals 
+      }
+           
+      
+    }
+    out<-levelVals
+  }
+  
+  
+  
+  if(isf=="no"){
+    #non full factorial
+    dtnoflvl <- data.frame()
+    for(i in 1:length(id_rand)){
+      for(j in 1:ntrt){
+        
+        if(id_type[i]=="date"){
+          id_chr<- "date_factor_treatment_"
+        } else if(id_type[i]=="text input"){
+          id_chr<- "input_NFF_"
+        } else if(id_type[i]=="combo box"){
+          id_chr<- "select_factor_treatment_"
+        }
+        
+        if(is.null(input[[paste0(id_chr, id_rand[i], "_", j)]] ) ){
+          dtnoflvl[i,j] <- "-"
+        } else {
+          dtnoflvl[i,j] <- map_singleform_values(input[[paste0(id_chr, id_rand[i], "_", j)]])
+        }
+
+      }
+    }
+    out <- t(dtnoflvl) %>% as.tibble()  #transpose and make a list
+    nms <- paste0(lbl, 1:ncol(out)) #header's name
+    names(out)<- nms
+    out<- out %>% as.list()
+  }
+  out
+  
+  
+  
+  #levelVals <- vector(mode = "list")
+  # isf<- match.arg(isf)
+  # id_chr<- match.arg(id_chr)
+  # 
+  # if(isf=="yes"){
+  # levelVals <- vector(mode = "list")  
+  # for(i in 1:length(id_rand)){
+  #     if(is.null( input[[paste0(id_chr, id_rand[i])]] )){
+  #       levelVals[[i]] <- "-"
+  #     } else {
+  #       levelVals[[i]] <- input[[paste0(id_chr, id_rand[i])]]
+  #     }
+  # }
+  #   out<-levelVals
+  # }
+  # 
+  # 
+  # 
+  # if(isf=="no"){
+  #   #non full factorial
+  #   dtnoflvl <- data.frame()
+  #   for(i in 1:length(id_rand)){
+  #     for(j in 1:ntrt){
+  #         if(is.null( input[[paste0(id_chr, id_rand[i], "_", j)]])){
+  #           dtnoflvl[i,j] <- "-"
+  #         } else {
+  #           dtnoflvl[i,j] <- input[[paste0(id_chr, id_rand[i], "_", j)]]
+  #         }
+  #     }
+  #   }
+  #  out <- t(dtnoflvl) %>% as.tibble()  #transpose and make a list
+  #  nms <- paste0(lbl, 1:ncol(out)) #header's name
+  #  names(out)<- nms
+  #  out<- out %>% as.list()
+  # }
+  # out
+
+}
+
+
+
+
+#' Get factor and levels from design interface and type of factorial
+#' 
+#' @param input shinyInput Variable defined in \code{server(input,output)}
+#' @param designVars reactiveValues  Reactive expression that contains all the ID's related to add, delete and remove buttons. 
+#' @param tf character type of factorial. \code{yes} equivalent to full-factorial arragement, otherwise, \code{no} is equivalent to non-full factorial
+#' @export
+#' 
+get_fctlvl_values <- function(input, designVars, tf= c("yes","no")){
+  
+  tf <- match.arg(tf) #type of factorial (full or non-full)
+  
+  #Type of design
+  if(tf=="yes"){ #full factorial arragement
+    id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
+    nf <- length(id_ff_rand)
+    #factors and levels
+    fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
+    flvl <- map_level_values(input= input, isf = tf, id_chr ="levels_", id_rand = id_ff_rand, lbl= "Level")
+    #fb <- try(fb$book)
+  } 
+  if(tf=="no"){ #non full-factorial design
+    id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
+    nf <- length(id_nff_rand)
+    #factors and levels
+    #fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
+    fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
+    flvl <- map_level_values(input= input, isf=tf, id_chr ="select_factor_treatment_", id_rand = id_nff_rand, 
+                             ntrt = ntrt, lbl= "f")
+  }
+  #TODO: hacer una sola lista y cambiar los nombres de los items con fg$lbl
+  out<- list(fg=fg, lvl=flvl, nf= nf)
+  
+}
+
+

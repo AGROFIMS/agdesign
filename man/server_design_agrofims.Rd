@@ -19,5 +19,5 @@ server_design_agrofims(input, output, session, values)
 Design field book for HIDAP-AGROFIMS
 }
 \author{
-Omar Benites
+Omar Benites / Ivan Perez / Raul Arias
 }

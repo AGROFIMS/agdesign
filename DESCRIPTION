@@ -4,14 +4,19 @@ Version: 0.0.1
 Authors@R: c( 
           person("Omar", "Benites-Alfaro", email = "obacc07@gmail.com", role = c("aut", "cre")),
           person("Ivan", "Perez-Masias", , "ivanpe834@gmail.com", "aut"),
+          person("Raul", "Arias-Levano", , "r.arias@uni.edu.pe", "aut"),
           person("CIP-RIU", "Research Informatic", , "cip-riu@cgiar.org", "cph", comment = "Partial copyright holder of the R code"),
           person("International Potato Center (CIP)", role = "cph", comment = "Partial copyright holder of the R code")
           )
 Description: Provide the user interface and server functionalities for an standarized data collection in agronomy trials. 
              It incorporates field operations forms based on crop and agronomy ontologies, statistical designs for factorial and non-full factorial
              and the exportation of the experiment in excel format and mobile application formats.
+Imports: plyr,
+         tibble,
+         stringr
 Depends: R (>= 3.3.1)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
+Suggests: testthat
