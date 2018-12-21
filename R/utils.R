@@ -373,6 +373,7 @@ getAddInputId <- function(addId = "", pattern= "FA_", replacement=""){
 #' Get user's values from single input forms
 #'
 #' @param input input Character or Shiny input variable (\code{input$id}), conjointly, with the id. Ex. \code{input$FundingAgencyName}
+#' @param input_other input In case of having \code{Other} as entry value in the combo box
 #' @param type character Three type of inputs: \code{select} for select and selectize inputs, \code{date} for date inputs, and \code{text}, for text input
 #' @param default character vector Value b
 #' @param multiple logical \code{TRUE} for multiple input values, otherwise \code{FALSE}   
@@ -383,8 +384,9 @@ getAddInputId <- function(addId = "", pattern= "FA_", replacement=""){
 #' @importFrom tibble add_column
 #' @export 
 
-map_singleform_values <- function(input, type= c("select","combo box","date","text","text input"), default=NULL, multiple=FALSE, 
-                                  collapsed= FALSE, format = c("vector","data.frame"), label = "Label"){
+map_singleform_values <- function(input, input_other, type= c("select","combo box","date","text","text input", "numeric"), 
+                                  default=NULL, multiple=FALSE,collapsed= FALSE, format = c("vector","data.frame"), 
+                                  label = "Label"){
   
   format <- match.arg(format)
   type <- match.arg(type)
@@ -392,18 +394,16 @@ map_singleform_values <- function(input, type= c("select","combo box","date","te
   #Type of input
   if(type=="select" || type=="combo box"){
     
-      if(is.null(input) || length(input)==0 || is.na(input)){
-        
+      if(is.null(input) || length(input)==0 || all(is.na(input))){
         input<- ""  
         if(!is.null(default)){
           input <- default
         } 
+      } else if(length(input)==1 && input=="Other"){ #for single input values
+        input<- input_other
       } else {
-          input<- input
+        input<- input
       }
-     
-      
-    
   } 
   else if(type =="date"){
     
@@ -422,6 +422,14 @@ map_singleform_values <- function(input, type= c("select","combo box","date","te
           input<- str_trim(input, side = "both") #trim whitespaces from string chains
         }
   }
+  else if(type =="numeric"){
+    if(is.null(input) || length(input)==0 || is.na(input)){
+      input <- ""
+    } else {
+      input <- as.character(input)
+    }
+    
+  } 
   
   ##collapse values
   if(collapsed){
@@ -455,24 +463,28 @@ map_singleform_values <- function(input, type= c("select","combo box","date","te
 #' @importFrom tibble rownames_to_column
 #' @export
 #' 
-map_values <- function(input, id_chr="designFieldbook_fundAgencyType_", id_rand, 
+map_values <- function(input, id_chr="", id_rand, 
                        format = c("vector","data.frame"), lbl = NULL){
-  
+  #id_chr="designFieldbook_fundAgencyType_name_"
   format <- match.arg(format)
   
   funAgenVals <- vector(mode = "list", length = length(id_rand))
   for(i in id_rand){
-    #print("en la functions")
-    #print(id)
+
     if(is.null(input[[paste0(id_chr, i)]])){
       funAgenVals[[i]] <- "-"        
-    } else if ( input[[paste0(id_chr, i)]]=="Other"){
-      funAgenVals[[i]] <- input[[paste0(id_chr, i, "_other")]] 
-          #in case we have another NULL value
-          if(is.null(funAgenVals[[i]])){
-            funAgenVals[[i]] <-  "-"  
+      
+    } else if (input[[paste0(id_chr, i)]]=="Other"){
+      
+      if(id_chr=="projLeadEnt_"){ #special cases 1 (for project lead) : projLeadEnt ==
+        funAgenVals[[i]] <-  map_singleform_values(input[[paste0("lead_org_type_1_", i)]],type = "select", format="vector")
+      } else { #the normal case for Others
+        funAgenVals[[i]] <- input[[paste0(id_chr, i, "_other")]]  
+          if(is.null(funAgenVals[[i]])){ #special cases 1 :  #in case we have another NULL value
+            funAgenVals[[i]] <-  "-"   
           }
-      #funAgenVals[[i]] <- setdiff(funAgenVals[[i]], "")
+      }
+    
     } else {
       funAgenVals[[i]] <- input[[paste0(id_chr, i)]]
         if(funAgenVals[[i]]==""){
@@ -484,6 +496,24 @@ map_values <- function(input, id_chr="designFieldbook_fundAgencyType_", id_rand,
       #funAgenVals[[i]] <- ifelse(funAgenVals[[i]]=="", "", setdiff(funAgenVals[[i]]) ) #remove ("") element from funAgenVals 
     }
 
+    # Special cases 2 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+    if(input[[paste0("projLeadEnt_",i)]]=="Other" &&  id_chr=="tLeadCenter_" && length(input[[paste0("tLeadCenter_", i)]])>=0) { 
+      #special cases 2 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+      funAgenVals[[i]] <- "dasda" #input[[paste0("leadNameOther_", i)]] 
+    }  #Special cases 3 (get Experiment, lead organization name): projLeadEnt == NULO &  id_chr=="tLeadCenter_" & tLeadCenter=="NULL
+    
+ 
+    
+    # if(is.null(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_",i)]])  ) { 
+    #   print("prjlead extre case")
+    #   print(id_chr)
+    #   print(input[[paste0("projLeadEnt_",i)]])
+    #   print(length(input[[paste0("tLeadCenter_", i)]]))
+    #   
+    #    #special cases 2 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+    #    funAgenVals[[i]] <- "-" #input[[paste0(id_chr, i)]] 
+    # }
+    
   }
   funAgenVals <- plyr::compact(funAgenVals) #remove NULL values frm List
   res <-unlist(funAgenVals) #unlist and get input values
@@ -565,8 +595,11 @@ map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("l
     
       numlvl <- input[[paste0("numLevels_", id_rand[i])]]   #number of levels
       #for(j in 1:length(id_type)){
-        
-        if(id_type[i]=="combo box" || id_type[i]=="text input"){
+          
+        if(is.na(id_type[i]) || is.null(id_type[i])){
+          levelVals[[i]] <- "-"
+        } 
+        else if(id_type[i]=="combo box" || id_type[i]=="text input"){
             id_chr <- "levels_"
             if(is.null(input[[paste0(id_chr, id_rand[i])]] )){
               levelVals[[i]] <- "-"
@@ -607,7 +640,8 @@ map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("l
     out<-levelVals
   }
   
-  
+  # id_chr<-"input_factor_treatment_"
+  #input_factor_treatment_KDIDZIVW_1
   
   if(isf=="no"){
     #non full factorial
@@ -615,18 +649,31 @@ map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("l
     for(i in 1:length(id_rand)){
       for(j in 1:ntrt){
         
-        if(id_type[i]=="date"){
-          id_chr<- "date_factor_treatment_"
-        } else if(id_type[i]=="text input"){
-          id_chr<- "input_NFF_"
-        } else if(id_type[i]=="combo box"){
-          id_chr<- "select_factor_treatment_"
+        if(is.na(id_type[i]) || is.null(id_type[i])){ #in case of missing values or not mapped values
+          #id_chr<- "select_factor_treatment_" #by default
+          id_chr <- NULL
+          
+        }
+        else if(id_type[i]=="date"){
+          #id_chr<- "date_factor_treatment_"
+          id_chr<-"input_factor_treatment_"
+          print(id_chr)
+        } 
+        else if(id_type[i]=="text input"){
+          #id_chr<- "input_NFF_"
+          id_chr<-"input_factor_treatment_"
+          print(id_chr)
+        } 
+        else if(id_type[i]=="combo box"){
+          id_chr<-"input_factor_treatment_"
+          #id_chr<- "select_factor_treatment_"
+          print(id_chr)
         }
         
-        if(is.null(input[[paste0(id_chr, id_rand[i], "_", j)]] ) ){
+        if(is.null(input[[paste0(id_chr, id_rand[i], "_", j)]]) || is.null(id_chr) ){
           dtnoflvl[i,j] <- "-"
         } else {
-          dtnoflvl[i,j] <- map_singleform_values(input[[paste0(id_chr, id_rand[i], "_", j)]])
+          dtnoflvl[i,j] <- map_singleform_values(input[[paste0(id_chr, id_rand[i], "_", j)]], type =  id_type[i])
         }
 
       }

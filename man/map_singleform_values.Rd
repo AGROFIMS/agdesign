@@ -4,12 +4,15 @@
 \alias{map_singleform_values}
 \title{Get user's values from single input forms}
 \usage{
-map_singleform_values(input, type = c("select", "combo box", "date", "text",
-  "text input"), default = NULL, multiple = FALSE, collapsed = FALSE,
-  format = c("vector", "data.frame"), label = "Label")
+map_singleform_values(input, input_other, type = c("select", "combo box",
+  "date", "text", "text input", "numeric"), default = NULL,
+  multiple = FALSE, collapsed = FALSE, format = c("vector", "data.frame"),
+  label = "Label")
 }
 \arguments{
 \item{input}{input Character or Shiny input variable (\code{input$id}), conjointly, with the id. Ex. \code{input$FundingAgencyName}}
+
+\item{input_other}{input In case of having \code{Other} as entry value in the combo box}
 
 \item{type}{character Three type of inputs: \code{select} for select and selectize inputs, \code{date} for date inputs, and \code{text}, for text input}
 

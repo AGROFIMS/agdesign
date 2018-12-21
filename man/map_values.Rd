@@ -4,8 +4,8 @@
 \alias{map_values}
 \title{Mimic the functionality of map functions and transform inputs by applying a function to each element and returning a vector the same length as the input.}
 \usage{
-map_values(input, id_chr = "designFieldbook_fundAgencyType_", id_rand,
-  format = c("vector", "data.frame"), lbl = NULL)
+map_values(input, id_chr = "", id_rand, format = c("vector", "data.frame"),
+  lbl = NULL)
 }
 \arguments{
 \item{input}{shinyInput input values from server side}

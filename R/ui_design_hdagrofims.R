@@ -399,6 +399,17 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 Shiny.onInputChange("levelsFFID", this.id);
                 })'
   ),
+  tags$script('$(document).on("change", "input[id^=\'input_factor_treatment_\']",  function(){
+                Shiny.onInputChange("changeInputSummary", Math.random());
+                Shiny.onInputChange("changeInputSummaryId", this.id);
+                })'
+  ),
+  tags$script('$(document).on("change", "select[id^=\'input_factor_treatment_\']",  function(){
+                Shiny.onInputChange("changeInputSummary", Math.random());
+                Shiny.onInputChange("changeInputSummaryId", this.id);
+                })'
+  ),
+  
   
   
   
