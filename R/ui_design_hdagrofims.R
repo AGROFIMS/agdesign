@@ -662,7 +662,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
             column(
               12,
               br(),
-              h2("Experiment Leads"),
+              h2("Experiment Leads (if different from project management entity)"),
               fluidRow(id = "fr_experimentLeads_boxes"),
               actionButton("addExperimentLeads", "Add an experiment lead"),
               br(), br(), br()

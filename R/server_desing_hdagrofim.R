@@ -1678,7 +1678,8 @@ server_design_agrofims <- function(input, output, session, values){
     
     fluidRow(id= paste0("fl_box_fundingAgency_", str_id), 
              # box(title = uiOutput(paste0("box_title_FA_", str_id)), solidHeader = TRUE, status = "warning", width=12,
-             box(title = "Funding Agency", solidHeader = TRUE, status = "warning", width=12,
+             #box(title = "Funding Agency", solidHeader = TRUE, status = "warning", width=12,
+             box(title = "", solidHeader = TRUE, status = "warning", width=12,     
                  column(12, offset = 0, style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_FA_", str_id), "", icon("close"))),
                  fluidRow(
                    column(6, 
@@ -1713,7 +1714,8 @@ server_design_agrofims <- function(input, output, session, values){
     experimentVars$ids_PE <- c(experimentVars$ids_PE, paste0("PE_", str_id))
     
     fluidRow(id = paste0("fl_box_exp_ent_", str_id),
-             box(title = "Project management", solidHeader = TRUE, status = "warning", width=12,
+             #box(title = "Project management", solidHeader = TRUE, status = "warning", width=12,
+              box(title = "", solidHeader = TRUE, status = "warning", width=12,     
                  column(12, offset = 0, style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_PE_", str_id), "", icon("close"))),
                  fluidRow(
                    column(width = 4,
@@ -1778,7 +1780,8 @@ server_design_agrofims <- function(input, output, session, values){
     
     fluidRow(
       id = paste0("fl_box_exp_lead_", str_id),
-      box(title = "Experiment lead organization, if different from project management entity", solidHeader = TRUE, status = "warning", width=12,
+      #box(title = "Experiment lead organization, if different from project management entity", solidHeader = TRUE, status = "warning", width=12,
+       box(title = "", solidHeader = TRUE, status = "warning", width=12,
           column(12, offset = 0, style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_EL_", str_id), "", icon("close"))),
           fluidRow(
             column(width = 6,
@@ -2690,7 +2693,7 @@ server_design_agrofims <- function(input, output, session, values){
                   # title = paste0("#", " Factor"),
                   #   column(12, offset = 0, style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_FF_", str_id), "Remove")),
                     column(12, offset = 0, 
-                           column(6, HTML("<b><h4># Factor</h4></b>")
+                           column(6, HTML("<b><h4>Factor</h4></b>")
                            ),
                            column(6, 
                                   style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_FF_", str_id), "Remove")
@@ -2749,7 +2752,7 @@ server_design_agrofims <- function(input, output, session, values){
                 box(
                   # column(12, offset = 0, style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_NFF_", str_id), "Remove")),
                   column(12, offset = 0, 
-                         column(6, HTML("<b><h4># Factor</h4></b>")
+                         column(6, HTML("<b><h4>Factor</h4></b>")
                          ),
                          column(6, 
                                 style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_NFF_", str_id), "Remove")
