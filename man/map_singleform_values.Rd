@@ -10,21 +10,21 @@ map_singleform_values(input, input_other, type = c("select", "combo box",
   label = "Label")
 }
 \arguments{
-\item{input}{input Character or Shiny input variable (\code{input$id}), conjointly, with the id. Ex. \code{input$FundingAgencyName}}
+\item{input}{\code{input} Character or shiny input variable (\code{input$id}), conjointly, with the id. Ex. \code{input$FundingAgencyName}}
 
-\item{input_other}{input In case of having \code{Other} as entry value in the combo box}
+\item{input_other}{\code{input} In case of having \code{Other} as entry value in the combo box. Ex. input$projLeadEnt == "Other"}
 
-\item{type}{character Three type of inputs: \code{select} for select and selectize inputs, \code{date} for date inputs, and \code{text}, for text input}
+\item{type}{\code{character} Three type of inputs: \code{select} for select and selectize inputs, \code{date} for date inputs, and \code{text}, for text input}
 
-\item{default}{character vector Value b}
+\item{default}{\code{character} vector Value b}
 
-\item{multiple}{logical \code{TRUE} for multiple input values, otherwise \code{FALSE}}
+\item{multiple}{\code{logical} \code{TRUE} for multiple input values, otherwise \code{FALSE}}
 
-\item{collapsed}{logical \code{TRUE} to separate}
+\item{collapsed}{\code{logical} \code{TRUE} to separate}
 
-\item{format}{character Export \code{vector} or \code{dataframe }}
+\item{format}{\code{character} Export \code{vector} or \code{dataframe }}
 
-\item{label}{character label name that appears in the user interface}
+\item{label}{\code{character} label name that appears in the user interface}
 }
 \description{
 Get user's values from single input forms

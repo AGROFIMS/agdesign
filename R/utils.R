@@ -372,14 +372,14 @@ getAddInputId <- function(addId = "", pattern= "FA_", replacement=""){
 
 #' Get user's values from single input forms
 #'
-#' @param input input Character or Shiny input variable (\code{input$id}), conjointly, with the id. Ex. \code{input$FundingAgencyName}
-#' @param input_other input In case of having \code{Other} as entry value in the combo box
-#' @param type character Three type of inputs: \code{select} for select and selectize inputs, \code{date} for date inputs, and \code{text}, for text input
-#' @param default character vector Value b
-#' @param multiple logical \code{TRUE} for multiple input values, otherwise \code{FALSE}   
-#' @param collapsed logical \code{TRUE} to separate
-#' @param format character Export \code{vector} or \code{dataframe }
-#' @param label character label name that appears in the user interface
+#' @param input \code{input} Character or shiny input variable (\code{input$id}), conjointly, with the id. Ex. \code{input$FundingAgencyName}
+#' @param input_other \code{input} In case of having \code{Other} as entry value in the combo box. Ex. input$projLeadEnt == "Other"
+#' @param type \code{character} Three type of inputs: \code{select} for select and selectize inputs, \code{date} for date inputs, and \code{text}, for text input
+#' @param default \code{character} vector Value b
+#' @param multiple \code{logical} \code{TRUE} for multiple input values, otherwise \code{FALSE}   
+#' @param collapsed \code{logical} \code{TRUE} to separate
+#' @param format \code{character} Export \code{vector} or \code{dataframe }
+#' @param label \code{character} label name that appears in the user interface
 #' @importFrom stringr str_trim
 #' @importFrom tibble add_column
 #' @export 
@@ -471,48 +471,61 @@ map_values <- function(input, id_chr="", id_rand,
   funAgenVals <- vector(mode = "list", length = length(id_rand))
   for(i in id_rand){
 
+    
+ 
     if(is.null(input[[paste0(id_chr, i)]])){
-      funAgenVals[[i]] <- "-"        
+      funAgenVals[[i]] <- ""        
+                                                                   
+    } 
+    else if (input[[paste0(id_chr, i)]]=="Other"){
       
-    } else if (input[[paste0(id_chr, i)]]=="Other"){
-      
-      if(id_chr=="projLeadEnt_"){ #special cases 1 (for project lead) : projLeadEnt ==
-        funAgenVals[[i]] <-  map_singleform_values(input[[paste0("lead_org_type_1_", i)]],type = "select", format="vector")
-      } else { #the normal case for Others
+      #special cases 1 (for Project Lead) : projLeadEnt ==
+      if(id_chr=="projLeadEnt_"){
+        
+        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("lead_org_type_1_", i)]],
+                                                   input_other = input[[paste0("lead_org_type_1_", i,"_","other")]],
+                                                   type = "select", format="vector")
+        
+      } else if(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_", i)]]=="Other" &&  input[[paste0("lead_org_type_1_", i,"_","other")]]=="Other"){
+        # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
+        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("leadNameOther_", i)]],
+                                                   input_other = "",
+                                                   type = "select", format="vector")
+        
+      } else { # Otherwise, user select : "Others"
         funAgenVals[[i]] <- input[[paste0(id_chr, i, "_other")]]  
           if(is.null(funAgenVals[[i]])){ #special cases 1 :  #in case we have another NULL value
-            funAgenVals[[i]] <-  "-"   
+            funAgenVals[[i]] <-  ""   
           }
       }
-    
-    } else {
+    #projLeadEnt_==NULL, lead_org_type_==NULL, lead_org_type_1_, lead_org_type_1_WEGQHZCJ_other
+    } 
+    else {
       funAgenVals[[i]] <- input[[paste0(id_chr, i)]]
         if(funAgenVals[[i]]==""){
-          funAgenVals[[i]] <- "-"
+          funAgenVals[[i]] <- ""
         }else {
           funAgenVals[[i]] <- setdiff(funAgenVals[[i]], "")
         }
-          
-      #funAgenVals[[i]] <- ifelse(funAgenVals[[i]]=="", "", setdiff(funAgenVals[[i]]) ) #remove ("") element from funAgenVals 
     }
-
+   
     # Special cases 2 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
-    if(input[[paste0("projLeadEnt_",i)]]=="Other" &&  id_chr=="tLeadCenter_" && length(input[[paste0("tLeadCenter_", i)]])>=0) { 
-      #special cases 2 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
-      funAgenVals[[i]] <- "dasda" #input[[paste0("leadNameOther_", i)]] 
-    }  #Special cases 3 (get Experiment, lead organization name): projLeadEnt == NULO &  id_chr=="tLeadCenter_" & tLeadCenter=="NULL
-    
+    if(!is.null(input[[paste0("projLeadEnt_",i)]] )) { 
+      #special cases 3 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+      if( input[[paste0("projLeadEnt_",i)]]=="Other" &&  id_chr=="tLeadCenter_"){
+        funAgenVals[[i]] <- ""
+      }
+    }  #Special cases 4 (get Experiment, lead organization name): projLeadEnt == NULO &  id_chr=="tLeadCenter_" & tLeadCenter=="NULL
+   
  
+    if(length(input[[paste0("projLeadEnt_",i)]])==0 && id_chr=="tLeadCenter_") {
+       #special cases 5: if id="tLeadCenter", projLeadEnt=0
+       print("case 5")
+       funAgenVals[[i]] <- "" #input[[paste0(id_chr, i)]]
+    }
     
-    # if(is.null(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_",i)]])  ) { 
-    #   print("prjlead extre case")
-    #   print(id_chr)
-    #   print(input[[paste0("projLeadEnt_",i)]])
-    #   print(length(input[[paste0("tLeadCenter_", i)]]))
-    #   
-    #    #special cases 2 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
-    #    funAgenVals[[i]] <- "-" #input[[paste0(id_chr, i)]] 
-    # }
+    
+    
     
   }
   funAgenVals <- plyr::compact(funAgenVals) #remove NULL values frm List
@@ -582,6 +595,9 @@ map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("l
   #levelVals <- vector(mode = "list")
   isf <- match.arg(isf)
   id_type <- id_type_dt[,"FORM"] #get column with type of input form
+  
+  #id_gf3 <- id_type_dt[,""]
+  
   fct <- id_type_dt[,"FACTOR"] #get vector with selected factors
   
   #id_chr<- match.arg(id_chr)
@@ -764,3 +780,14 @@ get_fctlvl_values <- function(input, designVars, tf= c("yes","no")){
 }
 
 
+#' Add columns to data frames with different sizes
+#' 
+#' @param df data frame 
+#' @param new.col vector New column to add into the data frame
+#' @references https://stat.ethz.ch/pipermail/r-help/2004-October/059752.html
+
+add.col<-function(df, new.col) {
+  n.row<-dim(df)[1]
+  length(new.col)<-n.row
+  cbind(df, new.col)
+}

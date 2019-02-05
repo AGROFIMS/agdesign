@@ -6,16 +6,16 @@ design_choices_agrofims <- c(
   #"Unreplicated Design (UNDR)" = "UNDR",
   #"Westcott Design (WD)" = "WD",#
   "Completely Randomized Design (CRD)" = "CRD",
-  "Randomized Complete Block Design (RCBD)" = "RCBD"#,
+  "Randomized Complete Block Design (RCBD)" = "RCBD",
   #"Augmented Block Design (ABD)" = "ABD",
   #"Alpha Design (AD)" = "AD",
   #"Latin Square Design (LSD)" = "LSD",
   #"Factorial Two-Way Design in CRD (F2CRD)" = "F2CRD",
   #"Factorial Two-Way Design in RCBD (F2RCBD)" = "F2RCBD",
   #"Split Plot with Plots in CRD (SPCRD)" = "SPCRD",
-  #"Split Plot with Plots in RCBD (SPRCBD)" = "SPRCBD", #R.Eyzaguirre recommends just one Split Design
+  #"Strip-Split-Plot Design" = "STRIP",
+  "Split Plot with Plots" = "SPRCBD" #R.Eyzaguirre recommends just one Split Design
   #"Split Plot with Plots Design" = "SPRCBD", #
-
   #"Split Plot with Plots in LSD (SPLSD)" = "SPLSD",
   #"Strip Plot Design (STRIP)" = "STRIP"
   # "Balanced Incomplete Block Design (BIBD)" = "BIBD",

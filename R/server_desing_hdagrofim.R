@@ -1586,8 +1586,8 @@ server_design_agrofims <- function(input, output, session, values){
   experimentVars <- reactiveValues()
   
   # Funding Agency
-  experimentVars$num_FA <- 0
-  experimentVars$DEFAULT_FA <- 1
+  experimentVars$num_FA <- 0 #porque todavia no dibujo
+  experimentVars$DEFAULT_FA <- 1 #numero por defecto combos
   experimentVars$ids_FA <- c()
   
   # Project Entities  
@@ -2338,7 +2338,7 @@ server_design_agrofims <- function(input, output, session, values){
   
   
   ### reactivo cuando se selecciona si es full factorial o no
-  observeEvent(input$fullFactorialRB, {
+    observeEvent(input$fullFactorialRB, {
     
     ## titulo de blocks segun el diseno estadistico
     rep_title <- ""
@@ -2624,7 +2624,7 @@ server_design_agrofims <- function(input, output, session, values){
     if(!is.null(sel_1)  && sel_1 == "Soil fertility"){
       nLevels <- input[[paste0("numLevels_tabSoil_", index)]]
       
-      if(is.null(nLevels)) nLevels <- 1
+      if(is.null(nLevels)) nLevels <- 2
       options_str <- c()
       
       for(i in 1:nLevels){
@@ -2877,9 +2877,9 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
  
-  insertBoxFullFactorialDuplicate <- function(factor){
+  insertBoxFullFactorialDuplicate <- function(factor){ #FUNCION DE DUPLICAR
     str_id <- stri_rand_strings(1, 8,  '[A-Z]')
-    id <- match(paste0("FF_", factor), designVars$ids_FULL)
+    id <- match(paste0("FF_", factor), designVars$ids_FULL) #encuentra la posicion del factor de la lista de los IDs
     
     len <- length(designVars$ids_FULL)
     left_side <- designVars$ids_FULL[1:id]
@@ -2890,7 +2890,7 @@ server_design_agrofims <- function(input, output, session, values){
     }
     
     
-    designVars$ids_FULL <- c(left_side, paste0("FF_", str_id), right_side)
+    designVars$ids_FULL <- c(left_side, paste0("FF_", str_id), right_side) #junta todos los casos
     value_1 <-input[[ paste0("sel_factor_", factor, "_1")]]
     value_2 <-input[[ paste0("sel_factor_", factor, "_2")]]
     value_3 <-input[[ paste0("sel_factor_", factor, "_3")]]
@@ -3003,7 +3003,7 @@ server_design_agrofims <- function(input, output, session, values){
     if(!is.null(sel_1)  && sel_1 == "Soil fertility"){
       nLevels <- input[[paste0("numLevels_tabSoil_", index)]]
       
-      if(is.null(nLevels)) nLevels <- 1
+      if(is.null(nLevels)) nLevels <- 2
       options_str <- c()
       
       for(i in 1:nLevels){
@@ -3369,7 +3369,7 @@ server_design_agrofims <- function(input, output, session, values){
                                 ),
                                 column(6,
                                        column(4,
-                                              numericInput(paste0("numLevels_tabSoil_", index), "Levels", min =1, max=100, value=0)
+                                              numericInput(paste0("numLevels_tabSoil_", index), "Levels", min =1, max=100, value=2)
                                        )
                                 )
                               ),
@@ -3379,7 +3379,7 @@ server_design_agrofims <- function(input, output, session, values){
               position = "after",
               target = mtarget
     )
-    updateNumericInput(session,paste0("numLevels_tabSoil_", index), value = 1 )
+    updateNumericInput(session,paste0("numLevels_tabSoil_", index), value = 2 )
     
   }
 
@@ -9539,23 +9539,53 @@ server_design_agrofims <- function(input, output, session, values){
 
   ###############################Agrofeatures #######################################
   
-  #Residue management sub tab 1  
-  res_des <- reactive({
+  AllInputs <- reactive({
+     x <- reactiveValuesToList(input)
+     for(i in 1:length(names(x))){
+       #if(is.null(x[[i]])){
+       #  x[[i]]<- "novalue"
+       #} else if(length(x[[i]])>1) {
+       x[[i]]<-paste(x[[i]], collapse=", ")
+       #}
+     }
+     data.frame(
+       id = names(x),
+       values = unlist(x, use.names = FALSE)
+     )
+   }) 
+   
+  #Residue management ###############################################################
+  residue <- reactive({
      
-    plantp<- map_singleform_values(input = input$residue_plantPart, input_other = input$residue_plantPart_other, 
-                               type = "select", format = "data.frame", label = "Factor") 
-    cmoi <- map_singleform_values(input =input$crop_residue_moisture, type = "select", format = "data.frame", label = "Factor") 
+    dt <- AllInputs() %>% filter(str_detect(id, "residue_"))
+    dt <- t(dt) %>% as.data.frame()
+    names(dt) <- paste(names(dt), 1:ncol(dt))
+    dt
     
-    r_thick <-  map_singleform_values(input =input$crop_residue_thick , type = "numeric", format = "data.frame", label = "Factor")
-    r_thick_unit <- map_singleform_values(input =input$crop_residue_thick_unit, type = "select", format = "data.frame", label = "Factor") #unit
+    # plantp<- map_singleform_values(input = input$residue_plantPart, input_other = input$residue_plantPart_other, 
+    #                            type = "select", format = "data.frame", label = "Factor") 
+    # cmoi <- map_singleform_values(input =input$crop_residue_moisture, type = "select", format = "data.frame", label = "Factor") 
+    # 
+    # r_thick <-  map_singleform_values(input =input$crop_residue_thick , type = "numeric", format = "data.frame", label = "Factor")
+    # r_thick_unit <- map_singleform_values(input =input$crop_residue_thick_unit, type = "select", format = "data.frame", label = "Factor") #unit
+    # 
+    # r_amount <-  map_singleform_values(input =input$crop_residue_amount_sqm, type = "numeric", format = "data.frame", label = "Factor")
+    # r_amount_unit <- map_singleform_values(input =input$crop_residue_amount_sqm_unit,  type = "select", format = "data.frame", label = "Factor") #unit
+    # 
+    # r_cov <-  map_singleform_values(input =input$crop_residue_perc_cov, type = "numeric", format = "data.frame", label = "Factor")
+    # r_cov_unit <- map_singleform_values(input =input$crop_residue_perc_cov_unit, type = "select", format = "data.frame", label = "Factor")  #unit
+    # 
+    # r_notes <- input$residue_management_notes
+    # 
+    # dt<- rbind(plantp, cmoi, r_thick, r_thick_unit, r_amount, r_amount_unit, r_cov, r_cov_unit)
+    # dt<- t(dt) %>% as.data.frame()
+    # dt
+    # 
+    # namesdt<-  c("Plant part", "Crop residue moisture", "Crop residue thickness", "Crop residue amount",
+    #         "Crop residue percent of coverage","Notes")
+    # 
+            
     
-    r_amount <-  map_singleform_values(input =input$crop_residue_amount_sqm, type = "numeric", format = "data.frame", label = "Factor")
-    r_amount_unit <- map_singleform_values(input =input$crop_residue_amount_sqm_unit,  type = "select", format = "data.frame", label = "Factor") #unit
-    
-    r_cov <-  map_singleform_values(input =input$crop_residue_perc_cov, type = "numeric", format = "data.frame", label = "Factor")
-    r_cov_unit <- map_singleform_values(input =input$crop_residue_perc_cov_unit, type = "select", format = "data.frame", label = "Factor")  #unit
-    
-    r_notes <- input$residue_management_notes
   })
   res_mgt <- reactive({
      r_start_date<-  map_singleform_values(input =input$residue_start_date, type = "date",
@@ -9565,9 +9595,14 @@ server_design_agrofims <- function(input, output, session, values){
      r_traction <-  map_singleform_values(input =input$residue_traction, input$residue_traction_other,
                                           type = "select",format = "data.frame", label = "Factor")#dates
      r_notes <- input$residue_management_notes
+     
+     dt<-rbind(r_start_date, r_technique, r_traction, r_notes)
+     dt<- t(dt) %>% as.data.frame()
+     dt
+     
    })
-   
-  #seedbed preparation sub tab 2
+  
+  #seedbed preparation  #############################################################
   seedbed <- reactive({
     
     flag<-FALSE
@@ -9674,466 +9709,78 @@ server_design_agrofims <- function(input, output, session, values){
       
     }
     
+    if(input$landLevelling_checkbox==FALSE && input$puddling_checkbox==FALSE && input$tillage_checkbox== FALSE){
+      out<-data.frame()
+    }
+    
     out <- out
     
   })
 
-  ### Harvest  #######################################################################
-  dt_harvest <- reactive({
-
-     #out <- fb_agrofims()
-     #h_start_date	<-	paste(input$harvest_start_date) #dates
-     h_start_date	<-	getDateInput(input$harvest_start_date) #dates
-     h_end_date	<-	getDateInput(input$harvest_end_date) #dates
-     h_cut_height	<-	input$harvest_cut_height
-     h_cut_height_unit <- getAgrOper(input$harvest_cut_height_unit) #get units
-     h_method <- getAgrOper(feature=input$harvest_method, other = input$harvest_method_value_other)
-     h_method_value <- getAgrOper(feature=input$harvest_method_value)
-     h_component_harvested <- getAgrOper(input$crop_component_harvested, input$crop_component_harvested_other)
-     h_space_rows <- input$space_rows_harvested
-     h_space_rows_unit <- getAgrOper(input$space_rows_harvested_unit) #get units
-     h_totarea <- input$area_harvested
-     h_totarea_unit <- getAgrOper(input$area_harvested_unit) #get units
-     h_plants_area <- input$num_plants_area_harvested
-     h_notes <- input$harvest_notes
-     h_technique <- getAgrOper(input$harvest_technique)
-     h_implement	<-	getAgrOper(input$harvest_implement,input$harvest_implement_other)
-     h_traction	<-	getAgrOper(input$harvest_traction,input$harvest_traction_other)
-     h_amount<- input$amount_harvested
-     h_amount_unit <- getAgrOper(input$amount_harvested_unit) #get units
-
-     harvNames <- c('Harvest Start date',
-                    'Harvest End date',
-                    'Harvest cut height',  'Harvest cut height Unit',
-                    'Harvest method',
-                    'Harvest method value',
-                    'Crop component harvested',
-                    'Space between rows harvested','Space between rows harvested Unit',
-                    'Total area harvested',  'Total area harvested Unit',
-                    'Number of plants in area harvested',
-                    'Harvest Technique',
-                    'Harvest implement',
-                    'Harvest Traction',
-                    'Amount harvested', 'Amount harvested Unit',
-                    'Harvest Notes'
-     )
-
-     dtHarv <- data.frame( h_start_date,
-                           h_end_date,
-                           h_cut_height,  h_cut_height_unit,
-                           h_method,
-                           h_method_value,
-                           h_component_harvested,
-                           h_space_rows,h_space_rows_unit ,
-                           h_totarea,h_totarea_unit,
-                           h_plants_area,
-                           h_technique ,
-                           h_implement	,
-                           h_traction,
-                           h_amount, h_amount_unit,
-                           h_notes
-     )
-     names(dtHarv) <- harvNames
-     #out <- merge(out, dtHarv, by = 0, all = TRUE)[-1]
-     out <- dtHarv
-     out[out=="NULL"]<-NA
-     out[out=="NA"]<-NA
-out
-
-   })
-  ### end Harvest  ###################################################################
-   
-  ## Irrigation  #####################################################################
-  dt_irrigation <- reactive({
-
-   #Irrigation start date
-   n <- as.numeric(input$numApplicationsIrrigation)
-
-   irri_start_date <- paste(lapply(1:n, function(x) paste(eval(get_loop_AgrOper("irrigationevent_start_date_", n=n)[[x]])))) #dates
-   irri_end_date <- paste(lapply(1:n, function(x) paste( eval(get_loop_AgrOper("irrigationevent_end_date_", n=n)[[x]])))) #dates
-   irri_technique <- paste(lapply(1:n, function(x) eval(get_loop_AgrOper("irrigation_technique_",n=n)[[x]])))
-
-   irri_technique_system <- unlist(lapply(1:n, function(x) eval(get_loop_irrigation_technique(irri_technique, module="irrigation")[[x]]) ))
-
-   if(is.null(irri_technique_system)){
-     irri_technique_system <- rep("NA", n)
-   } else {
-     irri_technique_system <- unlist(lapply(1:n, function(x) eval(get_loop_irrigation_technique_other(irri_technique, irri_technique_system)[[x]]) ))
-   }
-
-
-   #irri_technique_system <- unlist(lapply(1:n, function(x) eval(get_loop_irrigation_technique_other(irri_techinque, irri_technique_system)[[x]]) ))
-
-   irri_source <- paste(lapply(1:n, function(x)  eval(get_loop_AgrOper("irrigation_source_", n=n)[[x]])))
-
-   irri_source_dist <- paste(lapply(1:n, function(x)  eval(get_loop_AgrOper("irrigation_source_distance_", n =n)[[x]])))
-   irri_source_dist_unit <- paste(lapply(1:n, function(x)  eval(get_loop_AgrOper("irrigation_source_distance_",n =n, label ="unit")[[x]]))) #unit
-
-   irri_source_def <- paste( irri_source_dist, irri_source_dist_unit, sep="_" ) #measure+unit
-
-   irri_amount <- paste(lapply(1:n, function(x)  eval(get_loop_AgrOper("irrigation_amount_", n =n)[[x]])))
-   irri_amount_unit <- paste(lapply(1:n, function(x)  eval(get_loop_AgrOper("irrigation_amount_",n =n, label ="unit")[[x]]))) #unit
-
-   irri_amount_def <- paste(irri_amount, irri_amount_unit, sep="_")  #measure+unit
-   irri_notes <- paste(lapply(1:n, function(x)  eval(get_loop_AgrOper("irrigation_notes_", n=n)[[x]])))
-   irriNames <- c("Number of irrigations",
-                  "Irrigation start date (yyyy/mm/dd)" , "Irrigation end date (yyyy/mm/dd)", "Irrigation technique",  "Irrigation technique system",
-                  "Irrigation source", "Irrigation source distance",
-                  "Irrigation source distance Unit (ft; km; m; mi)", #unit label
-                  "Irrigation amount",
-                  "Irrigation amount Unit (in; mm)", #unit label
-                  "Notes")
-
-
-   dtIrri<- data.frame(1:n, irri_start_date, irri_end_date,
-                       irri_technique,irri_technique_system,
-                       irri_source,
-                       irri_source_dist,
-                       irri_source_dist_unit,
-                       irri_amount,
-                       irri_amount_unit,
-                       irri_notes)
-
-   names(dtIrri) <- irriNames
-   dtIrri[dtIrri=="NULL"]<-NA
-   dtIrri[dtIrri=="NA"]<-NA
-   dtIrri[dtIrri=="character(0)"]<-NA
-   dtIrri
-
-})
-
-  ## Mulching and residue ############################################################
-  dt_mulching <- reactive({
-
-     m_start_date <- getDateInput(input$mulch_start_date) #dates
-     m_end_date <- getDateInput(input$mulch_end_date) #dates
-     m_type <- getAgrOper(input$mulch_type, input$mulch_type_other)
-     m_thickness <-  getAgrOper(input$mulch_thickness)
-     m_thickness_unit <-  getAgrOper(input$mulch_thickness_unit) #unit
-     #m_thickness_lbl<- paste("Mulch thickness", m_thickness_unit, sep= "_") #label
-     m_mulchSq  <-  getAgrOper(input$mulch_amountPerSq)
-     m_mulchSq_unit  <-  getAgrOper(input$mulch_amountPerSq_unit)#unit
-     #m_mulchSq_lbl <- paste("Mulch amount", m_mulchSq_unit, sep= "_")#label
-     m_color <- input$mulch_color
-     m_cov <- getAgrOper(input$mulch_percCoverage)
-     m_cov_unit <-  getAgrOper(input$mulch_percCoverage_unit) #unit
-     #m_pgt_lbl <- paste("Percentage of coverage", m_cov_unit, sep= "_")#label
-     m_rem_start_date <- getDateInput(input$mulch_remove_start_date)
-     m_rem_end_date <- getDateInput(input$mulch_remove_end_date)
-     m_mgm_notes <-  getAgrOper(input$mulching_management_notes)
-     m_implement <-  getAgrOper(input$mulch_implement_type)
-     m_traction <-  getAgrOper(input$mulch_traction, input$mulch_traction_other)
-
-     muNames <- c("Mulch start date (yyyy/mm/dd)" ,"Mulch end date (yyyy/mm/dd)", "Mulch type",
-                  "Mulch thickness" ,"Mulch thickness Unit (cm; ft; in; m)",
-                  "Mulch amount", "Mulch amount (g/ft2; g/m2; kg/ha; kf/m2: lb/ac)",
-                  "Mulch color",
-                  "Mulch percent coverage", "Mulch percent coverage Unit (%)",
-                  "Mulch removal start date (yyyy/mm/dd)",
-                  "Mulch removal end date (yyyy/mm/dd)", "Notes", "Mulch implement type", "Mulching implement traction")
-
-     mudt <- data.frame(m_start_date, m_end_date, m_type,
-                        m_thickness, m_thickness_unit , #unit
-                        m_mulchSq, m_mulchSq_unit,
-                        m_color,
-                        m_cov,  m_cov_unit, #unit
-                        m_rem_start_date,  m_rem_end_date,
-                        m_mgm_notes, m_implement, m_traction )
-
-
-     names(mudt)<- muNames
-     mudt[mudt=="NULL"]<-NA
-     mudt[mudt=="NA"]<-NA
-     mudt
-   })
- 
-  #Total
-  dt_mures <- reactive({
-    print("mu1")
-    if(input$mulchManag_checkbox==TRUE && input$residueManag_checkbox==FALSE){
-      print("mu2")
-      dt_mr <- dt_mulching()
-    } else if(input$mulchManag_checkbox==FALSE && input$residueManag_checkbox==TRUE){
-      print("mu3")
-      dt_mr <- dt_residue()
-    } else if( input$mulchManag_checkbox==TRUE  && input$residueManag_checkbox==TRUE ){
-      print("mu4")
-      dt_mr <- cbind(dt_mulching(), dt_residue())
-    }
-
-    dt_mr[dt_mr=="NULL"]<-NA
-    dt_mr[dt_mr=="NA"]<-NA
-    dt_mr
-  })
-
-  ### Planting   #####################################################################
-  dt_directSeed <- reactive({
-
-     # Direct Seeding#################################
-     pl_start_date <- getDateInput(input$planting_start_date) #dates
-     pl_end_date <- getDateInput(input$planting_end_date) #dates
-
-     pl_env <-  getAgrOper(input$seeding_environment)
-     pl_technique <-  getAgrOper(input$seeding_technique)
-     pl_trt <-  getAgrOper(input$seed_treatment)
-
-     pl_type <- getAgrOper(input$seeding_implement_type, input$seeding_implement_type_other)
-     pl_traction <- getAgrOper(input$seeding_traction,  input$seeding_traction_other)
-
-     pl_row <-  getAgrOper(input$distance_rows)
-     pl_row_unit <- getAgrOper(input$distance_rows_unit)
-     #pl_row_lbl <- paste("Direct seeding distance between rows",pl_row_unit,sep="_") #label
-
-     pl_rate <- getAgrOper(input$seeding_rate)
-     pl_rate_unit <- getAgrOper(input$seeding_rate_unit)
-     #pl_rate_lbl <- paste("Direct seeding rate",pl_rate_unit, sep="_") #label
-
-     pl_dist <- getAgrOper(input$distance_plants)
-     pl_dist_unit <- getAgrOper(input$distance_plants_unit)
-     #pl_dist_lbl<- paste("Direct seeding distance between plants",pl_dist_unit, sep="_") #label
-
-     pl_nrow <- getAgrOper(input$seeding_density_number_rows)
-
-     pl_den <- getAgrOper(input$seeding_plant_density)
-     pl_den_unit <- getAgrOper(input$seeding_plant_density_unit)
-     #pl_den_lbl <- paste("Direct seeding plant density",pl_den_unit, sep="_") #label
-
-     pl_notes <- getAgrOper(input$direct_seeding_notes)
-
-     plNames<- c("Seeding begin date (yyyy/mm/dd)", "Seeding end environment (yyyy/mm/dd)", "Seeding environment", "Seeding technique",
-                 "Seed treatment", "Seeding Type", "Seeding Traction",
-                 "Seeding distance between rows",	"Seeding distance between rows Unit (cm; ft; in; m)",
-                 "Seeding rate",	"Seeding rate Unit (kg/ha; lb/ac; plants/pot)",
-                 "Seeding distance between plants",	"Seeding distance between plants Unit (cm; ft; in; m)",
-                 "Seeding number of rows",
-                 "Seeding plant density"	,
-                 "Seeding plant density Unit (plants/hill; plants/m2; plants/pot; plants/row)",
-                 "Seeding density notes")
-
-
-     dtpl <- data.frame(pl_start_date, pl_end_date, pl_env, pl_technique, pl_trt, pl_type, pl_traction,
-                        pl_row,  pl_row_unit,
-                        pl_rate, pl_rate_unit,
-                        pl_dist, pl_dist_unit,
-                        pl_nrow,
-                        pl_den, pl_den_unit,
-                        pl_notes)
-
-     names(dtpl)<- plNames
-     dtpl[dtpl=="NULL"]<-NA
-     dtpl[dtpl=="NA"]<-NA
-     dtpl
-   })
-  dt_transPlant <- reactive ({
-
-     #Transplanting  ######################################
-     tr_start_date <- getDateInput(input$transplanting_start_date) #dates
-     tr_end_date<- getDateInput(input$transplanting_end_date) #dates
-     tr_age <- getAgrOper(input$age_seedling)
-
-     tr_env <- getAgrOper(input$transplanting_environment, input$transplanting_environment_other)
-     tr_technique <- getAgrOper(input$transplanting_technique, input$transplanting_technique_other)
-
-     tr_traction <- getAgrOper(input$trans_traction,  input$trans_traction_other)
-
-     tr_treatment<- getAgrOper(input$transplanting_treatment)
-
-     tr_row <- getAgrOper(input$trans_distance_rows)
-     tr_row_unit <- getAgrOper(input$trans_distance_rows_unit)
-     #tr_row_lbl <- paste("Transplanting Distance between rows", tr_row_unit,sep="_")
-
-     tr_den <- getAgrOper(input$trans_seeding_density)
-     tr_den_unit <- getAgrOper(input$trans_seeding_density_unit)
-     #tr_den_lbl <- paste("Transplanting Seeding density", tr_den_unit, sep="_" )
-
-     tr_nrow <- getAgrOper(input$trans_num_rows)
-
-     tr_distplant  <- getAgrOper(input$trans_distance_plants)
-     tr_distplant_unit <- getAgrOper(input$trans_distance_plants_unit)
-     #tr_displant_lbl <- paste("Transplanting Distance between plants", tr_distplant_unit, sep="_")
-
-     tr_notes <- input$transplanting_density_notes
-
-     trNames <- c("Transplanting start date (yyyy/mm/dd)", "Transplanting end date (yyyy/mm/dd)", "Transplanting age of seedling (days)",
-                  "Transplanting Seedling environment", "Transplanting Technique",
-                  "Transplanting Seed treatment", "Transplanting Traction",
-                  "Transplanting Distance between rows", "Transplanting distance between rows Unit (cm; ft; in; m)",
-                  "Transplanting Seeding density", "Transplanting seedling density Unit (plants/hill; plants/m2; plants/pot; plants/row)",
-                  "Transplanting Number of rows",
-                  "Transplanting Distance between plants", "Transplanting distance between plants Unit (m)",
-                  "Notes")
-
-     dttr<- data.frame( tr_start_date, tr_end_date, tr_age, tr_env, tr_technique,
-                        tr_treatment, tr_traction,
-                        tr_row, tr_row_unit,
-                        tr_den, tr_den_unit,
-                        tr_nrow,
-                        tr_distplant , tr_distplant_unit,
-                        tr_notes)
-
-
-     names(dttr) <- trNames
-     dttr[dttr=="NULL"]<-NA
-     dttr[dttr=="NA"]<-NA
-
-     dttr
-   })
-  #Total
-  dt_planting <- reactive({
-     if(input$directSeeding_checkbox==TRUE && input$transplanting_checkbox==FALSE){
-       dt_plant <- dt_directSeed()
-     }else if (input$directSeeding_checkbox==FALSE && input$transplanting_checkbox==TRUE){
-       dt_plant <- dt_transPlant()
-     } else if(input$directSeeding_checkbox==TRUE && input$transplanting_checkbox==TRUE){
-       dt_plant <- cbind(dt_directSeed(),dt_transPlant())
-     }
-    dt_plant[dt_plant=="NULL"]<-NA
-    dt_plant[dt_plant=="NA"]<-NA
-     dt_plant
-   })
-
-  ## Weeding #########################################################################
-  dt_weeding <- reactive({
-     n<- input$numWeeding
-     weed_start_date <- paste(lapply(1:n, function(x) paste(eval(get_loop_AgrOper("weeding_start_date_", n=n)[[x]]))) ) #dates
-     weed_end_date <-   paste(lapply(1:n, function(x) paste(eval(get_loop_AgrOper("weeding_end_date_", n=n)[[x]]))) ) #dates
-     weed_techinque <-  paste(lapply(1:n, function(x) eval(get_loop_AgrOper("weeding_technique_",n=n)[[x]])))
-     weed_type <- paste(lapply(1:n, function(x) eval(get_loop_AgrOper("weeding_type_",n=n)[[x]])))
-     #add other case
-     weed_traction <- paste(lapply(1:n, function(x) eval(get_loop_AgrOper("weeding_traction_",n=n)[[x]])))
-     #add other case
-     weedNames <- c("Number of weedings", "Weeding start date (yyyy/mm/dd)", "Weeding end date (yyyy/mm/dd)",
-                    "Weeding technique", "Weeding implment type",
-                    "Weeding implement traction")
-
-     dtweed <- data.frame(1:n, weed_start_date, weed_end_date, weed_techinque, weed_type, weed_traction)
-     names(dtweed)<- weedNames
-
-     dtweed[dtweed=="NULL"]<-NA
-     dtweed[dtweed=="NA"]<-NA
-
-     dtweed
-
-   })
-
   ## Soil Fertility
   dt_soilFertility <- reactive({
-
-    nsoilFert<- as.numeric(input$soil_fertilizer_num_apps)
-
-    #get_loop_AgrOper(feature = "select_fertilizerType_soil_table_row_",3)
-    ferType <- prodType <- prodRate <- ferEle <- ferEleRate <- imple<- traction<- technique<- ferNotes<- NULL
-    totProd<- totEle <- startD<- endD<- NULL
-    Nprod<- Pprod <- Kprod<- NULL
-
-    for(i in 1:nsoilFert){
-
-      if(is.null(input[[paste0("select_fertilizerType_soil_table_row_", i)]])){
-        ferType[i]<-""
-      } else{
-        ferType[i] <- input[[paste0("select_fertilizerType_soil_table_row_", i)]]
-      }
-      print("1")
-      if(is.null(input[[paste0("select_product_soil_table_row_",i)]])){
-        prodType[i]<- ""
-      } else if(input[[paste0("select_product_soil_table_row_",i)]]=="Other"  ){
-        prodType[i]<- input[[paste0("select_product_soil_table_row_",i,"_other")]]
-      } else{
-        prodType[i]<- input[[paste0("select_product_soil_table_row_",i)]]
-      }
-      print("2")
-      prodRate[i]<- input[[paste0("input_productRate_soil_table_row",i)]]
-      print("3")
-      if(is.null(input[[paste0("select_element_soil_table_row_",i)]])){
-        ferEle[i]<-  ""
-      } else if(input[[paste0("select_element_soil_table_row_", i, "_other")]]=="Other"){
-        ferEle[i] <- input[[paste0("select_element_soil_table_row_", i, "_other")]]
-      }else {
-        ferEle[i] <- input[[paste0("select_element_soil_table_row_",i)]]
-      }
-      print("4")
-      ferEleRate[i] <- input[[paste0("input_elementRate_soil_table_row_",i)]]
-      print("5")
-
-      startD[i]<- paste(input[[paste0("input_startdate_soil_table_row_",i)]])
-      endD[i]<- paste(input[[paste0("input_enddate_soil_table_row_",i)]])
-
-      # if(is.null(input[[paste0("select_implement_soil_table_row_", i)]])){
-      #   imple[i] <- ""
-      # } else if (input[[paste0("select_implement_soil_table_row_", i)]]=="Other" ){
-      #   imple[i] <-  input[[paste0("select_implement_soil_table_row_",i,"_other")]]
-      # } else {
-      #   imple[i] <- input[[paste0("select_implement_soil_table_row_", i)]]
-      # }
-
-      print("6")
-
-      # if(is.null(input[[paste0("select_traction_soil_table_row_",i)]])){
-      #   traction[i] <- ""
-      # } else if(input[[paste0("select_traction_soil_table_row_",i)]]=="Other"){
-      #   traction[i] <-input[[paste0("select_traction_soil_table_row_",i,"_other")]]
-      # } else {
-      #   traction[i]<- input[[paste0("select_traction_soil_table_row_",i)]]
-      # }
-      print("7")
-      if(is.null(input[[paste0("select_techinque_soil_table_row_",i)]])){
-        technique[i] <- ""
-      } else if(input[[paste0("select_techinque_soil_table_row_",i)]]=="Other"){
-        technique[i] <- input[[paste0("select_techinque_soil_table_row_",i,"_other")]]
-      }else {
-        technique[i] <- input[[paste0("select_techinque_soil_table_row_",i)]]
-      }
-      print("8")
-      ferNotes[i]<- input[[paste0("textArea_soil_table_row_",i)]]
-    }
-    print("9")
-    totProd <- rep(input$soil_fertilizer_totalAppRate1, nsoilFert)
-    totEle  <- rep(input$soil_fertilizer_totalAppRate2, nsoilFert)
-    print("10")
-    for(i in 1:nsoilFert){
-      if(length(input[[paste0("input_soil_nutrient_product","_N_", prodType[i])]])==0){
-        Nprod[i] <-0
-      }else {
-        Nprod[i] <- input[[paste0("input_soil_nutrient_product","_N_", prodType[i])]]
-      }
-      if( length(input[[paste0("input_soil_nutrient_product","_P_", prodType[i])]])==0 ){
-        Pprod[i] <- 0
-      }else {
-        Pprod[i] <- input[[paste0("input_soil_nutrient_product","_P_", prodType[i])]]
-      }
-      if( length(input[[paste0("input_soil_nutrient_product","_K_", prodType[i])]])==0){
-        Kprod[i] <-0
-      }else {
-        Kprod[i] <-input[[paste0("input_soil_nutrient_product","_K_", prodType[i])]]
-      }
-    }
-    print("11")
-    soilNames <- c("Number of fertilizer applications","Fertilizer type","Fertilizer product",
-                   "Fertilizer product rate (kg/ha)", "Nutrient element","Nutrient element rate (kg/ha)",
-
-                   #"Fertilizer implement type", "Fertilizer traction implement",
-                   "Fertilizer start date (yyyy/mm/dd)", "Fertilizer end date (yyyy/mm/dd)",
-
-                   "Fertilizer application technique",
-                   "Fertilizer application notes",
-                   "Total product calculated application", "Total element calculated application",
-                   "N(%)", "P(%)", "K(%)")
-
-    soildt<- data.frame(1:nsoilFert, ferType,  prodType , prodRate , ferEle , ferEleRate ,
-                        #imple, traction,
-                        startD, endD,
-                        technique, ferNotes,
-                        totProd, totEle, Nprod, Pprod , Kprod )
-
-
-
-
-    names(soildt) <- soilNames
-    soildt[soildt=="NULL"]<-NA
-    soildt[soildt=="NA"]<-NA
-    soildt
-
+    
+    ft <- AllInputs() %>% filter(str_detect(id, "^select_fertilizerType_soil_table_row_"))
+    ps <- AllInputs() %>% filter(str_detect(id, "^select_product_soil_table_row_"))
+    pr<- AllInputs() %>% filter(str_detect(id, "^input_productRate_soil_table_"))
+    el <- AllInputs() %>% filter(str_detect(id, "^select_element_soil_table_row_")) 
+    er <- AllInputs() %>% filter(str_detect(id, "^input_elementRate_soil_table_row_"))  
+    startD <- AllInputs() %>% filter(str_detect(id, "^input_startdate_soil_table_row_"))   
+    endD <- AllInputs() %>% filter(str_detect(id, "^input_enddate_soil_table_row_"))  
+    tech <- AllInputs() %>% filter(str_detect(id, "^select_techinque_soil_table_row_"))   
+    txtA <-  AllInputs() %>% filter(str_detect(id, "^textArea_soil_table_row_"))    
+    
+    dt<- rbind(ft, ps, pr, el, er, startD, endD, tech, txtA)
+    dt <- t(dt) %>% as.data.frame()
+    names(dt) <- paste(names(dt), 1:ncol(dt))
+    dt
   })
+  
+  ### Planting & Transplanting   #####################################################################
+  #direct seeding
+  plating_trans <- reactive({
+    dt1 <- AllInputs() %>% filter(str_detect(id, "^select_fertilizerType_soil_table_row"))
+    dt2<-  AllInputs() %>% filter(str_detect(id, "^distance_rows"))
+    dt3 <- AllInputs() %>%  filter(str_detect(id, "^trans"))
+    dt<- rbind(dt1,dt2,dt3)
+    dt<- t(dt) %>% as.data.frame()
+    names(dt) <- paste(names(dt), 1:ncol(dt))
+    dt
+  })
+ 
+  ## Mulching and residue ############################################################
+  dt_mulching <- reactive({
+    dt<- AllInputs() %>% filter(str_detect(id, "^mulch_"))
+    dt<- t(dt) %>% as.data.frame()
+    names(dt) <- paste(names(dt), 1:ncol(dt))
+    dt
+   })
+ 
+  ## Irrigation  #####################################################################
+  dt_irrigation <- reactive({
+    dt<- AllInputs() %>% filter(str_detect(id, "^irrigation_"))
+    dt<- t(dt) %>% as.data.frame()
+    names(dt) <- paste(names(dt), 1:ncol(dt))
+    dt
+  })
+ 
+  ## Weeding #########################################################################
+  dt_weeding <- reactive({
+    dt<- AllInputs() %>% filter(str_detect(id, "^weeding_"))
+    dt<- t(dt) %>% as.data.frame()
+    names(dt) <- paste(names(dt), 1:ncol(dt))
+    dt
+   })
+
+  ### Harvest  ######################################################################
+  dt_harvest <- reactive({
+    
+    dt<-AllInputs() %>% filter(str_detect(id, "^harvest_"))
+    dt<- t(dt) %>% as.data.frame()
+    names(dt) <- paste(names(dt), 1:ncol(dt))
+    dt
+  })
+  
   
   ################################End agrofeatures ###################################
 
@@ -10157,22 +9804,25 @@ out
   ##reactive weather   ####################################
   weather_dt <- reactive({
     
-    if(input$manualMeasurement_checkbox==TRUE){
-      mstation <-  dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit)
-      
-      row_select <- input$weatherManualDT_rows_selected
-      a1 <- mstation[row_select, ]
-      if(nrow(a1)>0){
-        a1 <- a1[, c("Variable", "Unit")]
-      }
-      a1<-a1
-      print("entro 11")
-    } else {
-      print("entro 12")
-      a1 <- data.frame(Variable = NA, Unit = NA)
-    }
-    
-   if(input$stationMeasurement_checkbox==TRUE){
+   a1 <- data.frame(Variable = NA, Unit = NA)
+   a2 <- data.frame(Variable = NA, Unit = NA)
+   
+   if(!is.null(input$manualMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
+      if(input$manualMeasurement_checkbox==TRUE){
+       mstation <-  dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit)
+       
+       row_select <- input$weatherManualDT_rows_selected
+       a1 <- mstation[row_select, ]
+       if(nrow(a1)>0){
+         a1 <- a1[, c("Variable", "Unit")]
+       }
+       a1<-a1
+       
+     } 
+   }
+
+   if(!is.null(input$stationMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
+      if(input$stationMeasurement_checkbox==TRUE){
      wstation <- dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit)
      
      row_select <- input$weatherStationDT_rows_selected
@@ -10182,10 +9832,9 @@ out
      }
      print("entro 21")
      a2 <- a2
-   } else {
-     print("entro 22")
-     a2 <- data.frame(Variable = NA, Unit = NA)
-   }
+   } 
+   }  
+   
    dt<- rbind(a1,a2)
     
     
@@ -10247,9 +9896,7 @@ out
     #Experiment Leads
     id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
     pl <- map_values(input, id_chr="projLeadEnt_", id_rand_el,format = "data.frame",lbl= "Experiment, lead organization type")
-   
-    plc <- map_values(input, id_chr="tLeadCenter_", id_rand_el,format = "data.frame", lbl= "Experiment, lead organization name")
-  
+    plc <- map_values(input, id_chr="tLeadCenter_", id_rand_el, format = "data.frame", lbl= "Experiment, lead organization name")
     pel <- map_values(input, id_chr="expLead_", id_rand_el,format = "data.frame", lbl= "Experiment lead person / Primary Investigator")
    
     out <-rbind(pl,plc,pel)
@@ -10347,6 +9994,7 @@ out
     
   })
   
+  #List of Factors and Levels
   fct_lvl <- reactive({
       #Type of design                                         
       dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
@@ -10360,6 +10008,7 @@ out
       if(tf=="yes"){
         #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
         id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
+        #id_rand<- id_ff_rand
         fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
         id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
         flvl <- map_level_values(input= input, isf = tf , id_type_dt= id_type_dt, id_rand = id_ff_rand, lbl= "Level")
@@ -10368,6 +10017,7 @@ out
         #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
         ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
         id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
+        #id_rand <- id_nff_rand
         fg<- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
         id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
         flvl <- map_level_values(input= input,isf = tf, id_type_dt= id_type_dt, id_rand = id_nff_rand, ntrt= ntrt , lbl= "Level")
@@ -10380,55 +10030,71 @@ out
   fbdesign <- function(){
     
     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
+    print(dsg)
     tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
-    
+    print(tf)
     fct<- fct_lvl()$fg$FACTOR #get factor labels
     print(fct)
     flvl<- fct_lvl()$flvl #get factor's levels
     print(flvl)
     
     try({
-    
-    if(tf=="yes"){
-      nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
-      fb <- try(st4gi::cr.f(fnames = fct, flevels = flvl, design = dsg, nrep = nrep, nc = 10)$book)
-      if(dsg=="crd"){
-        names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT") #rename first 4 cols
-      } 
-      if(dsg=="rcbd"){
-         names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")  #rename first 5 cols
-      }
-    }
-    if(tf=="no"){
-      
-      nrep <- as.numeric(input$designFieldbook_agrofims_r_n)  #for blocks and reps (crd and rcbd)
-      ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
-      nfactor <- length(fct) #number of factors
-      print("n factor")
-      print(nfactor)
-      if(nfactor==1){
-         trt <- unlist(flvl)
-         if(dsg=="crd"){
-           fb<- try(st4gi::cr.crd(geno = trt,nrep = nrep ,nc = 10)$book)
-           names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT")
-         } 
-         if(dsg=="rcbd"){
-           fb<- try(st4gi::cr.rcbd(geno = trt, nb = nrep ,nc = 10)$book)
-           names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")
-         }
-      } else{
-           fb<- try(st4gi::cr.f(fnames = fct,flevels = flvl, design = dsg, nrep = nrep, nc = 10)$book)
-           if(dsg=="crd"){
-              fb <- fb[,1:4]
-              names(fb) <- c("PLOT","ROW","COL","TREATMENT")
-           } 
-           if(dsg=="rcbd"){
-              fb <- fb[,1:5]
-              names(fb) <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")
-           }
-      }  
-    }
-    fb
+        if(tf=="yes"){
+          
+         if(dsg!="sprcbd"){
+            nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
+            fb <- try(st4gi::cr.f(fnames = fct, flevels = flvl, design = dsg, nrep = nrep, nc = 10)$book)
+            if(dsg=="crd"){
+              names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT") #rename first 4 cols
+            } 
+            if(dsg=="rcbd"){
+               names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")  #rename first 5 cols
+            }
+          }
+          
+          if(dsg=="sprcbd"){
+            nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
+            fb <- try( st4gi::cr.spld(fnames = fct, flevels = flvl, nb = nrep)$book)
+            names(fb)[1:6] <- c("BLOCK" ,"PLOT","SUBPLOT","ROW","COL","TREATMENT")  #rename first 5 cols
+          }
+          # if(dsg=="strip"){
+          #   nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
+          #   fb <- try( st4gi::cr.strd(fnames = fct, flevels = flvl, nb = nrep)$book)
+          #   names(fb)[1:6] <- c("BLOCK" ,"PLOT","SUBPLOT","ROW","COL","TREATMENT")  #rename first 5 cols
+          # }
+          
+          
+        }
+        if(tf=="no"){
+          
+          nrep <- as.numeric(input$designFieldbook_agrofims_r_n)  #for blocks and reps (crd and rcbd)
+          ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
+          nfactor <- length(fct) #number of factors
+          print("n factor")
+          print(nfactor)
+          if(nfactor==1){
+             trt <- unlist(flvl)
+             if(dsg=="crd"){
+               fb<- try(st4gi::cr.crd(geno = trt,nrep = nrep ,nc = 10)$book)
+               names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT")
+             } 
+             if(dsg=="rcbd"){
+               fb<- try(st4gi::cr.rcbd(geno = trt, nb = nrep ,nc = 10)$book)
+               names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")
+             }
+          } else{
+               fb<- try(st4gi::cr.f(fnames = fct,flevels = flvl, design = dsg, nrep = nrep, nc = 10)$book)
+               if(dsg=="crd"){
+                  fb <- fb[,1:4]
+                  names(fb) <- c("PLOT","ROW","COL","TREATMENT")
+               } 
+               if(dsg=="rcbd"){
+                  fb <- fb[,1:5]
+                  names(fb) <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")
+               }
+          }  
+        }
+        fb
     })
   }
   
@@ -10899,7 +10565,7 @@ out
     
     fb <- fbdesign()
     trait <- traits_dt()
-    print(trait)
+    #print(trait)
     cr<- trait$Crop
     cm <- trait$Crop.measurement
     sb<- trait$Subgroup
@@ -10953,7 +10619,7 @@ out
 
    })
 
-
+  
   ############# donwload fieldbook ##################################################
    output$downloadData <- downloadHandler(
      filename = "fileNameBook.xlsx",
@@ -10961,8 +10627,6 @@ out
 
        withProgress(message = 'Downloading fieldbook', value = 0, {
 
-         # print(fct_lvl()$fg)
-         # print(fct_lvl()$flvl)
          # n <- as.numeric(input$numApplicationsIrrigation)
          # fb_traits <- fb_agrofims_traits()
          gmetadata <- globalMetadata() #metadata_dt2()
@@ -10973,14 +10637,14 @@ out
          fb  <- fbdesign_traits()
          print("inicio")
          wb <- createWorkbook()
-
+         print("inicio2")
          incProgress(2/20,message = "Downloading data...")
-
+         print("inicio3")
          incProgress(6/20,message = "Metadata metadata sheet...")
          openxlsx::addWorksheet(wb, "Metadata", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Metadata", x = gmetadata,
                                  colNames = TRUE, withFilter = FALSE)
-
+         print("inicio4")
          # print("phenology")
          # openxlsx::addWorksheet(wb, "Phenology", gridLines = TRUE)
          # openxlsx::writeDataTable(wb, "Phenology", x = phenology,
@@ -10993,9 +10657,58 @@ out
          openxlsx::addWorksheet(wb, "Fieldbook", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Fieldbook", x = fb,
                                   colNames = TRUE, withFilter = FALSE)
-
          }
+         
+         #Experimental conditions
+        
+         print("Adding residue management")
+         incProgress(7/20,message = "Adding residue management")
+         openxlsx::addWorksheet(wb, "Residue management", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Residue management", x = residue(),
+                                 colNames = TRUE, withFilter = FALSE)
 
+         ai <<- AllInputs()
+         
+         print("Addin planting")
+         incProgress(7/20,message = "Adding Planting and transplating")
+         openxlsx::addWorksheet(wb, "Planting_transplating", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Planting_transplating", x = plating_trans(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         print("mulch")
+         print(dt_mulching())
+         incProgress(7/20,message = "Adding mulching sheet")
+         openxlsx::addWorksheet(wb, "Mulching", gridLines = TRUE)
+       
+         openxlsx::writeDataTable(wb, "Mulching", x = dt_mulching(),
+                                  colNames = TRUE, withFilter = FALSE)
+        
+         print("irrigation")
+         incProgress(7/20,message = "Adding irrigation sheet")
+         openxlsx::addWorksheet(wb, "Irrigation", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Irrigation", x = dt_irrigation(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         print("weeding")
+         incProgress(7/20,message = "Adding weeding sheet")
+         openxlsx::addWorksheet(wb, "Weeding", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Weeding", x = dt_weeding(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         print("harvest")
+         incProgress(7/20,message = "Adding harvest sheet")
+         openxlsx::addWorksheet(wb, "Harvest", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Harvest", x = dt_harvest(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         print("soil")
+         incProgress(7/20,message = "Adding soilt and fertility")
+         openxlsx::addWorksheet(wb, "Soil fertility", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Soil fertility", x = dt_soilFertility(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         
+         print("inicio6")
          if(input$croppingType=="Intercrop"){
 
            incProgress(7/20,message = "Adding fieldbook data...")
@@ -11043,6 +10756,43 @@ out
            } #end if
          }
 
+         
+         incProgress(9/20,message = "Adding trait list sheet...")
+         
+         print("inicio7")
+         openxlsx::addWorksheet(wb, "Trait list", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Trait list", x = traits_dt(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         print("inicio8")
+         openxlsx::addWorksheet(wb, "Phenology", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Phenology", x = pheno_dt(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         print("inicio9")
+         print(weather_dt())
+         print(nrow(weather_dt()))
+         openxlsx::addWorksheet(wb, "Weather", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Weather", x = weather_dt(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         print("inicio10")
+         openxlsx::addWorksheet(wb, "Soil", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Soil", x = soil_dt(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         print("inicio11")
+         
+      
+        
+         #saveRDS(x, file = "allinputs.rds")
+         x <- reactiveValuesToList(input)
+         saveRDS(x, file = "allinputs.rds")
+         openxlsx::addWorksheet(wb, "Inputs", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Inputs", x = AllInputs(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         
          # agroFeaSelected <- input$selectAgroFeature
          # #
          # #print("error5")
@@ -11166,25 +10916,8 @@ out
 
 
      #
-         incProgress(9/20,message = "Adding trait list sheet...")
-
-         openxlsx::addWorksheet(wb, "Trait list", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Trait list", x = traits_dt(),
-                                  colNames = TRUE, withFilter = FALSE)
-
-         openxlsx::addWorksheet(wb, "Phenology", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Phenology", x = pheno_dt(),
-                                  colNames = TRUE, withFilter = FALSE)
-
-         openxlsx::addWorksheet(wb, "Soil", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Soil", x = soil_dt(),
-                                  colNames = TRUE, withFilter = FALSE)
-
-         openxlsx::addWorksheet(wb, "Weather", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Weather", x = weather_dt(),
-                                  colNames = TRUE, withFilter = FALSE)
          
-        
+         
          
          # openxlsx::addWorksheet(wb, "Weather", gridLines = TRUE)
          # openxlsx::writeDataTable(wb, "Weather", x = weather_dt(),

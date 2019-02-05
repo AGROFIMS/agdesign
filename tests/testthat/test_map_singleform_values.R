@@ -27,7 +27,7 @@ test_that("To test with input equal to NA", {
 
 
 test_that("To test with vector input equal to NAs", {
-  out<- map_singleform_values(input= c(NA,2,NA), type="select", multiple=FALSE, collapsed= FALSE)
+  out<- map_singleform_values(input= c(NA,NA,NA), type="select", multiple=FALSE, collapsed= FALSE)
   expect_equal(out, "")
 })
 
