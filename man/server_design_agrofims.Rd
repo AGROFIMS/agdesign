@@ -16,8 +16,11 @@ server_design_agrofims(input, output, session, values)
 \item{values}{reactive values}
 }
 \description{
-Design field book for HIDAP-AGROFIMS
+proccess all information provided by users
 }
 \author{
-Omar Benites / Ivan Perez / Raul Arias
+Omar Benites / Ivan Perez
+
+TODO Mulching and residue ############################################################
+TODO Irrigation  #####################################################################
 }

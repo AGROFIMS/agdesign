@@ -782,12 +782,33 @@ get_fctlvl_values <- function(input, designVars, tf= c("yes","no")){
 
 #' Add columns to data frames with different sizes
 #' 
-#' @param df data frame 
+#' @param dt data frame 
 #' @param new.col vector New column to add into the data frame
 #' @references https://stat.ethz.ch/pipermail/r-help/2004-October/059752.html
 
-add.col<-function(df, new.col) {
-  n.row<-dim(df)[1]
+add.col<-function(dt, new.col) {
+  n.row<-dim(dt)[1]
   length(new.col)<-n.row
-  cbind(df, new.col)
+  cbind(dt, new.col)
+}
+
+
+#' Add columns to data frames with different sizes
+#' 
+#' @param dt data frame 
+#' @param d vector New column to add into the data frame
+#' @author Omar Benites
+
+dt_inputs<- function(dt, dt_other){
+  
+  for(i in 1:nrow(dt)){
+    
+    if(dt[i,"values"]=="Other" || dt[i,"values"]=="other" ){
+      dt[i,"values"] <-  dt_other[i,"values"]
+    }
+    else{
+      dt[i,"values"]<- dt[i,"values"]
+    }
+  }  
+  dt
 }

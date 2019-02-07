@@ -1,15 +1,15 @@
-#'
 #' Design field book for HIDAP-AGROFIMS
 #'
+#' proccess all information provided by users
+#' 
 #' @param input shinyserver input
 #' @param output shinyserver output
 #' @param session shinyserver session
-## @param dom target dom element name
 #' @param values reactive values
-#' @author Omar Benites / Ivan Perez / Raul Arias
 #' @export
-#'
+#' @author Omar Benites / Ivan Perez
 
+#' 
 server_design_agrofims <- function(input, output, session, values){
 
   #################### START: PATHS GENERALES ####################
@@ -1251,7 +1251,7 @@ server_design_agrofims <- function(input, output, session, values){
   # residue_start_date 
   output$res_start_date <- renderUI({
     if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("residue_start_date",
+      airDatepickerInput("rmgt_residue_start_date",
                          "Start date",
                          clearButton = T,
                          autoClose = T,
@@ -1262,7 +1262,7 @@ server_design_agrofims <- function(input, output, session, values){
                          
       )
     } else {
-      airDatepickerInput("residue_start_date",
+      airDatepickerInput("rmgt_residue_start_date",
                          "Start date",
                          clearButton = T,
                          autoClose = T,
@@ -1698,10 +1698,39 @@ server_design_agrofims <- function(input, output, session, values){
                           ),
                           hidden(textInput(paste0("designFieldbook_fundAgencyType_", str_id, "_other"), "", value = ""))
                           
-                    ), 
-                    column(6,
-                      textInput(paste0("designFieldbook_fundAgencyType_name_", str_id), "Funding agency name")
-                    )
+                    ),
+                   
+                   conditionalPanel(paste0("input.designFieldbook_fundAgencyType_", str_id, " != 'CGIAR center'"),
+                          column(6,
+                            textInput(paste0("designFieldbook_fundAgencyType_name_", str_id), "Funding agency name")
+                          )
+                   ),
+                   
+                   conditionalPanel(paste0("input.designFieldbook_fundAgencyType_", str_id, " == 'CGIAR center'"),
+                                    column(6,
+                                          selectizeInput(paste0("designFieldbook_fundAgencyType_cgiar_", str_id), "Choose CGIAR center", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices = c(
+                                             "Africa Rice Center",
+                                             "Bioversity International",
+                                             "Center for International Forestry Research (CIFOR)",
+                                             "International Center for Agricultural Research (ICARDA)",
+                                             "International Center for Tropical Agriculture (CIAT)",
+                                             "International Crops Research Institute for the Semi-Arid (ICRISAT)",
+                                             "International Food Policy Research Institute (IFPRI)",
+                                             "International Institute of Tropical Agriculture (IITA)",
+                                             "International Livestock Research Institure (ILRI)",
+                                             "International Maize and Wheat Improvement Center (CIMMYT)",
+                                             "International Potato Center (CIP)",
+                                             "International Rice Research Institute (IRRI)",
+                                             "International Water Management Institute (IWMI)",
+                                             "World Agroforestry Centre (ICRAF)",
+                                             "WorldFish",
+                                             "None")
+                                           )
+                                   )
+                   )
+                   
+                   
+                   
                  )
              )
       
@@ -2696,7 +2725,7 @@ server_design_agrofims <- function(input, output, session, values){
                            column(6, HTML("<b><h4>Factor</h4></b>")
                            ),
                            column(6, 
-                                  style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_FF_", str_id), "Remove")
+                                  style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_FF_", str_id), "", icon("close"))
                            )
                            
                     ),
@@ -2755,7 +2784,7 @@ server_design_agrofims <- function(input, output, session, values){
                          column(6, HTML("<b><h4>Factor</h4></b>")
                          ),
                          column(6, 
-                                style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_NFF_", str_id), "Remove")
+                                style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_NFF_", str_id), "", icon("close"))
                           )
                          
                   ),
@@ -7524,7 +7553,7 @@ server_design_agrofims <- function(input, output, session, values){
                   # title = div(id=paste0("desc_harvest_titleId_", index), "Harvest detailssss"),
                   status = "primary",
                   solidHeader = TRUE,
-                  width = 12, collapsible = TRUE, collapsed = T,
+                  width = 12, collapsible = TRUE, collapsed = FALSE,
                   fluidRow(
                     column(width = 6,
                            fluidRow(
@@ -7738,7 +7767,7 @@ server_design_agrofims <- function(input, output, session, values){
                   title = actionLink(paste0("plantingTransplanting_titleId_", index), uiOutput(paste0("planting_title_", index)) ),
                   status = "primary",
                   solidHeader = TRUE,
-                  width = 12, collapsible = TRUE,  collapsed = TRUE,
+                  width = 12, collapsible = TRUE,  collapsed = FALSE,
                   fluidRow(
                     
                     box(id=paste0("direct_seeding_boxid_", index),
@@ -8556,16 +8585,18 @@ server_design_agrofims <- function(input, output, session, values){
   #Weather Manual DataTable #############################################################
   output$weatherManualDT = renderDT(
     
-    dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit) ,  options = list(lengthChange = FALSE) 
+    #dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit) ,  options = list(lengthChange = FALSE) 
+    weather_manual_vars %>% dplyr::select(Measurement, Unit) ,  options = list(lengthChange = FALSE) 
   )
   #Weather Station DataTable #############################################################
   output$weatherStationDT = renderDT(
-    dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit) , options = list(lengthChange = FALSE)
+    #dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit) , options = list(lengthChange = FALSE)
+    weather_station_vars %>% dplyr::select(Measurement, Unit) ,  options = list(lengthChange = FALSE) 
   )
   
   #Soil## Station DataTable #############################################################
   output$soilDT = renderDT(
-    soil_vars %>% dplyr::select(Variable, Unit) , options = list(lengthChange = FALSE)
+    soil_data %>% dplyr::select(Variable, Unit) , options = list(lengthChange = FALSE)
   )
 
   #Select Input for split plot designs ####################################################
@@ -8816,632 +8847,9 @@ server_design_agrofims <- function(input, output, session, values){
   )
 
 
-   ### Reactive Factor and Levels ####################################################
-
-   ### Factor 1  #####################################################################
-   factor1StartDateInputs <- reactive({
-
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_1
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-     }
-     
-    
-     fl <- list()
-
-     sel1_1 <-	input$sel1_1 #group
-     sel1_2<-	input$sel1_2 #subgroup
-     sel1_3<-	input$sel1_3 #factor
-     #print(nlevels)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_start_date_", 1, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor1EndDateInputs <- reactive({
-
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_1
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-     }
-     
-     
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_end_date_", 1, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor1NumericInputLevel <- reactive({
-     #nfactors<- input$nfactors_hdafims
-     #nlevels <- input$numLevels_1
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     #for(i in 1:nfactors){
-     fl[[1]] <-  input[[paste0("levels_", 1)]] #i = order
-     #}
-     fl <- unlist(fl)
-   })
-   factor1TextInputLevel <- reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 1)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor1TextInputUnits <-reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("units_", 1)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor1ComboboxLevel <- reactive({
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 1)]] #i = order
-     fl <- unlist(fl)
-
-   })
-
-   # Gathertin factor 1 inputs
-   f1 <- reactive({
-
-     out <- list(factor1StartDateInputs(),  factor1EndDateInputs(),  factor1NumericInputLevel(),  factor1TextInputLevel(),
-                 factor1TextInputUnits(), factor1ComboboxLevel())
-     names(out) <- c("Start date", "End date", "numeric", "text", "units", "combo")
-     out
-   })
-   ###################################################################################
-
-   ### Factor 2  #####################################################################
-   factor2StartDateInputs  <- reactive({
-      
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_2
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-     }
-     
-     
-     fl <- list()
-     print("f2 start date levels and factors")
-     print(nlevels)
-     print(nfactors)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_start_date_", 2, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor2EndDateInputs <- reactive({
-
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_2
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-     }
-     
-     fl <- list() 
-     #print(nlevels)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_end_date_", 2, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor2NumericInputLevel <- reactive({
-     #nfactors<- input$nfactors_hdafims
-     #nlevels <- input$numLevels_1
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     #for(i in 1:nfactors){
-     fl[[1]] <-  input[[paste0("levels_", 2)]] #i = order
-     #}
-     fl <- unlist(fl)
-   })
-   factor2TextInputLevel <- reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 2)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor2TextInputUnits <-reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("units_", 2)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor2ComboboxLevel <- reactive({
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 2)]] #i = order
-     fl <- unlist(fl)
-
-   })
-
-   # Gathertin factor 2 inputs
-   f2 <- reactive({
-
-     out <- list(factor2StartDateInputs(),  factor2EndDateInputs(),  factor2NumericInputLevel(),  factor2TextInputLevel(),
-                 factor2TextInputUnits(), factor2ComboboxLevel())
-     names(out) <- c("Start date", "End date", "numeric", "text", "units", "combo")
-     out
-   })
-   ##################################################################################
-
-   ### Factor 3  #####################################################################
-   factor3StartDateInputs  <- reactive({
-
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_3
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-     }
-    
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_start_date_", 3, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor3EndDateInputs <- reactive({
-
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_3
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-    }
-     
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_end_date_", 3, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor3NumericInputLevel <- reactive({
-     #nfactors<- input$nfactors_hdafims
-     #nlevels <- input$numLevels_1
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     #for(i in 1:nfactors){
-     fl[[1]] <-  input[[paste0("levels_", 3)]] #i = order
-     #}
-     fl <- unlist(fl)
-   })
-   factor3TextInputLevel <- reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 3)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor3TextInputUnits <-reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("units_", 3)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor3ComboboxLevel <- reactive({
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 3)]] #i = order
-     fl <- unlist(fl)
-
-   })
-
-   f3 <- reactive({
-
-     out <- list(factor3StartDateInputs(),  factor3EndDateInputs(),  factor3NumericInputLevel(),  factor3TextInputLevel(),
-                 factor3TextInputUnits(), factor3ComboboxLevel())
-     names(out) <- c("Start date", "End date", "numeric", "text", "units", "combo")
-     out
-
-   })
-   ###################################################################################
-
-   ### Factor 4  #####################################################################
-
-   factor4StartDateInputs  <- reactive({
-
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_4
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-     }
-     
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_start_date_", 4, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor4EndDateInputs <- reactive({
-
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_4
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-     }
-     
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_end_date_", 4, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor4NumericInputLevel <- reactive({
-     #nfactors<- input$nfactors_hdafims
-     #nlevels <- input$numLevels_1
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     #for(i in 1:nfactors){
-     fl[[1]] <-  input[[paste0("levels_", 4)]] #i = order
-     #}
-     fl <- unlist(fl)
-   })
-   factor4TextInputLevel <- reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 4)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor4TextInputUnits <-reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("units_", 4)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor4ComboboxLevel <- reactive({
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 4)]] #i = order
-     fl <- unlist(fl)
-
-   })
-
-   f4 <- reactive({
-
-     out <- list(factor4StartDateInputs(),  factor4EndDateInputs(),  factor4NumericInputLevel(),  factor4TextInputLevel(),
-                 factor4TextInputUnits(), factor4ComboboxLevel())
-     names(out) <- c("Start date", "End date", "numeric", "text", "units", "combo")
-     out
-
-   })
-   ###################################################################################
-
-   ### Factor 5  #####################################################################
-   factor5StartDateInputs  <- reactive({
-
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_5
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-     }
-     
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_start_date_", 5, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor5EndDateInputs <- reactive({
-
-     if(input$fullFactorialRB=="Yes"){
-       nfactors<- input$nfactors_hdafims_y
-       nlevels <- input$numLevels_5
-     } else {
-       nfactors<- input$nfactors_hdafims_n
-       nlevels <- 1
-     }
-     
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     for(i in 1:nlevels){
-       fl[[i]] <-  paste(input[[paste0("factor_end_date_", 5, "_", i)]])
-     }
-     fl <- unlist(fl)
-   })
-   factor5NumericInputLevel <- reactive({
-     #nfactors<- input$nfactors_hdafims
-     #nlevels <- input$numLevels_1
-     fl <- list()
-     #print(nlevels)
-     #print(p2)
-     #for(i in 1:nfactors){
-     fl[[1]] <-  input[[paste0("levels_", 5)]] #i = order
-     #}
-     fl <- unlist(fl)
-   })
-   factor5TextInputLevel <- reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 5)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor5TextInputUnits <-reactive({
-
-     fl <- list()
-     fl[[1]] <-  input[[paste0("units_", 5)]] #i = order
-     fl <- unlist(fl)
-
-   })
-   factor5ComboboxLevel <- reactive({
-     fl <- list()
-     fl[[1]] <-  input[[paste0("levels_", 5)]] #i = order
-     fl <- unlist(fl)
-
-   })
-
-   f5 <- reactive({
-
-     out <- list(factor5StartDateInputs(),  factor5EndDateInputs(),  factor5NumericInputLevel(),  factor5TextInputLevel(),
-                 factor5TextInputUnits(), factor5ComboboxLevel())
-     names(out) <- c("Start date", "End date", "numeric", "text", "units", "combo")
-     out
-
-   })
-   ###################################################################################
-
-   ## reactives soil
-
-
-   ## Soil and Fertility  Design Inputs ##############################################
-
-   #Number of aplications
-   nappf1 <- reactive({
-     ### #1 Factor
-     napp1<- NULL
-     if(input$sel1_3 =="Number of fertilizer applications"){
-       # Levels
-       print(input$numLevels_tabSoil_1)
-       for(i in 1:input$numLevels_tabSoil_1){
-         # # of applications
-         napp1[i] <-  input[[paste0("numApps_tabSoil_factor_1_box_",i)]]
-       }
-     }
-     napp1
-   })
-   nappf2 <- reactive({
-     ### #2 Factor
-     napp2<- NULL
-     if(input$sel2_3 =="Number of fertilizer applications"){
-       # Levels
-       for(i in 1:input$numLevels_tabSoil_2){
-         # # of applications
-         napp2[i] <-  input[[paste0("numApps_tabSoil_factor_2_box_",i)]]
-       }
-     }
-     napp2
-   })
-   nappf3 <- reactive({
-     napp3<- NULL
-     if(input$sel3_3 =="Number of fertilizer applications"){
-       # Levels
-       for(i in 1:input$numLevels_tabSoil_3){
-         # # of applications
-         napp3[i] <-  input[[paste0("numApps_tabSoil_factor_3_box_",i)]]
-       }
-     }
-     napp3
-   })
-   nappf4 <- reactive({
-     napp4<- NULL
-     if(input$sel4_3 =="Number of fertilizer applications"){
-       # Levels
-       for(i in 1:input$numLevels_tabSoil_4){
-         # # of applications
-         napp4[i] <-  input[[paste0("numApps_tabSoil_factor_4_box_",i)]]
-       }
-     }
-     napp4
-   })
-   nappf5 <- reactive({
-     napp5<- NULL
-     if(input$sel5_3 =="Number of fertilizer applications"){
-       # Levels
-       for(i in 1:input$numLevels_tabSoil_5){
-         # # of applications
-         napp5[i] <-  input[[paste0("numApps_tabSoil_factor_5_box_",i)]]
-       }
-     }
-     napp5
-   })
-
-
-   #rate total producto
-   rtf1<- reactive({
-
-     if(input$sel1_3 =="Fertilizer product application rate" ||
-        input$sel1_3 =="Biofertilizer" ||  input$sel1_3 =="Inorganic"||
-        input$sel1_3 =="Green manure"|| input$sel1_3 =="Lime"||
-        input$sel1_3 =="Organic"){
-       # Levels
-       rt1<-NULL
-       for(i in 1:input$numLevels_tabSoil_1){
-         rt1[i]<- input[[paste0("input_product_RateTotal_factor_1_level_",i)]]
-       }
-       rt1
-     }
-   })
-   rtf2<- reactive({
-     if(input$sel2_3 =="Fertilizer product application rate" ||
-        input$sel2_3 =="Biofertilizer" ||  input$sel2_3 =="Inorganic"||
-        input$sel2_3 =="Green manure"|| input$sel2_3 =="Lime"||
-        input$sel2_3 =="Organic"){
-       # Levels
-       rt2<-NULL
-       for(i in 1:input$numLevels_tabSoil_2){
-         rt2[i]<- input[[paste0("input_product_RateTotal_factor_2_level_",i)]]
-       }
-       rt2
-     }
-   })
-   rtf3<- reactive({
-     if(input$sel3_3 =="Fertilizer product application rate" ||
-        input$sel3_3 =="Biofertilizer" ||  input$sel3_3 =="Inorganic"||
-        input$sel3_3 =="Green manure"|| input$sel3_3 =="Lime"||
-        input$sel3_3 =="Organic"){
-       # Levels
-       rt3<-NULL
-       for(i in 1:input$numLevels_tabSoil_3){
-         rt3[i]<- input[[paste0("input_product_RateTotal_factor_3_level_",i)]]
-       }
-       rt3
-     }
-   })
-   rtf4 <- reactive({
-
-     if(input$sel4_3 =="Fertilizer product application rate" ||
-        input$sel4_3 =="Biofertilizer" ||  input$sel4_3 =="Inorganic"||
-        input$sel4_3 =="Green manure"|| input$sel4_3 =="Lime"||
-        input$sel4_3 =="Organic"){
-       # Levels
-       rt4<-NULL
-       for(i in 1:input$numLevels_tabSoil_4){
-         rt4[i]<- input[[paste0("input_product_RateTotal_factor_4_level_",i)]]
-       }
-       rt4
-     }
-   })
-   rtf5<- reactive({
-
-     if(input$sel5_3 =="Fertilizer product application rate" ||
-        input$sel5_3 =="Biofertilizer" ||  input$sel5_3 =="Inorganic"||
-        input$sel5_3 =="Green manure"|| input$sel5_3 =="Lime"||
-        input$sel5_3 =="Organic"){
-       # Levels
-       rt5<-NULL
-       for(i in  1:input$numLevels_tabSoil_5){
-         rt5[i]<- input[[paste0("input_product_RateTotal_factor_5_level_",i)]]
-       }
-       rt5
-     }
-   })
-
-   #nutrient rate element
-   ref1<- reactive({
-
-     if(input$sel1_3 =="Nutrient element application rate"){
-       # Levels
-       re1<-NULL
-       for(i in 1:input$numLevels_tabSoil_1){
-         re1[i]<- input[[paste0("input_element_RateTotal_factor_1_level_",i)]]
-       }
-       re1
-     }
-   })
-   ref2<- reactive({
-
-     if(input$sel2_3 =="Nutrient element application rate"){
-       # Levels
-       re2<-NULL
-       for(i in 1:input$numLevels_tabSoil_2){
-         re2[i]<- input[[paste0("input_element_RateTotal_factor_2_level_",i)]]
-       }
-       re2
-     }
-   })
-   ref3<- reactive({
-
-     if(input$sel3_3 =="Nutrient element application rate"){
-       # Levels
-       re3<-NULL
-       for(i in 1:input$numLevels_tabSoil_3){
-         re3[i]<- input[[paste0("input_element_RateTotal_factor_3_level_",i)]]
-       }
-       re3
-     }
-   })
-   ref4<- reactive({
-
-     if(input$sel4_3 =="Nutrient element application rate"){
-       # Levels
-       re4<-NULL
-       for(i in 1:input$numLevels_tabSoil_4){
-         re4[i]<- input[[paste0("input_element_RateTotal_factor_4_level_",i)]]
-       }
-       re4
-     }
-     re4
-   })
-   ref5<- reactive({
-
-     if(input$sel5_3 =="Nutrient element application rate"){
-       # Levels
-       re5<-NULL
-       for(i in 1:input$numLevels_tabSoil_5){
-         re5[i]<- input[[paste0("input_element_RateTotal_factor_5_level_",i)]]
-       }
-       re5
-     }
-     re5
-   })
-
-
-
    
   # Fieldbook design ################################################################
 
-   #Experimental design inputs
-   #design inputs from experimental design tab
-   dffinputs <-  function(){
-     
-     f1inputs <- fctinputs(gr1= input$sel1_1, gr2= input$sel1_2, gr3= input$sel1_3, napp= nappf1(), rtf = rtf1(),  ref= ref1(), dfr= f1())
-     #Factor 2
-     f2inputs <- fctinputs(gr1= input$sel2_1, gr2= input$sel2_2, gr3= input$sel2_3, napp= nappf2(), rtf = rtf2(),  ref= ref2(), dfr= f2())
-     #Factor 3
-     f3inputs <- fctinputs(gr1= input$sel3_1, gr2= input$sel3_2, gr3= input$sel3_3, napp= nappf3(), rtf = rtf3(),  ref= ref3(), dfr= f3())
-     #Factor 4
-     f4inputs <- fctinputs(gr1= input$sel4_1, gr2= input$sel4_2, gr3= input$sel4_3, napp= nappf4(), rtf = rtf4(),  ref= ref4(), dfr= f4())
-     #Factor 5
-     f5inputs <- fctinputs(gr1= input$sel5_1, gr2= input$sel5_2, gr3= input$sel5_3, napp= nappf5(), rtf = rtf5(),  ref= ref5(), dfr= f5())
- 
-     out<- list(f1inputs =f1inputs, f2inputs =f2inputs,f3inputs =f3inputs,f4inputs =f4inputs,f5inputs =f5inputs)
-   }
-   #fb_agrofims <- shiny::reactive({
-     
- 
   # Fieldbook with traits ###########################################################
    
   # fb_agrofims_traits <- reactive({
@@ -9545,197 +8953,49 @@ server_design_agrofims <- function(input, output, session, values){
   AllInputs <- reactive({
      x <- reactiveValuesToList(input)
      for(i in 1:length(names(x))){
-       #if(is.null(x[[i]])){
-       #  x[[i]]<- "novalue"
-       #} else if(length(x[[i]])>1) {
+       if(is.null(x[[i]])){
+          x[[i]]<- ""
+       } else { # else if(length(x[[i]])>1) {
        x[[i]]<-paste(x[[i]], collapse=", ")
-       #}
+       }
      }
      data.frame(
        id = names(x),
-       values = unlist(x, use.names = FALSE)
+       values = unlist(x, use.names = FALSE),stringsAsFactors = FALSE
      )
    }) 
    
   #Residue management ###############################################################
-  residue <- reactive({
-     
-    dt <- AllInputs() %>% filter(str_detect(id, "residue_"))
-    dt <- t(dt) %>% as.data.frame()
-    names(dt) <- paste(names(dt), 1:ncol(dt))
-    dt
+  dt_residual<- reactive({
     
-    # plantp<- map_singleform_values(input = input$residue_plantPart, input_other = input$residue_plantPart_other, 
-    #                            type = "select", format = "data.frame", label = "Factor") 
-    # cmoi <- map_singleform_values(input =input$crop_residue_moisture, type = "select", format = "data.frame", label = "Factor") 
-    # 
-    # r_thick <-  map_singleform_values(input =input$crop_residue_thick , type = "numeric", format = "data.frame", label = "Factor")
-    # r_thick_unit <- map_singleform_values(input =input$crop_residue_thick_unit, type = "select", format = "data.frame", label = "Factor") #unit
-    # 
-    # r_amount <-  map_singleform_values(input =input$crop_residue_amount_sqm, type = "numeric", format = "data.frame", label = "Factor")
-    # r_amount_unit <- map_singleform_values(input =input$crop_residue_amount_sqm_unit,  type = "select", format = "data.frame", label = "Factor") #unit
-    # 
-    # r_cov <-  map_singleform_values(input =input$crop_residue_perc_cov, type = "numeric", format = "data.frame", label = "Factor")
-    # r_cov_unit <- map_singleform_values(input =input$crop_residue_perc_cov_unit, type = "select", format = "data.frame", label = "Factor")  #unit
-    # 
-    # r_notes <- input$residue_management_notes
-    # 
-    # dt<- rbind(plantp, cmoi, r_thick, r_thick_unit, r_amount, r_amount_unit, r_cov, r_cov_unit)
-    # dt<- t(dt) %>% as.data.frame()
-    # dt
-    # 
-    # namesdt<-  c("Plant part", "Crop residue moisture", "Crop residue thickness", "Crop residue amount",
-    #         "Crop residue percent of coverage","Notes")
-    # 
-            
+    #ai<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+    #input<-readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+    dt1 <- get_ec_resdesc(input=input)         
+    dt2 <- get_ec_resmgt(input=input) 
+    dt<- cbind(dt1,dt2)
     
   })
-  res_mgt <- reactive({
-     r_start_date<-  map_singleform_values(input =input$residue_start_date, type = "date",
-                                           format = "data.frame", label = "Factor")#dates
-     r_technique <-  map_singleform_values(input =input$residue_technique, input$residue_technique_other, 
-                                           type = "select",format = "data.frame", label = "Factor")#dates
-     r_traction <-  map_singleform_values(input =input$residue_traction, input$residue_traction_other,
-                                          type = "select",format = "data.frame", label = "Factor")#dates
-     r_notes <- input$residue_management_notes
-     
-     dt<-rbind(r_start_date, r_technique, r_traction, r_notes)
-     dt<- t(dt) %>% as.data.frame()
-     dt
-     
-   })
   
   #seedbed preparation  #############################################################
-  seedbed <- reactive({
-    
-    flag<-FALSE
-    
-    if(input$landLevelling_checkbox==TRUE){
-      
-      ll_start_date <- map_singleform_values(input =input$landLeveling_start_date, type = "date", format = "data.frame", label = "Factor" ) #dates
-      #ll_end_date <- getDateInput(input$landLeveling_end_date) #dates
-      ll_npasses <- map_singleform_values(input =input$numPasses,  type = "numeric", format = "data.frame", 
-                                          label = "Factor" )
-      ll_notes <-  map_singleform_values(input =input$landLeveling_notes,  type = "text", format = "data.frame",
-                                         label = "Factor")
-      ll_type <-  map_singleform_values(input$land_impl_type, type = "select", format = "data.frame", label = "Factor")
-      ll_traction <-  map_singleform_values(input$land_traction, input$land_traction_other, type = "select", format = "data.frame", label = "Factor")
-      
-      llNames<- c("Land levelling start date (yyyy/mm/dd)", "Land levelling end date (yyyy/mm/dd)", 
-                  "Land levelling Total number of levelling passes", "Land levelling Notes",
-                  "Land levelling Type", "Land levelling traction")
-      
-      names(lldt) <- llNames
-      flag  <- TRUE
-      out   <- lldt
-    }
-    
-    if(input$puddling_checkbox==TRUE){
-      lp_start_date <-  map_singleform_values(input =input$puddling_start_date,
-                                              type = "date", format = "data.frame", label = "Factor" )
-      
-      lp_depth_val <- map_singleform_values(input = input$puddling_depth_val, 
-                                            type = "numeric", format = "data.frame", label = "Factor" )
-      lp_depth_unit <- map_singleform_values(input = input$puddling_depth_unit, 
-                                             type = "select", format = "data.frame", label = "Factor")
-      
-      lp_npasses <- map_singleform_values(input = input$puddling_total_number_puddling_passes,  
-                                          type = "numeric", format = "data.frame", label = "Factor")
-      lp_notes <- map_singleform_values(input =input$puddling_notes, 
-                                        type = "text", format = "data.frame", label = "Factor")
-      lp_type <- map_singleform_values(input = input$pud_impl_type, input$pud_impl_type_other, 
-                                       type = "select", format = "data.frame", label = "Factor")
-      lp_traction <- map_singleform_values(input$pud_traction, input$pud_traction_other, 
-                                           type = "select", format = "data.frame", label = "Factor")
-      
-      lpNames <- c("Puddling start date (yyyy/mm/dd)", "Puddling end date (yyyy/mm/dd)",
-                   "Puddling depth", "Puddling depth Unit (cm; ft; in; m)",
-                   "Puddling Total number of puddling passes",
-                   "Puddling notes", "Puddling type", "Puddling traction")
-      
-      names(lpdt) <- lpNames
-      
-      if(flag==TRUE){
-        out <- cbind(out, lpdt)
-        flag <- TRUE
-      }
-      else{
-        flag <- FALSE
-        out  <- lpdt
-      }
-      flag <- flag
-    }
-    
-    if(input$tillage_checkbox==TRUE){
-      
-      lt_start_date <- map_singleform_values(input = input$tillage_start_date, type = "date", format = "data.frame", label = "Factor" )
-      #lt_end_date  <-  getDateInput(input$tillage_end_date)
-      lt_technique  <- map_singleform_values(input =input$till_technique, input$till_technique_other,
-                                             type = "select", format = "data.frame", label = "Factor")
-      #lt_depth_method  <- getAgrOper(input$till_depth_method)
-      
-      lt_depth  <- map_singleform_values(input = input$tillage_depth,  type = "numeric", format = "data.frame", label = "Factor")
-      lt_depth_unit  <- map_singleform_values(input = input$tillage_depth_unit,type = "select", format = "data.frame", label = "Factor" )
-      #lt_depth_lbl <- paste("Tillage depth", lt_depth_unit, sep="_") #label
-      
-      lt_npasses  <- map_singleform_values(input =input$total_number_tillage_passes, type = "numeric", format = "data.frame", label = "Factor")
-      lt_notes  <- map_singleform_values(input$tillage_notes, type = "text", format = "data.frame",
-                                         label = "Factor")
-      lt_type  <-  map_singleform_values(input =input$till_impl_type, input$till_impl_type_other, 
-                                         type = "select", format = "data.frame", label = "Factor")
-      lt_traction <- map_singleform_values(input =input$till_traction, input$till_traction_other,
-                                           type = "select", format = "data.frame", label = "Factor")
-      
-      ltNames <- c("Tillage start date (yyyy/mm/dd)", "Tillage end date (yyyy/mm/dd)", "Tillage technique", "Tillage depth measurement method",
-                   "Tillage depth", "Tillage depth Unit (cm; ft; in; m)", #unit label
-                   "Total number of tillage passes", "Tillage Notes", "Tillage Type", "Tillage Traction")
-      
-      ltdt <- data.frame(lt_start_date, lt_end_date, lt_technique, lt_depth_method,
-                         lt_depth,lt_depth_unit,
-                         lt_npasses ,lt_notes, lt_type, lt_traction )
-      
-      
-      names(ltdt) <- ltNames
-      
-      if(flag==TRUE){
-        out  <- cbind(out, ltdt)
-        flag <-TRUE
-      }
-      else{
-        flag<-FALSE
-        out <- ltdt
-      }
-      flag <- flag
-      out  <- out
-      out[out=="NULL"]<-NA
-      out[out=="NA"]<-NA
-      
-    }
-    
-    if(input$landLevelling_checkbox==FALSE && input$puddling_checkbox==FALSE && input$tillage_checkbox== FALSE){
-      out<-data.frame()
-    }
-    
-    out <- out
+  dt_seedbed <- reactive({
+    land <- get_ec_sblalv(input=input)
+    pud<- get_ec_sbpud(input= input)
+    till<- get_ec_sbtill(input=input)
+    dt<- cbind(land,pud,till)
     
   })
 
   ## Soil Fertility
   dt_soilFertility <- reactive({
     
-    ft <- AllInputs() %>% filter(str_detect(id, "^select_fertilizerType_soil_table_row_"))
-    ps <- AllInputs() %>% filter(str_detect(id, "^select_product_soil_table_row_"))
-    pr<- AllInputs() %>% filter(str_detect(id, "^input_productRate_soil_table_"))
-    el <- AllInputs() %>% filter(str_detect(id, "^select_element_soil_table_row_")) 
-    er <- AllInputs() %>% filter(str_detect(id, "^input_elementRate_soil_table_row_"))  
-    startD <- AllInputs() %>% filter(str_detect(id, "^input_startdate_soil_table_row_"))   
-    endD <- AllInputs() %>% filter(str_detect(id, "^input_enddate_soil_table_row_"))  
-    tech <- AllInputs() %>% filter(str_detect(id, "^select_techinque_soil_table_row_"))   
-    txtA <-  AllInputs() %>% filter(str_detect(id, "^textArea_soil_table_row_"))    
-    
-    dt<- rbind(ft, ps, pr, el, er, startD, endD, tech, txtA)
-    dt <- t(dt) %>% as.data.frame()
-    names(dt) <- paste(names(dt), 1:ncol(dt))
+    if(is.null(input$soil_fertilizer_num_apps)){
+      napp <- 1
+    } else{
+      napp <- as.numeric(input$soil_fertilizer_num_apps)
+    }
+    lbl <- c("Fertilizer_type","Product","Product_rate_(kg/ha)", "Element","Element_rate_(kg/ha)",
+             "Start_date", "End_date", "Technique", "Notes")
+    dt<- get_ec_sf(allinputs= AllInputs(), lbl=lbl, napp=napp )
     dt
   })
   
@@ -9751,7 +9011,7 @@ server_design_agrofims <- function(input, output, session, values){
     dt
   })
  
-  ## Mulching and residue ############################################################
+  #'TODO Mulching and residue ############################################################
   dt_mulching <- reactive({
     dt<- AllInputs() %>% filter(str_detect(id, "^mulch_"))
     dt<- t(dt) %>% as.data.frame()
@@ -9759,7 +9019,7 @@ server_design_agrofims <- function(input, output, session, values){
     dt
    })
  
-  ## Irrigation  #####################################################################
+  #'TODO Irrigation  #####################################################################
   dt_irrigation <- reactive({
     dt<- AllInputs() %>% filter(str_detect(id, "^irrigation_"))
     dt<- t(dt) %>% as.data.frame()
@@ -9807,17 +9067,17 @@ server_design_agrofims <- function(input, output, session, values){
   ##reactive weather   ####################################
   weather_dt <- reactive({
     
-   a1 <- data.frame(Variable = NA, Unit = NA)
-   a2 <- data.frame(Variable = NA, Unit = NA)
+   a1 <- data.frame(Measurement = NA, Unit = NA)
+   a2 <- data.frame(Measurement = NA, Unit = NA)
    
    if(!is.null(input$manualMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
       if(input$manualMeasurement_checkbox==TRUE){
-       mstation <-  dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit)
-       
+       #mstation <-  #dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit)
+       manual_weather <- weather_manual_vars %>% dplyr::select(Measurement, Unit)
        row_select <- input$weatherManualDT_rows_selected
-       a1 <- mstation[row_select, ]
+       a1 <- manual_weather[row_select, ]
        if(nrow(a1)>0){
-         a1 <- a1[, c("Variable", "Unit")]
+         a1 <- a1[, c("Measurement", "Unit")]
        }
        a1<-a1
        
@@ -9826,12 +9086,13 @@ server_design_agrofims <- function(input, output, session, values){
 
    if(!is.null(input$stationMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
       if(input$stationMeasurement_checkbox==TRUE){
-     wstation <- dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit)
-     
+     #wstation <- dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit)
+     wstation<- weather_station_vars %>% dplyr::select(Measurement, Unit)
+        
      row_select <- input$weatherStationDT_rows_selected
      a2<- wstation[row_select, ]
      if(nrow(a2)>0){
-       a2<- a2[, c("Variable", "Unit")]
+       a2<- a2[, c("Measurement", "Unit")]
      }
      print("entro 21")
      a2 <- a2
@@ -9847,7 +9108,7 @@ server_design_agrofims <- function(input, output, session, values){
   soil_dt<- reactive({
     
     row_select <- input$soilDT_rows_selected
-    a<- soil_vars[row_select, ]
+    a<- soil_data[row_select, ]
     if(nrow(a)>0){
       a<- a[, c("Variable", "Unit")]
     } else{
@@ -10630,6 +9891,11 @@ server_design_agrofims <- function(input, output, session, values){
 
        withProgress(message = 'Downloading fieldbook', value = 0, {
 
+         ai <- AllInputs()
+         saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+         x <- reactiveValuesToList(input)
+         saveRDS(x, "/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+         
          # n <- as.numeric(input$numApplicationsIrrigation)
          # fb_traits <- fb_agrofims_traits()
          gmetadata <- globalMetadata() #metadata_dt2()
@@ -10667,10 +9933,16 @@ server_design_agrofims <- function(input, output, session, values){
          print("Adding residue management")
          incProgress(7/20,message = "Adding residue management")
          openxlsx::addWorksheet(wb, "Residue management", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Residue management", x = residue(),
+         openxlsx::writeDataTable(wb, "Residue management", x = dt_residual(),
                                  colNames = TRUE, withFilter = FALSE)
 
-         ai <<- AllInputs()
+         print("Adding seedbed sheet")
+         incProgress(7/20,message = "Adding Seedbed preparation sheet")
+         openxlsx::addWorksheet(wb, "Seedbed preparation", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Seedbed preparation", x = dt_seedbed(),
+                                  colNames = TRUE, withFilter = FALSE)
+         
+         
          
          print("Addin planting")
          incProgress(7/20,message = "Adding Planting and transplating")

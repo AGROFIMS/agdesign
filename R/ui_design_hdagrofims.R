@@ -662,7 +662,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
             column(
               12,
               br(),
-              h2("Experiment Leads (if different from project management entity)"),
+              #h2("Experiment Leads (if different from project management entity)"),
+              HTML("<h2 style='display:inline;'>Experiment Leads</h2> (if different from project management entity))"),
               fluidRow(id = "fr_experimentLeads_boxes"),
               actionButton("addExperimentLeads", "Add an experiment lead"),
               br(), br(), br()
@@ -1050,7 +1051,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                     width = 12, collapsible = TRUE,  collapsed = TRUE,
                                                                                     fluidRow(
                                                                                       column(width = 6,
-                                                                                             selectizeInput("residue_plantPart", label = "Plant part", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+                                                                                             selectizeInput("rmgt_residue_plantPart", label = "Plant part", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
                                                                                                               c("Husk",
                                                                                                                 "Leaf",
                                                                                                                 "Root",
@@ -1059,30 +1060,30 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                                                 "Stubble",
                                                                                                                 "Other")
                                                                                              ),
-                                                                                             hidden(textInput("residue_plantPart_other", "", value = "")),
-                                                                                             selectizeInput("crop_residue_moisture", "Crop residue moisture", multiple=T, options = list(maxItems=1, placeholder="Select one..."),
+                                                                                             hidden(textInput("rmgt_residue_plantPart_other", "", value = "")),
+                                                                                             selectizeInput("rmgt_crop_residue_moisture", "Crop residue moisture", multiple=T, options = list(maxItems=1, placeholder="Select one..."),
                                                                                                             choices = c("Dry", "Moist", "Wet")),
                                                                                              fluidRow(
                                                                                                column(width = 6,
-                                                                                                      numericInput("crop_residue_thick", value="", label = "Crop residue thickness", min=0, max=100, step = 0.1)
+                                                                                                      numericInput("rmgt_crop_residue_thick", value="", label = "Crop residue thickness", min=0, max=100, step = 0.1)
                                                                                                ),
                                                                                                column(width = 6,
-                                                                                                      selectizeInput("crop_residue_thick_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
+                                                                                                      selectizeInput("rmgt_crop_residue_thick_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
                                                                                                                      choices = c("cm", "ft", "in", "m"))
                                                                                                )
                                                                                              ),
                                                                                              fluidRow(
                                                                                                column(width = 6,
-                                                                                                      numericInput("crop_residue_amount_sqm", value="", label = "Crop residue amount", min=0, max=100, step = 0.1)
+                                                                                                      numericInput("rmgt_crop_residue_amount_sqm", value="", label = "Crop residue amount", min=0, max=100, step = 0.1)
                                                                                                ),
                                                                                                column(width = 6,
-                                                                                                      selectizeInput("crop_residue_amount_sqm_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
+                                                                                                      selectizeInput("rmgt_crop_residue_amount_sqm_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
                                                                                                                      choices = c("g/ft2", "g/m2", "kg/ha", "kg/m2", "lb/ac"))
                                                                                                )
                                                                                              ),
                                                                                              fluidRow(
-                                                                                               column(6, numericInput("crop_residue_perc_cov","Crop residue percent of coverage", value="", min=0, max=100)),
-                                                                                               column(6, selectInput("crop_residue_perc_cov_unit", "Unit", c("%"), selected="%"))
+                                                                                               column(6, numericInput("rmgt_crop_residue_perc_cov","Crop residue percent of coverage", value="", min=0, max=100)),
+                                                                                               column(6, selectInput("rmgt_crop_residue_perc_cov_unit", "Unit", c("%"), selected="%"))
                                                                                              ),
                                                                                              # fluidRow(
                                                                                              #   column(6,textInput("residue_inc_depth", "Residue incorporation depth", value="")),
@@ -1103,7 +1104,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                              #   )
                                                                                              # )
                                                                                              
-                                                                                             textAreaInput("residue_description_notes", label="Notes", value="")
+                                                                                             textAreaInput("rmgt_residue_description_notes", label="Notes", value="")
                                                                                              
                                                                                       )
                                                                                     )
@@ -1125,24 +1126,24 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                              )
                                                                                            ),
                                                                                            
-                                                                                           selectizeInput("residue_technique", label = "Technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+                                                                                           selectizeInput("rmgt_residue_technique", label = "Technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
                                                                                                             c("Burning",
                                                                                                               "Burying",
                                                                                                               "Spreading",
                                                                                                               "Other"
                                                                                                             )
                                                                                            ),
-                                                                                           hidden(textInput("residue_technique_other", "", value = "")),
-                                                                                           conditionalPanel("input.residue_technique == 'Burying'", 
+                                                                                           hidden(textInput("rmgt_residue_technique_other", "", value = "")),
+                                                                                           conditionalPanel("input.rmgt_residue_technique == 'Burying'", 
                                                                                                             fluidRow(
-                                                                                                              column(6,textInput("residue_inc_depth", "Residue incorporation depth", value="")),
-                                                                                                              column(6, selectizeInput("residue_inc_depth_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
+                                                                                                              column(6,textInput("rmgt_residue_inc_depth", "Residue incorporation depth", value="")),
+                                                                                                              column(6, selectizeInput("rmgt_residue_inc_depth_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
                                                                                                                                        choices = c("cm", "ft", "in", "m"))
                                                                                                               )
                                                                                                             )
                                                                                                             
                                                                                            ),
-                                                                                           selectizeInput("residue_traction", label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+                                                                                           selectizeInput("rmgt_residue_traction", label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
                                                                                                             c("Animal",
                                                                                                               "Manual",
                                                                                                               "2 wheel tractor",
@@ -1150,8 +1151,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                                               "Other"
                                                                                                             )
                                                                                            ),
-                                                                                           hidden(textInput("residue_traction_other", "", value = "")),
-                                                                                           textAreaInput("residue_management_notes", label="Notes", value="")
+                                                                                           hidden(textInput("rmgt_residue_traction_other", "", value = "")),
+                                                                                           textAreaInput("rmgt_residue_management_notes", label="Notes", value="")
                                                                                     )
                                                                                   )
                                                                                   
@@ -1166,7 +1167,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                  #h2("Land preparation"),
                                                                  fluidRow(
                                                                    column(width = 12,
-                                                                   p(tags$b("Include in fieldbook:"))
+                                                                   p(tags$b(""))
                                                                    ),
                                                                  box(id="land_levelling_boxid",
                                                                      title = checkboxInput("landLevelling_checkbox" , actionLink("land_levelling_titleId", "Land Levelling"), F),
@@ -1445,7 +1446,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                      title = actionLink("fertilizer_application_details_titleId", "Fertilizer application details"),
                                                                      status = "primary",
                                                                      solidHeader = TRUE,
-                                                                     width = 12, collapsible = TRUE,  collapsed = TRUE,
+                                                                     width = 12, collapsible = TRUE,  collapsed = FALSE,
                                                                      fluidRow(
                                                                        column(3,
                                                                               numericInput("soil_fertilizer_num_apps", "Number of applications", min=1, max = 10, value=3)
@@ -1576,7 +1577,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                  column(width = 12,
                                                                         br(),
                                                                         column(width = 12,
-                                                                               p(tags$b("Include in fieldbook:"))
+                                                                               p(tags$b(""))
                                                                         ),
                                                                         fluidRow(id = "fr_plantingTransplating_reference_point")
                                                                         #h2("Planting, seeding and transplanting"),
@@ -1591,13 +1592,13 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                  #br(),
                                                                  fluidRow(
                                                                    column(width = 12,
-                                                                          p(tags$b("Include in fieldbook:"))
+                                                                          p(tags$b(""))
                                                                    ),
                                                                  box(id="mulch_management_boxid",
                                                                      title = checkboxInput("mulchManag_checkbox", actionLink("mulch_management_titleId", "Mulching details"), T),
                                                                      status = "primary",
                                                                      solidHeader = TRUE,
-                                                                     width = 12, collapsible = TRUE, collapsed = TRUE,
+                                                                     width = 12, collapsible = TRUE, collapsed = FALSE,
                                                                      fluidRow(
                                                                      column(width = 6,
                                                                             fluidRow(
@@ -1714,7 +1715,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                               title = actionLink("irrigation_desc_titleId", "Irrigation details"),
                                                                               status = "primary",
                                                                               solidHeader = TRUE,
-                                                                              width = 12, collapsible = TRUE, collapsed = TRUE,
+                                                                              width = 12, collapsible = TRUE, collapsed = FALSE,
                                                                               fluidPage(id="fr_irrigation_boxes"), 
                                                                               column(12,actionButton("addIrrigation", "Add irrigation"))
                                                                           ))#end box description irrigation
@@ -1726,7 +1727,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                title = actionLink("weeding_titleId", "Weeding details"),
                                                                status = "primary",
                                                                solidHeader = TRUE,
-                                                               width = 12, collapsible = TRUE,  collapsed = TRUE,
+                                                               width = 12, collapsible = TRUE,  collapsed = FALSE,
 
                                                                fluidPage(id="fr_weeding_boxes"),
                                                                column(12,actionButton("addWeeding", "Add weeding"))

@@ -4,7 +4,8 @@
 \alias{fctinputs}
 \title{Get levels of factors (inputs) inserted by users in AGROFIMS}
 \usage{
-fctinputs(gr1 = NULL, gr2 = NULL, gr3 = NULL, napp = 3, rtf, ref, dfr)
+fctinputs(gr1 = NULL, gr2 = NULL, gr3 = NULL, napp = 3, rtf, ref,
+  dfr)
 }
 \arguments{
 \item{gr1}{group 1 for selected factor in UI}

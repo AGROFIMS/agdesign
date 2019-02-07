@@ -4,7 +4,8 @@
 \alias{map_fgroup_values}
 \title{Mimic the functionality of map functions and transform factor-group inputs into data frame}
 \usage{
-map_fgroup_values(input, id_chr = "sel_factor_", id_rand, lbl = "Factor ")
+map_fgroup_values(input, id_chr = "sel_factor_", id_rand,
+  lbl = "Factor ")
 }
 \arguments{
 \item{input}{shinyInput input values from server side}

@@ -6,8 +6,8 @@
 \usage{
 map_singleform_values(input, input_other, type = c("select", "combo box",
   "date", "text", "text input", "numeric"), default = NULL,
-  multiple = FALSE, collapsed = FALSE, format = c("vector", "data.frame"),
-  label = "Label")
+  multiple = FALSE, collapsed = FALSE, format = c("vector",
+  "data.frame"), label = "Label")
 }
 \arguments{
 \item{input}{\code{input} Character or shiny input variable (\code{input$id}), conjointly, with the id. Ex. \code{input$FundingAgencyName}}
