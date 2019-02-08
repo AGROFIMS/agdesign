@@ -9892,10 +9892,10 @@ server_design_agrofims <- function(input, output, session, values){
 
        withProgress(message = 'Downloading fieldbook', value = 0, {
 
-         ai <- AllInputs()
-         saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
-         x <- reactiveValuesToList(input)
-         saveRDS(x, "/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+         #ai <- AllInputs()
+         #saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+         #x <- reactiveValuesToList(input)
+         #saveRDS(x, "/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
 
          # n <- as.numeric(input$numApplicationsIrrigation)
          # fb_traits <- fb_agrofims_traits()
