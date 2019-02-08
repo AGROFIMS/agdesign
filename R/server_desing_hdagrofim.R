@@ -4885,7 +4885,7 @@ server_design_agrofims <- function(input, output, session, values){
                                   
                                   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
                                     airDatepickerInput(paste0("input_startdate_soil_table_row_", index),
-                                                       "End date",
+                                                       " ",
                                                        clearButton = T,
                                                        autoClose = T,
                                                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
@@ -4896,7 +4896,7 @@ server_design_agrofims <- function(input, output, session, values){
                                     )
                                   } else {
                                     airDatepickerInput(paste0("input_startdate_soil_table_row_", index),
-                                                       "End date",
+                                                       " ",
                                                        clearButton = T,
                                                        autoClose = T,
                                                        placeholder = "yyyy-mm-dd"
@@ -4923,7 +4923,7 @@ server_design_agrofims <- function(input, output, session, values){
                                   
                                   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
                                     airDatepickerInput(paste0("input_enddate_soil_table_row_", index),
-                                                       "End date",
+                                                       " ",
                                                        clearButton = T,
                                                        autoClose = T,
                                                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
@@ -4934,7 +4934,7 @@ server_design_agrofims <- function(input, output, session, values){
                                     )
                                   } else {
                                     airDatepickerInput(paste0("input_enddate_soil_table_row_", index),
-                                                       "End date",
+                                                       " ",
                                                        clearButton = T,
                                                        autoClose = T,
                                                        placeholder = "yyyy-mm-dd"
@@ -7146,6 +7146,7 @@ server_design_agrofims <- function(input, output, session, values){
 
   #dict <- readRDS("/home/obenites/HIDAP_SB_1.0.0/hidap/inst/hidap_agrofims/www/internal_files/crop_measurements_v4.rds")
   dict <- readRDS(paste0(globalpath, "crop_measurements_v5.rds"))
+  #dict <- readRDS(paste0(globalpath, "crop_measurements_v6.rds"))
   dict <- as.data.frame(dict, stringsAsFactors=FALSE)
 
   # observe({
@@ -9021,7 +9022,7 @@ server_design_agrofims <- function(input, output, session, values){
  
   #'TODO Irrigation  #####################################################################
   dt_irrigation <- reactive({
-    dt<- AllInputs() %>% filter(str_detect(id, "^irrigation_"))
+    dt<- AllInputs() %>% filter(str_detect(id, "irrigation"))
     dt<- t(dt) %>% as.data.frame()
     names(dt) <- paste(names(dt), 1:ncol(dt))
     dt
@@ -9169,9 +9170,9 @@ server_design_agrofims <- function(input, output, session, values){
   })
   #personnel tab
   pers_dt<- reactive({
-    #Personnel
+    #Personnel  
     id_rand_pers <-  getAddInputId(personnelVars$ids, "PERS_", "") 
-    pst <- map_values(input, id_chr=" personnel_type_", id_rand_pers,format = "data.frame", lbl= "Person type")
+    pst <- map_values(input, id_chr="personnel_type_", id_rand_pers,format = "data.frame", lbl= "Person type")
     prfn <- map_values(input, id_chr="person_firstName_", id_rand_pers,format = "data.frame", lbl= "Person, first name")
     prsn <- map_values(input, id_chr="person_lastName_", id_rand_pers,format = "data.frame", lbl= "Person, last name")
     prmail <- map_values(input, id_chr="person_email_", id_rand_pers,format = "data.frame", lbl= "Person email")
@@ -9204,7 +9205,7 @@ server_design_agrofims <- function(input, output, session, values){
       row <- map_values(input, id_chr="intercropValue_row_crop_", id_ic_rand, format = "data.frame", lbl= "Row geometry")
       out <- rbind(ctd, circm, cirvar, row) 
     }
-    pvc<- map_singleform_values(input$prevCropName, type= "combo box", format = "data.frame",  label= "Previous crop")
+    pvc<- map_singleform_values(input$prevCropName,input_other = input$prevCropName_other, type= "combo box", format = "data.frame",  label= "Previous crop")
     out <- rbind(out, pvc)
     names(out)<- c("Factor", "Value")
     print("out")
@@ -9891,11 +9892,11 @@ server_design_agrofims <- function(input, output, session, values){
 
        withProgress(message = 'Downloading fieldbook', value = 0, {
 
-         #ai <- AllInputs()
-         #saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
-         #x <- reactiveValuesToList(input)
-         #saveRDS(x, "/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
-         
+         ai <- AllInputs()
+         saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+         x <- reactiveValuesToList(input)
+         saveRDS(x, "/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+
          # n <- as.numeric(input$numApplicationsIrrigation)
          # fb_traits <- fb_agrofims_traits()
          gmetadata <- globalMetadata() #metadata_dt2()

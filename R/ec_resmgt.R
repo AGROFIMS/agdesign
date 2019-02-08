@@ -18,7 +18,7 @@ get_ec_resdesc <- function(input, lbl){
                 "Residue description Notes")
   
   
-  plantp<- map_singleform_values(input = input$residue_plantPart, input_other = input$rmgt_esidue_plantPart_other,
+  plantp<- map_singleform_values(input = input$rmgt_residue_plantPart, input_other = input$rmgt_residue_plantPart_other,
                              type = "select", format = "vector", label = "Factor")
   
   cmoi <- map_singleform_values(input =input$rmgt_crop_residue_moisture,
@@ -62,27 +62,52 @@ get_ec_resdesc <- function(input, lbl){
 
 get_ec_resmgt <- function(input, lbl){
 
-  lbl <-  lbl <- c("Residue management description start date", 
+  lbl <-   c("Residue management description start date", 
                    "Residue management description technique",
                    "Residue management description traction",
                    "Residue management description Notes"
   )
-  
+  #rmgt_residue_technique
     r_start_date<-  map_singleform_values(input =input$rmgt_residue_start_date, type = "date",
                                           format = "vector", label = "Factor")#dates
-    r_technique <-  map_singleform_values(input =input$rmgt_residue_technique, input$rmgt_residue_technique_other, 
+    r_technique <-  map_singleform_values(input = input$rmgt_residue_technique, input$rmgt_residue_technique_other, 
                                           type = "select",format = "vector", label = "Factor")#dates
+    
     r_traction <-  map_singleform_values(input =input$rmgt_residue_traction, input$rmgt_residue_traction_other,
                                          type = "select",format = "vector", label = "Factor")#dates
     r_notes <- input$rmgt_residue_management_notes
     
-    dt <- data.frame(r_start_date, r_technique, r_traction, r_notes)
     
-    dt <- data.frame(matrix(ncol = length(lbl), nrow = 1))
-    #dt[1,] <- dt_resmg
-    names(dt) <- lbl
+    if(r_technique=="Burying"){
+      
+      #lb1 <- "Residue incorporation depth"
+      rb_incordepth <-  map_singleform_values(input =input$rmgt_residue_inc_depth,
+                                              type = "text", format = "vector", label = "Factor")#dates
+      
+      #lb2 <- "Residue incorporation depth Unit"
+      rb_incordepthunit <- map_singleform_values(input =input$rmgt_residue_inc_depth_unit, 
+                                                 type = "select", format = "vector", label = "Factor") #unit
+      
+      dt <- data.frame(r_start_date, r_technique, rb_incordepth, rb_incordepthunit ,r_traction, r_notes)
+      
+      lbl <-   c("Residue management description start date", 
+                 "Residue management description technique",
+                 "Residue incorporation depth",
+                 "Residue incorporation depth Unit",
+                 "Residue management description traction",
+                 "Residue management description Notes"
+      ) 
+      names(dt) <- lbl
+      dt
+      
+    } 
+    else {
+      dt <- data.frame(r_start_date, r_technique, r_traction, r_notes)
+      names(dt) <- lbl
+    }
+    
     dt
-
+    
 }
 
 
