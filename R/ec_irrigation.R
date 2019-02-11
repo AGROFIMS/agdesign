@@ -1,5 +1,8 @@
 # ai<- ai %>%  filter(!str_detect(id, "button")) %>%
-#         filter(!str_detect(id, "-selectized"))
+#              filter(!str_detect(id, "-selectized")) %>% 
+#              filter(str_detect(id,"irri"))  
+# 
+# 
 # 
 # 
 # #irrigationevent_start_date_UCCIZOLN
