@@ -812,3 +812,20 @@ dt_inputs<- function(dt, dt_other){
   }  
   dt
 }
+
+# Arrange data.frame by pattern
+
+arrange_by_pattern <- function(data, pattern){
+  
+  if(nrow(data)>0 && length(pattern)>0){
+    dt <- data.frame()
+    #pattern <- c("MORIBVKI","JVCBBMVG","POBNRFFA")
+    for( i in 1:nrow(data)){
+      dt<- rbind(dt, data %>% filter(str_detect(id, pattern[i])))
+    }
+  } else {
+    dt <- data.frame()
+  }
+  
+  dt
+} 

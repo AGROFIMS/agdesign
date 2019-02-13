@@ -12,9 +12,9 @@ get_ec_sblalv<- function(input){
   
   dt<- data.frame(ll_start_date, ll_npasses, ll_notes, ll_type, ll_traction)
   
-  llNames<- c("Land levelling start date (yyyy/mm/dd)", 
-              "Land levelling Total number of levelling passes", "Land levelling Notes",
-              "Land levelling Type", "Land levelling traction")
+  llNames<- c("Land_levelling_start_date_(yyyy/mm/dd)", 
+              "Land_levelling_Total_number_of_levelling_passes", "Land_levelling_Notes",
+              "Land_levelling_Type", "Land_levelling_traction")
   names(dt)<-llNames
   dt
   
@@ -40,13 +40,13 @@ get_ec_sbpud <- function(input){
   lp_traction <- map_singleform_values(input$pud_traction, input$pud_traction_other, 
                                        type = "select", format = "vector", label = "Factor")
   
-  dt <- data.frame(lp_start_date, lp_depth_val, lp_depth_unit, lp_npasses, lp_notes, lp_type, lp_traction) 
+  dt <- data.frame(lp_start_date, lp_depth_val, lp_npasses, lp_notes, lp_type, lp_traction) 
   
   
-  lpNames <- c("Puddling start date (yyyy/mm/dd)", 
-               "Puddling depth", "Puddling depth Unit (cm; ft; in; m)",
-               "Puddling Total number of puddling passes",
-               "Puddling notes", "Puddling type", "Puddling traction")
+  lpNames <- c("Puddling_Start_date_(yyyy/mm/dd)", 
+               paste0("Puddling_Depth_",lp_depth_unit),
+               "Puddling_Total_number_of_puddling_passes",
+               "Puddling_Notes", "Puddling_type", "Puddling_traction")
   
   names(dt) <- lpNames
   dt
@@ -75,12 +75,13 @@ get_ec_sbtill <- function(input){
   lt_traction <- map_singleform_values(input =input$till_traction, input$till_traction_other,
                                        type = "select", format = "vector", label = "Factor")
   
-  ltNames <- c("Tillage start date (yyyy/mm/dd)", "Tillage technique",
-               "Tillage depth", "Tillage depth Unit (cm; ft; in; m)", #unit label
-               "Total number of tillage passes", "Tillage Notes", "Tillage Type", "Tillage Traction")
+  ltNames <- c("Tillage_start_date_(yyyy/mm/dd)", 
+               "Tillage_technique",
+               paste0("Tillage_depth_",lt_depth_unit), 
+               "Total_number_of_tillage_passes", "Tillage_Notes", "Tillage_Type", "Tillage_Traction")
   
   dt <- data.frame(lt_start_date, lt_technique,
-                     lt_depth, lt_depth_unit, lt_npasses ,lt_notes, lt_type, lt_traction )
+                     lt_depth, lt_npasses ,lt_notes, lt_type, lt_traction,stringsAsFactors = FALSE )
   
   
   names(dt) <- ltNames

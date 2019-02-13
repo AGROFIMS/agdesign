@@ -1,3 +1,5 @@
+#trans_distance_rows_1
+
 # ai<- ai %>%  filter(!str_detect(id, "button")) %>%
 #              filter(!str_detect(id, "-selectized")) %>% 
 #              filter(str_detect(id,"irri"))  
@@ -82,3 +84,5 @@
 # #irrigation notes
 # ai %>% filter(str_detect(id, "irrigation_notes_"))
 # #irrigation_notes_UCCIZOLN
+
+

@@ -235,7 +235,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       column(6, style = "margin-top: -16px; margin-bottom: 16px;", h1("Experiment description")),
       column(6, align = "right", style = "margin-top: 11px;",
              useShinyalert(),
-             actionButton("xtest", "Test"),
+             #actionButton("xtest", "Test"),
              actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
              actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('openFieldbook')"),
              actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
@@ -450,7 +450,12 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                 color:#000;
                                 background:#f5f5f5;
                                 /*padding-top:0px*/
+                                display: none;
                               }
+
+/**[id^='fl_box_fundingAgency_'] .box.box-solid.box-warning>.box-header {
+display: none;
+}*/ 
 
                               .box.box-solid.box-warning>.box-body {
                                 color:#000;
@@ -529,6 +534,22 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                           ")),
     
                           tags$style("#myqr {
+                                          
+                                              width: 100px !important;
+                                              height: 100px !important;
+                                          
+                                                }
+                                      
+                                      #uniqueId {
+                                          
+                                              text-align:center !important;
+                                          
+                                      }
+                                     
+                                     
+                                     "),
+  
+                           tags$style("#myqr2 {
                                           
                                               width: 100px !important;
                                               height: 100px !important;
@@ -734,8 +755,11 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                          "Other"),
                              options = list(maxItems = 5, placeholder = 'Select one... ')
               ),
-
-              textAreaInput("inSiteDescNotes", label="Site description notes", value="")
+              textAreaInput("inSiteDescNotes", label="Site description notes", value=""),
+              
+              br(),
+              h2("Site soil classification"),
+              h3("Under construction")
             ),
 
             sidebarPanel(
@@ -748,12 +772,36 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
           ##### Tab: Start Crop #####
           tabPanel(
             title = tagList(shiny::icon("pagelines"), "Crop"), value="tabCrop",
+            
+            column(
+              12,
+              fluidRow(
+                column(
+                  6,
+                  h2("Fieldbook details"),
+                  uiOutput("fieldbookIdUI")
+                  #textInput(inputId = "experimentName", label = "Experiment name", value = ""),
+                  #textInput(inputId = "experimentProjectName", label = "Experiment project name", value = "")
+                ),
+                
+                column(
+                  6, 
+                  align = "right",
+                  br(),
+                  imageOutput("myqr2")#,
+                  #uiOutput("IdUI")
+                )
+              )
+            ),
+            
             column(
               width = 6,
               h2("Description of crops sown"),
               shiny::selectInput("croppingType", "Cropping type",
                                  choices = c("Monocrop",
-                                             "Intercrop")
+                                             "Intercrop",
+                                             "Relay crop",
+                                             "Rotation")
               )
             ),
 
@@ -795,18 +843,87 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
               ),
 
               conditionalPanel("input.croppingType == 'Intercrop'",
-                     fluidRow(
-                       h2("Crop information")
-                     ),
+                     # fluidRow(
+                     #   
+                     # ),
+                     h2("Crop information"),
                      fluidRow(id="fr_intercrop_boxes"),
                      actionButton("addIntercrop", "Add crop"),
-                     
+                     br(),br(),
+                     h2("Intercrop arrangement"),
+                     fluidRow(
+                       column(
+                         width = 6,
+                         selectizeInput("fr_intercrop_arrangement", "", multiple = TRUE,
+                                        options = list(maxItems =1, placeholder="Select one..."),
+                                        choices = c("Mixed intercropping",
+                                                    "Row intercropping")
+                         )
+                       )
+                     ),
                      fluidRow(
                        column(12,
-                              h2("Row geometry"),
+                              h2("Intercrop row geometry"),
                               fluidRow(id="fr_intercrop_geometry_boxes")
                        )
                      )
+              ),
+              
+              conditionalPanel("input.croppingType == 'Relay crop'",
+                               # fluidRow(
+                               #   
+                               # ),
+                               h2("Crop information"),
+                               h3("Under construction"),
+                               
+                               #fluidRow(id="fr_intercrop_boxes"),
+                               #actionButton("addIntercrop", "Add crop"),
+                               br(),br()#,
+                               # h2("Intercrop arrangement"),
+                               # fluidRow(
+                               #   column(
+                               #     width = 6,
+                               #     selectizeInput("fr_intercrop_arrangement", "", multiple = TRUE,
+                               #                    options = list(maxItems =1, placeholder="Select one..."),
+                               #                    choices = c("Mixed intercropping",
+                               #                                "Row intercropping")
+                               #     )
+                               #   )
+                               # ),
+                               # fluidRow(
+                               #   column(12,
+                               #          h2("Intercrop row geometry"),
+                               #          fluidRow(id="fr_intercrop_geometry_boxes")
+                               #   )
+                               # )
+              ),
+              
+              conditionalPanel("input.croppingType == 'Rotation'",
+                               # fluidRow(
+                               #   
+                               # ),
+                               h2("Crop information"),
+                               h3("Under construction"),
+                               #fluidRow(id="fr_intercrop_boxes"),
+                               #actionButton("addIntercrop", "Add crop"),
+                               br(),br()#,
+                               # h2("Intercrop arrangement"),
+                               # fluidRow(
+                               #   column(
+                               #     width = 6,
+                               #     selectizeInput("fr_intercrop_arrangement", "", multiple = TRUE,
+                               #                    options = list(maxItems =1, placeholder="Select one..."),
+                               #                    choices = c("Mixed intercropping",
+                               #                                "Row intercropping")
+                               #     )
+                               #   )
+                               # ),
+                               # fluidRow(
+                               #   column(12,
+                               #          h2("Intercrop row geometry"),
+                               #          fluidRow(id="fr_intercrop_geometry_boxes")
+                               #   )
+                               # )
               ),
 
               br(),
@@ -1128,7 +1245,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                            
                                                                                            selectizeInput("rmgt_residue_technique", label = "Technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
                                                                                                             c("Burning",
-                                                                                                              "Burying",
+                                                                                                              "Incorporation",
                                                                                                               "Spreading",
                                                                                                               "Other"
                                                                                                             )
@@ -1206,9 +1323,13 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                                                         choices = c(
                                                                                                                                    "Chain harrow",
                                                                                                                                    "Disc harrow",
+                                                                                                                                   "Drag bucket",
+                                                                                                                                   "Laser-controlled",
+                                                                                                                                   "Levelling board",
                                                                                                                                    "Levelling bucket",
                                                                                                                                    "Roller", 
-                                                                                                                                   "Tine harrow")
+                                                                                                                                   "Tine harrow",
+                                                                                                                                   "Other")
                                                                              ),
                                                                              hidden(textInput("land_impl_type_other", "")),
                                                                              selectizeInput("land_traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), label = "Traction", choices =
@@ -1613,7 +1734,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                               #        uiOutput("mul_end_date")
                                                                               # )
                                                                             ),
-                                                                            selectizeInput("mulch_type", label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
+                                                                            selectizeInput("mumd_mulch_type", label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
                                                                                            choices = c("Bark / Wood chips",
                                                                                                        "Compost",
                                                                                                        "Foil (landscape fabric)",
@@ -1626,23 +1747,23 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                                        "Other")
 
                                                                             ),
-                                                                            hidden(textInput("mulch_type_other", "", value = "")),
+                                                                            hidden(textInput("mumd_mulch_type_other", "", value = "")),
                                                                             fluidRow(
                                                                               column(width = 6,
-                                                                                numericInput("mulch_thickness", value="", label = "Mulch thickness", min=0, max=100, step=0.1)
+                                                                                numericInput("mumd_mulch_thickness", value="", label = "Mulch thickness", min=0, max=100, step=0.1)
                                                                               ),
                                                                               column(width = 6,
-                                                                                selectizeInput("mulch_thickness_unit","Unit", multiple=T, options=list(maxItems=1, placeholder="Select one..."),
+                                                                                selectizeInput("mumd_mulch_thickness_unit","Unit", multiple=T, options=list(maxItems=1, placeholder="Select one..."),
                                                                                                choices = c("cm","ft", "in", "m"))
                                                                               )
                                                                             ),
                                                                             fluidRow(
                                                                               column(width = 6,
 
-                                                                                  numericInput("mulch_amountPerSq", value="", label = "Mulch amount", min=0, max=100, step = 0.1)
+                                                                                  numericInput("mumd_mulch_amountPerSq", value="", label = "Mulch amount", min=0, max=100, step = 0.1)
                                                                               ),
                                                                               column(width = 6,
-                                                                                selectizeInput("mulch_amountPerSq_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
+                                                                                selectizeInput("mumd_mulch_amountPerSq_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
                                                                                                choices = c("g/ft2", "g/m2","kg/ha", "kg/m2", "lb/ac"))
                                                                               )
                                                                             ),
@@ -1653,13 +1774,13 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                             #                                                               "White",
                                                                             #                                                               "Yellow")
                                                                             # ),
-                                                                            textInput("mulch_color","Mulch color"),
+                                                                            textInput("mumd_mulch_color","Mulch color"),
                                                                             fluidRow(
                                                                               column(6,
-                                                                                     textInput("mulch_percCoverage", value="", label = "Percentage of coverage")
+                                                                                     textInput("mumd_mulch_percCoverage", value="", label = "Percentage of coverage")
                                                                                      ),
                                                                               column(6,
-                                                                                     selectInput("mulch_percCoverage_unit", "Unit", c("%"), selected="%")
+                                                                                     selectInput("mumd_mulch_percCoverage_unit", "Unit", c("%"), selected="%")
                                                                                      )
                                                                             ),
                                                                             fluidRow(
@@ -1674,7 +1795,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                      uiOutput("mulre_end_date")
                                                                               )
                                                                             ),
-                                                                            textAreaInput("mulching_management_notes", label="Notes", value="")
+                                                                            textAreaInput("mumd_mulching_management_notes", label="Notes", value="")
                                                                           ),
                                                                      column(width = 6,
                                                                             br(),
@@ -1683,12 +1804,12 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                          title = "Implement", solidHeader = TRUE, status = "warning", width=12,
                                                                          # textInput("mulch_make", value="", label = "Implement make"),
                                                                          # textInput("mulch_model", value="", label = "Implement model"),
-                                                                               selectizeInput("mulch_implement_type", label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+                                                                               selectizeInput("mumd_mulch_implement_type", label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
                                                                                                 c("Manual",
                                                                                                   "Mechanized"
                                                                                                 )
                                                                                ),
-                                                                                selectizeInput("mulch_traction", label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+                                                                                selectizeInput("mumd_mulch_traction", label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
                                                                                               c("Animal",
                                                                                                 "Manual",
                                                                                                 "2 wheel tractor",
@@ -1696,7 +1817,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                                                                                 "Other"
                                                                                               )
                                                                                 ),
-                                                                                 hidden(textInput("mulch_traction_other", "", value = ""))
+                                                                                 hidden(textInput("mumd_mulch_traction_other", "", value = ""))
                                                                        ))
                                                                    ))
 
@@ -2099,7 +2220,9 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                        #shiny::actionButton(inputId = "refresh", label = "Refresh", icon = icon("fa fa-refresh")),
                                        #shinyBS::bsButton( "fbDesign_draft", "BookView" ),
                                        shiny::actionButton("fbDesign_draft_agrofims", "Book Preview", icon("table"), style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                       shiny::actionButton("sendData", "Send to KDSmart", icon("send"), style="color: #000; background-color: #c5c5c5; border-color: #000"),
                                        downloadButton("downloadData", "Download", class = "color: #fff; background-color: #51a351; border-color: #51a351"),
+                                       
                                        #shinysky::actionButton2("fbDesign_create_agrofims", label = "Download", icon ="file-excel-o", icon.library = "bootstrap", styleclass= "color: #fff; background-color: #51a351; border-color: #51a351"),
                                        #shiny::actionButton("fbDesign_create", "Download", icon("file-excel-o"), style="color: #fff; background-color: #51a351; border-color: #51a351"),
                                        #shinyBS::bsAlert(anchorId = "alert_fb_done"),

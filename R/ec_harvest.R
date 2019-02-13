@@ -3,7 +3,12 @@
 
 get_ec_harvest <- function(allinputs, lbl){
   
-  dt1 <- ai %>% filter(str_detect(id, "^residue_"))
-  dt2 <- ai %>% filter(str_detect(id, "^crop_residue_"))
+  dt1 <- allinputs %>% filter(str_detect(id, "^hahd_"))
+  dt1<- t(dt1) %>% as.data.frame(stringsAsFactors=FALSE)
+  
+  #dt <- data.frame(matrix(ncol = length(dt1), nrow = 1))
+  #names(dt) <- lbl_soil
+  # dt[1,]<- dt_soil[,"values"]
+  # dt
   
 }

@@ -8,8 +8,13 @@
 
 get_ec_sf <- function(allinputs, lbl, napp ){
   
-  allinputs$id<-as.character(allinputs$id)
-  allinputs$values<-as.character(allinputs$values)  
+  #allinputs$id<-as.character(allinputs$id)
+  #allinputs$values<-as.character(allinputs$values)  
+  
+  # allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+  # input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+
+  
   
   ## Fertilizer type -------------------------------------------------------------------------------------------------
   ft <-allinputs %>% filter(str_detect(id, "^select_fertilizerType_soil_table_row_")) %>%
@@ -55,7 +60,7 @@ get_ec_sf <- function(allinputs, lbl, napp ){
   eleTotal <- allinputs %>% filter(str_detect(id, "^soil_fertilizer_totalAppRate"))
   
   dt_soil<- rbind(ft, pr, pra, el, era, startD, endD, tech, txtA, proTotal, eleTotal) 
-  
+  dt_soil <- arrange_by_pattern(dt_soil,c("1","2","3"))
   ### Label
   lbl <- c("Fertilizer_type","Product","Product_rate_(kg/ha)", "Element","Element_rate_(kg/ha)",
            "Start_date", "End_date", "Technique", "Notes")
@@ -63,7 +68,7 @@ get_ec_sf <- function(allinputs, lbl, napp ){
   for(i in 1:napp){
     lbl_soil  <- append(lbl_soil , paste0(lbl,"__", i))
   }
-  lbl_soil <-c(lbl_soil, "Total product calculated application", "Total element calculated application")
+  #lbl_soil <-c(lbl_soil, "Total product calculated application", "Total element calculated application")
   dt <- data.frame(matrix(ncol = length(lbl_soil), nrow = 1))
   names(dt) <- lbl_soil
   dt[1,]<- dt_soil[,"values"]

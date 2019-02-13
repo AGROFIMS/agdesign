@@ -9,14 +9,10 @@
 
 get_ec_resdesc <- function(input, lbl){
   
+  # allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+  # input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+
   ### RESIDUE DESCRIPTION ----------------------------------------------------------------------------------------
-  
-  lbl <-  c("Plant part", "Crop residue moisture",
-                "Crop residue thickness", "Crop residue thickness Unit (cm; ft; in; m)",
-                "Crop residue amount", "Crop residue amount (g/ft2; g/m2; kg/ha; kf/m2: lb/ac)",
-                "Crop residue percent of coverage", "Crop residue percent of coverage unit (%)",
-                "Residue description Notes")
-  
   
   plantp<- map_singleform_values(input = input$rmgt_residue_plantPart, input_other = input$rmgt_residue_plantPart_other,
                              type = "select", format = "vector", label = "Factor")
@@ -38,8 +34,14 @@ get_ec_resdesc <- function(input, lbl){
   #r_thick<- paste0(r_cov,r_cov_unit)
   r_notes <- input$rmgt_residue_management_notes
 
-  dt <- data.frame(plantp, cmoi, r_thick, r_thick_unit, r_amount, 
-                       r_amount_unit, r_cov, r_cov_unit, r_notes)
+  lbl <-  c("Plant_part",
+            "Crop_residue_moisture",
+            paste0("Crop_residue_thickness_",r_thick_unit),
+            paste0("Crop_residue_amount_",r_amount_unit),
+            "Crop residue percent of coverage", 
+            "Residue description Notes")
+  
+  dt <- data.frame(plantp, cmoi, r_thick, r_amount, r_cov,  r_notes, stringsAsFactors = FALSE)
  
   #dt<- rbind(plantp, cmoi, r_thick, r_amount, r_cov)
   #dt <- data.frame(matrix(ncol = length(lbl), nrow = 1))
@@ -62,10 +64,10 @@ get_ec_resdesc <- function(input, lbl){
 
 get_ec_resmgt <- function(input, lbl){
 
-  lbl <-   c("Residue management description start date", 
-                   "Residue management description technique",
-                   "Residue management description traction",
-                   "Residue management description Notes"
+  lbl <-   c("Residue_management_description_Start date", 
+                   "Residue_management_description_Technique",
+                   "Residue_management_description_Traction",
+                   "Residue_management_description_Notes"
   )
   #rmgt_residue_technique
     r_start_date<-  map_singleform_values(input =input$rmgt_residue_start_date, type = "date",
@@ -88,15 +90,14 @@ get_ec_resmgt <- function(input, lbl){
       rb_incordepthunit <- map_singleform_values(input =input$rmgt_residue_inc_depth_unit, 
                                                  type = "select", format = "vector", label = "Factor") #unit
       
-      dt <- data.frame(r_start_date, r_technique, rb_incordepth, rb_incordepthunit ,r_traction, r_notes)
+      dt <- data.frame(r_start_date, r_technique, rb_incordepth, r_traction, r_notes, stringsAsFactors = FALSE)
       
-      lbl <-   c("Residue management description start date", 
-                 "Residue management description technique",
-                 "Residue incorporation depth",
-                 "Residue incorporation depth Unit",
-                 "Residue management description traction",
-                 "Residue management description Notes"
-      ) 
+     lbl <-   c("Residue_management_description_Start_date", 
+                 "Residue_management_description_Technique",
+                 paste0("Residue_management_Incorporation_depth",rb_incordepthunit),
+                 "Residue_management_description_Traction",
+                 "Residue_management_description_Notes")
+     
       names(dt) <- lbl
       dt
       

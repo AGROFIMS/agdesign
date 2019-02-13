@@ -274,3 +274,20 @@ metadata_dt <- function(){
   # print(df_metadata)
 
 }
+ # allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+ # input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+
+factor_levels_dt <- function(allinputs){
+  #get Factor name (group 3)
+  fg3 <- allinputs %>% filter(str_detect(id, "sel_factor_[:uppercase:]+_3$"))
+  fg3<- fg3$values
+  lbl_fg <- paste("Factor",1:length(fg3),sep="_")
+  dt_fg <- data.frame(Parameter = lbl_fg, Value = fg3)
+  #Get level
+  lvl <- allinputs %>% filter(str_detect(id, "levels_[:uppercase:]+$"))
+  lvl <- lvl$values
+  lbl_lvl<- paste("Level", 1:length(fg3),sep="_")
+  dt_lvl <- data.frame(Parameter = lbl_lvl, Value= lvl)
+  
+  dt<- rbind(dt_fg, dt_lvl)
+} 
