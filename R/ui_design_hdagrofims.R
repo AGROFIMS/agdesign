@@ -755,11 +755,11 @@ display: none;
                                          "Other"),
                              options = list(maxItems = 5, placeholder = 'Select one... ')
               ),
-              textAreaInput("inSiteDescNotes", label="Site description notes", value=""),
+              textAreaInput("inSiteDescNotes", label="Site description notes", value="")#,
               
-              br(),
-              h2("Site soil classification"),
-              h3("Under construction")
+              # br(),
+              # h2("Site soil classification"),
+              # h3("Under construction")
             ),
 
             sidebarPanel(
@@ -2184,7 +2184,8 @@ display: none;
                                               #     )
                                               # ),
                                               shiny::tabPanel("Weather", value = 'tabWeather', icon = shiny::icon("bolt"),
-                                                      uiOutput("uiWeatherTab")
+                                                      br(),
+                                                              uiOutput("uiWeatherTab")
 
                                               ),
           
@@ -2196,6 +2197,7 @@ display: none;
                                                                      #         h2("Weather & Soil"),
                                                                      #shinyTree::shinyTree("designFieldbook_weatherVar_agrofims",search = TRUE,checkbox = TRUE),
                                                                      #shinyTree::shinyTree("designFieldbook_soilVar_agrofims",search = TRUE,checkbox = TRUE)
+                                                                     br(),
                                                                      uiOutput("uiSoilTab")
 
                                                                      # DTOutput('soilDT')

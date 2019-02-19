@@ -9,7 +9,7 @@ dt_inputs(dt, dt_other)
 \arguments{
 \item{dt}{data frame}
 
-\item{d}{vector New column to add into the data frame}
+\item{dt_other}{vector New column to add into the data frame}
 }
 \description{
 Add columns to data frames with different sizes

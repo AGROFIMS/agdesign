@@ -9269,25 +9269,56 @@ server_design_agrofims <- function(input, output, session, values){
 
   #Phenomic DataTable ###################################################################
   output$phenoDT = renderDT(
-    pheno_vars %>% dplyr::select(Level, Sublevel)  , options = list(lengthChange = FALSE)
+    pheno_vars %>% dplyr::select(Level, Sublevel)  , 
+    options = list(
+      #lengthChange = FALSE,
+      scrollX = TRUE,
+      pageLength = 25
+    )
   )
   
   #Weather Manual DataTable #############################################################
   output$weatherManualDT = renderDT(
     
     #dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit) ,  options = list(lengthChange = FALSE) 
-    weather_manual_vars %>% dplyr::select(Measurement, Unit) ,  options = list(lengthChange = FALSE) 
+    weather_manual_vars %>% dplyr::select(Measurement, Unit) ,  
+    options = list(
+      #lengthChange = FALSE,
+      scrollX = TRUE,
+      pageLength = 25
+    ) 
   )
   #Weather Station DataTable #############################################################
   output$weatherStationDT = renderDT(
     #dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit) , options = list(lengthChange = FALSE)
-    weather_station_vars %>% dplyr::select(Measurement, Unit) ,  options = list(lengthChange = FALSE) 
+    weather_station_vars %>% dplyr::select(Measurement, Unit) ,  
+    options = list(
+      #lengthChange = FALSE
+      scrollX = TRUE,
+      pageLength = 25
+    ) 
   )
   
   #Soil## Station DataTable #############################################################
   output$soilDT = renderDT(
-    soil_data %>% dplyr::select(Variable, Unit) , options = list(lengthChange = FALSE)
+    soil_data %>% dplyr::select(Variable, Unit), 
+    options = list(
+      #lengthChange = FALSE,
+      scrollX = TRUE,
+      pageLength = 25
+    )
   )
+  
+  # output$dt <- DT::renderDT(
+  #   dat(),
+  #   server = TRUE,
+  #   escape = FALSE,
+  #   options = list(
+  #     scrollX = TRUE,
+  #     pageLength = 25,
+  #     columnDefs = list(list(visible=FALSE, targets=c(1,6)))
+  #   )
+  # )
 
   #Select Input for split plot designs ####################################################
   output$fbdesign_split_cb <- shiny::renderUI({
@@ -10282,7 +10313,7 @@ server_design_agrofims <- function(input, output, session, values){
          # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
          # x <- reactiveValuesToList(input)
          # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
-         # 
+         # # 
          if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
            fname <- paste(file,"xlsx",sep=".")

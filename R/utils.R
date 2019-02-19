@@ -796,7 +796,7 @@ add.col<-function(dt, new.col) {
 #' Add columns to data frames with different sizes
 #' 
 #' @param dt data frame 
-#' @param d vector New column to add into the data frame
+#' @param dt_other vector New column to add into the data frame
 #' @author Omar Benites
 
 dt_inputs<- function(dt, dt_other){
