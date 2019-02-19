@@ -1,88 +1,141 @@
-#trans_distance_rows_1
 
-# ai<- ai %>%  filter(!str_detect(id, "button")) %>%
-#              filter(!str_detect(id, "-selectized")) %>% 
-#              filter(str_detect(id,"irri"))  
-# 
-# 
-# 
-# 
-# #irrigationevent_start_date_UCCIZOLN
-# irri_startD<- ai %>% filter(str_detect(id, "irrigationevent_start_date_"))
-# 
-# #irrigationevent_end_date_UCCIZOLN
-# irri_endD <- ai %>% filter(str_detect(id, "irrigationevent_end_date_"))
-# 
-# #Irrigation Technique
-# irri_technique <- ai %>% filter(str_detect(id, "^irrigation_technique_[:alpha:]+$"))
-# #---SPECIAL CASES ------
-# if(irri_technique[i,2]=="Sprinkler irrigation"){
-#     irri_tech_splin<- ai %>% filter(str_detect(id, "^irrigation_using_sprinkler_systems_[:alpha:]+$"))
-# 
-#     if(irri_tech_splin[i]=="Other"){
-#       irri_splin_other<- ai %>% filter(str_detect(id, "^irrigation_using_sprinkler_systems_[:alpha:]+_other$"))
-#     }
-#     irri_tech_splin<- dt_inputs(irri_tech_splin,irri_splin_other)
-# }
-# 
-# if(irri_technique[i]=="Localized"){
-# 
-#     #localized_irrigation_techniqueUCCIZOLN
-#    irri_tech_local<- ai %>% filter(str_detect(id, "^localized_irrigation_technique[:alpha:]+$"))
-#    if(irri_tech_local=="Other"){
-#      irri_local_other<- ai %>% filter(str_detect(id, "^localized_irrigation_technique[:alpha:]+_other$"))
-#    }
-#    irri_tech_local <- dt_inputs(irri_tech_local,irri_local_other)
-# }
-# 
-# if(irri_technique=="Surface"){
-#   irri_tech_surface<-  ai %>% filter(str_detect(id, "^surface_irrigation_technique_[:alpha:]+$"))
-#   if(irri_tech_surface[i]=="Other"){
-#     #surface_irrigation_technique_UCCIZOLN_other
-#     irri_surface_other<- ai %>% filter(str_detect(id, "^surface_irrigation_technique_[:alpha:]+_other$"))
-#   }
-#   irri_tech_surface<- dt_inputs(irri_tech_surface, irri_surface_other)
-# }
-# 
-# if(irri_technique[i]=="Other"){
-#   irri_tech_other <- ai %>% filter(str_detect(id, "^irrigation_technique_[:alpha:]+_other$"))
-#   #irrigation_technique_UCCIZOLN_other
-# }
-# 
-# 
-# 
-# -----
-# 
-# #Irrigation source
-# 
-# #irrigation_source_UCCIZOLN
-# irri_source_other <- ai %>% filter(str_detect(id, "^irrigation_source_[:alpha:]+$"))
-# 
-# # irrigation source: other case
-#   #irrigation_source_UCCIZOLN_other
-# irri_source_other <- ai %>% filter(str_detect(id, "irrigation_source_[:alpha:]+_other$"))
-# irri_source <-dt_inputs (irri_source, irri_source_other)
-# 
-# #irrigation source distance
-# #irrigation_source_distance_UCCIZOLN
-# #irrigation_source_distance_UCCIZOLNunit
-# irri_source_distance<- ai %>% filter(str_detect(id, "^irrigation_source_distance_")) %>%
-#                               filter(!str_detect(id, "unit"))
-# 
-# #irrigation source distance unit
-# ai %>% filter(str_detect(id, "^irrigation_source_distance_[:alpha:]+unit"))
-# 
-# 
-# #irrgation amount
-# #irrigation_amount_UCCIZOLN
-# ai %>% filter(str_detect(id, "irrigation_amount_"))
-# 
-# #irrigation amount unit
-# #irrigation_amount_UCCIZOLNunit
-# ai %>% filter(str_detect(id, "irrigation_amount_[:alpha:]+unit"))
-# 
-# #irrigation notes
-# ai %>% filter(str_detect(id, "irrigation_notes_"))
-# #irrigation_notes_UCCIZOLN
+# addId= expCondsVars$ids_irri
 
+get_ec_irri <- function(allinputs, addId){
 
+    #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+    #input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+
+    
+    #Irrigation inputs table
+    irri <- allinputs %>%  filter(!str_detect(id, "button")) %>%
+                           filter(!str_detect(id, "-selectized")) %>%
+                           filter(str_detect(id,"irid"))
+
+    #addId <- str_extract_all(irri$id, "[:uppercase:]{8}") %>% unlist() %>% unique()
+    
+    irri <- arrange_by_pattern(irri, addId)
+
+    #startD
+    startD<- irri %>% filter(str_detect(id, "irid_irrigationevent_start_date_[:alpha:]+$"))
+
+    #irrigationevent_end_date_UCCIZOLN
+    endD <- irri %>% filter(str_detect(id, "irid_irrigationevent_end_date_[:alpha:]+$"))
+
+    #Irrigation Technique
+    technique <- irri %>% filter(str_detect(id, "^irid_irrigation_technique_[:alpha:]+$"))
+
+    #Special case: Irrigation system (which depends on Technique) ------------------
+    irrigation_system <- data.frame(stringsAsFactors = FALSE)
+    #lbl <-NULL
+    for(i in 1:length(addId)){
+
+        if(technique[i,2]=="Sprinkler irrigation"){
+           tech_splin <- irri %>% filter(str_detect(id, paste0("irid_irrigation_using_sprinkler_systems_", addId[i],"$")))
+           if(!is.null(tech_splin[1,2])|| !is.na(tech_splin)){
+            if(tech_splin[1,2]=="Other"){
+               splin_other<- irri %>% filter(str_detect(id, paste0("irid_irrigation_using_sprinkler_systems_",addId[i],"_other","$")))
+               tech_splin  <- dt_inputs(tech_splin,splin_other)
+            }
+           }
+           lbl<- paste("Splinkler irrigation system", addId[i],sep="_")
+           dt_irri_system <- tech_splin
+           # irrigation_system[i,1]<- "Splinkler irrigation system"
+           # irrigation_system[i,2]<- tech_splin[i,2]
+      }
+        else if(technique[i,2]=="Localized"){
+           tech_local<- irri %>% filter(str_detect(id, paste0("irid_localized_irrigation_technique",addId[i],"$")))
+
+           lbl<-  paste("Localized irrigation system", addId[i],sep="_")
+           if(tech_local[1,2]=="Other"){
+             local_other<- irri %>% filter(str_detect(id, paste0("irid_localized_irrigation_technique",addId[i],"_other", "$")))
+             tech_local <- dt_inputs(tech_local,local_other)
+
+           }
+           dt_irri_system<-tech_local
+       }
+        else if(technique[i,2]=="Surface"){
+          lbl<- paste("Surface irrigation system" , addId[i],sep="_")
+          tech_surface<-  irri %>% filter(str_detect(id, paste0("irid_surface_irrigation_technique_",addId[i],"$")))
+          if(tech_surface[1,2]=="Other"){
+            surface_other<- irri %>% filter(str_detect(id, paste0("irid_surface_irrigation_technique_",addId[i],"_other","$")))
+            tech_surface<- dt_inputs(tech_surface, surface_other)
+
+          }
+          dt_irri_system<-tech_surface
+            # irrigation_system[i,1]<- "Surface irrigation system"
+            # irrigation_system[i,2]<- tech_surface[i,2]
+      }
+        else if(technique[i,2]=="Other"){
+          lbl<- paste("Other irrigation system" , addId[i],sep="_")
+          tech_other <- irri %>% filter(str_detect(id, paste0("irid_irrigation_technique_", addId[i],"_other","$")))
+          # irrigation_system[i,1]<- "Other irrigation system"
+          # irrigation_system[i,2]<- tech_other[i,2]
+          dt_irri_system<- tech_other
+        }
+        else {
+          lbl <- paste("NoLabel",addId[i], sep="__")
+          dt_irri_system <- data.frame(id="", values = "NoValue")
+        }
+      irrigation_system[i,1] <- lbl
+      irrigation_system[i,2] <- dt_irri_system[1,2]
+
+      # irrigation_system[i,1]<- "Other irrigation system"
+      # irrigation_system[i,2]<- tech_other[i,2]
+   }
+    names(irrigation_system)<-c("id", "values")
+    #TODO: filtrar los valores de "NoLabel" en la col. id y poner la numeración de cada
+    # evaluacion de irrigación
+    lbl_irri_system <- str_replace_all(string = irrigation_system$id ,"[:uppercase:]{8}", as.character(1:length(addId)) )
+    #lbl_irri_system <- lbl_irri_system[!str_detect(lbl_irri_system, pattern = "NoLabel")]
+    #irrigation_system <- irrigation_system %>% filter(!str_detect(id, "NoLabel"))
+    #-------------------------------------------------------------------------------
+
+    #Irrigation source
+    source <- irri %>% filter(str_detect(id, "^irid_irrigation_source_[:alpha:]+$"))
+    source_other <- irri %>% filter(str_detect(id, "irid_irrigation_source_[:alpha:]+_other$"))
+    source <- dt_inputs (source, source_other)
+
+    #irrigation source distance
+    source_distance<- irri %>% filter(str_detect(id, "^irid_irrigation_source_distance_[:alpha:]{1,8}$")) #%>%
+                                 # filter(!str_detect(id, "unit"))
+    #unit
+    source_distance_unit <- irri %>% filter(str_detect(id, "^irid_irrigation_source_distance_[:alpha:]+unit"))
+
+    #irrgation amount
+    amount <- irri %>% filter(str_detect(id, "irid_irrigation_amount_[:alpha:]{1,8}$"))
+    #unit
+    amount_unit <- irri %>% filter(str_detect(id, "irid_irrigation_amount_[:alpha:]+unit"))
+
+    #irrigation notes
+    notes<- irri %>% filter(str_detect(id, "irid_irrigation_notes_[:alpha:]+$"))
+
+    dt<- rbind(startD, endD, technique, irrigation_system, source, source_distance, amount, notes)
+    
+   
+    lbl_start <- paste("Start_date",1:length(addId),sep = "__")
+    lbl_end <- paste("End_date",1:length(addId),sep = "__")
+    lbl_tech <- paste("Technique", 1:length(addId),sep = "__")
+    lbl_source<- paste("Source",1:length(addId),sep = "__")
+    lbl_source_dis<- paste( paste("Source_distance", source_distance_unit$values,sep="_"),   1:length(addId), sep = "__")
+    lbl_amount <- paste(paste("Amount", amount_unit$values, sep="_"),  1:length(addId),sep = "__")
+    lbl_notes<- paste("Notes", 1:length(addId),sep = "__")
+
+    #Ensemble all irrigation labels
+    lbl_irri <- c(lbl_start, lbl_end, lbl_tech, lbl_irri_system, 
+                  lbl_source, lbl_source_dis, lbl_amount,lbl_notes)
+    
+    #Special case:
+    #Swichtching id values by irrigation labels (lbl_irr)
+    dt$id <- lbl_irri
+    
+    #Remove NoLabel or NonData rows
+    dt <- arrange_by_pattern(dt, as.character(1:length(addId))) %>% 
+          filter(!str_detect(id,"NoLabel__"))  
+    
+    #transpose data as rows   
+    dt_irri<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
+    names(dt_irri) <- dt$id
+    dt_irri
+
+}

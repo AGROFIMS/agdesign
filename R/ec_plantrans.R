@@ -1,0 +1,149 @@
+
+get_ec_plantrans <- function(allinputs, addId){
+  
+  
+  #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+  #input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+
+  
+  #direct seedling -------------------------------------------------------------
+  ptdi <- allinputs %>%  filter(!str_detect(id, "button")) %>%
+          filter(!str_detect(id, "-selectized")) %>%
+          filter(str_detect(id,"ptdi"))
+  
+  #start date
+  startD <- ptdi %>% filter(str_detect(id, "ptdi_planting_start_date_"))
+  
+  #environment
+  env <- ptdi %>% filter(str_detect(id,  "ptdi_seeding_environment_[:digit:]+$" ))
+  env_other <- ptdi %>% filter(str_detect(id,  "ptdi_seeding_environment_[:digit:]+_other$"))
+  env <- dt_inputs(env, env_other)
+  
+  #seeding technique
+  tech<- ptdi %>% filter(str_detect(id,  "ptdi_seeding_technique_[:digit:]+$"           ))  
+  #<- ptdi %>% filter(str_detect(id,  "ptdi_seeding_technique_[:digit:]+_other"))
+  
+  #treatment
+  treat <- ptdi %>% filter(str_detect(id,  "ptdi_seed_treatment_[:digit:]+$"              ))
+  
+  #implement type
+  imp_type<- ptdi %>% filter(str_detect(id,  "ptdi_seeding_implement_type_[:digit:]+$"))
+  imp_type_other <- ptdi %>% filter(str_detect(id,  "ptdi_seeding_implement_type_[:digit:]+_other$"))
+  imp_type <- dt_inputs(imp_type, imp_type_other) 
+  
+  #implement traction
+  imp_trac <- ptdi %>% filter(str_detect(id,  "ptdi_seeding_traction_[:digit:]+$"))
+  imp_trac_other<- ptdi %>% filter(str_detect(id,  "ptdi_seeding_traction_[:digit:]+_other"))
+  imp_trac <- dt_inputs(imp_trac, imp_trac_other)
+  
+  #distance rows
+  row<- ptdi %>% filter(str_detect(id,   "ptdi_distance_rows_[:digit:]+$"   ))
+  row_unit <- ptdi %>% filter(str_detect(id,   "ptdi_distance_rows_unit_[:digit:]+$" ))
+  
+  #seeding rate
+  rate <- ptdi %>% filter(str_detect(id,  "ptdi_seeding_rate_[:digit:]$"))
+  rate_unit <- ptdi %>% filter(str_detect(id, "ptdi_seeding_rate_unit_[:digit:]+$" ))
+
+  #distance plants
+  plan<- ptdi %>% filter(str_detect(id,   "ptdi_distance_plants_unit_[:digit:]+$"))
+  plan_unit<- ptdi %>% filter(str_detect(id,   "ptdi_distance_plants_[:digit:]+$"   ))  
+  
+  #number of rows
+  numrow <- ptdi %>% filter(str_detect(id,  "ptdi_seeding_density_number_rows_[:digit:]+$"))
+  
+  #plan density
+  plden<- ptdi %>% filter(str_detect(id,  "ptdi_seeding_plant_density_[:digit:]+$"       ))
+  plden_unit <- ptdi %>% filter(str_detect(id,  "ptdi_seeding_plant_density_unit_[:digit:]+$"  ))  
+  
+  #bund
+  bund<- ptdi %>% filter(str_detect(id,  "ptdi_seeding_distance_bunds_[:digit:]+$"      ))
+  bund_unit<- ptdi %>% filter(str_detect(id,  "ptdi_seeding_distance_bunds_unit_[:digit:]+$" ))
+  
+  #notes
+  notes <- ptdi %>% filter(str_detect(id,  "ptdi_direct_seeding_notes_[:digit:]+$"        ))
+  
+  dt_di <- rbind(startD, env, tech, treat,  imp_type, 
+              imp_trac, row, rate, plan, numrow, plden, bund, notes)
+  
+  lbl_di <- c("Direct seeding Start date", "Direct seeding environment", "Direct seeding technique",
+              "Direct seeding Seed treatment", "Direct seeding implement type", 
+              "Direct seeding traction type" ,  "Direct seeding Distance between rows",
+              "Direct seeding Seeding rate",  "Direct seeding Distance between plants",
+              "Direct seeding Number of rows", "Direct seeding Plant density",
+              "Direct seeding Distance between bunds","Direct seeding Notes"
+              )
+  
+  dt_di <- t(dt_di$values) %>% as.data.frame(stringAsFactors=FALSE)
+  names(dt_di) <- lbl_di
+  
+  
+  #planting transplanting ----------------------------------------------------
+  ptta <- allinputs %>%  filter(!str_detect(id, "button")) %>%
+          filter(!str_detect(id, "-selectized")) %>%
+          filter(str_detect(id,"ptta"))
+  
+  #Start and End date
+  ta_startD<- ptta %>% filter(str_detect(id,"ptta_transplanting_start_date_[:digit:]+$"))
+  ta_endD <- ptta %>% filter(str_detect(id,"ptta_transplanting_end_date_[:digit:]+$"))
+  
+  #Age
+  ta_age <- ptta %>% filter(str_detect(id,"ptta_age_seedling_[:digit:]+$"))
+  
+  #Environment
+  ta_env <- ptta %>% filter(str_detect(id,"ptta_transplanting_environment_[:digit:]+$"))
+  ta_env_other <- ptta %>% filter(str_detect(id,"ptta_transplanting_environment_[:digit:]+_other$"))
+  ta_env <- dt_inputs(ta_env, ta_env_other)
+  
+  #Technique
+  ta_tech <- ptta %>% filter(str_detect(id,"ptta_transplanting_technique_[:digit:]+$"))
+  ta_tech_other<- ptta %>% filter(str_detect(id,"ptta_transplanting_technique_[:digit:]+_other$"))
+  ta_tech <- dt_inputs(ta_tech,ta_tech_other)
+  
+  #Treatment
+  ta_treat <- ptta %>% filter(str_detect(id,"ptta_transplanting_treatment_[:digit:]+$"))
+  
+  #Traction
+  ta_trac <- ptta %>% filter(str_detect(id,"ptta_trans_traction_[:digit:]+$"))
+  ta_trac_other <-ptta %>% filter(str_detect(id,"ptta_trans_traction_[:digit:]+_other$"))
+  ta_trac <- dt_inputs(ta_trac, ta_trac_other)
+  
+  #Number of rows
+  ta_drow<- ptta %>% filter(str_detect(id,"ptta_trans_distance_rows_[:digit:]+$"))
+  ta_drow_unit<- ptta %>% filter(str_detect(id,"ptta_trans_distance_rows_unit_[:digit:]+$"))
+  
+  #Seeding density
+  ta_sden <- ptta %>% filter(str_detect(id,"ptta_trans_seeding_density_[:digit:]+$"))
+  ta_sden_unit <-ptta %>% filter(str_detect(id,"ptta_trans_seeding_density_unit_[:digit:]+$"))
+  
+  #Number of rows
+  ta_numrow <- ptta %>% filter(str_detect(id,"ptta_trans_num_rows_[:digit:]+$"))
+  
+  #distance plants
+  ta_dplan<- ptta %>% filter(str_detect(id,"ptta_trans_distance_plants_[:digit:]+$"))
+  ta_dplan_unit <- ptta %>% filter(str_detect(id,"ptta_trans_distance_plants_unit_[:digit:]+$"))
+  
+  #distance bunds
+  ta_bunds<- ptta %>% filter(str_detect(id,"ptta_trans_distance_bunds_[:digit:]+$"))
+  ta_bunds<- ptta %>% filter(str_detect(id,"ptta_trans_distance_bunds_unit_[:digit:]+$"))
+  
+  #Notes
+  ta_notes<- ptta %>% filter(str_detect(id,"ptta_transplanting_density_notes_[:digit:]+$"))
+  
+  dt_ta<- rbind(ta_startD,ta_endD, ta_age, ta_env, ta_tech, ta_treat, ta_trac, 
+             ta_drow, ta_sden, ta_numrow, ta_dplan, ta_bunds, ta_notes)
+     
+  lbl_ta <- c("Transplanting_start_date", "Transplanting_end_date",
+             "Transplanting_Age_of_seedling_(days)","Transplanting_seedling_environment",
+              "Transplanting_Technique","Transplanting_Treatment",
+              "Transplanting_Traction","Transplanting_Distance_between_rows",
+              "Transplanting_Seedling_density","Transplanting_Number_of_rows",
+              "Transplanting_Distance_between_plants",
+              "Transplanting_Distance_between_bunds",
+              "Transplanting_Notes")      
+  
+  dt_ta <- t(dt_ta$values) %>% as.data.frame(stringAsFactors=FALSE)
+  names(dt_ta) <- lbl_ta
+  
+  dt_plantrans <- cbind(dt_di, dt_ta)
+  dt_plantrans
+}

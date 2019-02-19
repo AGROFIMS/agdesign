@@ -874,28 +874,28 @@ display: none;
                                #   
                                # ),
                                h2("Crop information"),
-                               h3("Under construction"),
+                               #h3("Under construction"),
                                
-                               #fluidRow(id="fr_intercrop_boxes"),
-                               #actionButton("addIntercrop", "Add crop"),
-                               br(),br()#,
-                               # h2("Intercrop arrangement"),
-                               # fluidRow(
-                               #   column(
-                               #     width = 6,
-                               #     selectizeInput("fr_intercrop_arrangement", "", multiple = TRUE,
-                               #                    options = list(maxItems =1, placeholder="Select one..."),
-                               #                    choices = c("Mixed intercropping",
-                               #                                "Row intercropping")
-                               #     )
-                               #   )
-                               # ),
-                               # fluidRow(
-                               #   column(12,
-                               #          h2("Intercrop row geometry"),
-                               #          fluidRow(id="fr_intercrop_geometry_boxes")
-                               #   )
-                               # )
+                               fluidRow(id="fr_relaycrop_boxes"),
+                               actionButton("addRelaycrop", "Add crop"),
+                               br(),br()
+                               #h2("relaycrop arrangement"),
+                               #fluidRow(
+                              #   column(
+                              #     width = 6,
+                              #     selectizeInput("fr_relaycrop_arrangement", "", multiple = TRUE,
+                              #                    options = list(maxItems =1, placeholder="Select one..."),
+                              #                    choices = c("Mixed relaycropping",
+                              #                                "Row relaycropping")
+                              #     )
+                              #   )
+                              # ),
+                              # fluidRow(
+                              #   column(12,
+                              #          h2("relaycrop row geometry"),
+                              #          fluidRow(id="fr_relaycrop_geometry_boxes")
+                              #   )
+                              # )
               ),
               
               conditionalPanel("input.croppingType == 'Rotation'",
@@ -903,9 +903,9 @@ display: none;
                                #   
                                # ),
                                h2("Crop information"),
-                               h3("Under construction"),
-                               #fluidRow(id="fr_intercrop_boxes"),
-                               #actionButton("addIntercrop", "Add crop"),
+                               #h3("Under construction"),
+                               fluidRow(id="fr_rotationcrop_boxes"),
+                               actionButton("addRotationcrop", "Add crop"),
                                br(),br()#,
                                # h2("Intercrop arrangement"),
                                # fluidRow(
@@ -1186,7 +1186,7 @@ display: none;
                                                                                                ),
                                                                                                column(width = 6,
                                                                                                       selectizeInput("rmgt_crop_residue_thick_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
-                                                                                                                     choices = c("cm", "ft", "in", "m"))
+                                                                                                                     choices = c("cm", "ft", "in", "m"), selected = "cm")
                                                                                                )
                                                                                              ),
                                                                                              fluidRow(
@@ -1195,12 +1195,12 @@ display: none;
                                                                                                ),
                                                                                                column(width = 6,
                                                                                                       selectizeInput("rmgt_crop_residue_amount_sqm_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
-                                                                                                                     choices = c("g/ft2", "g/m2", "kg/ha", "kg/m2", "lb/ac"))
+                                                                                                                     choices = c("g/ft2", "g/m2", "kg/ha", "kg/m2", "lb/ac"), selected = "kg/ha")
                                                                                                )
                                                                                              ),
                                                                                              fluidRow(
                                                                                                column(6, numericInput("rmgt_crop_residue_perc_cov","Crop residue percent of coverage", value="", min=0, max=100)),
-                                                                                               column(6, selectInput("rmgt_crop_residue_perc_cov_unit", "Unit", c("%"), selected="%"))
+                                                                                               column(6, selectInput("rmgt_crop_residue_perc_cov_unit", "Unit", c("%"), selected = "%"))
                                                                                              ),
                                                                                              # fluidRow(
                                                                                              #   column(6,textInput("residue_inc_depth", "Residue incorporation depth", value="")),
@@ -1392,7 +1392,7 @@ display: none;
                                                                                      numericInput("puddling_depth_val", label = "Puddling depth", value="", min = 1, step = 0.1)
                                                                               ),
                                                                               column(width = 6,##IMPLEMENTAR EN EL EXCEL
-                                                                                     selectizeInput("puddling_depth_unit", label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices = c("cm", "ft", "in", "m"))
+                                                                                     selectizeInput("puddling_depth_unit", label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices = c("cm", "ft", "in", "m"), selected = "cm")
                                                                               )
                                                                             ),
                                                                             numericInput("puddling_total_number_puddling_passes", "Total number of puddling passes", value = "", min = 0, step = 1),
@@ -1468,7 +1468,7 @@ display: none;
                                                                                      numericInput("tillage_depth", "Tillage depth", value = "", min = 0, step = 0.1)
                                                                               ),
                                                                               column(width = 6,
-                                                                                     selectizeInput("tillage_depth_unit", label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("cm", "ft", "in", "m"))
+                                                                                     selectizeInput("tillage_depth_unit", label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("cm", "ft", "in", "m"), selected = "cm")
                                                                               )
 
                                                                             ),
@@ -1575,13 +1575,13 @@ display: none;
                                                                      ),
                                                                      fluidRow(
                                                                        column(12,
-                                                                              column(1, style="padding:5px; text-align:center; word-wrap: break-word;", h4("# app")),
-                                                                              column(10, style="padding:0px;",
+                                                                              column(1, style="padding:5px; text-align:center; word-wrap: break-word;  width: 5.33333333%;", h4("# app")),
+                                                                              column(10, style="padding:0px;  width: 93.33333333%;",
                                                                                      column(6,style="padding:0px;",
                                                                                             column(3, style="padding:5px; text-align:center; word-wrap: break-word;", h4("Fertilizer type") ),
-                                                                                            column(5, style="padding:5px; text-align:center; word-wrap: break-word;", h4("Product")),
+                                                                                            column(3, style="padding:5px; text-align:center; word-wrap: break-word;", h4("Product")),
                                                                                             column(2, style="padding:5px; text-align:center; word-wrap: break-word;", h4("Product rate (kg/ha)")),
-                                                                                            column(2, style="padding:5px; text-align:center; word-wrap: break-word;", h4("Element"))
+                                                                                            column(4, style="padding:5px; text-align:center; word-wrap: break-word;", h4("Element"))
                                                                                      ),
                                                                                      column(6, style="padding:0px;",
                                                                                             column(2, style="padding:5px; text-align:center; word-wrap: break-word;", h4("Element rate (kg/ha)") ),
@@ -1592,7 +1592,7 @@ display: none;
                                                                                             column(4, style="padding:5px; text-align:center; word-wrap: break-word;",h4("Technique"))
                                                                                      )
                                                                               ),
-                                                                              column(1,  style="padding:5px; text-align:center; word-wrap: break-word;",
+                                                                              column(1,  style="padding:5px; text-align:center; word-wrap: break-word; display: none;",
                                                                                      h4("Notes")
                                                                               )
                                                                        )
@@ -1601,7 +1601,7 @@ display: none;
                                                                      fluidRow(
                                                                        column(12,
                                                                               column(1, style="padding:3px; text-align:center;"),
-                                                                              column(10, style="padding:0px;",
+                                                                              column(10, style="padding:0px; display: none;",
                                                                                      column(6, style="padding:0px;",
                                                                                             column(3, style="padding:5px;"
                                                                                             ),
@@ -1754,7 +1754,7 @@ display: none;
                                                                               ),
                                                                               column(width = 6,
                                                                                 selectizeInput("mumd_mulch_thickness_unit","Unit", multiple=T, options=list(maxItems=1, placeholder="Select one..."),
-                                                                                               choices = c("cm","ft", "in", "m"))
+                                                                                               choices = c("cm","ft", "in", "m"), selected = "cm")
                                                                               )
                                                                             ),
                                                                             fluidRow(
@@ -1764,7 +1764,7 @@ display: none;
                                                                               ),
                                                                               column(width = 6,
                                                                                 selectizeInput("mumd_mulch_amountPerSq_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
-                                                                                               choices = c("g/ft2", "g/m2","kg/ha", "kg/m2", "lb/ac"))
+                                                                                               choices = c("g/ft2", "g/m2","kg/ha", "kg/m2", "lb/ac"), selected = "kg/ha")
                                                                               )
                                                                             ),
                                                                             # selectizeInput("mulch_color", label = "Mulch color", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices = c("Black",
@@ -1780,7 +1780,7 @@ display: none;
                                                                                      textInput("mumd_mulch_percCoverage", value="", label = "Percentage of coverage")
                                                                                      ),
                                                                               column(6,
-                                                                                     selectInput("mumd_mulch_percCoverage_unit", "Unit", c("%"), selected="%")
+                                                                                     selectInput("mumd_mulch_percCoverage_unit", "Unit", c("%"), selected= "%")
                                                                                      )
                                                                             ),
                                                                             fluidRow(

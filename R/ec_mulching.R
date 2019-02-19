@@ -64,16 +64,16 @@ get_ec_mulching <- function(allinputs){
   dt<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
   
   #Labels
-  lbl <- c("Start_date", "Type", 
+  lbl <- c("Start_date", "Mulch_Type", 
            paste0("Mulch_thickness_", mthick_unit$values),
            paste0("Mulch_amoun_t",mamount_unit$values),
            "Mulch color", 
-           paste0("Percentage_of_coverage_",mper_unit$values),
+           paste0("Mulch_Percentage_of_coverage_",mper_unit$values),
            "Mulch_removal_start_date", 
            "Mulch_removal_end_date",
            "Notes",
-           "Implement_Type",
-           "Implement_Traction"
+           "Mulch_Implement_Type",
+           "Mulch_Implement_Traction"
            )
   
   
