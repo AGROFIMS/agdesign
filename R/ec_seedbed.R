@@ -78,7 +78,7 @@ get_ec_sbtill <- function(input){
   ltNames <- c("Tillage_start_date_(yyyy/mm/dd)", 
                "Tillage_technique",
                paste0("Tillage_depth_",lt_depth_unit), 
-               "Total_number_of_tillage_passes", "Tillage_Notes", "Tillage_Type", "Tillage_Traction")
+               "Tillage_Total_number_of_tillage_passes", "Tillage_Notes", "Tillage_Type", "Tillage_Traction")
   
   dt <- data.frame(lt_start_date, lt_technique,
                      lt_depth, lt_npasses ,lt_notes, lt_type, lt_traction,stringsAsFactors = FALSE )

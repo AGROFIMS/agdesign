@@ -564,6 +564,12 @@ display: none;
                                      
                                      
                                      "),
+  
+  tags$style("
+      .form-group {
+        margin-bottom: 0px;
+      }
+    "),
 
                           # fluidRow(
                           #   box()
@@ -1251,7 +1257,7 @@ display: none;
                                                                                                             )
                                                                                            ),
                                                                                            hidden(textInput("rmgt_residue_technique_other", "", value = "")),
-                                                                                           conditionalPanel("input.rmgt_residue_technique == 'Burying'", 
+                                                                                           conditionalPanel("input.rmgt_residue_technique == 'Incorporation'", 
                                                                                                             fluidRow(
                                                                                                               column(6,textInput("rmgt_residue_inc_depth", "Residue incorporation depth", value="")),
                                                                                                               column(6, selectizeInput("rmgt_residue_inc_depth_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
@@ -1318,6 +1324,12 @@ display: none;
                                                                         fluidRow(
                                                                          box(
                                                                            title = "Implement", solidHeader = TRUE, status = "warning", width=12,
+                                                                           
+                                                                           fluidRow(
+                                                                             column(12,
+                                                                                    h4("Implement", style="font-weight: 800;color: #555;")
+                                                                             )
+                                                                           ),
 
                                                                              selectizeInput("land_impl_type", label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
                                                                                                                         choices = c(
@@ -1403,6 +1415,11 @@ display: none;
                                                                             fluidRow(
                                                                              box(
                                                                                title = "Implement", solidHeader = TRUE, status = "warning", width=12,
+                                                                               fluidRow(
+                                                                                 column(12,
+                                                                                        h4("Implement", style="font-weight: 800;color: #555;")
+                                                                                 )
+                                                                               ),
                                                                                selectizeInput("pud_impl_type", label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
                                                                                               choices = c("Chisel plough",
                                                                                                           "Cultivator",
@@ -1483,6 +1500,11 @@ display: none;
                                                                             fluidRow(
                                                                          box(
                                                                            title = "Implement", solidHeader = TRUE, status = "warning", width=12,
+                                                                           fluidRow(
+                                                                             column(12,
+                                                                                    h4("Implement", style="font-weight: 800;color: #555;")
+                                                                             )
+                                                                           ),
                                                                            selectizeInput("till_impl_type", label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices = c("Chisel plough",
                                                                                                                                                                                                                    "Cultivator",
                                                                                                                                                                                                                    "Disc plough",
@@ -1802,6 +1824,11 @@ display: none;
                                                                       fluidRow(
                                                                        box(
                                                                          title = "Implement", solidHeader = TRUE, status = "warning", width=12,
+                                                                         fluidRow(
+                                                                           column(12,
+                                                                                  h4("Implement", style="font-weight: 800;color: #555;")
+                                                                           )
+                                                                         ),
                                                                          # textInput("mulch_make", value="", label = "Implement make"),
                                                                          # textInput("mulch_model", value="", label = "Implement model"),
                                                                                selectizeInput("mumd_mulch_implement_type", label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
@@ -1838,7 +1865,8 @@ display: none;
                                                                               solidHeader = TRUE,
                                                                               width = 12, collapsible = TRUE, collapsed = FALSE,
                                                                               fluidPage(id="fr_irrigation_boxes"), 
-                                                                              column(12,actionButton("addIrrigation", "Add irrigation"))
+                                                                              #column(12,actionButton("addIrrigation", "Add irrigation"))
+                                                                              actionButton("addIrrigation", "Add irrigation")
                                                                           ))#end box description irrigation
                                                                  )),#),#end tab irrigation
 
@@ -1851,7 +1879,8 @@ display: none;
                                                                width = 12, collapsible = TRUE,  collapsed = FALSE,
 
                                                                fluidPage(id="fr_weeding_boxes"),
-                                                               column(12,actionButton("addWeeding", "Add weeding"))
+                                                               #column(12,actionButton("addWeeding", "Add weeding"))
+                                                               actionButton("addWeeding", "Add weeding")
                                                           )
                                                         ),#),#end tab weeding
                                                         tabPanel(div(id = "gh", "Harvest"), value="tabHarvest",
@@ -2184,7 +2213,12 @@ display: none;
                                               #     )
                                               # ),
                                               shiny::tabPanel("Weather", value = 'tabWeather', icon = shiny::icon("bolt"),
-                                                      br(),
+                                                              column(width = 12,
+                                                              h2("Weather details"),
+                                                              p(class = "text-muted", style="text-align:justify",
+                                                                paste("Please, select row by click.")
+                                                              )),
+                                                              #br(),
                                                               uiOutput("uiWeatherTab")
 
                                               ),
@@ -2197,6 +2231,11 @@ display: none;
                                                                      #         h2("Weather & Soil"),
                                                                      #shinyTree::shinyTree("designFieldbook_weatherVar_agrofims",search = TRUE,checkbox = TRUE),
                                                                      #shinyTree::shinyTree("designFieldbook_soilVar_agrofims",search = TRUE,checkbox = TRUE)
+                                                                     #br(),
+                                                                     h2("Soil details"),
+                                                                     p(class = "text-muted", style="text-align:justify",
+                                                                       paste("Please, select row by click.")
+                                                                     ),
                                                                      br(),
                                                                      uiOutput("uiSoilTab")
 

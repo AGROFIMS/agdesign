@@ -2403,10 +2403,23 @@ server_design_agrofims <- function(input, output, session, values){
   
   ##End Rotation Listening
   
+ 
+  
+  # observe({
+  #   print(cropinter)
+  #   print(input$cropinter)
+  # })
+  
   ## function to insert intercrop box
   insertBoxIntercrop <- function(index){
     str_id <- stri_rand_strings(1, 8,  '[A-Z]')
     intercropVars$ids <- c(intercropVars$ids, paste0("IC_", str_id))
+    
+    cropinter <<- paste0("cropCommonNameInter_", str_id)
+    # observe({
+    #   print(cropinter)
+    #   print(input$cropinter)
+    # })
     
     intercropVars$num <- intercropVars$num + 1
     prev <-unlist(strsplit(intercropVars$ids[intercropVars$num -1],"_"))
@@ -2601,12 +2614,12 @@ server_design_agrofims <- function(input, output, session, values){
     }
   }
   getUiRelaycropGeometryCol <- function(index, str_id){
-    print(index)
-    print(str_id)
+    #print(index)
+    #print(str_id)
     nametext <<- paste0("strn_",index)
     assign(nametext, str_id, envir = .GlobalEnv)
-    print(strn_1)
-    print(paste0("<",input[[paste0("relaycropName_row_crop_", str_id)]],">"))
+    #print(strn_1)
+    #print(paste0("<",input[[paste0("relaycropName_row_crop_", str_id)]],">"))
     column(3, id= paste0("relaycrop_rows_crop_", str_id), style='padding:0px;',
            column(5, offset = 0, style='padding:25px 2px 0px 0px; text-align:center; word-wrap: break-word;', uiOutput(paste0("relaycropName_row_crop_", str_id))),
            column(4, offset = 0, style='padding:0px; text-align:left; ', textInput(paste0("relaycropValue_row_crop_", str_id), "")),
@@ -2698,12 +2711,12 @@ server_design_agrofims <- function(input, output, session, values){
       )
   }
   getUiRotationcropGeometryCol <- function(index, str_id){
-    print(index)
-    print(str_id)
+    #print(index)
+    #print(str_id)
     nametext <<- paste0("strn_",index)
     assign(nametext, str_id, envir = .GlobalEnv)
-    print(strn_1)
-    print(paste0("<",input[[paste0("rotationcropName_row_crop_", str_id)]],">"))
+    #print(strn_1)
+    #print(paste0("<",input[[paste0("rotationcropName_row_crop_", str_id)]],">"))
     column(3, id= paste0("rotationcrop_rows_crop_", str_id), style='padding:0px;',
            column(5, offset = 0, style='padding:25px 2px 0px 0px; text-align:center; word-wrap: break-word;', uiOutput(paste0("rotationcropName_row_crop_", str_id))),
            column(4, offset = 0, style='padding:0px; text-align:left; ', textInput(paste0("rotationcropValue_row_crop_", str_id), "")),
@@ -4935,13 +4948,15 @@ server_design_agrofims <- function(input, output, session, values){
       id= paste0("fr_irrigation_box_", str_id),
           box(
                column(12, offset = 0, 
-                      column(6,style='padding:0px; text-align:left;',  HTML("<b><h4>Irrigation</h4></b>")
+                      column(6,style='padding:0px; text-align:left;',  #HTML("<b><h4>Irrigation</h4></b>"),
+                             h4("Irrigation", style="font-weight: 800;color: #555;")
                       ),
                       column(6, 
-                             style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_ECIR_", str_id), "Remove")
+                             style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_ECIR_", str_id), "", icon("close"))
                       )
                       
                ),
+               br(),
                width = 12, solidHeader = TRUE, status = "warning",
              column(width = 6,
                     fluidRow(
@@ -5147,10 +5162,11 @@ server_design_agrofims <- function(input, output, session, values){
       box(
                           
             column(12, offset = 0, 
-                   column(6,style='padding:0px; text-align:left;',  HTML("<b><h4>Weeding</h4></b>")
+                   column(6,style='padding:0px; text-align:left;', # HTML("<b><h4>Weeding</h4></b>")
+                          h4("Weeding", style="font-weight: 800;color: #555;")
                    ),
                    column(6, 
-                          style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_ECWE_", str_id), "Remove")
+                          style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_ECWE_", str_id), "", icon("close"))
                    )
                    
             ),
@@ -5196,7 +5212,12 @@ server_design_agrofims <- function(input, output, session, values){
                   textAreaInput(paste0("wewd_weeding_notes_", str_id), "Notes", value = mnotes)
            ),
            column(6,
-                  h4("Implement"),
+                  #h4("Implement"),
+                  fluidRow(
+                    column(12,
+                           h4("Implement", style="font-weight: 800;color: #555;")
+                    )
+                  ),
                   selectizeInput(paste0("wewd_weeding_type_",str_id ), "Type", multiple = TRUE,selected = mtype, options = list(maxItems =1, placeholder ="Select one..."),
                                  choices =  c(
                                    "Cultivator",
@@ -5511,7 +5532,7 @@ server_design_agrofims <- function(input, output, session, values){
                     )
              ),
              column(1,  style="float: initial; margin-left: 5.5%;padding:3px;",
-                    textAreaInput(paste0("textArea_soil_table_row_", index), "",placeholder ="Notes")
+                    textAreaInput(paste0("textArea_soil_table_row_", index), "",placeholder ="Notes", width = "350px")
              )
         )
 
@@ -7690,8 +7711,9 @@ server_design_agrofims <- function(input, output, session, values){
   traitsVals$Data <- data.table()
 
   #dict <- readRDS("/home/obenites/HIDAP_SB_1.0.0/hidap/inst/hidap_agrofims/www/internal_files/crop_measurements_v4.rds")
-  dict <- readRDS(paste0(globalpath, "crop_measurements_v5.rds"))
+  #dict <- readRDS(paste0(globalpath, "crop_measurements_v5.rds"))
   #dict <- readRDS(paste0(globalpath, "crop_measurements_v6.rds"))
+  dict <- readRDS(paste0(globalpath, "crop_measurements_v6.2.rds"))
   dict <- as.data.frame(dict, stringsAsFactors=FALSE)
 
   # observe({
@@ -7747,8 +7769,8 @@ server_design_agrofims <- function(input, output, session, values){
                                 p(class = "text-muted", style="text-align:justify",
                                   paste("Please, select measurement by click.")
                                 ),
-                                column(12, align = "center", checkboxInput("dt_sel", "Select all"))
-                                
+                                column(12, align = "center", checkboxInput("dt_sel", "Select all")),
+                                br(),br()
                          ),
                          uiOutput("uiTraitsList3"),
                          sidebarPanel(id="sidebar", width = 12,
@@ -7758,7 +7780,18 @@ server_design_agrofims <- function(input, output, session, values){
                 position =  "after",
                 target = "tabAgroFeat")
       insertTab(inputId = "fbDesignNav",
-                tabPanel("Crop Phenology", value = "Crop_Phenology_monocrop",  icon = shiny::icon("envira"), DTOutput('phenoDT')),
+                tabPanel("Crop Phenology", value = "Crop_Phenology_monocrop",  icon = shiny::icon("envira"),
+                         column(width = 12,
+                                h2("Crop Phenology"),
+                                p(class = "text-muted", style="text-align:justify",
+                                  paste("Please, select phenology by click.")
+                                ),
+                                #column(12, align = "center", checkboxInput("dt_sel", "Select all"))
+                                DTOutput('phenoDT')
+                                
+                         )#,
+                         #DTOutput('phenoDT')
+                ),
                 position =  "after",
                 target = "Crop_Measurement_monocrop")
 
@@ -7778,13 +7811,13 @@ server_design_agrofims <- function(input, output, session, values){
       
       insertTab(inputId = "fbDesignNav",
              tabPanel("Crop Measurement",  value = "Crop_Measurement_intercrop", icon = shiny::icon("leaf"),
-                      column(12, h2("Crop Measurement")),
+                      column(12, h2("Crop Measurement"),
                       tabsetPanel( id= "intercropMeasuTabs",
                                    tabPanel(title = textOutput(paste0("intercrop_tab_measu_title_",tt[2])), value = paste0("intercrop_tab_measu_",tt[2]), 
                                             br(),
                                             column(12,DTOutput(paste0("crop_measurement_table_", tt[2])))
                                    )
-                      )
+                      ))
                       
              ),
             position =  "after",
@@ -7792,13 +7825,13 @@ server_design_agrofims <- function(input, output, session, values){
       
       insertTab(inputId = "fbDesignNav",
               tabPanel("Crop Phenology",  value = "Crop_Phenology_intercrop", icon = shiny::icon("envira"),
-                       column(12, h2("Crop Phenology")),
+                       column(12, h2("Crop Phenology"),
                         tabsetPanel( id= "intercropPhenoTabs", 
                                      tabPanel(title = textOutput(paste0("intercrop_tab_pheno_title_",tt[2])), value = paste0("intercrop_tab_pheno_",tt[2]), 
                                               br(),
                                               column(12,renderDataTable(pheno_vars , options = list(lengthChange = FALSE)))
                                      )
-                        )
+                        ))
                ),
               position =  "after",
               target = "Crop_Measurement_intercrop")
@@ -8308,7 +8341,7 @@ server_design_agrofims <- function(input, output, session, values){
                                               ),
                                               column(6,
                                                      selectizeInput(paste0("hahd_crop_component_harvested_lenunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
-                                                                      c("cm", "m", "in","ft"))
+                                                                      c("cm", "m", "in","ft"), selected = "cm")
                                               )
                                             ),
                                             fluidRow(
@@ -8317,16 +8350,16 @@ server_design_agrofims <- function(input, output, session, values){
                                               ),
                                               column(6,
                                                      selectizeInput(paste0("hahd_crop_component_harvested_widthunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
-                                                                      c("cm", "m", "in","ft"))
+                                                                      c("cm", "m", "in","ft"), selected = "cm")
                                               )
                                             ),
                                             fluidRow(
                                               column(6,
-                                                     numericInput(paste0("space_rows_harvested_", index), "Space between rows harvested", value = "", min = 0, step = 0.1)
+                                                     numericInput(paste0("hahd_space_rows_harvested_", index), "Space between rows harvested", value = "", min = 0, step = 0.1)
                                               ),
                                               column(6,
                                                      selectizeInput(paste0("hahd_crop_component_harvested_spaceunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
-                                                                      c("cm", "m", "in","ft"))
+                                                                      c("cm", "m", "in","ft"), selected = "cm")
                                               )
                                             )
                            ),
@@ -8337,7 +8370,7 @@ server_design_agrofims <- function(input, output, session, values){
                                               ),
                                               column(6,
                                                      selectizeInput(paste0("hahd_crop_component_harvested_entireunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
-                                                                      c("m2", "ha", "ft2","ac"))
+                                                                      c("m2", "ha", "ft2","ac"), selected = "ha")
                                               )
                                             )
                            ),
@@ -8373,7 +8406,7 @@ server_design_agrofims <- function(input, output, session, values){
                            isolate(
                              if(input$croppingType == 'Monocrop'){
                                column(12, 
-                                      style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_HARV_",index ), "Remove"),
+                                      style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_HARV_",index ), "", icon("close")),
                                       br(),br()
                                )                               
                              }
@@ -8388,6 +8421,11 @@ server_design_agrofims <- function(input, output, session, values){
                                #                  c("Manual",
                                #                    "Mechanized")
                                # ),
+                               fluidRow(
+                                 column(12,
+                                        h4("Implement", style="font-weight: 800;color: #555;")
+                                 )
+                               ),
                                selectizeInput(paste0("hahd_harvest_implement_", index), label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
                                                 c("Baler",
                                                   "Chopper",
@@ -8471,7 +8509,11 @@ server_design_agrofims <- function(input, output, session, values){
                                  fluidRow(
                                    box(
                                      title = "Planting, transplanting method", solidHeader = TRUE, status = "warning", width=12,
-                                     
+                                     fluidRow(
+                                       column(12,
+                                              h4("Planting, transplanting method", style="font-weight: 800;color: #555;")
+                                       )
+                                     ),
                                      # textInput("planting_directSeeding", value="", label = "Direct seeding"),
                                      selectizeInput(paste0("ptdi_seeding_environment_", index), label = "Seeding environment", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
                                                       c("Flat seed bed",
@@ -8495,6 +8537,11 @@ server_design_agrofims <- function(input, output, session, values){
                                  fluidRow(
                                    box(
                                      title = "Implement", solidHeader = TRUE, status = "warning", width=12,
+                                     fluidRow(
+                                       column(12,
+                                              h4("Implement", style="font-weight: 800;color: #555;")
+                                       )
+                                     ),
                                      selectizeInput(paste0("ptdi_seeding_implement_type_", index), label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
                                                       c("Bucket broadcaster",
                                                         "Dibbling stick",
@@ -8522,6 +8569,11 @@ server_design_agrofims <- function(input, output, session, values){
                                  fluidRow(
                                    box(
                                      title = "Seeding density", solidHeader = TRUE, status = "warning", width=12,
+                                     fluidRow(
+                                       column(12,
+                                              h4("Seeding density", style="font-weight: 800;color: #555;")
+                                       )
+                                     ),
                                      fluidRow(
                                        column(width = 6,
                                               numericInput(paste0("ptdi_distance_rows_", index),  label = "Distance between rows", min=0, max=100, step=0.1,value=NULL)
@@ -8695,7 +8747,12 @@ server_design_agrofims <- function(input, output, session, values){
                                  fluidRow(
                                    box(
                                      title = "Transplanting density", solidHeader = TRUE, status = "warning", width=12,
-                                     br(),
+                                     fluidRow(
+                                       column(12,
+                                              h4("Transplanting density", style="font-weight: 800;color: #555;")
+                                       )
+                                     ),
+                                     #br(),
                                      fluidRow(
                                        column(width = 6,
                                               numericInput(paste0("ptta_trans_distance_rows_", index),  label = "Distance between rows", value="", min=0, max=100, step=0.1)
@@ -8937,7 +8994,8 @@ server_design_agrofims <- function(input, output, session, values){
     options = list(
       scrollX = TRUE,
       pageLength = 25,
-      columnDefs = list(list(visible=FALSE, targets=c(1,6)),list(width = '30%', targets = c(1)), list(className = 'dt-center', targets = c(7,8)))
+      columnDefs = list(list(visible=FALSE, targets=c(1,6)), 
+                        list(width = '30%', targets = c(1)), list(className = 'dt-center', targets = c(7,8)))
       # preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
       # drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } ')
     )
@@ -9165,8 +9223,12 @@ server_design_agrofims <- function(input, output, session, values){
     )
   })
 
-  dat <- reactive({traitsVals$Data})
+  dat <- reactive({
+    traitsVals$Data
+    #colnames(traitsVals$Data) <- c("Status", "Crop", "Group", "Subgroup", "Measurement", "", "", "Unit", "", "", "", "", "Season", "", "Plot")
+  })
 
+  ### Crop measurement Table Interface ----------------------------------------------------
   output$dt <- DT::renderDT(
     dat(),
     server = TRUE,
@@ -9174,7 +9236,7 @@ server_design_agrofims <- function(input, output, session, values){
     options = list(
       scrollX = TRUE,
       pageLength = 25,
-      columnDefs = list(list(visible=FALSE, targets=c(1,6)))
+      columnDefs = list(list(visible=FALSE, targets=c(1,6,7,9,10,11,12,14)))
     )
   )
   dt_proxy <- DT::dataTableProxy("dt")
@@ -9186,34 +9248,6 @@ server_design_agrofims <- function(input, output, session, values){
     }
   })
   output$selected_rows <- renderPrint(print(input$dt_rows_selected))
-
-
-  # Design of variables #################################################################
-  output$fbDesign_variables <- shiny::renderUI({
-
-    crop <- input$designFieldbook_crop
-
-    if(crop == "potato"){tbl <- table_module_potato } #dataset from fbdesign data folder
-    if(crop == "sweetpotato"){tbl <- table_module_sweetpotato } #dataset from fbdesgin data folder
-
-    #mdl <- tbl[tbl$crop == crop, c("module", "module_name")] #HiDAP v1.0 Built_1 (deprecated table form)
-    #Filter by crop and select trial abbreviation and trial.
-    mdl <- tbl[tbl$CROP == crop, c("TRIAL_ABBR", "TRIAL")] #HiDAP v1.0 Built_2
-
-    mdl <- paste0(mdl[,2], " (", mdl[, 1],")")
-    mdl <- sort(unique(mdl))
-
-    #ids <- unlist(stringr::str_extract_all(mdl, "([A-Z]{2})"))
-    ids <- str_trim(gsub("\\(.*","", mdl), side = "both")
-    vls <- mdl
-    mdl <- as.list(ids)
-    names(mdl) <- vls
-    #mdl1 <<- mdl
-    #print(mdl)
-    #shiny::selectInput("designFieldbook_module", label = "Assay (fieldbook module):",
-    shiny::selectInput("designFieldbook_module", label = "Type of trial",
-                       choices = mdl, selected = 1)
-  })
 
   # ID or name of the field book ########################################################
   fbdesign_id <- shiny::reactive({
@@ -9269,7 +9303,8 @@ server_design_agrofims <- function(input, output, session, values){
 
   #Phenomic DataTable ###################################################################
   output$phenoDT = renderDT(
-    pheno_vars %>% dplyr::select(Level, Sublevel)  , 
+    #pheno_vars %>% dplyr::select(Level, Sublevel)  , 
+    pheno_vars %>% dplyr::select(Measurement, TraitUnit),
     options = list(
       #lengthChange = FALSE,
       scrollX = TRUE,
@@ -9281,7 +9316,7 @@ server_design_agrofims <- function(input, output, session, values){
   output$weatherManualDT = renderDT(
     
     #dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit) ,  options = list(lengthChange = FALSE) 
-    weather_manual_vars %>% dplyr::select(Measurement, Unit) ,  
+    weather_manual_vars %>% dplyr::select(Measurement, TraitUnit) ,  
     options = list(
       #lengthChange = FALSE,
       scrollX = TRUE,
@@ -9291,7 +9326,7 @@ server_design_agrofims <- function(input, output, session, values){
   #Weather Station DataTable #############################################################
   output$weatherStationDT = renderDT(
     #dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit) , options = list(lengthChange = FALSE)
-    weather_station_vars %>% dplyr::select(Measurement, Unit) ,  
+    weather_station_vars %>% dplyr::select(Measurement, TraitUnit) ,  
     options = list(
       #lengthChange = FALSE
       scrollX = TRUE,
@@ -9301,7 +9336,10 @@ server_design_agrofims <- function(input, output, session, values){
   
   #Soil## Station DataTable #############################################################
   output$soilDT = renderDT(
-    soil_data %>% dplyr::select(Variable, Unit), 
+    
+    #TODO: NO CAMBIAR LAS CABEZERAS Y USAR DIRECTAMENTE DE GOOGLE DRIVE
+    soil_data %>% dplyr::select(Measurement, TraitUnit) , 
+    #soil_data %>% dplyr::select(Variable, Unit), 
     options = list(
       #lengthChange = FALSE,
       scrollX = TRUE,
@@ -9420,94 +9458,6 @@ server_design_agrofims <- function(input, output, session, values){
     }
   })
 
-  
-  # Create an object with the list of file #####################################################################
-
-  #Button for selecting material list
-  output$fbDesign_selmlist <- shiny::renderUI({
-
-    input$fdesign_list_refresh
-    #res <- sel_list()
-    res <- fbdesign_mtl_files() #this come from util.R fbdesign package
-
-    selectizeInput(inputId = "designFieldbook_sel_mlist", label = "Select a factorial list", width="100%",
-                   choices = res,
-                   options = list(
-                     placeholder = 'Select a material list',
-                     onInitialize = I('function() { this.setValue(""); }')
-                   ))
-
-  })
-
-  
-  #The output object will be suspended (not execute) when it is hidden on the web page ####
-  # outputOptions(output, 'condition_selmlist', suspendWhenHidden=FALSE)
-  ### End of Create an object with the list of file
-
-
-  
-  # # Number of plant per row (calculated variable) #########################################
-  # react_plantxplot <-  shiny::reactive({
-  # 
-  #   plantxplot <- input$fbDesign_nplantsrow*input$fbDesign_nrowplot
-  #   if(length(plantxplot)==0){plantxplot <- 0}
-  #   plantxplot
-  # 
-  # })
-
-  # ### Shiny UI for number of plants per plot #############################################
-  # output$fbPlant_plot <- shiny::renderUI({
-  # 
-  #   rpplot <- react_plantxplot()
-  #   shiny::numericInput("fbDesign_nplants",
-  #                       "Number of plants per plot", rpplot , rpplot, rpplot)
-  # 
-  # })
-
-  # ### Plot Size Values ###################################################################
-  # react_psize <- reactive({
-  #   plot_size <- input$fbDesign_nplantsrow*input$fbDesign_distPlants*input$fbDesign_nrowplot*input$fbDesign_distRows
-  #   print(plot_size)
-  #   if(length(plot_size)==0){plot_size <- 0}
-  #   plot_size
-  # })
-  # 
-
-  
-  # ### Plot Size #########################################################################
-  # output$fbPlanting_psize <- shiny::renderUI({
-  #   #plot_size <- input$fbDesign_nplantsrow*input$fbDesign_distPlants*input$fbDesign_nrowplot*input$fbDesign_distRows
-  #   plot_size <- react_psize()
-  #   #if(length(plot_size)==0) plot_size <- 2.7
-  #   shiny::numericInput(inputId = "fbDesign_psize", label = "Plot size (m2)",
-  #                       value = plot_size, min = plot_size,max = plot_size)
-  # })
-  # 
-
-
-  # ### Reactive Plant densisty ###########################################################
-  # react_pdensity <-  shiny::reactive({
-  # 
-  #   #plant_density <- (input$fbDesign_nplants/input$fbDesign_psize)*10000
-  # 
-  #   nplantxplot <- react_plantxplot()
-  # 
-  #   plant_density <- (nplantxplot/input$fbDesign_psize)*10000
-  #   print(plant_density)
-  #   if(length(plant_density)==0){plant_density <- 0}
-  #   plant_density
-  # })
-
-
-  # ### Select Plant density #############################################################
-  # output$fbPlanting_pdensity <- shiny::renderUI({
-  #   plant_density <- react_pdensity()
-  #   #if(length(plant_density)==0) plant_density <- 37037.037
-  #   shiny::numericInput(inputId = "fbDesign_pdensity", label = "Plant density (plants/Ha)",
-  #                       value = plant_density, min = plant_density, max = plant_density)
-  # })
-
-
 
   ### Message for Alpha Design #########################################################
   # output$alphaMessage <- shiny::renderText({
@@ -9549,26 +9499,6 @@ server_design_agrofims <- function(input, output, session, values){
    outputOptions(output, 'show_agrotable', suspendWhenHidden=FALSE)
 
 
-  ### Material List Export, ##########################################################
-
-  output$fbDesign_mlistExport <- downloadHandler(
-    filename = function() {
-      paste("Material_List", '.xlsx', sep='')
-    },
-    content = function(file) {
-
-      mt_list<- crop_template_xlsx$Material_List
-      #mt_list <- material_list ##internal dataset
-      #       hs <- createStyle(fontColour = "#060505", fontSize=12,
-      #                         fontName="Arial Narrow", fgFill = "#4F80BD")
-      hs <- createStyle(fontColour = "#000000", fontSize=12,
-                        fontName="Calibri", fgFill = "orange")
-      openxlsx::write.xlsx(mt_list, file, headerStyle = hs, sheetName="Material_List", colWidths="auto")
-    }
-  )
-
-
-   
   # Fieldbook design ################################################################
 
   # Fieldbook with traits ###########################################################
@@ -9802,10 +9732,16 @@ server_design_agrofims <- function(input, output, session, values){
   ### Harvest  ######################################################################
   dt_harvest <- reactive({
     
-    dt<- AllInputs() %>% filter(str_detect(id, "^hahd_"))
-    dt<- t(dt) %>% as.data.frame()
-    names(dt) <- paste(names(dt), 1:ncol(dt))
-    dt
+     addId <- getAddInputId(addId = expCondsVars$ids_harvest, "HARV_", "")
+     print(addId)
+     dt <- get_ec_harv(allinputs=AllInputs(), addId=addId)
+     if(nrow(fbdesign())==0){
+       dt <- dt
+     }else {
+       dt <-cbind(fbdesign() ,dt)
+     }
+     dt 
+    
   })
   
   
@@ -9820,9 +9756,13 @@ server_design_agrofims <- function(input, output, session, values){
       row_select <- input$phenoDT_rows_selected
       a<- pheno_vars[row_select, ]
       if(nrow(a)>0){
-        a<- a[, c("Level", "Sublevel")]
+        #a<- a[, c("Level", "Sublevel")]
+        #a<- a[, c("Measurement", "TraitUnit")]
+        a <- a
       } else {
-        a <- data.frame(Level = NA, Sublevel = NA)
+        a <- data.frame(Measurement = "", TraitUnit = "", TraitAlias = "",
+                         TraitDataType = "", TraitValidation ="", VariableId= "")
+        
       } 
       a
       
@@ -9831,9 +9771,9 @@ server_design_agrofims <- function(input, output, session, values){
   ##reactive weather   ####################################
   weather_dt <- reactive({
     
-   a1 <- data.frame(Measurement = NA, Unit = NA, TraitAlias = NA,
+   a1 <- data.frame(Measurement = "NoValue", TraitUnit = NA, TraitAlias = NA,
                     TraitDataType = NA, TraitValidation =NA, VariableId= NA)
-   a2 <- data.frame(Measurement = NA, Unit = NA,TraitAlias = NA,
+   a2 <- data.frame(Measurement = "NoValue", TraitUnit = NA,TraitAlias = NA,
                     TraitDataType = NA, TraitValidation =NA, VariableId= NA)
    #a1 <- a2 <- data.frame()
     
@@ -9845,12 +9785,17 @@ server_design_agrofims <- function(input, output, session, values){
        a1 <- manual_weather[row_select, ]
        if(nrow(a1)>0){
          a1 <- a1#[, c("Measurement", "Unit")]
+       } else {
+         a1 <- data.frame(Measurement = "", TraitUnit = "", TraitAlias = "",
+                          TraitDataType = "", TraitValidation ="", VariableId= "")
+         
        }
-       a1<-a1
+       #a1 <- a1 %>% dplyr::filter(Measurement!="NoValue")  
+       a1
        
-     } 
-   }
-
+      } 
+     
+   } 
    if(!is.null(input$stationMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
       if(input$stationMeasurement_checkbox==TRUE){
      #wstation <- dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit)
@@ -9860,15 +9805,19 @@ server_design_agrofims <- function(input, output, session, values){
      a2<- wstation[row_select, ]
      if(nrow(a2)>0){
        a2<- a2#[, c("Measurement", "Unit")]
+     } else {
+       a2 <- data.frame(Measurement = "", TraitUnit = "", TraitAlias = "",
+                        TraitDataType = "", TraitValidation ="", VariableId= "")
+       
      }
      print("entro 21")
      a2 <- a2
+      } 
    } 
-   }  
    
    dt<- rbind(a1,a2)
-    
-    
+   dt <- dt %>% dplyr::filter(Measurement!="NoValue")  
+   dt
   })
   
   ##reactive soil  ########################################
@@ -9879,10 +9828,11 @@ server_design_agrofims <- function(input, output, session, values){
     if(nrow(a)>0){
       a<- a #a[, c("Variable", "Unit")]
     } else{
-      a <- data.frame(Variable = NA, Unit = NA)
+      a <- data.frame(Measurement="NoValue",TraitUnit="",TraitAlias="",     
+                      TraitDataType="", TraitValidation="", VariableId="")
     }
+    a <- a %>% dplyr::filter(Measurement!="NoValue")
     a
-    
   })
 
   #############  metadata_dt2 ########################################################
@@ -9988,43 +9938,48 @@ server_design_agrofims <- function(input, output, session, values){
   infounit<- reactive({
     ifunit<- agdesign::map_singleform_values(input$info_experiment_unit, type="select")
     if(ifunit==""){
-      out <- data.frame(Factor = c("Width", "Length"), Value = c(NA,NA) ,stringsAsFactors = FALSE )
+      out <- data.frame(Factor = c("Information on experimental unit","Width", "Length"), 
+                        Value = c("","","") ,stringsAsFactors = FALSE )
     }
     if(ifunit == "plot"){
      
-      wi <- map_singleform_values(input = input$expt_plot_width_unit , type = "text",format = "vector", label = "Factor") 
+      wi <- map_singleform_values(input = input$expt_plot_width, type = "text",format = "vector", label = "Factor") 
       wunit <- map_singleform_values(input = input$expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
-      len <- map_singleform_values(input = input$expt_plot_length_unit   , type = "text",format = "vector", label = "Factor") 
+      len <- map_singleform_values(input = input$expt_plot_length   , type = "text",format = "vector", label = "Factor") 
       lunit <-  map_singleform_values(input = input$expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
       wif<- paste(wi, wunit)
       lenf<-  paste(len, lunit)
-      ow<- data.frame(Factor = "Width", Value = wif )
-      ol<- data.frame(Factor = "Length",Value = lenf )
-      out<- rbind(ow, ol)
+      iou<- data.frame(Factor = "Information on experimental unit", Value = ifunit )
+      ow<- data.frame(Factor = "Experimental plot width", Value = wif )
+      ol<- data.frame(Factor = "Experimental plot length",Value = lenf )
+      out<- rbind(iou, ow, ol)
+      
     }
     if(ifunit == "field"){
    
-      wi <- map_singleform_values(input = input$expt_field_width_unit , type = "text",format = "vector", label = "Factor") 
+      wi <- map_singleform_values(input = input$expt_field_width , type = "text",format = "vector", label = "Factor") 
       wunit <- map_singleform_values(input = input$expt_field_width_unit, type = "combo box",format = "vector", label = "Factor")
-      len <- map_singleform_values(input = input$expt_field_length_unit   , type = "text",format = "vector", label = "Factor") 
+      len <- map_singleform_values(input = input$expt_field_length   , type = "text",format = "vector", label = "Factor") 
       lunit <-  map_singleform_values(input = input$expt_field_length_unit, type = "combo box",format = "vector", label = "Factor")
       wif<- paste(wi, wunit)
       lenf<-  paste(len, lunit)
-      ow<- data.frame(Factor = "Width", Value = wif )
-      ol<- data.frame(Factor = "Length", Value = lenf )
-      out<- rbind(ow, ol)
+      iou<- data.frame(Factor = "Information on experimental unit", Value = ifunit )
+      ow<- data.frame(Factor = "Experimental field width", Value = wif )
+      ol<- data.frame(Factor = "Experimental field length", Value = lenf )
+      out<- rbind(iou,ow, ol)
     } 
     if(ifunit == "pot"){
       
-      di <- map_singleform_values(input = input$pot_diameter_unit , type = "text",format = "vector", label = "Factor") 
+      di <- map_singleform_values(input = input$pot_diameter , type = "text",format = "vector", label = "Factor") 
       dunit <- map_singleform_values(input = input$pot_diameter_unit, type = "combo box",format = "vector", label = "Factor")
-      de <- map_singleform_values(input = input$pot_depth_unit   , type = "text",format = "vector", label = "Factor") 
+      de <- map_singleform_values(input = input$pot_depth   , type = "text",format = "vector", label = "Factor") 
       deunit <-  map_singleform_values(input = input$pot_depth_unit, type = "combo box",format = "vector", label = "Factor")
       dif<- paste(di, dunit)
       def<-  paste(de, deunit)
-      ow<- data.frame(Factor = "Width", Value = dif )
-      ol<- data.frame(Factor = "Length", Value = def )
-      out<- rbind(ow, ol)
+      iou<- data.frame(Factor = "Information on experimental unit", Value = ifunit )
+      ow<- data.frame(Factor = "Experimental pot width", Value = dif )
+      ol<- data.frame(Factor = "Experimental plot length", Value = def )
+      out<- rbind(iou, ow, ol)
       
     } 
     out
@@ -10066,13 +10021,13 @@ server_design_agrofims <- function(input, output, session, values){
   fbdesign <- function(){
     
     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
-    print(dsg)
+    #print(dsg)
     tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
-    print(tf)
+    #print(tf)
     fct<- fct_lvl()$fg$FACTOR #get factor labels
-    print(fct)
+    #print(fct)
     flvl<- fct_lvl()$flvl #get factor's levels
-    print(flvl)
+    #print(flvl)
     
     try({
         if(tf=="yes"){
@@ -10207,17 +10162,41 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   fct_lvl_dt <- reactive({
+    
+    dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
+    tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
+    if(tf=="yes"){
+      nrep <- as.numeric(input$designFieldbook_agrofims_r_y)
+      lbl_dsg<- experimental_design_label(dsg)[1]
+    }else{
+      nrep <- as.numeric(input$designFieldbook_agrofims_r_n)
+      lbl_dsg <- experimental_design_label(dsg)[1]
+    }
+    dt_dsg <- data.frame(Factor = c("Experimental design","Experimental design abbreviation", "Number of repetition or blocks"),
+                         Value = c(lbl_dsg, dsg, nrep))
+    
+    ### Get factor and labels
     fg3 <- AllInputs() %>% filter(str_detect(id, "sel_factor_[:uppercase:]+_3$"))
     fg3<- fg3$values
-    lbl_fg <- paste("Factor",1:length(fg3),sep="_")
-    dt_fg <- data.frame(Factor = lbl_fg, Value = fg3)
+    lbl_fg <- paste("Factor",1:length(fg3),sep=" ")
+    dt_fg <- data.frame(id = lbl_fg, values = fg3)
+    
     #Get level
     lvl <- AllInputs() %>% filter(str_detect(id, "levels_[:uppercase:]+$"))
     lvl <- lvl$values
-    lbl_lvl<- paste("Level", 1:length(fg3),sep="_")
-    dt_lvl <- data.frame(Factor = lbl_lvl, Value= lvl)
-    
+    lbl_lvl<- paste0(paste("Factor", 1:length(fg3),sep=" "),"-Levels")
+    dt_lvl <- data.frame(id = lbl_lvl, values= lvl)
     dt<- rbind(dt_fg, dt_lvl)
+    
+    ##Number of factors -------------------
+    nf<- length(fg3) %>% as.character()
+    dt_nf<- data.frame(Factor=c("Number of factors"), Value = nf)
+    
+    #arrange by number of factor
+    dt <- arrange_by_pattern(dt, as.character(c(1:length(fg3))))
+    names(dt)<- c("Factor", "Value")
+    dt<- rbind(dt_dsg, dt_nf, dt)
+    dt
   })
   
   globalMetadata<- reactive({
@@ -10238,6 +10217,8 @@ server_design_agrofims <- function(input, output, session, values){
       row_select <- sort(row_select)
       #aux_dt <- dplyr::filter(traitsVals$Data, Status=="Selected")
       aux_dt<- a[row_select,]
+      #Remove Status column
+      aux_dt$Status <- NULL
       a<- aux_dt
     }
 
@@ -10249,9 +10230,12 @@ server_design_agrofims <- function(input, output, session, values){
     trait <- traits_dt()
     #print(trait)
     cr<- trait$Crop
-    cm <- trait$Crop.measurement
     sb<- trait$Subgroup
-    sc <- trait$Scale
+    cm <- trait$Measurement
+    #cm <- trait$Crop.measurement
+    #sc <- trait$Scale
+    sc <- trait$TraitUnit
+    
     sc[is.na(sc)] <- "unitless"
     #co <- trait$VariableId
     cs <- paste(cr,sb, cm, sc, sep="-")
@@ -10310,10 +10294,10 @@ server_design_agrofims <- function(input, output, session, values){
        withProgress(message = 'Downloading fieldbook', value = 0, {
 
          # ai <- AllInputs()
-         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
          # x <- reactiveValuesToList(input)
-         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
-         # # 
+         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         # #
          if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
            fname <- paste(file,"xlsx",sep=".")
@@ -10359,60 +10343,75 @@ server_design_agrofims <- function(input, output, session, values){
          }
          
          #Experimental conditions
-        
+         if(is.element("Residue management",input$selectAgroFeature)){
          print("Adding residue management")
          incProgress(7/20,message = "Adding residue management")
          openxlsx::addWorksheet(wb, "Residue management", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Residue management", x = dt_residual(),
                                  colNames = TRUE, withFilter = FALSE)
-
+         }
+         
+         if(is.element(el = "Seedbed preparation", set = input$selectAgroFeature)){
          print("Adding seedbed sheet")
          incProgress(7/20,message = "Adding Seedbed preparation sheet")
          openxlsx::addWorksheet(wb, "Seedbed preparation", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Seedbed preparation", x = dt_seedbed(),
                                   colNames = TRUE, withFilter = FALSE)
+         }
          
-         
-         
-         print("Addin planting")
+         if(is.element("Planting and transplanting",input$selectAgroFeature)){
+         print("Adding planting")
          incProgress(7/20,message = "Adding planting and transplating")
          openxlsx::addWorksheet(wb, "Planting_transplating", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Planting_transplating", x = dt_plantrans(),
                                   colNames = TRUE, withFilter = FALSE)
-         
-         print("mulch")
-         print(dt_mulching())
+         }
+         #print("mulch")
+         #print(dt_mulching())
+         if(is.element("Mulch management",input$selectAgroFeature)){
+           
          incProgress(7/20,message = "Adding mulching sheet")
-         openxlsx::addWorksheet(wb, "Mulching", gridLines = TRUE)
+         openxlsx::addWorksheet(wb, "Mulch_management", gridLines = TRUE)
        
-         openxlsx::writeDataTable(wb, "Mulching", x = dt_mulching(),
+         openxlsx::writeDataTable(wb, "Mulch_management", x = dt_mulching(),
                                   colNames = TRUE, withFilter = FALSE)
         
-         print("irrigation")
+         }
+         
+         if(is.element("Irrigation",input$selectAgroFeature)){
          incProgress(7/20,message = "Adding irrigation sheet")
          openxlsx::addWorksheet(wb, "Irrigation", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Irrigation", x = dt_irrigation(),
                                   colNames = TRUE, withFilter = FALSE)
          
+         }
+         
+         if(is.element("Weeding",input$selectAgroFeature)){
          print("weeding")
          incProgress(7/20,message = "Adding weeding sheet")
          openxlsx::addWorksheet(wb, "Weeding", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Weeding", x = dt_weeding(),
                                   colNames = TRUE, withFilter = FALSE)
+         }
          
+         if(is.element("Harvest",input$selectAgroFeature)){
          print("harvest")
+         #p1 <<- dt_harvest()
          incProgress(7/20,message = "Adding harvest sheet")
          openxlsx::addWorksheet(wb, "Harvest", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Harvest", x = dt_harvest(),
                                   colNames = TRUE, withFilter = FALSE)
+         }
          
-         print("soil")
+         if(is.element("Soil fertility",input$selectAgroFeature)){
+           
+         print("soil fertility")
          incProgress(7/20,message = "Adding soil and fertility")
          openxlsx::addWorksheet(wb, "Soil fertility", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Soil fertility", x = dt_soilFertility(),
                                   colNames = TRUE, withFilter = FALSE)
          
-         
+         }
          print("inicio6")
          if(input$croppingType=="Intercrop"){
 
@@ -10462,11 +10461,11 @@ server_design_agrofims <- function(input, output, session, values){
          }
 
          
-         incProgress(9/20,message = "Adding trait list sheet...")
+         incProgress(9/20,message = "Adding crop measurement sheet...")
          
          print("inicio7")
-         openxlsx::addWorksheet(wb, "Trait list", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Trait list", x = traits_dt(),
+         openxlsx::addWorksheet(wb, "Crop_measurement", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Crop_measurement", x = traits_dt(),
                                   colNames = TRUE, withFilter = FALSE)
          
          print("inicio8")
@@ -10474,12 +10473,11 @@ server_design_agrofims <- function(input, output, session, values){
          openxlsx::writeDataTable(wb, "Phenology", x = pheno_dt(),
                                   colNames = TRUE, withFilter = FALSE)
          
-         print("inicio9")
-         print(weather_dt())
-         print(nrow(weather_dt()))
+         if(nrow(weather_dt())!=0){
          openxlsx::addWorksheet(wb, "Weather", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Weather", x = weather_dt(),
                                   colNames = TRUE, withFilter = FALSE)
+         }
          
          print("inicio10")
          openxlsx::addWorksheet(wb, "Soil", gridLines = TRUE)
@@ -10491,10 +10489,57 @@ server_design_agrofims <- function(input, output, session, values){
       
         
          #saveRDS(x, file = "allinputs.rds")
-         x <- reactiveValuesToList(input)
-         saveRDS(x, file = "allinputs.rds")
-         openxlsx::addWorksheet(wb, "Inputs", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Inputs", x = AllInputs(),
+         #x <- reactiveValuesToList(input)
+         #saveRDS(x, file = "allinputs.rds")
+         t1<- data.table(traits_dt())
+         if(nrow(soil_dt())!=0){
+           s2<- data.table(soil_dt())
+           s2$Group <- "Soil"           
+         } else{
+           s2 <- data.frame()
+         }
+
+         print("begin wheater")
+         print(weather_dt())
+         if(nrow(weather_dt())!=0){ 
+           print("entro wheater")
+            w3<- data.table(weather_dt())
+            w3$Group <- "Weather"
+         }else{
+           w3<- data.frame()
+         }
+         print("pheno")
+         if(nrow(pheno_dt())!=0){ 
+          p4<- data.table(pheno_dt())
+         } else{
+           p4 <- data.frame()
+         }
+         l <- list(t1, s2, w3, p4)
+         
+         print("paso 2")
+         
+         dt_kds<- rbindlist(l,fill = TRUE)
+         #Revemo foo columns
+         dt_kds$`Fieldbook download`<-NULL
+         dt_kds$`Other - specify`<-NULL
+         dt_kds$Observation<-NULL
+         dt_kds$`Factor?` <- NULL
+         dt_kds$v1<- dt_kds$v2 <- dt_kds$v3<- NULL
+
+         # 
+         print("paso 3")
+         if(is.element("Residue management",input$selectAgroFeature)){
+           globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+           kds_resmgt <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),sheet = "Residue management")
+           kds_resmgt <- data.table(kds_resmgt)  
+           dt_kds<-rbindlist(list(dt_kds,kds_resmgt),fill = TRUE,use.names = TRUE)
+           kds_resmgt$`Fieldbook download`<- kds_resmgt$`Other - specify`<- kds_resmgt$Observation<- NULL
+           kds_resmgt$`Factor?`<-kds_resmgt$`Reorganisation of all the variables (see GitHub 112 for the mock-up)`<- NULL
+           
+         }
+         print("paso 4")
+         openxlsx::addWorksheet(wb, "TraitList", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "TraitList", x = dt_kds,
                                   colNames = TRUE, withFilter = FALSE)
          
          

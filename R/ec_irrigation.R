@@ -38,7 +38,7 @@ get_ec_irri <- function(allinputs, addId){
                tech_splin  <- dt_inputs(tech_splin,splin_other)
             }
            }
-           lbl<- paste("Splinkler irrigation system", addId[i],sep="_")
+           lbl<- paste("Splinkler_irrigation_system", addId[i],sep="_")
            dt_irri_system <- tech_splin
            # irrigation_system[i,1]<- "Splinkler irrigation system"
            # irrigation_system[i,2]<- tech_splin[i,2]
@@ -46,7 +46,7 @@ get_ec_irri <- function(allinputs, addId){
         else if(technique[i,2]=="Localized"){
            tech_local<- irri %>% filter(str_detect(id, paste0("irid_localized_irrigation_technique",addId[i],"$")))
 
-           lbl<-  paste("Localized irrigation system", addId[i],sep="_")
+           lbl<-  paste("Localized_irrigation_system", addId[i],sep="_")
            if(tech_local[1,2]=="Other"){
              local_other<- irri %>% filter(str_detect(id, paste0("irid_localized_irrigation_technique",addId[i],"_other", "$")))
              tech_local <- dt_inputs(tech_local,local_other)
@@ -55,7 +55,7 @@ get_ec_irri <- function(allinputs, addId){
            dt_irri_system<-tech_local
        }
         else if(technique[i,2]=="Surface"){
-          lbl<- paste("Surface irrigation system" , addId[i],sep="_")
+          lbl<- paste("Surface_irrigation_system" , addId[i],sep="_")
           tech_surface<-  irri %>% filter(str_detect(id, paste0("irid_surface_irrigation_technique_",addId[i],"$")))
           if(tech_surface[1,2]=="Other"){
             surface_other<- irri %>% filter(str_detect(id, paste0("irid_surface_irrigation_technique_",addId[i],"_other","$")))
@@ -67,7 +67,7 @@ get_ec_irri <- function(allinputs, addId){
             # irrigation_system[i,2]<- tech_surface[i,2]
       }
         else if(technique[i,2]=="Other"){
-          lbl<- paste("Other irrigation system" , addId[i],sep="_")
+          lbl<- paste("Other_irrigation_system" , addId[i],sep="_")
           tech_other <- irri %>% filter(str_detect(id, paste0("irid_irrigation_technique_", addId[i],"_other","$")))
           # irrigation_system[i,1]<- "Other irrigation system"
           # irrigation_system[i,2]<- tech_other[i,2]
@@ -94,7 +94,7 @@ get_ec_irri <- function(allinputs, addId){
     #Irrigation source
     source <- irri %>% filter(str_detect(id, "^irid_irrigation_source_[:alpha:]+$"))
     source_other <- irri %>% filter(str_detect(id, "irid_irrigation_source_[:alpha:]+_other$"))
-    source <- dt_inputs (source, source_other)
+    source <- dt_inputs(source, source_other)
 
     #irrigation source distance
     source_distance<- irri %>% filter(str_detect(id, "^irid_irrigation_source_distance_[:alpha:]{1,8}$")) #%>%
@@ -113,13 +113,13 @@ get_ec_irri <- function(allinputs, addId){
     dt<- rbind(startD, endD, technique, irrigation_system, source, source_distance, amount, notes)
     
    
-    lbl_start <- paste("Start_date",1:length(addId),sep = "__")
-    lbl_end <- paste("End_date",1:length(addId),sep = "__")
-    lbl_tech <- paste("Technique", 1:length(addId),sep = "__")
-    lbl_source<- paste("Source",1:length(addId),sep = "__")
-    lbl_source_dis<- paste( paste("Source_distance", source_distance_unit$values,sep="_"),   1:length(addId), sep = "__")
-    lbl_amount <- paste(paste("Amount", amount_unit$values, sep="_"),  1:length(addId),sep = "__")
-    lbl_notes<- paste("Notes", 1:length(addId),sep = "__")
+    lbl_start <- paste("Irrigation_start_date",1:length(addId),sep = "__")
+    lbl_end <- paste("Irrigation_end_date",1:length(addId),sep = "__")
+    lbl_tech <- paste("Irrigation_technique", 1:length(addId),sep = "__")
+    lbl_source<- paste("Irrigation_source",1:length(addId),sep = "__")
+    lbl_source_dis<- paste( paste("Irrigation_source_distance", source_distance_unit$values,sep="_"),   1:length(addId), sep = "__")
+    lbl_amount <- paste(paste("Irrigation_amount", amount_unit$values, sep="_"),  1:length(addId),sep = "__")
+    lbl_notes<- paste("Irrigation_notes", 1:length(addId),sep = "__")
 
     #Ensemble all irrigation labels
     lbl_irri <- c(lbl_start, lbl_end, lbl_tech, lbl_irri_system, 

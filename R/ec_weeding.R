@@ -16,7 +16,7 @@ get_ec_weed<- function(allinputs, addId){
                         filter(!str_detect(id, "-selectized")) %>%
                         filter(str_detect(id,"wewd"))
     
-    lbl <- c("Start_date", "Technique", "Notes", "Type", "Traction")
+    lbl <- c("Weeding_Start_date", "Weeding_Technique", "Weeding_Notes", "Weeding_Type", "Weeding_Traction")
     lbl_weed <- vector(mode = "character",length = 0L)
     for(i in 1:length(addId)){
       lbl_weed <- append(lbl_weed, paste(lbl, i,sep="__"))
