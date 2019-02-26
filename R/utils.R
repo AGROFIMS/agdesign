@@ -575,3 +575,18 @@ experimental_design_label <- function(abbr_design = "RCBD"){
   out
 
 }
+
+ec_clean_header <- function(dt){
+
+  dt$`Fieldbook download`<-NULL
+  dt$`Other - specify`<-NULL
+  dt$Observation<-NULL
+  dt$`Factor?` <- NULL
+  dt$v1<- dt$v2 <- dt$v3<- NULL
+  dt$`Fieldbook download`<- dt$`Other - specify`<- dt$Observation<- NULL
+  dt$`Factor?`<-dt$`Reorganisation of all the variables (see GitHub 112 for the mock-up)`<- NULL
+  dt
+  
+}
+
+

@@ -239,6 +239,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
              actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
              actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('openFieldbook')"),
              actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
+             actionButton("savetest", "save test"),
              htmlOutput("lastsaved")
              #uiOutput("saveUI")
       )
@@ -663,10 +664,14 @@ display: none;
                 )
               )
             ),
+            useShinyjs(),
             column(
               12,
               br(),
               h2("Funding Agency"),
+              #actionButton("idtester", "test"),
+              #actionButton("btn2", "action2"),
+              #uiOutput("txt1"),
               fluidRow(id = "fr_fundingAgency_boxes"),
               actionButton("addFundingAgency", "Add a funding agency"),
               br(), br(), br()

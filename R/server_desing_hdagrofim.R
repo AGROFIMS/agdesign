@@ -11,6 +11,34 @@
 
 #' 
 server_design_agrofims <- function(input, output, session, values){
+  
+  observeEvent(input$load_inputs, {
+    n <- 5
+    for (i in 1:n) {
+      Sys.sleep(0.1)
+      shinyjs::click("addFundingAgency")
+    }
+  })
+  
+  AllInputsIvan <- reactive({
+    myvalues <- NULL
+    for(i in 1:length(names(input))){
+      myvalues <- as.data.frame(rbind(myvalues,(cbind(names(input)[i],input[[names(input)[i]]]))))
+    }
+    names(myvalues) <- c("Input","Value")
+    myvalues
+  })
+  
+  
+  observeEvent(input$savetest, {
+    #write.csv(AllInputs(), paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
+    saveRDS(AllInputs(), paste0(sessionpath, input$uniqueId, ".rds"))
+  })
+  
+  
+  
+  
+  
 
   #################### START: PATHS GENERALES ####################
   # path global para lectura de RDS's
@@ -1770,9 +1798,17 @@ server_design_agrofims <- function(input, output, session, values){
     experimentVars$num_EL <- experimentVars$num_EL + 1
   }
   
+  #observe({print(input$paste0("designFieldbook_fundAgencyType_", jj))})
+  #observe(print(jj))
+  #ivan <- paste0("designFieldbook_fundAgencyType_", jj)
+  #observe(print(ivan))
+  #observe(print(input[[jj]]))
+  
   getUiFundingAgency <- function(index){
     str_id <- stri_rand_strings(1, 8,  '[A-Z]')
     experimentVars$ids_FA <- c(experimentVars$ids_FA, paste0("FA_", str_id))
+    
+    #jj <<- paste0("designFieldbook_fundAgencyType_", str_id)
     
     fluidRow(id= paste0("fl_box_fundingAgency_", str_id), 
              # box(title = uiOutput(paste0("box_title_FA_", str_id)), solidHeader = TRUE, status = "warning", width=12,
@@ -2403,23 +2439,10 @@ server_design_agrofims <- function(input, output, session, values){
   
   ##End Rotation Listening
   
- 
-  
-  # observe({
-  #   print(cropinter)
-  #   print(input$cropinter)
-  # })
-  
   ## function to insert intercrop box
   insertBoxIntercrop <- function(index){
     str_id <- stri_rand_strings(1, 8,  '[A-Z]')
     intercropVars$ids <- c(intercropVars$ids, paste0("IC_", str_id))
-    
-    cropinter <<- paste0("cropCommonNameInter_", str_id)
-    # observe({
-    #   print(cropinter)
-    #   print(input$cropinter)
-    # })
     
     intercropVars$num <- intercropVars$num + 1
     prev <-unlist(strsplit(intercropVars$ids[intercropVars$num -1],"_"))
@@ -7715,6 +7738,9 @@ server_design_agrofims <- function(input, output, session, values){
   #dict <- readRDS(paste0(globalpath, "crop_measurements_v6.rds"))
   dict <- readRDS(paste0(globalpath, "crop_measurements_v6.2.rds"))
   dict <- as.data.frame(dict, stringsAsFactors=FALSE)
+  # colnames(dict) <- c("Status", "Crop", "Group", "Subgroup", "Measurement", "a", 
+  #                     "b", "TraitUnit", "c", "d", "e", "g", "Crop measurement per season", 
+  #                     "h", "Crop measurement per plot")
 
   # observe({
   #   aux <- NULL
@@ -8039,6 +8065,7 @@ server_design_agrofims <- function(input, output, session, values){
     updateCropMeasurementTable(index,mcrop)
   }
   
+  #Function to Update Crop Measurement Table for Intercrop Trials
   
   updateCropMeasurementTable <- function(index, crop_in){
     aux <- dplyr::filter(as.data.frame(dict),Crop==crop_in)
@@ -8049,7 +8076,7 @@ server_design_agrofims <- function(input, output, session, values){
       aux$Crop<- rep(newVal, length(aux$Crop))
     }
     
-    
+    ## Create DT crop measurement tables for Intercrop trial
     output[[paste0("crop_measurement_table_", index)]] <- renderDataTable(
       data.table(aux),
       escape = FALSE,
@@ -9224,10 +9251,14 @@ server_design_agrofims <- function(input, output, session, values){
   })
 
   dat <- reactive({
-    traitsVals$Data
+    dat<- traitsVals$Data
+    colnames(dat) <- c("Status", "Crop", "Group", "Subgroup", "Measurement", "a",
+                        "b", "TraitUnit", "c", "d", "e", "g", "Crop measurement per season",
+                        "h", "Crop measurement per plot")
+    dat
     #colnames(traitsVals$Data) <- c("Status", "Crop", "Group", "Subgroup", "Measurement", "", "", "Unit", "", "", "", "", "Season", "", "Plot")
   })
-
+ 
   ### Crop measurement Table Interface ----------------------------------------------------
   output$dt <- DT::renderDT(
     dat(),
@@ -9236,7 +9267,9 @@ server_design_agrofims <- function(input, output, session, values){
     options = list(
       scrollX = TRUE,
       pageLength = 25,
-      columnDefs = list(list(visible=FALSE, targets=c(1,6,7,9,10,11,12,14)))
+      #autoWidth = TRUE,
+      columnDefs = list(list(visible=FALSE, targets=c(1,6,7,9,10,11,12,14)))#,
+      #columnDefs = list(list(width = '200px', targets = c(13,15)))
     )
   )
   dt_proxy <- DT::dataTableProxy("dt")
@@ -9672,21 +9705,33 @@ server_design_agrofims <- function(input, output, session, values){
   #direct seeding
   dt_plantrans <- reactive({
     
-    dt<- get_ec_plantrans(AllInputs())
-    if(nrow(fbdesign())==0){
-      dt <- dt
-    }else {
-      dt <-cbind(fbdesign() ,dt)
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
+    
+    if(ct=="Monocrop"){
+       dt<- get_ec_plantrans(AllInputs())
+      if(nrow(fbdesign())==0){
+        dt <- dt
+      } else {
+        dt <-cbind(fbdesign() ,dt)
+      }
+    } else {
+   
+      id_rand_inter <- getAddInputId(intercropVars$ids, "IC_", "") 
+      circm <- map_values(input, id_chr="cropCommonNameInter_",id_rand_inter, format = "vector", lbl= "Select crop")
+      dt<- get_ec_plantrans_inter(allinputs=AllInputs(), addId= id_rand_inter, circm)
+      
+      #Join fbdesign with harvest header of each crop for intercrop trials
+      for(j in 1:length(dt)){
+        if(nrow(fbdesign())==0){
+          dt[[ circm[j] ]] <- dt[[ circm[j] ]]
+        }else {
+          dt[[ circm[j] ]] <-cbind(fbdesign() ,dt[[ circm[j] ]] )
+        }
+      }
+      
     }
     
-    dt
-    # dt1 <- AllInputs() %>% filter(str_detect(id, "^select_fertilizerType_soil_table_row"))
-    # dt2<-  AllInputs() %>% filter(str_detect(id, "^distance_rows"))
-    # dt3 <- AllInputs() %>%  filter(str_detect(id, "^trans"))
-    # dt<- rbind(dt1,dt2,dt3)
-    # dt<- t(dt) %>% as.data.frame()
-    # names(dt) <- paste(names(dt), 1:ncol(dt))
-    # dt
+    dt  
   })
  
   #'TODO Mulching and residue ############################################################
@@ -9732,16 +9777,35 @@ server_design_agrofims <- function(input, output, session, values){
   ### Harvest  ######################################################################
   dt_harvest <- reactive({
     
-     addId <- getAddInputId(addId = expCondsVars$ids_harvest, "HARV_", "")
-     print(addId)
-     dt <- get_ec_harv(allinputs=AllInputs(), addId=addId)
-     if(nrow(fbdesign())==0){
-       dt <- dt
-     }else {
-       dt <-cbind(fbdesign() ,dt)
-     }
-     dt 
-    
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
+    if(ct=="Monocrop"){
+       addId <- getAddInputId(addId = expCondsVars$ids_harvest, "HARV_", "")
+       print(addId)
+       dt <- get_ec_harv(allinputs=AllInputs(), addId=addId)
+       if(nrow(fbdesign())==0){
+         dt <- dt
+       }else {
+         dt <-cbind(fbdesign() ,dt)
+       }
+       
+    }else{
+      #INTERCROP
+      id_rand_inter <- getAddInputId(intercropVars$ids, "IC_", "") 
+      circm <- map_values(input, id_chr="cropCommonNameInter_",id_rand_inter, format = "vector", lbl= "Select crop")
+      dt<- get_ec_harv_inter(allinputs=AllInputs(), addId= id_rand_inter, circm)
+      
+      #Join fbdesign with harvest header of each crop for intercrop trials
+      for(j in 1:length(dt)){
+          if(nrow(fbdesign())==0){
+            dt[[ circm[j] ]] <- dt[[ circm[j] ]]
+          }else {
+            dt[[ circm[j] ]] <-cbind(fbdesign() ,dt[[ circm[j] ]] )
+          }
+      }
+      
+    }
+     dt
+     
   })
   
   
@@ -9824,16 +9888,22 @@ server_design_agrofims <- function(input, output, session, values){
   soil_dt<- reactive({
     
     row_select <- input$soilDT_rows_selected
-    a<- soil_data[row_select, ]
-    if(nrow(a)>0){
-      a<- a #a[, c("Variable", "Unit")]
-    } else{
-      a <- data.frame(Measurement="NoValue",TraitUnit="",TraitAlias="",     
-                      TraitDataType="", TraitValidation="", VariableId="")
+    dt <- soil_data[row_select,  ]
+    lbl <- dt$Measurement
+
+    if(length(lbl)==0){
+     dt <- data.frame()
+    } else if(nrow(fbdesign())==0 && length(lbl)>=1){
+      dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
+      names(dt) <- lbl
+    } else if(nrow(fbdesign())>0 && length(lbl)>=1) {
+      dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
+      names(dt) <- lbl
+      dt <-cbind(fbdesign() ,dt)
     }
-    a <- a %>% dplyr::filter(Measurement!="NoValue")
-    a
+    dt 
   })
+  
 
   #############  metadata_dt2 ########################################################
   #experiment
@@ -9906,10 +9976,10 @@ server_design_agrofims <- function(input, output, session, values){
   crop_dt <- reactive({
 
     #Crop Type
-    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector") 
-    print(ct)
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
+    #Table
     ctd <- map_singleform_values(input$croppingType, type = "combo box", format = "data.frame", "Cropping type") 
-    print(ctd)
+    
     #Crop
     #TODO: saber como hacer match entre la tabla circm y cirvar.
     if(ct=="Monocrop"){
@@ -9921,8 +9991,10 @@ server_design_agrofims <- function(input, output, session, values){
       id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
       circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "data.frame", lbl= "Select crop")
       cirvar <- map_values(input, id_chr="cropVarietyName_", id_ic_rand,format = "data.frame", lbl= "Crop variety(s)")
+      ciarre<- map_singleform_values(input = input$fr_intercrop_arrangement, 
+                                     type="combo box",format = "data.frame", label= "Intercrop arragement")
       row <- map_values(input, id_chr="intercropValue_row_crop_", id_ic_rand, format = "data.frame", lbl= "Row geometry")
-      out <- rbind(ctd, circm, cirvar, row) 
+      out <- rbind(ctd, circm, cirvar, ciarre, row) 
     }
     pvc<- map_singleform_values(input$prevCropName,input_other = input$prevCropName_other, type= "combo box", format = "data.frame",  label= "Previous crop")
     out <- rbind(out, pvc)
@@ -10017,7 +10089,7 @@ server_design_agrofims <- function(input, output, session, values){
       
   })
   
-  #field design (statistical design)
+  #Fieldbook design (statistical design)
   fbdesign <- function(){
     
     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
@@ -10210,18 +10282,61 @@ server_design_agrofims <- function(input, output, session, values){
   })
 
   ## Trait Table ####################################################################
+  # traits_dt <- function(){
+  #   a<- traitsVals$Data
+  #   if(nrow(traitsVals$Data) >0){
+  #     row_select <- input$dt_rows_selected
+  #     row_select <- sort(row_select)
+  #     #aux_dt <- dplyr::filter(traitsVals$Data, Status=="Selected")
+  #     aux_dt<- a[row_select,]
+  #     #Remove Status column
+  #     aux_dt$Status <- NULL
+  #     a<- aux_dt
+  #   }
+  # 
+  #   return(a)
+  # }
   traits_dt <- function(){
-    a<- traitsVals$Data
-    if(nrow(traitsVals$Data) >0){
-      row_select <- input$dt_rows_selected
-      row_select <- sort(row_select)
-      #aux_dt <- dplyr::filter(traitsVals$Data, Status=="Selected")
-      aux_dt<- a[row_select,]
-      #Remove Status column
-      aux_dt$Status <- NULL
-      a<- aux_dt
+    
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
+    if(ct=="Monocrop"){
+      if(nrow(traitsVals$Data) >0){
+        a<- traitsVals$Data
+        row_select <- input$dt_rows_selected
+        row_select <- sort(row_select)
+        #aux_dt <- dplyr::filter(traitsVals$Data, Status=="Selected")
+        aux_dt<- a[row_select,]
+        #Remove Status column
+        aux_dt$Status <- NULL
+        a<- aux_dt
+      }
+    } 
+    else {
+      #For intercrop trial
+      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
+      circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
+      dt<-list()
+      #
+      for(i in 1:length(id_ic_rand)){
+        crop_row_selected <- input[[ paste0("crop_measurement_table_",id_ic_rand[i],"_rows_selected") ]]
+        crop_row_selected <- sort(crop_row_selected)
+        #TODO: check when crop_row_selected is zero length
+        if(!is.null(crop_row_selected)){
+          cm_inter_table <- dict %>% filter(Crop==circm[i])
+          dt[[i]] <-  cm_inter_table[crop_row_selected, ]
+          #names(dt[[i]]) <- circm[i]
+        } else {
+          dt[[i]] <- data.frame(Status="",Crop="", Group="", Subgroup="", Measurement="",
+                                Measurement_2="",Measurement_3="",
+                                TraitUnit="", TraitAlias="", TraitDataType="",
+                                TraitValidation="", VariableId="",
+                                v1= "", v2="", v3="")
+        }
+        
+      }
+      names(dt) <- circm
+      a<-dt
     }
-
     return(a)
   }
   fbdesign_traits <- reactive({
@@ -10253,7 +10368,42 @@ server_design_agrofims <- function(input, output, session, values){
     fb
     
   })
-  
+  fbdesign_inter_traits <- reactive({
+    
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Intercrop") 
+    circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
+    
+    if(ct=="Intercrop"){
+      
+      fb <- fbdesign()
+      trait <- traits_dt()
+      fb_inter <- list()
+      for(i in 1:length(trait)){
+        
+        cr<- trait[[i]]$Crop
+        sb<- trait[[i]]$Subgroup
+        cm <- trait[[i]]$Measurement
+        sc <- trait[[i]]$TraitUnit
+        sc[is.na(sc)] <- "unitless"
+        cs <- paste(cr,sb, cm, sc, sep="-")
+        
+        #trait_selected <- trait_agrofims() %>% as.data.frame(stringsAsFactors =FALSE) #unlist(shinyTree::get_selected(input$designFieldbook_traits_agrofims))
+        trait_selected <- cs
+        
+        if(!is.null(trait_selected) || length(trait_selected)==0 ){
+          mm  <-  matrix(nrow = nrow(fb), ncol = length(trait_selected) )
+          nm  <-  c(names(fb), trait_selected)
+          fb_inter[[i]]  <-  cbind(fb, mm)
+          names(fb_inter[[i]])  <-  nm
+          if(is.element("---",names(fb_inter[[i]]))){ fb_inter[[i]][,"---"]<-NULL } 
+        }
+      }
+      names(fb_inter) <- circm
+      fb <-fb_inter
+    }
+    fb 
+  })
   
   
   ### Book preview ##################################################################
@@ -10284,8 +10434,9 @@ server_design_agrofims <- function(input, output, session, values){
      })
 
    })
-
   
+ 
+ 
   ############# donwload fieldbook ##################################################
    output$downloadData <- downloadHandler(
      filename = "fileNameBook.xlsx",
@@ -10293,12 +10444,14 @@ server_design_agrofims <- function(input, output, session, values){
 
        withProgress(message = 'Downloading fieldbook', value = 0, {
 
-         # ai <- AllInputs()
-         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         # x <- reactiveValuesToList(input)
-         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         # #
-         if(class(fbdesign())=="try-error"){
+         #print(expCondsVars$ids_irri)
+         
+         ai <- AllInputs()
+         saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         x <- reactiveValuesToList(input)
+         saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+
+        if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
            fname <- paste(file,"xlsx",sep=".")
            wb <- createWorkbook()
@@ -10307,15 +10460,11 @@ server_design_agrofims <- function(input, output, session, values){
                                     colNames = TRUE, withFilter = FALSE)
            saveWorkbook(wb, file = fname , overwrite = TRUE)
            
-         } else {
+         } 
+        else {
          
-    
-         # n <- as.numeric(input$numApplicationsIrrigation)
-         # fb_traits <- fb_agrofims_traits()
          gmetadata <- globalMetadata() #metadata_dt2()
-         # trait_agrofims_dt <- traits_dt()[,-1]
-         # weather <- dt_weather_agrofims()
-         # soil_vars <- dt_soil_agrofims()
+
          fname <- paste(file,"xlsx",sep=".")
          fb  <- fbdesign_traits()
          print("inicio")
@@ -10328,19 +10477,32 @@ server_design_agrofims <- function(input, output, session, values){
          openxlsx::writeDataTable(wb, "Metadata", x = gmetadata,
                                  colNames = TRUE, withFilter = FALSE)
          print("inicio4")
-         # print("phenology")
-         # openxlsx::addWorksheet(wb, "Phenology", gridLines = TRUE)
-         # openxlsx::writeDataTable(wb, "Phenology", x = phenology,
-         #                          colNames = TRUE, withFilter = FALSE)
-   
-
-         if(input$croppingType=="Monocrop"){
-
+       
+         #pl <<-fbdesign_inter_traits()
+         
+         
+         #Cropping type
+         ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
+         
+         #Fieldbook design sheet  ------------------------------------------
+         if(ct=="Monocrop"){
          incProgress(7/20,message = "Adding fieldbook data...")
          openxlsx::addWorksheet(wb, "Fieldbook", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Fieldbook", x = fb,
                                   colNames = TRUE, withFilter = FALSE)
+         
+         } else {
+           id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
+           circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
+           for(i in 1:length(id_ic_rand)){
+           incProgress(7/20,message = "Adding fieldbook data...")
+           openxlsx::addWorksheet(wb, paste0("Fieldbook-",circm[i]), gridLines = TRUE)
+           openxlsx::writeDataTable(wb, paste0("Fieldbook-",circm[i]), 
+                                    x = fbdesign_inter_traits()[[ circm[i] ]],
+                                    colNames = TRUE, withFilter = FALSE)
+           }
          }
+         
          
          #Experimental conditions
          if(is.element("Residue management",input$selectAgroFeature)){
@@ -10359,17 +10521,51 @@ server_design_agrofims <- function(input, output, session, values){
                                   colNames = TRUE, withFilter = FALSE)
          }
          
+         if(is.element("Soil fertility",input$selectAgroFeature)){
+           
+           print("soil fertility")
+           incProgress(7/20,message = "Adding soil and fertility")
+           openxlsx::addWorksheet(wb, "Soil fertility", gridLines = TRUE)
+           openxlsx::writeDataTable(wb, "Soil fertility", x = dt_soilFertility(),
+                                    colNames = TRUE, withFilter = FALSE)
+           
+         }
+         
+          
          if(is.element("Planting and transplanting",input$selectAgroFeature)){
+           
+         if(ct=="Monocrop"){  
          print("Adding planting")
          incProgress(7/20,message = "Adding planting and transplating")
          openxlsx::addWorksheet(wb, "Planting_transplating", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Planting_transplating", x = dt_plantrans(),
                                   colNames = TRUE, withFilter = FALSE)
-         }
-         #print("mulch")
-         #print(dt_mulching())
-         if(is.element("Mulch management",input$selectAgroFeature)){
+         
+         } else {
+          
+           #TODO: 
+           #-Show error when one crop is missing
+           id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")  
+           print(id_ic_rand)
+           circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
+           #-Length(circm ) >1
            
+                 for(i in 1:length(circm)){
+                   incProgress(7/20,message = "Adding planting and transplating" )##paste("Adding", circm[i] , "harvest sheet",sep=""))
+                   dt_pltr <- dt_plantrans()
+                   print("paso")
+                   #TODO: Avoid LONG names in sheetNames (error) max 32 characters
+                   openxlsx::addWorksheet(wb,  paste0("Planting-",circm[i]), gridLines = TRUE)
+                   openxlsx::writeDataTable(wb, paste0("Planting-",circm[i]), x = dt_pltr[[circm[i]]],
+                                            colNames = TRUE, withFilter = FALSE)
+                 }
+          }
+         
+        }
+        
+         
+         if(is.element("Mulch management",input$selectAgroFeature)){
+          print("Adding Mulching") 
          incProgress(7/20,message = "Adding mulching sheet")
          openxlsx::addWorksheet(wb, "Mulch_management", gridLines = TRUE)
        
@@ -10378,14 +10574,16 @@ server_design_agrofims <- function(input, output, session, values){
         
          }
          
+         ## HIDE --------------------------------------------------------------
+         
          if(is.element("Irrigation",input$selectAgroFeature)){
          incProgress(7/20,message = "Adding irrigation sheet")
          openxlsx::addWorksheet(wb, "Irrigation", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Irrigation", x = dt_irrigation(),
                                   colNames = TRUE, withFilter = FALSE)
-         
+
          }
-         
+         # 
          if(is.element("Weeding",input$selectAgroFeature)){
          print("weeding")
          incProgress(7/20,message = "Adding weeding sheet")
@@ -10394,155 +10592,190 @@ server_design_agrofims <- function(input, output, session, values){
                                   colNames = TRUE, withFilter = FALSE)
          }
          
+         ### END HIDE----------------------------------------------------------
+         
          if(is.element("Harvest",input$selectAgroFeature)){
          print("harvest")
-         #p1 <<- dt_harvest()
-         incProgress(7/20,message = "Adding harvest sheet")
-         openxlsx::addWorksheet(wb, "Harvest", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Harvest", x = dt_harvest(),
-                                  colNames = TRUE, withFilter = FALSE)
-         }
-         
-         if(is.element("Soil fertility",input$selectAgroFeature)){
+         if(ct=="Monocrop"){
+           incProgress(7/20,message = "Adding harvest sheet")
+           openxlsx::addWorksheet(wb, "Harvest", gridLines = TRUE)
+           openxlsx::writeDataTable(wb, "Harvest", x = dt_harvest(),
+                                    colNames = TRUE, withFilter = FALSE)
+         }else{
+           #TODO: 
+           #-Show error when one crop is missing
+           id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")  
+           print(id_ic_rand)
+           circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
+           #-Length(circm ) >1
            
-         print("soil fertility")
-         incProgress(7/20,message = "Adding soil and fertility")
-         openxlsx::addWorksheet(wb, "Soil fertility", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Soil fertility", x = dt_soilFertility(),
-                                  colNames = TRUE, withFilter = FALSE)
+           for(i in 1:length(circm)){
+             incProgress(7/20,message = "Adding harvest" )##paste("Adding", circm[i] , "harvest sheet",sep=""))
+             dt_harv <- dt_harvest()
+             print("paso")
+             openxlsx::addWorksheet(wb,  paste0("Harvest-",circm[i]), gridLines = TRUE)
+             openxlsx::writeDataTable(wb, paste0("Harvest-",circm[i]), x = dt_harv[[circm[i]]],
+                                      colNames = TRUE, withFilter = FALSE)
+           }
+           
+         }   
+         }
          
-         }
          print("inicio6")
-         if(input$croppingType=="Intercrop"){
-
-           incProgress(7/20,message = "Adding fieldbook data...")
-
-           if(is.null(input$cropsSelected)){
-             print("no crops selected")
-           } else {
-
-
-             crops <- input$cropsSelected
-             cropsito<- NULL
-             for(i in 1:length(crops)){
-             cropsito[i] <- input[[paste0("cropCommonName",i)]]
-             }
-             interTrait <- out<-list()
-             for(i in 1:length(crops)){
-               interTrait[[i]] <- traits_dt() %>%  dplyr::filter(Crop==cropsito[i])
-               interTrait[[i]] <- as.data.frame(interTrait[[i]], stringsAsFactors=FALSE)
-                print(interTrait[[i]])
-
-               fb <- fb_agrofims()
-               trait <- interTrait[[i]]
-               cr<- trait$Crop
-
-               cm <- trait$`Crop measurement`
-               sb<- trait$Subgroup
-               sc <- trait$Scale
-               sc[is.na(sc)] <- "unitless"
-               #cs <- paste(cr, cm, sc, sep="-")
-               cs <- paste(cr,sb, cm, sc, sep="-")
-               trait_selected <- cs
-
-               if(!is.null(trait_selected) || length(trait_selected)==0 ){
-                 mm  <-  matrix(nrow = nrow(fb), ncol = length(trait_selected) )
-                 nm  <-  c(names(fb), trait_selected)
-                 out[[i]]  <-  cbind(fb, mm)
-                 names(out[[i]])  <-  nm
-               }
-
-               openxlsx::addWorksheet(wb, paste("Fieldbook",cropsito[i],sep="-") , gridLines = TRUE)
-               openxlsx::writeDataTable(wb, paste("Fieldbook",cropsito[i],sep="-") , x = out[[i]],
-                                        colNames = TRUE, withFilter = FALSE)
-             }
-
-           } #end if
-         }
-
          
          incProgress(9/20,message = "Adding crop measurement sheet...")
          
-         print("inicio7")
-         openxlsx::addWorksheet(wb, "Crop_measurement", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Crop_measurement", x = traits_dt(),
-                                  colNames = TRUE, withFilter = FALSE)
+         ### HIDE----------------------------------------------------------------------
          
+         if(ct=="Monocrop"){
          print("inicio8")
          openxlsx::addWorksheet(wb, "Phenology", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Phenology", x = pheno_dt(),
                                   colNames = TRUE, withFilter = FALSE)
-         
+         }
+         # 
          if(nrow(weather_dt())!=0){
          openxlsx::addWorksheet(wb, "Weather", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Weather", x = weather_dt(),
                                   colNames = TRUE, withFilter = FALSE)
          }
-         
+         # 
          print("inicio10")
-         openxlsx::addWorksheet(wb, "Soil", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Soil", x = soil_dt(),
-                                  colNames = TRUE, withFilter = FALSE)
-         
+         if(nrow(soil_dt())!=0){
+           openxlsx::addWorksheet(wb, "Labbook", gridLines = TRUE)
+           openxlsx::writeDataTable(wb, "Labbook", x = soil_dt(),
+                                    colNames = TRUE, withFilter = FALSE)
+         }
+         # 
+         #dtl: data for trai list sheet/table
          print("inicio11")
          
-      
+         # print("inicio7")
+         if(ct=="Monocrop"){
+           cm_tl <- data.table(traits_dt())
+           cm_tl<- ec_clean_header(cm_tl) #remove foo headers
+         } else {
+           #kl<<- traits_dt()
+           cm_tl <- rbindlist(traits_dt())
+           cm_tl <- ec_clean_header(cm_tl)
+         }
+         
         
-         #saveRDS(x, file = "allinputs.rds")
-         #x <- reactiveValuesToList(input)
-         #saveRDS(x, file = "allinputs.rds")
-         t1<- data.table(traits_dt())
-         if(nrow(soil_dt())!=0){
-           s2<- data.table(soil_dt())
-           s2$Group <- "Soil"           
-         } else{
-           s2 <- data.frame()
-         }
-
-         print("begin wheater")
-         print(weather_dt())
-         if(nrow(weather_dt())!=0){ 
-           print("entro wheater")
-            w3<- data.table(weather_dt())
-            w3$Group <- "Weather"
-         }else{
-           w3<- data.frame()
-         }
-         print("pheno")
-         if(nrow(pheno_dt())!=0){ 
-          p4<- data.table(pheno_dt())
-         } else{
-           p4 <- data.frame()
-         }
-         l <- list(t1, s2, w3, p4)
          
-         print("paso 2")
-         
-         dt_kds<- rbindlist(l,fill = TRUE)
-         #Revemo foo columns
-         dt_kds$`Fieldbook download`<-NULL
-         dt_kds$`Other - specify`<-NULL
-         dt_kds$Observation<-NULL
-         dt_kds$`Factor?` <- NULL
-         dt_kds$v1<- dt_kds$v2 <- dt_kds$v3<- NULL
-
          # 
-         print("paso 3")
+         #Soil for TraitList sheet/data
+         if(nrow(soil_dt())!=0){
+           soil_tl <- data.table(soil_dt())
+           soil_tl$Group <- "Soil"
+         } else{
+           soil_tl <- data.frame()
+         }
+
+         #Weather for TraitList sheet/data
+         if(nrow(weather_dt())!=0){
+           print("entro wheater")
+           w_tl<- data.table(weather_dt())
+           w_tl$Group <- "Weather"
+         } else{
+            w_tl<- data.frame()
+         }
+         # 
+         #Phenology for TraitList sheet/data
+         print("inicio13")
+         if(nrow(pheno_dt())!=0){
+           ph_tl<- data.table(pheno_dt())
+         } else{
+           ph_tl <- data.frame()
+         }
+         # 
+         ##Consolidation of crop measurement, soil, weather amd phenology data
+         print("inicio14")
+         l_lt <- list(cm_tl, soil_tl, w_tl, ph_tl)
+         dt_kds<- rbindlist(l_lt, fill = TRUE)
+         # 
+         # #Remove foo columns
+         # print("inicio15")
+         dt_kds<- ec_clean_header(dt_kds)
+         # 
          if(is.element("Residue management",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
            kds_resmgt <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),sheet = "Residue management")
-           kds_resmgt <- data.table(kds_resmgt)  
+           kds_resmgt <- data.table(kds_resmgt)
            dt_kds<-rbindlist(list(dt_kds,kds_resmgt),fill = TRUE,use.names = TRUE)
-           kds_resmgt$`Fieldbook download`<- kds_resmgt$`Other - specify`<- kds_resmgt$Observation<- NULL
-           kds_resmgt$`Factor?`<-kds_resmgt$`Reorganisation of all the variables (see GitHub 112 for the mock-up)`<- NULL
-           
+           dt_kds<- ec_clean_header(dt_kds)
          }
-         print("paso 4")
+         if(is.element("Seedbed preparation",input$selectAgroFeature)){
+           globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+           kds_sedbed <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+                                            sheet = "Seedbed preparation")
+           kds_sedbed <- data.table(kds_sedbed)
+           dt_kds<-rbindlist(list(dt_kds,kds_sedbed),fill = TRUE,use.names = TRUE)
+           dt_kds <- ec_clean_header(dt_kds)
+         }
+         if(is.element("Soil fertility",input$selectAgroFeature)){
+           globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+           kds_soilf<- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+                                          sheet = "Soil fertility")
+           kds_soilf <- data.table(kds_soilf)
+           dt_kds<-rbindlist(list(dt_kds,kds_soilf),fill = TRUE,use.names = TRUE)
+           dt_kds<-ec_clean_header(dt_kds)
+         }
+         if(is.element("Planting and transplanting",input$selectAgroFeature)){
+           globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+           kds_platra <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+                                            sheet = "Planting, Transplanting")
+           kds_platra <- data.table(kds_platra)
+           dt_kds<-rbindlist(list(dt_kds,kds_platra),fill = TRUE,use.names = TRUE)
+           dt_kds<- ec_clean_header(dt_kds)
+         }
+         if(is.element("Mulch management",input$selectAgroFeature)){
+           globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+           kds_mulch <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+                                           sheet = "Mulch management")
+           kds_mulch <- data.table(kds_mulch)
+           dt_kds<-rbindlist(list(dt_kds,kds_mulch),fill = TRUE,use.names = TRUE)
+           dt_kds<- ec_clean_header(dt_kds)
+         }
+         if(is.element("Irrigation",input$selectAgroFeature)){
+           globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+           kds_irri <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+                                          sheet = "Irrigation")
+           kds_irri <- data.table(kds_irri)
+           dt_kds<-rbindlist(list(dt_kds,kds_irri),fill = TRUE,use.names = TRUE)
+           dt_kds<- ec_clean_header(dt_kds)
+         }
+         if(is.element("Weeding",input$selectAgroFeature)){
+           globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+           kds_weed <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+                                          sheet = "Weeding")
+           kds_weed <- data.table(kds_weed)
+           dt_kds<-rbindlist(list(dt_kds,kds_weed),fill = TRUE,use.names = TRUE)
+           dt_kds<- ec_clean_header(dt_kds)
+         }
+         if(is.element("Harvest",input$selectAgroFeature)){
+           globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+           kds_harv <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+                                          sheet = "Harvest")
+           kds_harv <- data.table(kds_harv)
+           dt_kds<-rbindlist(list(dt_kds,kds_harv),fill = TRUE,use.names = TRUE)
+           dt_kds<- ec_clean_header(dt_kds)
+         }
+
+         # Select the nex columns :
+         lbl_trait_dt<- c('Crop','Group','Subgroup','Measurement','Measurement_2',
+                         'Measurement_3', 'TraitUnit', 'TraitAlias','TraitDataType',
+                         'TraitValidation', 'VariableId')
+         dt_kds <- dt_kds[,lbl_trait_dt]
+
+         print("inicio16")
+         #dt_kds<- ec_clean_header(dt_kds)
          openxlsx::addWorksheet(wb, "TraitList", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "TraitList", x = dt_kds,
                                   colNames = TRUE, withFilter = FALSE)
-         
-         
+
+        
+         ### END HIDE----------------------------------------------------------
+          
          incProgress(19/20,message = "Downloading file...")
          saveWorkbook(wb, file = fname , overwrite = TRUE)
          file.rename(fname, file)

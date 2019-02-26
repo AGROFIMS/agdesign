@@ -1,7 +1,7 @@
 
 get_ec_mulching <- function(allinputs){
   
-  # allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+   allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
   # input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
   
   mu <- allinputs %>% filter(!str_detect(id, "button")) %>%
