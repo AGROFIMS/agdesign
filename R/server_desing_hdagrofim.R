@@ -10446,10 +10446,10 @@ server_design_agrofims <- function(input, output, session, values){
 
          #print(expCondsVars$ids_irri)
          
-         ai <- AllInputs()
-         saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         x <- reactiveValuesToList(input)
-         saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         # ai <- AllInputs()
+         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         # x <- reactiveValuesToList(input)
+         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
 
         if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
