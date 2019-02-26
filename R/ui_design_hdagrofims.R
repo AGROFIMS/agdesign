@@ -239,7 +239,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
              actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
              actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('openFieldbook')"),
              actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
-             actionButton("savetest", "save test"),
+             #actionButton("savetest", "save test"),
              htmlOutput("lastsaved")
              #uiOutput("saveUI")
       )

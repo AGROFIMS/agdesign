@@ -8083,7 +8083,8 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         scrollX = TRUE,
         pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(1,6)))
+        #columnDefs = list(list(visible=FALSE, targets=c(1,6)))
+        columnDefs = list(list(visible=FALSE, targets=c(1,6,7,9,10,11,12,13,14,15)))#,
       )
     )
   }
@@ -8096,19 +8097,27 @@ server_design_agrofims <- function(input, output, session, values){
   output$uiWeatherTab <- renderUI({
     column(12, 
            br(),
+           # fluidRow(
+           #   box(status = "primary", width = 12,collapsible = TRUE, collapsed = TRUE,solidHeader = TRUE,
+           #       id="manual_measurement_boxid",
+           #       title = checkboxInput("manualMeasurement_checkbox", actionLink("manual_measurement_titleId", "Manual measurement"), F),
+           #       DTOutput('weatherManualDT')
+           #   )
+           #   
+           # ),
+           # br(),
+           # fluidRow(
+           #   box(status = "primary",width = 12, collapsible = TRUE, collapsed = TRUE, solidHeader = TRUE,
+           #       id="station_measurement_boxid",
+           #       title = checkboxInput("stationMeasurement_checkbox", actionLink("station_measurement_titleId", "Weather station measurement"), F),
+           #       DTOutput('weatherStationDT')
+           #   )
+           # )
            fluidRow(
-             box(status = "primary", width = 12,collapsible = TRUE, collapsed = TRUE,solidHeader = TRUE,
-                 id="manual_measurement_boxid",
-                 title = checkboxInput("manualMeasurement_checkbox", actionLink("manual_measurement_titleId", "Manual measurement"), F),
-                 DTOutput('weatherManualDT')
-             )
-             
-           ),
-           br(),
-           fluidRow(
-             box(status = "primary",width = 12, collapsible = TRUE, collapsed = TRUE, solidHeader = TRUE,
+             box(status = "primary",width = 12, collapsible = TRUE, collapsed = F, solidHeader = TRUE,
                  id="station_measurement_boxid",
-                 title = checkboxInput("stationMeasurement_checkbox", actionLink("station_measurement_titleId", "Weather station measurement"), F),
+                 #title = checkboxInput("stationMeasurement_checkbox", actionLink("station_measurement_titleId", "Weather measurement"), F),
+                 title = "Weather measurement",
                  DTOutput('weatherStationDT')
              )
            )
@@ -9268,7 +9277,7 @@ server_design_agrofims <- function(input, output, session, values){
       scrollX = TRUE,
       pageLength = 25,
       #autoWidth = TRUE,
-      columnDefs = list(list(visible=FALSE, targets=c(1,6,7,9,10,11,12,14)))#,
+      columnDefs = list(list(visible=FALSE, targets=c(1,6,7,9,10,11,12,13,14,15)))#,
       #columnDefs = list(list(width = '200px', targets = c(13,15)))
     )
   )
@@ -9363,7 +9372,8 @@ server_design_agrofims <- function(input, output, session, values){
     options = list(
       #lengthChange = FALSE
       scrollX = TRUE,
-      pageLength = 25
+      pageLength = 25#,
+      #selection = list(mode = 'multiple', selected = c(1, 3, 8, 12))
     ) 
   )
   
@@ -9835,33 +9845,34 @@ server_design_agrofims <- function(input, output, session, values){
   ##reactive weather   ####################################
   weather_dt <- reactive({
     
-   a1 <- data.frame(Measurement = "NoValue", TraitUnit = NA, TraitAlias = NA,
-                    TraitDataType = NA, TraitValidation =NA, VariableId= NA)
+   # a1 <- data.frame(Measurement = "NoValue", TraitUnit = NA, TraitAlias = NA,
+   #                  TraitDataType = NA, TraitValidation =NA, VariableId= NA)
    a2 <- data.frame(Measurement = "NoValue", TraitUnit = NA,TraitAlias = NA,
                     TraitDataType = NA, TraitValidation =NA, VariableId= NA)
    #a1 <- a2 <- data.frame()
     
-   if(!is.null(input$manualMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
-      if(input$manualMeasurement_checkbox==TRUE){
-       #mstation <-  #dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit)
-       manual_weather <- weather_manual_vars #%>% dplyr::select(Measurement, Unit)
-       row_select <- input$weatherManualDT_rows_selected
-       a1 <- manual_weather[row_select, ]
-       if(nrow(a1)>0){
-         a1 <- a1#[, c("Measurement", "Unit")]
-       } else {
-         a1 <- data.frame(Measurement = "", TraitUnit = "", TraitAlias = "",
-                          TraitDataType = "", TraitValidation ="", VariableId= "")
-         
-       }
-       #a1 <- a1 %>% dplyr::filter(Measurement!="NoValue")  
-       a1
-       
-      } 
-     
-   } 
-   if(!is.null(input$stationMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
-      if(input$stationMeasurement_checkbox==TRUE){
+   # if(!is.null(input$manualMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
+   #    if(input$manualMeasurement_checkbox==TRUE){
+   #     #mstation <-  #dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit)
+   #     manual_weather <- weather_manual_vars #%>% dplyr::select(Measurement, Unit)
+   #     row_select <- input$weatherManualDT_rows_selected
+   #     a1 <- manual_weather[row_select, ]
+   #     if(nrow(a1)>0){
+   #       a1 <- a1#[, c("Measurement", "Unit")]
+   #     } else {
+   #       a1 <- data.frame(Measurement = "", TraitUnit = "", TraitAlias = "",
+   #                        TraitDataType = "", TraitValidation ="", VariableId= "")
+   #       
+   #     }
+   #     #a1 <- a1 %>% dplyr::filter(Measurement!="NoValue")  
+   #     a1
+   #     
+   #    } 
+   #   
+   # } 
+   # 
+   #if(!is.null(input$stationMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
+    #if(input$stationMeasurement_checkbox==TRUE){
      #wstation <- dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit)
      wstation<- weather_station_vars #%>% dplyr::select(Measurement, Unit)
         
@@ -9876,10 +9887,11 @@ server_design_agrofims <- function(input, output, session, values){
      }
      print("entro 21")
      a2 <- a2
-      } 
-   } 
+    #} 
+   #} 
    
-   dt<- rbind(a1,a2)
+   #dt<- rbind(a1,a2)
+   dt<- a2 #rbind(a2)
    dt <- dt %>% dplyr::filter(Measurement!="NoValue")  
    dt
   })
@@ -10665,13 +10677,18 @@ server_design_agrofims <- function(input, output, session, values){
          # 
          #Soil for TraitList sheet/data
          if(nrow(soil_dt())!=0){
-           soil_tl <- data.table(soil_dt())
+           row_select <- input$soilDT_rows_selected
+           dt <- soil_data[row_select,  ]
+           soil_tl <- data.table(dt)
+           #soil_tl <- data.table(soil_dt())
            soil_tl$Group <- "Soil"
          } else{
            soil_tl <- data.frame()
          }
 
          #Weather for TraitList sheet/data
+         pl<<- weather_dt()
+         
          if(nrow(weather_dt())!=0){
            print("entro wheater")
            w_tl<- data.table(weather_dt())
