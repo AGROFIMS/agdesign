@@ -1,11 +1,13 @@
 
-get_ec_plantrans <- function(allinputs, addId){
+get_ec_plantrans <- function(allinputs, addId, input){
   
   
   #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
   #input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
-
   
+  #Direct seeding
+  if(isTRUE(input$directSeeding_checkbox_1)){
+    
   #direct seedling -------------------------------------------------------------
   ptdi <- allinputs %>%  filter(!str_detect(id, "button")) %>%
           filter(!str_detect(id, "-selectized")) %>%
@@ -65,23 +67,31 @@ get_ec_plantrans <- function(allinputs, addId){
   dt_di <- rbind(startD, env, tech, treat,  imp_type, 
               imp_trac, row, rate, plan, numrow, plden, bund, notes)
   
-  lbl_di <- c("Direct_seeding_Start_date", "Direct_seeding_environment",
+  lbl_di <- c("Direct_seeding_start_date", "Direct_seeding_environment",
               "Direct_seeding_technique",
-              "Direct_seeding_Seed_treatment", "Direct_seeding_implement_type", 
-              "Direct_seeding_traction_type" ,  
-               paste("Direct_seeding_Distance_between_rows","_",row_unit$values,sep=""),
-              paste("Direct_seeding_Seeding_rate","_",rate_unit$values,sep=""),  
-              paste("Direct_seeding Distance_between_plants","_",plan_unit$values,sep=""),
-              "Direct_seeding_Number_of_rows", 
-              paste("Direct_seeding Plant_density","_",plden_unit$values,sep=""),
-              paste("Direct_seeding_Distance_between_bunds","_",bund_unit$values,sep=""),
-              "Direct_seeding_Notes"
+              "Direct_seeding_seed_treatment", "Direct_seeding_implement_type", 
+              "Direct_seeding_implement_traction" ,  
+               paste("Direct_seeding_distance_between_rows","_",row_unit$values,sep=""),
+              paste("Direct_seeding_seed_rate","_",rate_unit$values,sep=""),  
+              paste("Direct_seeding_distance_between_plants","_",plan_unit$values,sep=""),
+              "Direct_seeding_number_of_rows", 
+              paste("Direct_seeding_plant_density","_",plden_unit$values,sep=""),
+              paste("Direct_seeding_distance_between_bunds","_",bund_unit$values,sep=""),
+              "Direct_seeding_notes"
               )
+  
+  #TODO: AGREGAR END DATE "Planting_direct_seeding_end_date"
   
   dt_di <- t(dt_di$values) %>% as.data.frame(stringAsFactors=FALSE)
   names(dt_di) <- lbl_di
+  }
+  else {
+    dt_di<- data.frame()
+  }
   
-  
+  #Transplating  
+  if(isTRUE(input$transplanting_checkbox_1)){
+    
   #planting transplanting ----------------------------------------------------
   ptta <- allinputs %>%  filter(!str_detect(id, "button")) %>%
           filter(!str_detect(id, "-selectized")) %>%
@@ -138,24 +148,29 @@ get_ec_plantrans <- function(allinputs, addId){
              ta_drow, ta_sden, ta_numrow, ta_dplan, ta_bunds, ta_notes)
      
   lbl_ta <- c("Transplanting_start_date", "Transplanting_end_date",
-             "Transplanting_Age_of_seedling_(days)","Transplanting_seedling_environment",
-              "Transplanting_Technique","Transplanting_Treatment",
-              "Transplanting_Traction",
-              paste0("Transplanting_Distance_between_rows","_",ta_drow_unit$values,sep=""),
-              paste0("Transplanting_Seedling_density","_",ta_sden_unit$values,sep=""),
-              "Transplanting_Number_of_rows",
-              paste0("Transplanting_Distance_between_plants","_",ta_dplan_unit$values,sep=""),
-              paste0("Transplanting_Distance_between_bunds","_",ta_bunds_unit$values,sep=""),
-              "Transplanting_Notes")      
+             "Transplanting_age_of_seedling_(days)","Transplanting_seedling_environment",
+              "Transplanting_technique","Transplanting_treatment",
+              "Transplanting_traction",
+              paste0("Transplanting_distance_between_rows","_",ta_drow_unit$values,sep=""),
+              paste0("Transplanting_seedling_density","_",ta_sden_unit$values,sep=""),
+              "Transplanting_number_of_rows",
+              paste0("Transplanting_distance_between_plants","_",ta_dplan_unit$values,sep=""),
+              paste0("Transplanting_distance_between_bunds","_",ta_bunds_unit$values,sep=""),
+              "Transplanting_notes")      
   
   dt_ta <- t(dt_ta$values) %>% as.data.frame(stringAsFactors=FALSE)
   names(dt_ta) <- lbl_ta
+  }
+  else{
+    dt_ta <- data.frame()
+  }
   
-  dt_plantrans <- cbind(dt_di, dt_ta)
+  #dt_plantrans <- cbind(dt_di, dt_ta)
+  dt_plantrans<- dplyr::bind_cols(dt_di,dt_ta)
   dt_plantrans
 }
 
-
+#TODO: escoger checkboxed y exportar lo marcado en planting transpling Intercrop
 
 get_ec_plantrans_inter <- function(allinputs, addId, crop){
   
@@ -232,13 +247,16 @@ get_ec_plantrans_inter <- function(allinputs, addId, crop){
   dt_di <- rbind(startD, env, tech, treat,  imp_type, 
                  imp_trac, row, rate, plan, numrow, plden, bund, notes)
   
-  lbl_di <- c("Direct_seeding_Start_date", "Direct_seeding_environment", "Direct_seeding_technique",
-              "Direct_seeding_Seed_treatment", "Direct_seeding_implement_type", 
-              "Direct_seeding_traction_type" ,  "Direct_seeding_Distance_between_rows",
-              "Direct_seeding_Seeding_rate",  "Direct_seeding_Distance_between_plants",
-              "Direct_seeding_Number_of_rows", "Direct_seeding_Plant_density",
-              "Direct_seeding_Distance_between_bunds","Direct_seeding_Notes"
+  lbl_di <- c("Direct_seeding_start_date", "Direct_seeding_environment", "Direct_seeding_technique",
+              "Direct_seeding_seed_treatment", "Direct_seeding_implement_type", 
+              "Direct_seeding_traction_type" ,  "Direct_seeding_distance_between_rows",
+              "Direct_seeding_seed_rate",  "Direct_seeding_distance_between_plants",
+              "Direct_seeding_number_of_rows", "Direct_seeding_plant_density",
+              "Direct_seeding_distance_between_bunds","Direct_seeding_notes"
   )
+  
+  #TODO: agregar end date: "Planting_direct_seeding_end_date"
+  
   ### INTERCROP
   lbl_di_inter <- NULL
   for(i in 1:length(lbl_di)){
@@ -316,13 +334,14 @@ get_ec_plantrans_inter <- function(allinputs, addId, crop){
                 ta_drow, ta_sden, ta_numrow, ta_dplan, ta_bunds, ta_notes)
   
   lbl_ta <- c("Transplanting_start_date", "Transplanting_end_date",
-              "Transplanting_Age_of_seedling_(days)","Transplanting_seedling_environment",
-              "Transplanting_Technique","Transplanting_Treatment",
-              "Transplanting_Traction","Transplanting_Distance_between_rows",
-              "Transplanting_Seedling_density","Transplanting_Number_of_rows",
-              "Transplanting_Distance_between_plants",
-              "Transplanting_Distance_between_bunds",
-              "Transplanting_Notes")      
+              "Transplanting_age_of_seedling_(days)","Transplanting_seedling_environment",
+              "Transplanting_technique","Transplanting_treatment",
+              "Transplanting_traction","Transplanting_distance_between_rows",
+              "Transplanting_seedling_density","Transplanting_number_of_rows",
+              "Transplanting_distance_between_plants",
+              "Transplanting_distance_between_bunds",
+              "Transplanting_notes")      
+
   
   lbl_ta_inter <- NULL
   for(i in 1:length(lbl_di)){

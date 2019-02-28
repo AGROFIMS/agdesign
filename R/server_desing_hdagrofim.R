@@ -7725,7 +7725,890 @@ server_design_agrofims <- function(input, output, session, values){
   # }
 
   ############ end traits table #############################################################
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  ######## Start Crop Measurement Ultima Version #########
+  
+  #### Start Tabs Crop Measurement: ####
+  observe({
+    if (input$croppingType == "Monocrop") {
+      hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
+      showTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+    }
+    
+    if (input$croppingType == "Intercrop") {
+      showTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
+      hideTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+    }
+  })
+  
+  chu <- c("crop_measurement_Cassava", "crop_measurement_Commonbean", "crop_measurement_Maize", "crop_measurement_Potato", "crop_measurement_Rice",
+           "crop_measurement_Sweetpotato", "crop_measurement_Wheat", "crop_measurement_Other")
+  
+  observe({
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+    
+    if (ct == "Intercrop") {
+      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
+      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+      print(circm)
+      cropivan <- paste0("crop_measurement_", circm)
+    } else{
+      #if(ct=="Monocrop"){
+      crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+      cropivan <- paste0("crop_measurement_",crp)
+      #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+      #out <- rbind(ctd, crp, var)
+      #}
+    }
+    
+    for (i in 1:length(chu)) {
+      hideTab(inputId = "tabpanelinter", target = chu[i])
+    }
+    
+    for (i in 1:length(cropivan)) {
+      print(gsub(" ","",cropivan[i]))
+      showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
+    }
+  })
+  #### End Tabs Crop Measurement: ####
+  
+  # Base de datos general para Crop Measurement:
+  dfmea <- readRDS(paste0(globalpath, "crop_measurements_v6.3.rds"))
+  dfmea <- as.data.frame(dfmea, stringsAsFactors=FALSE)
+  colnames(dfmea) <- c("Crop", 
+                       "Group",
+                       "Subgroup",
+                       "Measurement",
+                       "TraitUnit",
+                       "Crop measurement per season",
+                       "Crop measurement per plot",
+                       "TraitAlias",
+                       "TraitDataType",
+                       "TraitValidation",
+                       "VariableId")
+  
+  #### Start Crop Measurement Monocrop ####
+  output$uiCropMeaMono <- renderUI({
+    DTOutput("tblMono")
+  })
+  
+  fmono <- function(){
+    crop_in <- input$cropCommonNameMono
+    oth <- input$cropCommonNameMono_other
+    
+    if (!is.null(crop_in) && crop_in != "Other") {
+      aux <- dplyr::filter(dfmea, Crop == crop_in)
+    } else if(!is.null(crop_in) && crop_in == "Other") {
+      aux <- dplyr::filter(dfmea, Crop == "Other")
+      
+      if (oth != "") {
+        aux$Crop <- oth
+        aux
+      } else {
+        aux
+      }
+    } else {
+      aux <- dfmea[0,]
+    }
+  }
+  
+  output$tblMono = renderDT(
+    datatable(
+      dtMonocrop <<- fmono(),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyMono = dataTableProxy('tblMono')
+  
+  observeEvent(input$tblMono_cell_edit, {
+    info = input$tblMono_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtMonocrop[i, j] <<- DT::coerceValue(v, dtMonocrop[i, j])
+    replaceData(proxyMono, dtMonocrop, resetPaging = FALSE, clearSelection = "none")
+  })
+  #### End Crop Measurement Monocrop ####
+  
+  #### Start Crop Measurement Intercrop ####
+  finter <- function(crop_in) {
+    #crop_in <- input$cropCommonNameMono
+    oth <- input$cropCommonNameMono_other
+    
+    if (!is.null(crop_in) && crop_in != "Other") {
+      aux <- dplyr::filter(dfmea, Crop == crop_in)
+    } else if(!is.null(crop_in) && crop_in == "Other") {
+      aux <- dplyr::filter(dfmea, Crop == "Other")
+      
+      if (oth != "") {
+        aux$Crop <- oth
+        aux
+      } else {
+        aux
+      }
+    } else {
+      aux <- dfmea[0,]
+    }
+  }
+  
+  # Cassava
+  output$tblInterCassava = renderDT(
+    datatable(
+      dtInterCassava <<- finter("Cassava"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyMonoCassava = dataTableProxy('tblInterCassava')
+  
+  observeEvent(input$tblInterCassava_cell_edit, {
+    info = input$tblInterCassava_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterCassava[i, j] <<- DT::coerceValue(v, dtInterCassava[i, j])
+    replaceData(proxyMonoCassava, dtInterCassava, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Common bean
+  output$tblInterCommon = renderDT(
+    datatable(
+      dtInterCommon <<- finter("Common bean"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyMonoCommonbean = dataTableProxy('tblInterCommon')
+  
+  observeEvent(input$tblInterCommon_cell_edit, {
+    info = input$tblInterCommon_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterCommon[i, j] <<- DT::coerceValue(v, dtInterCommon[i, j])
+    replaceData(proxyMonoCommonbean, dtInterCommon, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Maize
+  output$tblInterMaize = renderDT(
+    datatable(
+      dtInterMaize <<- finter("Maize"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyMonoMaize = dataTableProxy('tblInterMaize')
+  
+  observeEvent(input$tblInterMaize_cell_edit, {
+    info = input$tblInterMaize_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterMaize[i, j] <<- DT::coerceValue(v, dtInterMaize[i, j])
+    replaceData(proxyMonoMaize, dtInterMaize, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Potato
+  output$tblInterPotato = renderDT(
+    datatable(
+      dtInterPotato <<- finter("Potato"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyMonoPotato = dataTableProxy('tblInterPotato')
+  
+  observeEvent(input$tblInterPotato_cell_edit, {
+    info = input$tblInterPotato_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterPotato[i, j] <<- DT::coerceValue(v, dtInterPotato[i, j])
+    replaceData(proxyMonoPotato, dtInterPotato, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Rice
+  output$tblInterRice = renderDT(
+    datatable(
+      dtInterRice <<- finter("Rice"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyMonoRice = dataTableProxy('tblInterRice')
+  
+  observeEvent(input$tblInterRice_cell_edit, {
+    info = input$tblInterRice_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterRice[i, j] <<- DT::coerceValue(v, dtInterRice[i, j])
+    replaceData(proxyMonoRice, dtInterRice, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Sweetpotato
+  output$tblInterSweetpotato = renderDT(
+    datatable(
+      dtInterSweetpotato <<- finter("Sweetpotato"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyMonoSweetpotato = dataTableProxy('tblInterSweetpotato')
+  
+  observeEvent(input$tblInterSweetpotato_cell_edit, {
+    info = input$tblInterSweetpotato_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterSweetpotato[i, j] <<- DT::coerceValue(v, dtInterSweetpotato[i, j])
+    replaceData(proxyMonoSweetpotato, dtInterSweetpotato, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Wheat
+  output$tblInterWheat = renderDT(
+    datatable(
+      dtInterWheat <<- finter("Wheat"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyMonoWheat = dataTableProxy('tblInterWheat')
+  
+  observeEvent(input$tblInterWheat_cell_edit, {
+    info = input$tblInterWheat_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterWheat[i, j] <<- DT::coerceValue(v, dtInterWheat[i, j])
+    replaceData(proxyMonoWheat, dtInterWheat, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Other
+  output$tblInterOther = renderDT(
+    datatable(
+      dtInterOther <<- finter("Other"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyMonoOther = dataTableProxy('tblInterOther')
+  
+  observeEvent(input$tblInterOther_cell_edit, {
+    info = input$tblInterOther_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterOther[i, j] <<- DT::coerceValue(v, dtInterOther[i, j])
+    replaceData(proxyMonoOther, dtInterOther, resetPaging = FALSE, clearSelection = "none")
+  })
+  #### End Crop Measurement Intercrop ####
+  
+  ######## End Crop Measurement Ultima Version #########
+  
+  ######################################################
+  ######################################################
+  
+  ######## Start Crop Phenology Ultima Version #########
+  
+  #### Start Tabs Crop Phenology: ####
+  observe({
+    if (input$croppingType == "Monocrop") {
+      hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+      showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+    }
+    
+    if (input$croppingType == "Intercrop") {
+      showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+      hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+    }
+  })
+  
+  chuphe <- c("crop_phenology_Cassava", "crop_phenology_Commonbean", "crop_phenology_Maize", "crop_phenology_Potato", "crop_phenology_Rice",
+           "crop_phenology_Sweetpotato", "crop_phenology_Wheat", "crop_phenology_Other")
+  
+  observe({
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+    
+    if (ct == "Intercrop") {
+      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
+      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+      print(circm)
+      cropivanphe <- paste0("crop_phenology_", circm)
+    } else{
+      #if(ct=="Monocrop"){
+      crp <- map_singleform_values(input$cropCommonNameMono,input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+      cropivanphe <- paste0("crop_phenology_",crp)
+      #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+      #out <- rbind(ctd, crp, var)
+      #}
+    }
+    
+    for (i in 1:length(chuphe)) {
+      hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+    }
+    
+    for (i in 1:length(cropivanphe)) {
+      print(gsub(" ","",cropivanphe[i]))
+      showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
+    }
+  })
+  #### End Tabs Crop Phenology: ####
+  
+  # Base de datos general para Crop Phenology:
+  dfphe <- #readRDS(paste0(globalpath, "crop_measurements_v6.3.rds"))
+  dfphe <- pheno_vars #as.data.frame(dfphe, stringsAsFactors=FALSE)
+  dfphe <- ec_clean_header(dfphe)
+  colnames(dfphe) <- c("Crop", 
+                       "Group",
+                       "Subgroup",
+                       "Measurement",
+                       "TraitUnit",
+                       "Crop measurement per season",
+                       "Crop measurement per plot",
+                       "TraitAlias",
+                       "TraitDataType",
+                       "TraitValidation",
+                       "VariableId")
+  
+  #### Start Crop Phenology Monocrop ####
+  output$uiCropPheMono <- renderUI({
+    DTOutput("tblMonoPhe")
+  })
+  
+  fmonophe <- function(){
+    crop_in <- input$cropCommonNameMono
+    oth <- input$cropCommonNameMono_other
+    
+    if (!is.null(crop_in) && crop_in != "Other") {
+      #aux <- dplyr::filter(dfmea, Crop == crop_in)
+      aux <- dfphe
+    } else if(!is.null(crop_in) && crop_in == "Other") {
+      #aux <- dplyr::filter(dfmea, Crop == "Other")
+      aux <- dfphe
+      
+      if (oth != "") {
+        # aux$Crop <- oth
+        # aux
+        aux <- dfphe
+      } else {
+        aux
+      }
+    } else {
+      aux <- dfphe[0,]
+    }
+  }
+  
+  output$tblMonoPhe = renderDT(
+    datatable(
+      dtMonocropphe <<- fmonophe(),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=F, targets=c(1,2,3,6,7,8,9,10,11,12)))
+      )
+    )# %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
+  )
+  
+  # proxyMonoPhe = dataTableProxy('tblMonoPhe')
+  # 
+  # observeEvent(input$tblMonoPhe_cell_edit, {
+  #   info = input$tblMonoPhe_cell_edit
+  #   #str(info)
+  #   i = info$row
+  #   j = info$col
+  #   v = info$value
+  #   dtMonocropphe[i, j] <<- DT::coerceValue(v, dtMonocropphe[i, j])
+  #   replaceData(proxyMono, dtMonocropphe, resetPaging = FALSE, clearSelection = "none")
+  # })
+  #### End Crop Phenology Monocrop ####
+  
+  #### Start Crop Phenology Intercrop ####
+  finterphe <- function(crop_in) {
+    #crop_in <- input$cropCommonNameMono
+    oth <- input$cropCommonNameMono_other
+    
+    if (!is.null(crop_in) && crop_in != "Other") {
+      aux <- dplyr::filter(dfphe, Crop == crop_in)
+    } else if(!is.null(crop_in) && crop_in == "Other") {
+      aux <- dplyr::filter(dfphe, Crop == "Other")
+      
+      if (oth != "") {
+        aux$Crop <- oth
+        aux
+      } else {
+        aux
+      }
+    } else {
+      aux <- dfphe[0,]
+    }
+  }
+  
+  # Cassava
+  output$tblInterPheCassava = renderDT(
+    datatable(
+      dtInterPheCassava <<- finterphe("Cassava"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyInterCassava = dataTableProxy('tblInterPheCassava')
+  
+  observeEvent(input$tblInterPheCassava_cell_edit, {
+    info = input$tblInterPheCassava_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterPheCassava[i, j] <<- DT::coerceValue(v, dtInterPheCassava[i, j])
+    replaceData(proxyInterCassava, dtInterPheCassava, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Common bean
+  output$tblInterPheCommon = renderDT(
+    datatable(
+      dtInterPheCommon <<- finterphe("Common bean"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyInterCommonbean = dataTableProxy('tblInterPheCommon')
+  
+  observeEvent(input$tblInterPheCommon_cell_edit, {
+    info = input$tblInterPheCommon_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterPheCommon[i, j] <<- DT::coerceValue(v, dtInterPheCommon[i, j])
+    replaceData(proxyInterCommonbean, dtInterPheCommon, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Maize
+  output$tblInterPheMaize = renderDT(
+    datatable(
+      dtInterPheMaize <<- finterphe("Maize"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyInterMaize = dataTableProxy('tblInterPheMaize')
+  
+  observeEvent(input$tblInterPheMaize_cell_edit, {
+    info = input$tblInterPheMaize_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterPheMaize[i, j] <<- DT::coerceValue(v, dtInterPheMaize[i, j])
+    replaceData(proxyInterMaize, dtInterPheMaize, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Potato
+  output$tblInterPhePotato = renderDT(
+    datatable(
+      dtInterPhePotato <<- finterphe("Potato"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyInterPotato = dataTableProxy('tblInterPhePotato')
+  
+  observeEvent(input$tblInterPhePotato_cell_edit, {
+    info = input$tblInterPhePotato_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterPhePotato[i, j] <<- DT::coerceValue(v, dtInterPhePotato[i, j])
+    replaceData(proxyInterPotato, dtInterPhePotato, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Rice
+  output$tblInterPheRice = renderDT(
+    datatable(
+      dtInterPheRice <<- finterphe("Rice"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyInterRice = dataTableProxy('tblInterPheRice')
+  
+  observeEvent(input$tblInterPheRice_cell_edit, {
+    info = input$tblInterPheRice_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterPheRice[i, j] <<- DT::coerceValue(v, dtInterPheRice[i, j])
+    replaceData(proxyInterRice, dtInterPheRice, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Sweetpotato
+  output$tblInterPheSweetpotato = renderDT(
+    datatable(
+      dtInterPheSweetpotato <<- finterphe("Sweetpotato"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyInterSweetpotato = dataTableProxy('tblInterPheSweetpotato')
+  
+  observeEvent(input$tblInterPheSweetpotato_cell_edit, {
+    info = input$tblInterPheSweetpotato_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterPheSweetpotato[i, j] <<- DT::coerceValue(v, dtInterPheSweetpotato[i, j])
+    replaceData(proxyInterSweetpotato, dtInterPheSweetpotato, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Wheat
+  output$tblInterPheWheat = renderDT(
+    datatable(
+      dtInterPheWheat <<- finterphe("Wheat"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyInterWheat = dataTableProxy('tblInterPheWheat')
+  
+  observeEvent(input$tblInterPheWheat_cell_edit, {
+    info = input$tblInterPheWheat_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterPheWheat[i, j] <<- DT::coerceValue(v, dtInterPheWheat[i, j])
+    replaceData(proxyInterWheat, dtInterPheWheat, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Other
+  output$tblInterPheOther = renderDT(
+    datatable(
+      dtInterPheOther <<- finterphe("Other"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyInterOther = dataTableProxy('tblInterPheOther')
+  
+  observeEvent(input$tblInterPheOther_cell_edit, {
+    info = input$tblInterPheOther_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterPheOther[i, j] <<- DT::coerceValue(v, dtInterPheOther[i, j])
+    replaceData(proxyInterOther, dtInterPheOther, resetPaging = FALSE, clearSelection = "none")
+  })
+  #### End Crop Phenology Intercrop ####
+  
+  ######## End Crop Phenology Ultima Version #########
+  
+  
+  
+  #### Start Weather Ultima version ####
+  output$uiWeatherTab2 <- renderUI({
+    DTOutput("tblWeather")
+  })
+  
+  fweather <- function(){
+    # crop_in <- input$cropCommonNameMono
+    # oth <- input$cropCommonNameMono_other
+    # 
+    # if (!is.null(crop_in) && crop_in != "Other") {
+    #   #aux <- dplyr::filter(dfmea, Crop == crop_in)
+    #   aux <- dfphe
+    # } else if(!is.null(crop_in) && crop_in == "Other") {
+    #   #aux <- dplyr::filter(dfmea, Crop == "Other")
+    #   aux <- dfphe
+    #   
+    #   if (oth != "") {
+    #     # aux$Crop <- oth
+    #     # aux
+    #     aux <- dfphe
+    #   } else {
+    #     aux
+    #   }
+    # } else {
+    #   aux <- dfphe[0,]
+    # }
+    dt<- weather_station_vars
+    colnames(dt) <- c("Crop", 
+                         "Group",
+                         "Subgroup",
+                         "Measurement",
+                         "TraitUnit",
+                         "Crop measurement per season",
+                         "Crop measurement per plot",
+                         "TraitAlias",
+                         "TraitDataType",
+                         "TraitValidation",
+                         "VariableId")
+    dt
+  }
+  
+  #dtWeather<- data.frame()
+  
+  output$tblWeather = renderDT(
+    datatable(
+      dtWeather <<- fweather(),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=F, targets=c(1,2,3,8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxyWeather = dataTableProxy('tblWeather')
 
+  observeEvent(input$tblWeather_cell_edit, {
+    info = input$tblWeather_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtWeather[i, j] <<- DT::coerceValue(v, dtWeather[i, j])
+    replaceData(proxyWeather, dtWeather, resetPaging = FALSE, clearSelection = "none")
+  })
+  #### End Weather Ultima version ####
+  
+  #### Start Soil Ultima version ####
+  output$uiSoilTab2 <- renderUI({
+    DTOutput("tblSoil")
+  })
+  
+  fsoil <- function(){
+    # crop_in <- input$cropCommonNameMono
+    # oth <- input$cropCommonNameMono_other
+    # 
+    # if (!is.null(crop_in) && crop_in != "Other") {
+    #   #aux <- dplyr::filter(dfmea, Crop == crop_in)
+    #   aux <- dfphe
+    # } else if(!is.null(crop_in) && crop_in == "Other") {
+    #   #aux <- dplyr::filter(dfmea, Crop == "Other")
+    #   aux <- dfphe
+    #   
+    #   if (oth != "") {
+    #     # aux$Crop <- oth
+    #     # aux
+    #     aux <- dfphe
+    #   } else {
+    #     aux
+    #   }
+    # } else {
+    #   aux <- dfphe[0,]
+    # }
+    dt<- soil_data
+    colnames(dt) <- c("Crop", 
+                             "Group",
+                             "Subgroup",
+                             "Measurement",
+                             "TraitUnit",
+                             "Crop measurement per season",
+                             "Crop measurement per plot",
+                             "TraitAlias",
+                             "TraitDataType",
+                             "TraitValidation",
+                             "VariableId")
+    dt
+  }
+  
+  output$tblSoil = renderDT(
+    datatable(
+      dtSoil <<- fsoil(),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=F, targets=c(1,2,3,8,9,10,11)))
+      )
+    ) %>% formatStyle(
+      c("Crop measurement per season", "Crop measurement per plot"),
+      backgroundColor = ("lightblue")
+    )
+  )
+  
+  proxySoil = dataTableProxy('tblSoil')
+  
+  observeEvent(input$tblSoil_cell_edit, {
+    info = input$tblSoil_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtSoil[i, j] <<- DT::coerceValue(v, dtSoil[i, j])
+    replaceData(proxySoil, dtSoil, resetPaging = FALSE, clearSelection = "none")
+  })
+  #### End Soil Ultima version ####
+ 
   ### start crop measurement 1 ###
 
   traitsVals <- reactiveValues()
@@ -7783,13 +8666,13 @@ server_design_agrofims <- function(input, output, session, values){
   expCondsVars$ids_harvest <- c()
 
   observeEvent(input$croppingType,{
-    
+
     if(input$croppingType == "Monocrop"){
       removeTab(inputId = "fbDesignNav",target = "Crop_Measurement_intercrop")
       removeTab(inputId = "fbDesignNav",target = "Crop_Phenology_intercrop")
-      
+
       insertTab(inputId = "fbDesignNav",
-                tabPanel("Crop Measurement",  value = "Crop_Measurement_monocrop", icon = shiny::icon("leaf"), 
+                tabPanel("Crop Measurement",  value = "Crop_Measurement_monocrop", icon = shiny::icon("leaf"),
                          column(width = 12,
                                 h2("Crop measurement"),
                                 p(class = "text-muted", style="text-align:justify",
@@ -7814,7 +8697,7 @@ server_design_agrofims <- function(input, output, session, values){
                                 ),
                                 #column(12, align = "center", checkboxInput("dt_sel", "Select all"))
                                 DTOutput('phenoDT')
-                                
+
                          )#,
                          #DTOutput('phenoDT')
                 ),
@@ -7824,36 +8707,36 @@ server_design_agrofims <- function(input, output, session, values){
       isolate(removeAgroBoxesIntercrop())
       isolate(drawAgroBoxes(1))
       shinyjs::show(id="addHarvest")
-      
+
     }
     else if(input$croppingType == "Intercrop"){
-      
+
       removeTab(inputId = "fbDesignNav",target = "Crop_Measurement_monocrop")
       removeTab(inputId = "fbDesignNav",target = "Crop_Phenology_monocrop")
-    
-      
+
+
       isolate(ids <- intercropVars$ids)
       tt <- unlist(strsplit(ids[1],"_"))
-      
+
       insertTab(inputId = "fbDesignNav",
              tabPanel("Crop Measurement",  value = "Crop_Measurement_intercrop", icon = shiny::icon("leaf"),
                       column(12, h2("Crop Measurement"),
                       tabsetPanel( id= "intercropMeasuTabs",
-                                   tabPanel(title = textOutput(paste0("intercrop_tab_measu_title_",tt[2])), value = paste0("intercrop_tab_measu_",tt[2]), 
+                                   tabPanel(title = textOutput(paste0("intercrop_tab_measu_title_",tt[2])), value = paste0("intercrop_tab_measu_",tt[2]),
                                             br(),
                                             column(12,DTOutput(paste0("crop_measurement_table_", tt[2])))
                                    )
                       ))
-                      
+
              ),
             position =  "after",
             target = "tabAgroFeat")
-      
+
       insertTab(inputId = "fbDesignNav",
               tabPanel("Crop Phenology",  value = "Crop_Phenology_intercrop", icon = shiny::icon("envira"),
                        column(12, h2("Crop Phenology"),
-                        tabsetPanel( id= "intercropPhenoTabs", 
-                                     tabPanel(title = textOutput(paste0("intercrop_tab_pheno_title_",tt[2])), value = paste0("intercrop_tab_pheno_",tt[2]), 
+                        tabsetPanel( id= "intercropPhenoTabs",
+                                     tabPanel(title = textOutput(paste0("intercrop_tab_pheno_title_",tt[2])), value = paste0("intercrop_tab_pheno_",tt[2]),
                                               br(),
                                               column(12,renderDataTable(pheno_vars , options = list(lengthChange = FALSE)))
                                      )
@@ -7861,7 +8744,7 @@ server_design_agrofims <- function(input, output, session, values){
                ),
               position =  "after",
               target = "Crop_Measurement_intercrop")
-      
+
      isolate(drawTabsIntercrop(ids))
      isolate(removeAgroBoxesMonocrop())
      expCondsVars$ids_harvest <- c()
@@ -9661,34 +10544,93 @@ server_design_agrofims <- function(input, output, session, values){
    
   #Residue management ###############################################################
   dt_residual<- reactive({
-    
-    #ai<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
-    #input<-readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
-    dt1 <- get_ec_resdesc(input=input)         
-    dt2 <- get_ec_resmgt(input=input) 
-    dt <- cbind(dt1,dt2) #column bind of two sub tabs (description and management)
-    if(nrow(fbdesign())==0){
-      dt <- dt
-    }else {
-      dt <-cbind(fbdesign() ,dt)
-    }
-    dt
-  })
+     
+     #ai<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+     #input<-readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+     
+     if(isTRUE(input$residueDesc_checkbox)){
+       dt1 <- get_ec_resdesc(input=input)         
+     }else {
+       dt1 <- data.frame()
+     }
+     
+     if(isTRUE(input$residueManag_checkbox)){
+       dt2 <- get_ec_resmgt(input=input) 
+     } else{
+       dt2 <- data.frame()
+     }
+     dt <- dplyr::bind_cols(dt1,dt2) #column bind of two sub tabs (description and management)
+     if(nrow(fbdesign())==0 &&  length(dt)>0){
+       dt <- dt
+     } else if(nrow(fbdesign())>0 &&  length(dt)>0 ) {
+       dt <- cbind(fbdesign(), dt)
+     } else{
+       dt<- data.frame()
+     }
+     dt
+   })
+   
+  # dt_residual<- reactive({
+  #   
+  #   #ai<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
+  #   #input<-readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
+  #   dt1 <- get_ec_resdesc(input=input)         
+  #   dt2 <- get_ec_resmgt(input=input) 
+  #   dt <- cbind(dt1,dt2) #column bind of two sub tabs (description and management)
+  #   if(nrow(fbdesign())==0){
+  #     dt <- dt
+  #   }else {
+  #     dt <-cbind(fbdesign() ,dt)
+  #   }
+  #   dt
+  # })
   
   #seedbed preparation  #############################################################
-  dt_seedbed <- reactive({
-    land <- get_ec_sblalv(input=input)
-    pud<- get_ec_sbpud(input= input)
-    till<- get_ec_sbtill(input=input)
-    dt<- cbind(land,pud,till)
-    if(nrow(fbdesign())==0){
-      dt <- dt
-    }else {
-      dt <-cbind(fbdesign() ,dt)
-    }
-    dt
-    
-  })
+   dt_seedbed <- reactive({
+     
+     if(isTRUE(input$landLevelling_checkbox)){
+       land <- get_ec_sblalv(input=input)
+     } else{
+       land <- data.frame()  
+     }
+     
+     if(isTRUE(input$puddling_checkbox)){
+       pud<- get_ec_sbpud(input= input)
+     } else{
+       pud<- data.frame()
+     }
+     
+     if(isTRUE(input$tillage_checkbox)){
+       till<- get_ec_sbtill(input=input)
+     } else {
+       till<- data.frame()
+     }
+     
+     dt<- dplyr::bind_cols(land,pud,till)
+     
+     if(nrow(fbdesign())==0 && length(dt)>0){
+       dt <- dt
+     } else if( nrow(fbdesign())>0 && length(dt)>0 ) {
+       dt <- cbind(fbdesign(), dt)
+     } else {
+       dt <- data.frame()
+     }
+     dt
+   })
+   
+  # dt_seedbed <- reactive({
+  #   land <- get_ec_sblalv(input=input)
+  #   pud<- get_ec_sbpud(input= input)
+  #   till<- get_ec_sbtill(input=input)
+  #   dt<- cbind(land,pud,till)
+  #   if(nrow(fbdesign())==0){
+  #     dt <- dt
+  #   }else {
+  #     dt <-cbind(fbdesign() ,dt)
+  #   }
+  #   dt
+  #   
+  # })
 
   ## Soil Fertility
   dt_soilFertility <- reactive({
@@ -9718,14 +10660,17 @@ server_design_agrofims <- function(input, output, session, values){
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
     
     if(ct=="Monocrop"){
-       dt<- get_ec_plantrans(AllInputs())
-      if(nrow(fbdesign())==0){
+      dt<- get_ec_plantrans(allinputs = AllInputs(), input = input)
+      if(nrow(fbdesign())==0 && length(dt)>0){
         dt <- dt
+      } else if( nrow(fbdesign())>0 && length(dt)>0 ) {
+        dt <- cbind(fbdesign(), dt)
       } else {
-        dt <-cbind(fbdesign() ,dt)
+        dt <- data.frame()
       }
+      
     } else {
-   
+      
       id_rand_inter <- getAddInputId(intercropVars$ids, "IC_", "") 
       circm <- map_values(input, id_chr="cropCommonNameInter_",id_rand_inter, format = "vector", lbl= "Select crop")
       dt<- get_ec_plantrans_inter(allinputs=AllInputs(), addId= id_rand_inter, circm)
@@ -9743,7 +10688,42 @@ server_design_agrofims <- function(input, output, session, values){
     
     dt  
   })
- 
+  
+  
+  
+  # dt_plantrans <- reactive({
+  #   
+  #   ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
+  #   
+  #   if(ct=="Monocrop"){
+  #      dt<- get_ec_plantrans(AllInputs())
+  #     if(nrow(fbdesign())==0){
+  #       dt <- dt
+  #     } else {
+  #       dt <-cbind(fbdesign() ,dt)
+  #     }
+  #   } else {
+  #  
+  #     id_rand_inter <- getAddInputId(intercropVars$ids, "IC_", "") 
+  #     circm <- map_values(input, id_chr="cropCommonNameInter_",id_rand_inter, format = "vector", lbl= "Select crop")
+  #     dt<- get_ec_plantrans_inter(allinputs=AllInputs(), addId= id_rand_inter, circm)
+  #     
+  #     #Join fbdesign with harvest header of each crop for intercrop trials
+  #     for(j in 1:length(dt)){
+  #       if(nrow(fbdesign())==0){
+  #         dt[[ circm[j] ]] <- dt[[ circm[j] ]]
+  #       }else {
+  #         dt[[ circm[j] ]] <-cbind(fbdesign() ,dt[[ circm[j] ]] )
+  #       }
+  #     }
+  #     
+  #   }
+  #   
+  #   dt  
+  # })
+  # 
+  
+  
   #'TODO Mulching and residue ############################################################
   dt_mulching <- reactive({
     
@@ -9769,7 +10749,12 @@ server_design_agrofims <- function(input, output, session, values){
     dt
     
   })
- 
+  ns_irrigation <- reactive({
+    addId <- getAddInputId(addId = expCondsVars$ids_irri, "ECIR_", "")
+    ns <- get_ns(addId)
+    ns
+  })
+  
   ## Weeding #########################################################################
   dt_weeding <- reactive({
    
@@ -9783,7 +10768,13 @@ server_design_agrofims <- function(input, output, session, values){
     dt 
     
    })
-
+  ns_weeding<- reactive({
+    addId <- getAddInputId(addId = expCondsVars$ids_weed, "ECWE_", "")
+    ns <- get_ns(addId)
+    ns
+  })
+  
+  
   ### Harvest  ######################################################################
   dt_harvest <- reactive({
     
@@ -9817,7 +10808,16 @@ server_design_agrofims <- function(input, output, session, values){
      dt
      
   })
-  
+  ns_harvest <- reactive({
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
+    if(ct=="Monocrop"){
+      addId <- getAddInputId(addId = expCondsVars$ids_harvest, "HARV_", "")
+       ns<- get_ns(addId)
+     }else{
+       ns <- 1
+     }
+    ns
+  }) 
   
   ################################End agrofeatures ###################################
 
@@ -9826,81 +10826,55 @@ server_design_agrofims <- function(input, output, session, values){
   
   ##phenology  ############################################
   pheno_dt <- reactive({
-   
-      row_select <- input$phenoDT_rows_selected
-      a<- pheno_vars[row_select, ]
-      if(nrow(a)>0){
-        #a<- a[, c("Level", "Sublevel")]
-        #a<- a[, c("Measurement", "TraitUnit")]
-        a <- a
-      } else {
-        a <- data.frame(Measurement = "", TraitUnit = "", TraitAlias = "",
-                         TraitDataType = "", TraitValidation ="", VariableId= "")
-        
-      } 
-      a
-      
+
+    row_select <- input$tblMonoPhe_rows_selected
+    dt <- dtMonocropphe[row_select, ]
+    lbl <- dt$Measurement
+
+    if(length(lbl)==0 && nrow(dt)==0){
+      dt <- data.frame()
+    } else if(nrow(fbdesign())==0 && length(lbl)>=1){
+      dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
+      names(dt) <- lbl
+    } else if(nrow(fbdesign())>0 && length(lbl)>=1) {
+      dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
+      names(dt) <- lbl
+      dt <-cbind(fbdesign() ,dt)
+    }
+    dt
+
   })
-  
+
   ##reactive weather   ####################################
   weather_dt <- reactive({
     
-   # a1 <- data.frame(Measurement = "NoValue", TraitUnit = NA, TraitAlias = NA,
-   #                  TraitDataType = NA, TraitValidation =NA, VariableId= NA)
-   a2 <- data.frame(Measurement = "NoValue", TraitUnit = NA,TraitAlias = NA,
-                    TraitDataType = NA, TraitValidation =NA, VariableId= NA)
-   #a1 <- a2 <- data.frame()
+    #wstation<- weather_station_vars #%>% dplyr::select(Measurement, Unit)
+    #ww<- dtWeather
+    row_select <- input$tblWeather_rows_selected
+    ww<- dtWeather[row_select, ]
     
-   # if(!is.null(input$manualMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
-   #    if(input$manualMeasurement_checkbox==TRUE){
-   #     #mstation <-  #dplyr::filter(weather_vars, Group == "Manual measurement") %>% dplyr::select(Variable, Unit)
-   #     manual_weather <- weather_manual_vars #%>% dplyr::select(Measurement, Unit)
-   #     row_select <- input$weatherManualDT_rows_selected
-   #     a1 <- manual_weather[row_select, ]
-   #     if(nrow(a1)>0){
-   #       a1 <- a1#[, c("Measurement", "Unit")]
-   #     } else {
-   #       a1 <- data.frame(Measurement = "", TraitUnit = "", TraitAlias = "",
-   #                        TraitDataType = "", TraitValidation ="", VariableId= "")
-   #       
-   #     }
-   #     #a1 <- a1 %>% dplyr::filter(Measurement!="NoValue")  
-   #     a1
-   #     
-   #    } 
-   #   
-   # } 
-   # 
-   #if(!is.null(input$stationMeasurement_checkbox)){ #!is.null: when users do not click on Weather tab
-    #if(input$stationMeasurement_checkbox==TRUE){
-     #wstation <- dplyr::filter(weather_vars, Group == "Weather station") %>% dplyr::select(Variable, Unit)
-     wstation<- weather_station_vars #%>% dplyr::select(Measurement, Unit)
-        
-     row_select <- input$weatherStationDT_rows_selected
-     a2<- wstation[row_select, ]
-     if(nrow(a2)>0){
-       a2<- a2#[, c("Measurement", "Unit")]
-     } else {
-       a2 <- data.frame(Measurement = "", TraitUnit = "", TraitAlias = "",
-                        TraitDataType = "", TraitValidation ="", VariableId= "")
-       
-     }
-     print("entro 21")
-     a2 <- a2
-    #} 
-   #} 
-   
-   #dt<- rbind(a1,a2)
-   dt<- a2 #rbind(a2)
-   dt <- dt %>% dplyr::filter(Measurement!="NoValue")  
-   dt
+    if(nrow(ww)>0){
+      #a2<- a2#[, c("Measurement", "Unit")]
+      ww<- ww$Measurement
+      m <- data.frame(matrix("", ncol = length(ww), nrow = 1),stringsAsFactors = FALSE)
+      names(m)<-ww
+      ww<-m
+    } else {
+      # a2 <- data.frame(Measurement = "", TraitUnit = "", TraitAlias = "",
+      #                  TraitDataType = "", TraitValidation ="", VariableId= "")
+      ww <-  data.frame() #data.frame()
+    }
+    #print("entro 21")
+    dt <- ww
+    
   })
+  
   
   ##reactive soil  ########################################
   soil_dt<- reactive({
     
-    row_select <- input$soilDT_rows_selected
-    dt <- soil_data[row_select,  ]
+    row_select <- input$tblSoil_rows_selected
+    dt <- dtSoil[row_select,  ] #soil_data[row_select,  ]
     lbl <- dt$Measurement
 
     if(length(lbl)==0){
@@ -9990,12 +10964,12 @@ server_design_agrofims <- function(input, output, session, values){
     #Crop Type
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
     #Table
-    ctd <- map_singleform_values(input$croppingType, type = "combo box", format = "data.frame", "Cropping type") 
+    ctd <- map_singleform_values(input$croppingType,  type = "combo box", format = "data.frame", "Cropping type") 
     
     #Crop
     #TODO: saber como hacer match entre la tabla circm y cirvar.
     if(ct=="Monocrop"){
-      crp <- map_singleform_values(input$cropCommonNameMono, type= "combo box", format = "data.frame",label = "Crop")
+      crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "data.frame",label = "Crop")
       var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
       out <- rbind(ctd, crp, var)
     }
@@ -10312,15 +11286,34 @@ server_design_agrofims <- function(input, output, session, values){
     
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
     if(ct=="Monocrop"){
-      if(nrow(traitsVals$Data) >0){
-        a<- traitsVals$Data
-        row_select <- input$dt_rows_selected
+      a<- dtMonocrop #fg()
+      colnames(a) <- c("Crop","Group","Subgroup","Measurement",
+                           "TraitUnit","CropMeasurementPerSeason",
+                           "CropMeasurementPerPlot","TraitAlias",
+                           "TraitDataType","TraitValidation","VariableId")
+
+      if(nrow(a) >0){
+        #a<- traitsVals$Data
+        #a <- fg()
+        #row_select <- input$dt_rows_selected
+        row_select <- input$tblMono_rows_selected
         row_select <- sort(row_select)
         #aux_dt <- dplyr::filter(traitsVals$Data, Status=="Selected")
         aux_dt<- a[row_select,]
         #Remove Status column
         aux_dt$Status <- NULL
+        
+        #Place TraitName in traits_dt()
+        cr<- aux_dt$Crop
+        sb<- aux_dt$Subgroup
+        cm <- aux_dt$Measurement
+        sc <- aux_dt$TraitUnit
+        sc[is.na(sc)] <- "unitless"
+        cs <- paste(cr,sb, cm, sc, sep="_")
+        aux_dt$TraitName <- cs
+        # Asign final trait_dt to a  
         a<- aux_dt
+        
       }
     } 
     else {
@@ -10365,7 +11358,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     sc[is.na(sc)] <- "unitless"
     #co <- trait$VariableId
-    cs <- paste(cr,sb, cm, sc, sep="-")
+    cs <- paste(cr,sb, cm, sc, sep="_")
     
     #trait_selected <- trait_agrofims() %>% as.data.frame(stringsAsFactors =FALSE) #unlist(shinyTree::get_selected(input$designFieldbook_traits_agrofims))
     trait_selected <- cs
@@ -10455,8 +11448,11 @@ server_design_agrofims <- function(input, output, session, values){
      content = function(file) {
 
        withProgress(message = 'Downloading fieldbook', value = 0, {
-
-         #print(expCondsVars$ids_irri)
+        
+         # print("mono con f")
+         # print(fmono())
+         # print("dt mono")
+         # print(dtMonocrop)
          
          # ai <- AllInputs()
          # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
@@ -10490,13 +11486,10 @@ server_design_agrofims <- function(input, output, session, values){
                                  colNames = TRUE, withFilter = FALSE)
          print("inicio4")
        
-         #pl <<-fbdesign_inter_traits()
-         
-         
          #Cropping type
          ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
          
-         #Fieldbook design sheet  ------------------------------------------
+         #FIELDBOOK design sheet  ------------------------------------------
          if(ct=="Monocrop"){
          incProgress(7/20,message = "Adding fieldbook data...")
          openxlsx::addWorksheet(wb, "Fieldbook", gridLines = TRUE)
@@ -10515,22 +11508,30 @@ server_design_agrofims <- function(input, output, session, values){
            }
          }
          
-         
          #Experimental conditions
          if(is.element("Residue management",input$selectAgroFeature)){
          print("Adding residue management")
-         incProgress(7/20,message = "Adding residue management")
-         openxlsx::addWorksheet(wb, "Residue management", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Residue management", x = dt_residual(),
-                                 colNames = TRUE, withFilter = FALSE)
+           
+           #print(dt_residual())
+           
+           if(nrow(dt_residual())!=0){
+             incProgress(7/20,message = "Adding residue management")
+             openxlsx::addWorksheet(wb, "Residue management", gridLines = TRUE)
+             openxlsx::writeDataTable(wb, "Residue management", x = dt_residual(),
+                                      colNames = TRUE, withFilter = FALSE)
+           }   
          }
          
          if(is.element(el = "Seedbed preparation", set = input$selectAgroFeature)){
-         print("Adding seedbed sheet")
-         incProgress(7/20,message = "Adding Seedbed preparation sheet")
-         openxlsx::addWorksheet(wb, "Seedbed preparation", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Seedbed preparation", x = dt_seedbed(),
-                                  colNames = TRUE, withFilter = FALSE)
+         
+           if(nrow(dt_seedbed())!=0){
+             print("Adding seedbed sheet")
+             incProgress(7/20,message = "Adding Seedbed preparation sheet")
+             openxlsx::addWorksheet(wb, "Seedbed preparation", gridLines = TRUE)
+             openxlsx::writeDataTable(wb, "Seedbed preparation", x = dt_seedbed(),
+                                      colNames = TRUE, withFilter = FALSE)
+           }  
+          
          }
          
          if(is.element("Soil fertility",input$selectAgroFeature)){
@@ -10546,15 +11547,15 @@ server_design_agrofims <- function(input, output, session, values){
           
          if(is.element("Planting and transplanting",input$selectAgroFeature)){
            
-         if(ct=="Monocrop"){  
+         if(ct=="Monocrop"){ 
          print("Adding planting")
-         incProgress(7/20,message = "Adding planting and transplating")
-         openxlsx::addWorksheet(wb, "Planting_transplating", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Planting_transplating", x = dt_plantrans(),
-                                  colNames = TRUE, withFilter = FALSE)
-         
+             if(nrow(dt_plantrans())!=0){
+             incProgress(7/20,message = "Adding planting and transplating")
+             openxlsx::addWorksheet(wb, "Planting_transplating", gridLines = TRUE)
+             openxlsx::writeDataTable(wb, "Planting_transplating", x = dt_plantrans(),
+                                      colNames = TRUE, withFilter = FALSE)
+             }
          } else {
-          
            #TODO: 
            #-Show error when one crop is missing
            id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")  
@@ -10577,7 +11578,7 @@ server_design_agrofims <- function(input, output, session, values){
         
          
          if(is.element("Mulch management",input$selectAgroFeature)){
-          print("Adding Mulching") 
+         print("Adding Mulching") 
          incProgress(7/20,message = "Adding mulching sheet")
          openxlsx::addWorksheet(wb, "Mulch_management", gridLines = TRUE)
        
@@ -10639,19 +11640,25 @@ server_design_agrofims <- function(input, output, session, values){
          
          ### HIDE----------------------------------------------------------------------
          
+         #PHENOLOGY SHEET ------------------------------------------------------------
          if(ct=="Monocrop"){
          print("inicio8")
-         openxlsx::addWorksheet(wb, "Phenology", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Phenology", x = pheno_dt(),
-                                  colNames = TRUE, withFilter = FALSE)
+         if(nrow(pheno_dt())!=0){   
+           openxlsx::addWorksheet(wb, "Phenology", gridLines = TRUE)
+           openxlsx::writeDataTable(wb, "Phenology", x = pheno_dt(),
+                                    colNames = TRUE, withFilter = FALSE)
+          }
+         }else{
+           #FOR INTERCROP PHENOLOGY
          }
-         # 
+         print("inicio9")
+         # WEATHER SHEET ------------------------------------------------------------ 
          if(nrow(weather_dt())!=0){
          openxlsx::addWorksheet(wb, "Weather", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Weather", x = weather_dt(),
                                   colNames = TRUE, withFilter = FALSE)
          }
-         # 
+         #SOIL SHEET ------------------------------------------------------------ 
          print("inicio10")
          if(nrow(soil_dt())!=0){
            openxlsx::addWorksheet(wb, "Labbook", gridLines = TRUE)
@@ -10662,129 +11669,201 @@ server_design_agrofims <- function(input, output, session, values){
          #dtl: data for trai list sheet/table
          print("inicio11")
          
-         # print("inicio7")
+         # CROP MEASUREMENT TRAIT LIST ---------------------------------------
+         #print(traits_dt())
          if(ct=="Monocrop"){
-           cm_tl <- data.table(traits_dt())
-           cm_tl<- ec_clean_header(cm_tl) #remove foo headers
-         } else {
+           row_sel<- input$tblMono_rows_selected
+            if(length(row_sel)>0){
+              print(dtMonocrop[row_sel,])
+              row_sel<- sort(row_sel)
+              cm_tl <- dtMonocrop[row_sel,]
+              
+              
+              colnames(cm_tl) <- c("Crop","Group","Subgroup","Measurement",
+                               "TraitUnit","CropMeasurementPerSeason",
+                               "CropMeasurementPerPlot","TraitAlias",
+                               "TraitDataType","TraitValidation","VariableId")
+              
+              cr<- cm_tl$Crop
+              sb<- cm_tl$Subgroup
+              cm <- cm_tl$Measurement
+              sc <- cm_tl$TraitUnit
+              sc[is.na(sc)] <- "unitless"
+              cs <- paste(cr,sb, cm, sc, sep="_")
+              cm_tl$TraitName <- cs
+              cm_tl <- cm_tl
+              #print(dtMonocrop[row_sel,])
+              #cm_tl <- traits_dt()
+              #cm_tl<- ec_clean_header(cm_tl) #remove foo headers
+            } else{
+              cm_tl<- data.frame()
+            }
+         } else { #intecrop
            #kl<<- traits_dt()
            cm_tl <- rbindlist(traits_dt())
            cm_tl <- ec_clean_header(cm_tl)
          }
-         
-        
-         
+     
          # 
-         #Soil for TraitList sheet/data
+         # SOIL MEASUREMENT FOR TRAIT LIST  -----------------------------------------------
          if(nrow(soil_dt())!=0){
-           row_select <- input$soilDT_rows_selected
-           dt <- soil_data[row_select,  ]
+           #row_select <- input$soilDT_rows_selected
+           #dt <- soil_data[row_select,  ]
+           row_select <- input$tblSoil_rows_selected
+           row_select<- sort(row_select)
+           dt <- dtSoil[row_select, ]
            soil_tl <- data.table(dt)
+           colnames(soil_tl) <- c("Crop","Group","Subgroup","Measurement",
+                                "TraitUnit","CropMeasurementPerSeason",
+                                "CropMeasurementPerPlot","TraitAlias",
+                                "TraitDataType","TraitValidation","VariableId")
            #soil_tl <- data.table(soil_dt())
            soil_tl$Group <- "Soil"
+           #soil_tl$CropMeasurementPerSeason <-	soil_tl$CropMeasurementPerPlot <- 1
          } else{
            soil_tl <- data.frame()
          }
 
-         #Weather for TraitList sheet/data
-         pl<<- weather_dt()
-         
+         # WEATHER TRAIT LIST ---------------------------------------------------------
          if(nrow(weather_dt())!=0){
            print("entro wheater")
-           w_tl<- data.table(weather_dt())
+           #w_tl<- dtWeather
+           row_select <- input$tblWeather_rows_selected
+           row_select<- sort(row_select)
+           w_tl<-  dtWeather[row_select, ]
+           
+           colnames(w_tl) <- c("Crop","Group","Subgroup","Measurement",
+                                  "TraitUnit","CropMeasurementPerSeason",
+                                  "CropMeasurementPerPlot","TraitAlias",
+                                  "TraitDataType","TraitValidation","VariableId")
+           #w_tl<- data.table(weather_dt())
            w_tl$Group <- "Weather"
          } else{
-            w_tl<- data.frame()
+           w_tl<- data.frame()
          }
+         
          # 
-         #Phenology for TraitList sheet/data
-         print("inicio13")
-         if(nrow(pheno_dt())!=0){
-           ph_tl<- data.table(pheno_dt())
-         } else{
+         # PHENOLOGY TRAIT LIST ---------------------------------------------------------
+          print("pheno trait list")
+          if(nrow(pheno_dt())!=0){
+           row_select <- input$tblMonoPhe_rows_selected
+           row_select<- sort(row_select)
+           dt <- dtMonocropphe[row_select, ]
+           dt <- ec_clean_header(dt)
+           ph_tl <- dt
+           #ph_tl<- data.table(pheno_dt())
+           } else{
            ph_tl <- data.frame()
          }
-         # 
+         # Experiment conditon Trait List ----- 
+         
          ##Consolidation of crop measurement, soil, weather amd phenology data
          print("inicio14")
          l_lt <- list(cm_tl, soil_tl, w_tl, ph_tl)
+         #l_lt <- list(cm_tl, soil_tl, w_tl)
          dt_kds<- rbindlist(l_lt, fill = TRUE)
-         # 
+        
+         print("inicio 14.1")
+         print(head(dt_kds))
+         
          # #Remove foo columns
          # print("inicio15")
+         print("inicio15")
          dt_kds<- ec_clean_header(dt_kds)
          # 
          if(is.element("Residue management",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-           kds_resmgt <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),sheet = "Residue management")
+           kds_resmgt <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_27-2-2019.xlsx"),sheet = "Residue management")
+           kds_resmgt <- ec_filter_data(kds_resmgt) 
            kds_resmgt <- data.table(kds_resmgt)
-           dt_kds<-rbindlist(list(dt_kds,kds_resmgt),fill = TRUE,use.names = TRUE)
+           dt_kds<-rbindlist(list(dt_kds,kds_resmgt),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
          if(is.element("Seedbed preparation",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-           kds_sedbed <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+           kds_sedbed <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_27-2-2019.xlsx"),
                                             sheet = "Seedbed preparation")
+           kds_sedbed <- ec_filter_data(kds_sedbed)
            kds_sedbed <- data.table(kds_sedbed)
-           dt_kds<-rbindlist(list(dt_kds,kds_sedbed),fill = TRUE,use.names = TRUE)
+           dt_kds<-rbindlist(list(dt_kds,kds_sedbed),fill = TRUE)
            dt_kds <- ec_clean_header(dt_kds)
          }
          if(is.element("Soil fertility",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-           kds_soilf<- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+           kds_soilf<- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_27-2-2019.xlsx"),
                                           sheet = "Soil fertility")
+           kds_soilf <- ec_filter_data(kds_soilf)
+           kds_sedbed <- data.table(kds_sedbed)
            kds_soilf <- data.table(kds_soilf)
-           dt_kds<-rbindlist(list(dt_kds,kds_soilf),fill = TRUE,use.names = TRUE)
+           dt_kds<-rbindlist(list(dt_kds,kds_soilf),fill = TRUE)
            dt_kds<-ec_clean_header(dt_kds)
          }
          if(is.element("Planting and transplanting",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-           kds_platra <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+           kds_platra <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_27-2-2019.xlsx"),
                                             sheet = "Planting, Transplanting")
+           kds_platra <- ec_filter_data(kds_platra)
            kds_platra <- data.table(kds_platra)
-           dt_kds<-rbindlist(list(dt_kds,kds_platra),fill = TRUE,use.names = TRUE)
+           dt_kds<-rbindlist(list(dt_kds,kds_platra),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
          if(is.element("Mulch management",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-           kds_mulch <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+           kds_mulch <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_27-2-2019.xlsx"),
                                            sheet = "Mulch management")
+           kds_mulch <- ec_filter_data(kds_mulch)
            kds_mulch <- data.table(kds_mulch)
-           dt_kds<-rbindlist(list(dt_kds,kds_mulch),fill = TRUE,use.names = TRUE)
+           dt_kds<-rbindlist(list(dt_kds,kds_mulch),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
          if(is.element("Irrigation",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-           kds_irri <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+           kds_irri <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_27-2-2019.xlsx"),
                                           sheet = "Irrigation")
+           kds_irri <- ec_filter_data(kds_irri)
+           kds_irri$CropMeasurementPerSeason <- ns_irrigation()
            kds_irri <- data.table(kds_irri)
-           dt_kds<-rbindlist(list(dt_kds,kds_irri),fill = TRUE,use.names = TRUE)
+           dt_kds<-rbindlist(list(dt_kds,kds_irri),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
          if(is.element("Weeding",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-           kds_weed <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+           kds_weed <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_27-2-2019.xlsx"),
                                           sheet = "Weeding")
+           kds_weed <- ec_filter_data(kds_weed)
+           kds_weed$CropMeasurementPerSeason <- ns_weeding()
            kds_weed <- data.table(kds_weed)
-           dt_kds<-rbindlist(list(dt_kds,kds_weed),fill = TRUE,use.names = TRUE)
+           dt_kds<-rbindlist(list(dt_kds,kds_weed),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
          if(is.element("Harvest",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-           kds_harv <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_13-2-2019.xlsx"),
+           kds_harv <- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_27-2-2019.xlsx"),
                                           sheet = "Harvest")
+           kds_harv <- ec_filter_data(kds_harv) 
            kds_harv <- data.table(kds_harv)
-           dt_kds<-rbindlist(list(dt_kds,kds_harv),fill = TRUE,use.names = TRUE)
+           kds_harv$CropMeasurementPerSeason <- ns_harvest()  
+           dt_kds<-rbindlist(list(dt_kds,kds_harv),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
-
-         # Select the nex columns :
-         lbl_trait_dt<- c('Crop','Group','Subgroup','Measurement','Measurement_2',
-                         'Measurement_3', 'TraitUnit', 'TraitAlias','TraitDataType',
-                         'TraitValidation', 'VariableId')
-         dt_kds <- dt_kds[,lbl_trait_dt]
-
+         
          print("inicio16")
+         # Select the nex columns :
+         # lbl_trait_dt<- c('Crop','Group','Subgroup','Measurement','Measurement_2',
+         #                 'Measurement_3', 'TraitUnit', 'TraitAlias','TraitDataType',
+         #                 'TraitValidation', 'VariableId')
+         lbl_traitlist_dt <- c("Crop","Group","Subgroup","Measurement","TraitName",
+                             "TraitUnit","CropMeasurementPerSeason",
+                             "CropMeasurementPerPlot","TraitAlias",
+                             "TraitDataType","TraitValidation","VariableId")
+         
+         
+         dt_kds <- dt_kds[,lbl_traitlist_dt]
+         dt_kds<- changes_units(ec=dt_kds, input, allinputs= AllInputs())
+         
+         #omar<<- dt_kds  
+         
+         print("inicio17")
          #dt_kds<- ec_clean_header(dt_kds)
          openxlsx::addWorksheet(wb, "TraitList", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "TraitList", x = dt_kds,
@@ -10792,7 +11871,7 @@ server_design_agrofims <- function(input, output, session, values){
 
         
          ### END HIDE----------------------------------------------------------
-          
+         print("inicio18")  
          incProgress(19/20,message = "Downloading file...")
          saveWorkbook(wb, file = fname , overwrite = TRUE)
          file.rename(fname, file)

@@ -1,7 +1,7 @@
 
 get_ec_mulching <- function(allinputs){
   
-   allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+  #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
   # input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
   
   mu <- allinputs %>% filter(!str_detect(id, "button")) %>%
@@ -64,19 +64,19 @@ get_ec_mulching <- function(allinputs){
   dt<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
   
   #Labels
-  lbl <- c("Start_date", "Mulch_Type", 
+  lbl <- c("Mulch_start_date", "Mulch_type", 
            paste0("Mulch_thickness_", mthick_unit$values),
-           paste0("Mulch_amoun_t",mamount_unit$values),
-           "Mulch color", 
-           paste0("Mulch_Percentage_of_coverage_",mper_unit$values),
+           paste0("Mulch_amount_",mamount_unit$values),
+           "Mulch_color", 
+           paste0("Mulch_percentage_of_coverage_",mper_unit$values),
            "Mulch_removal_start_date", 
            "Mulch_removal_end_date",
-           "Notes",
-           "Mulch_Implement_Type",
-           "Mulch_Implement_Traction"
+           "Mulch_notes",
+           "Mulch_implement_type",
+           "Mulch_implement_traction"
            )
   
-  
+  #TODO : AGREGAR END DATE "Mulch_end_date"
   names(dt) <- lbl
   dt
   

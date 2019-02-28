@@ -39,7 +39,7 @@ get_ec_resdesc <- function(input, lbl){
             paste0("Residue_management_crop_residue_thickness_",r_thick_unit),
             paste0("Residue_management_crop_residue_amount_",r_amount_unit),
             "Residue_management_crop_residue_percent_of_coverage", 
-            "Residue_management_residue_description_Notes")
+            "Residue_management_residue_description_notes")
   
   dt <- data.frame(plantp, cmoi, r_thick, r_amount, r_cov,  r_notes, stringsAsFactors = FALSE)
  
@@ -64,10 +64,10 @@ get_ec_resdesc <- function(input, lbl){
 
 get_ec_resmgt <- function(input, lbl){
 
-  lbl <-   c("Residue_management_description_Start date", 
-                   "Residue_management_description_Technique",
-                   "Residue_management_description_Traction",
-                   "Residue_management_description_Notes"
+  lbl <-   c("Residue_management_description_start date", 
+                   "Residue_management_description_technique",
+                   "Residue_management_description_traction",
+                   "Residue_management_description_notes"
   )
   #rmgt_residue_technique
     r_start_date<-  map_singleform_values(input =input$rmgt_residue_start_date, type = "date",
@@ -93,10 +93,10 @@ get_ec_resmgt <- function(input, lbl){
       dt <- data.frame(r_start_date, r_technique, rb_incordepth, r_traction, r_notes, stringsAsFactors = FALSE)
       
      lbl <-   c("Residue_management_description_start_date", 
-                 "Residue_management_description_Technique",
-                 paste0("Residue_management_Incorporation_depth",rb_incordepthunit),
-                 "Residue_management_description_Traction",
-                 "Residue_management_description_Notes")
+                 "Residue_management_description_technique",
+                 paste0("Residue_management_residue_incorporation_depth",rb_incordepthunit),
+                 "Residue_management_description_traction",
+                 "Residue_management_description_notes")
      
       names(dt) <- lbl
       dt
@@ -110,6 +110,9 @@ get_ec_resmgt <- function(input, lbl){
     dt
     
 }
+
+
+
 
 
 

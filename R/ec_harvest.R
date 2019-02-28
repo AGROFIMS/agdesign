@@ -131,9 +131,9 @@ get_ec_harv <- function(allinputs, addId){
   cut_unit <- harv  %>% filter(str_detect(id, "hahd_harvest_cut_height_unit_[:uppercase:]{8}$"))
   
   #implement
-  implement<- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}$"))
-  implement_other <- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}_other$"))
-  implement <- dt_inputs(implement, implement_other)
+  type <- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}$"))
+  type_other <- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}_other$"))
+  type <- dt_inputs(type, type_other)
   
   #traction
   traction <- harv  %>% filter(str_detect(id, "hahd_harvest_traction_[:uppercase:]{8}$"))
@@ -143,7 +143,7 @@ get_ec_harv <- function(allinputs, addId){
   notes<- harv  %>% filter(str_detect(id, "hahd_harvest_notes_[:uppercase:]{8}$"))
   
   #Bind tables
-  dt<- rbind(startD, endD, method,comph, ha_area, ha_area_sp, amount, cut, notes )
+  dt<- rbind(startD, endD, method,comph, ha_area, ha_area_sp, amount, cut,type, traction, notes )
   dt<- arrange_by_pattern(dt, addId)
   
   #Create labels
@@ -151,14 +151,20 @@ get_ec_harv <- function(allinputs, addId){
   lbl_end <- paste("Harvest_end_date",1:length(addId),sep = "__")
   lbl_method <-  paste("Harvest_method",1:length(addId),sep = "__")
   lbl_comph <- paste("Harvest_crop_component_harvested",1:length(addId),sep = "__")
-  lbl_ha_area <-  paste("Harvest_harvestable_area", 1:length(addId),sep = "__")
+  lbl_ha_area <-  paste("Harvestable_area", 1:length(addId),sep = "__")
   
-  lbl_cut <- paste(paste("Harvest_amount", cut_unit$values, sep="_"),  1:length(addId),sep = "__")
+  lbl_cut <- paste(paste("Harvest_cut_height", cut_unit$values, sep="_"),  1:length(addId),sep = "__")
   lbl_amount <- paste(paste("Harvest_amount", amount_unit$values, sep="_"),  1:length(addId),sep = "__")
+  
+   
+  lbl_type<- paste("Harvest_implement_type", 1:length(addId),sep = "__")
+  lbl_traction<- paste("Harvest_implement_traction", 1:length(addId),sep = "__")
+  
+  
   lbl_notes<- paste("Harvest_notes", 1:length(addId),sep = "__")
   
   lbl_harv <- c(lbl_start, lbl_end, lbl_method, lbl_comph, lbl_ha_area,
-                lbl_ha_area_num, lbl_cut, lbl_amount, lbl_notes)
+                lbl_ha_area_num, lbl_cut, lbl_amount, lbl_type, lbl_traction, lbl_notes)
   
   
   #Special case:
@@ -308,9 +314,9 @@ get_ec_harv_inter <- function(allinputs, addId, crop){
   cut_unit <- harv  %>% filter(str_detect(id, "hahd_harvest_cut_height_unit_[:uppercase:]{8}$"))
   
   #implement
-  implement<- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}$"))
-  implement_other <- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}_other$"))
-  implement <- dt_inputs(implement, implement_other)
+  type<- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}$"))
+  type_other <- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}_other$"))
+  type <- dt_inputs(type, type_other)
   
   #traction
   traction <- harv  %>% filter(str_detect(id, "hahd_harvest_traction_[:uppercase:]{8}$"))
@@ -320,7 +326,7 @@ get_ec_harv_inter <- function(allinputs, addId, crop){
   notes<- harv  %>% filter(str_detect(id, "hahd_harvest_notes_[:uppercase:]{8}$"))
   
   #Bind tables
-  dt<- rbind(startD, endD, method,comph, ha_area, ha_area_sp, amount, cut, notes )
+  dt<- rbind(startD, endD, method,comph, ha_area, ha_area_sp, amount, cut, type, traction, notes )
   dt<- arrange_by_pattern(dt, addId)
   
   #Create labels
@@ -332,10 +338,14 @@ get_ec_harv_inter <- function(allinputs, addId, crop){
   
   lbl_cut <- paste(paste("Harvest_amount", cut_unit$values, sep="_"),  1:length(addId),sep = "__")
   lbl_amount <- paste(paste("Harvest_amount", amount_unit$values, sep="_"),  1:length(addId),sep = "__")
+ 
+  lbl_type<- paste("Harvest_implement_type", 1:length(addId),sep = "__")
+  lbl_traction<- paste("Harvest_implement_traction", 1:length(addId),sep = "__")
+  
   lbl_notes<- paste("Harvest_notes", 1:length(addId),sep = "__")
   
   lbl_harv <- c(lbl_start, lbl_end, lbl_method, lbl_comph, lbl_ha_area,
-                lbl_ha_area_num, lbl_cut, lbl_amount, lbl_notes)
+                lbl_ha_area_num, lbl_cut, lbl_amount, lbl_type, lbl_traction, lbl_notes)
   
   
   #Special case:
@@ -365,5 +375,9 @@ get_ec_harv_inter <- function(allinputs, addId, crop){
   
 }
 
+
+
+
+# Number of seasons and eval plots ----------------------------------------
 
 

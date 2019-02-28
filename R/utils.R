@@ -585,8 +585,151 @@ ec_clean_header <- function(dt){
   dt$v1<- dt$v2 <- dt$v3<- NULL
   dt$`Fieldbook download`<- dt$`Other - specify`<- dt$Observation<- NULL
   dt$`Factor?`<-dt$`Reorganisation of all the variables (see GitHub 112 for the mock-up)`<- NULL
+  #dt$Fieldbook_download<-NULL
+  dt$Measurement_2<-NULL
+  dt
+}
+
+ec_filter_data <- function(dt){
+  
+  dt <- dt %>% filter(Fieldbook_download!="")
+               #filter(Fieldbook_download!="Residue_management_end_date") %>% 
+               #filter(Fieldbook_download!="Residue_management_residue_incorporation_depth")
+  dt <- dt %>% mutate(TraitName=Fieldbook_download)
+}
+
+
+get_ns <- function(addId){
+  
+  n<- length(addId) 
+  n
+}
+
+
+changes_units <- function(ec, input, allinputs){
+  
+  
+  dt <- as.data.frame(ec,stringsAsFactors=FALSE)
+  col_name <- "TraitUnit"
+  ############## Residue management ##############
+  
+  r_thick_unit <- map_singleform_values(input =input$rmgt_crop_residue_thick_unit, 
+                                        type = "select", format = "vector", label = "Factor") #unit
+  r_amount_unit <- map_singleform_values(input =input$rmgt_crop_residue_amount_sqm_unit, 
+                                         type = "select", format = "vector", label = "Factor") #unit
+  r_cov_unit <- map_singleform_values(input =input$rmgt_crop_residue_perc_cov_unit, 
+                                      type = "select", format = "vector", label = "Factor")  #unit
+  
+  
+  pos<- which(dt$TraitName=="Residue_management_crop_residue_thickness") 
+  dt[pos,"TraitUnit"] <- r_thick_unit 
+  pos<-which(dt$TraitName=="Residue_management_crop_residue_amount") 
+  dt[pos,"TraitUnit"] <- r_amount_unit
+  pos<-which(dt$TraitName=="Residue_management_crop_residue_thickness") 
+  dt[pos,"TraitUnit"]<- r_cov_unit
+  
+  #lb2 <- "Residue incorporation depth Unit"
+  rb_incordepthunit <- map_singleform_values(input =input$rmgt_residue_inc_depth_unit, 
+                                             type = "select", format = "vector", label = "Factor") #unit
+  pos<- which(dt$TraitName=="Residue_management_residue_incorporation_depth")
+  dt[pos,"TraitUnit"]<- rb_incordepthunit
+  ##############Pudling ##############
+  lp_depth_unit <- map_singleform_values(input = input$puddling_depth_unit, 
+                                         type = "select", format = "vector", label = "Factor")
+  
+  pos<- which(dt$TraitName=="Puddling_depth")
+  dt[pos,"TraitUnit"]<- lp_depth_unit
+  
+  
+  
+  ############## Tillage##############
+  lt_depth_unit  <- map_singleform_values(input = input$tillage_depth_unit,type = "select", format = "vector", label = "Factor" )
+  pos<- which(dt$TraitName=="Tillage_depth")
+  dt[pos,"TraitUnit"]<-lt_depth_unit 
+  
+  ############## Direct_seeding ##############################
+  
+  ptdi <- allinputs %>%  filter(!str_detect(id, "button")) %>%
+    filter(!str_detect(id, "-selectized")) %>%
+    filter(str_detect(id,"ptdi"))
+  
+  row_unit <- ptdi %>% filter(str_detect(id,   "ptdi_distance_rows_unit_[:digit:]+$" ))
+  
+  #seeding rate
+  rate_unit <- ptdi %>% filter(str_detect(id, "ptdi_seeding_rate_unit_[:digit:]+$" ))
+  
+  #distance plants
+  plan_unit<- ptdi %>% filter(str_detect(id,   "ptdi_distance_plants_unit_[:digit:]+$"))
+  
+  #plan density
+  plden_unit <- ptdi %>% filter(str_detect(id,  "ptdi_seeding_plant_density_unit_[:digit:]+$"  ))  
+  
+  #bund
+  bund_unit<- ptdi %>% filter(str_detect(id,  "ptdi_seeding_distance_bunds_unit_[:digit:]+$" ))
+  
+  pos<-which(dt$TraitName=="Direct_seeding_distance_between_rows")
+  dt[pos,"TraitUnit"]<-row_unit$values
+  pos<-which(dt$TraitName=="Direct_seeding_seed_rate")
+  dt[pos,"TraitUnit"]<-  rate_unit$values
+  pos<-which(dt$TraitName=="Direct_seeding_distance_between_plants")
+  dt[pos,"TraitUnit"]<-plan_unit$values
+  pos<-which(dt$TraitName=="Direct_seeding_plant_density")
+  dt[pos,"TraitUnit"]<- plden_unit$values
+  pos<- which(dt$TraitName=="Direct_seeding_distance_between_bunds") 
+  dt[pos,"TraitUnit"]<- bund_unit$values
+  
+  
+  ##############  Transplanting ############## 
+  
+  ptta <- allinputs %>%  filter(!str_detect(id, "button")) %>%
+    filter(!str_detect(id, "-selectized")) %>%
+    filter(str_detect(id,"ptta"))
+  
+  #distance between rows
+  ta_drow_unit<- ptta %>% filter(str_detect(id,"ptta_trans_distance_rows_unit_[:digit:]+$"))
+  
+  #Seeding density
+  ta_sden_unit <-ptta %>% filter(str_detect(id,"ptta_trans_seeding_density_unit_[:digit:]+$"))
+  
+  #distance plants
+  ta_dplan_unit <- ptta %>% filter(str_detect(id,"ptta_trans_distance_plants_unit_[:digit:]+$"))
+  
+  #distance bunds
+  ta_bunds_unit<- ptta %>% filter(str_detect(id,"ptta_trans_distance_bunds_unit_[:digit:]+$"))
+  
+  pos<-which(dt$TraitName=="Transplanting_distance_between_rows")
+  dt[pos,"TraitUnit"]          <-ta_drow_unit$values
+  pos<-which(dt$TraitName=="Transplanting_seedling_density") 
+  dt[pos,"TraitUnit"]          <-ta_sden_unit$values
+  pos<-which(dt$TraitName=="Transplanting_distance_between_plants") 
+  dt[pos,"TraitUnit"]          <-ta_dplan_unit$values
+  pos<-which(dt$TraitName=="Transplanting_distance_between_bunds")
+  dt[pos,"TraitUnit"]       <-ta_bunds_unit$values
+  
+  #### MULCING ###########################
+  
+  mu <- allinputs %>% filter(!str_detect(id, "button")) %>%
+    filter(!str_detect(id, "-selectized")) %>%
+    filter(str_detect(id, "^mumd_"))
+  
+  mthick_unit <- mu %>% filter(str_detect(id, "^mumd_mulch_thickness_unit$"))
+  
+  #mulch amount
+  mamount_unit <- mu %>% filter(str_detect(id, "^mumd_mulch_amountPerSq_unit$"))
+  
+  #percentage
+  mper_unit <- mu %>% filter(str_detect(id, "^mumd_mulch_percCoverage_unit$"))
+  
+  pos<-which(dt$TraitName=="Mulch_thickness") 
+  dt[pos,"TraitUnit"] <- mthick_unit$values
+  pos<-which(dt$TraitName=="Mulch_amount") 
+  dt[pos,"TraitUnit"] <-mamount_unit$values
+  pos<-which(dt$TraitName=="Mulch_percentage_of_coverage") 
+  dt[pos,"TraitUnit"] <-mper_unit$values
+  
+  ### IRRIIGATION
+  
   dt
   
 }
-
 

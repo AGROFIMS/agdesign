@@ -2217,36 +2217,171 @@ display: none;
                                               #     DTOutput('phenoDT')
                                               #     )
                                               # ),
-                                              shiny::tabPanel("Weather", value = 'tabWeather', icon = shiny::icon("bolt"),
+                                              shiny::tabPanel("Crop Measurement Mono", value = 'crop_measurement_mono', icon = shiny::icon("leaf"),
                                                               column(width = 12,
-                                                              h2("Weather details"),
-                                                              p(class = "text-muted", style="text-align:justify",
-                                                                paste("Please, select row by click.")
-                                                              )),
-                                                              #br(),
-                                                              uiOutput("uiWeatherTab")
-
+                                                                     h2("Crop measurement"),
+                                                                     p(class = "text-muted", style="text-align:justify",
+                                                                       paste("Please, select measurement by click.")
+                                                                     ),
+                                                                     uiOutput("uiCropMeaMono")
+                                                              )
                                               ),
           
-                                              shiny::tabPanel("Soil", value = 'tabSoil', icon = shiny::icon("bolt"),
-                                                              #br(),
-                                                              # h2("Weather & Soil"),
-                                                              #fluidRow(
+                                              shiny::tabPanel("Crop Measurement Inter", value = 'crop_measurement_inter', icon = shiny::icon("leaf"),
                                                               column(width = 12,
-                                                                     #         h2("Weather & Soil"),
-                                                                     #shinyTree::shinyTree("designFieldbook_weatherVar_agrofims",search = TRUE,checkbox = TRUE),
-                                                                     #shinyTree::shinyTree("designFieldbook_soilVar_agrofims",search = TRUE,checkbox = TRUE)
-                                                                     #br(),
+                                                                     h2("Crop measurement"),
+                                                                     #actionButton("qwe", "dale"),
+                                                                     p(class = "text-muted", style="text-align:justify",
+                                                                       paste("Please, select measurement by click.")
+                                                                     ),
+                                                                     #uiOutput("uiCropMeaInter"),
+                                                                     tabsetPanel(
+                                                                       id = "tabpanelinter",
+                                                                       #selected = 1,
+                                                                       shiny::tabPanel("Cassava Measurement", value = "crop_measurement_Cassava", 
+                                                                                       br(),
+                                                                                       DTOutput("tblInterCassava")
+                                                                       ),
+                                                                       shiny::tabPanel("Common bean Measurement", value = "crop_measurement_Commonbean",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterCommon")
+                                                                       ),
+                                                                       shiny::tabPanel("Maize Measurement", value = "crop_measurement_Maize",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterMaize")
+                                                                       ),
+                                                                       shiny::tabPanel("Potato Measurement", value = "crop_measurement_Potato",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPotato")
+                                                                       ),
+                                                                       shiny::tabPanel("Rice Measurement", value = "crop_measurement_Rice",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterRice")
+                                                                       ),
+                                                                       shiny::tabPanel("Sweetpotato Measurement", value = "crop_measurement_Sweetpotato",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterSweetpotato")
+                                                                       ),
+                                                                       shiny::tabPanel("Wheat Measurement", value = "crop_measurement_Wheat",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterWheat")
+                                                                       ),
+                                                                       shiny::tabPanel("Other Measurement", value = "crop_measurement_Other",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther")
+                                                                       )
+                                                                     )
+                                                              )
+                                              ),
+          
+                                              shiny::tabPanel("Crop Phenology Mono", value = 'crop_phenology_mono', icon = shiny::icon("leaf"),
+                                                              column(width = 12,
+                                                                     h2("Crop phenology"),
+                                                                     p(class = "text-muted", style="text-align:justify",
+                                                                       paste("Please, select phenology by click.")
+                                                                     ),
+                                                                     uiOutput("uiCropPheMono")
+                                                              )
+                                              ),
+                                              
+                                              shiny::tabPanel("Crop Phenology Inter", value = 'crop_phenology_inter', icon = shiny::icon("leaf"),
+                                                              column(width = 12,
+                                                                     h2("Crop phenology"),
+                                                                     #actionButton("qwe", "dale"),
+                                                                     p(class = "text-muted", style="text-align:justify",
+                                                                       paste("Please, select phenology by click.")
+                                                                     ),
+                                                                     #uiOutput("uiCropMeaInter"),
+                                                                     tabsetPanel(
+                                                                       id = "tabpanelinterphe",
+                                                                       #selected = 1,
+                                                                       shiny::tabPanel("Cassava Phenology", value = "crop_phenology_Cassava", 
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheCassava")
+                                                                       ),
+                                                                       shiny::tabPanel("Common bean Phenology", value = "crop_phenology_Commonbean",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheCommon")
+                                                                       ),
+                                                                       shiny::tabPanel("Maize Phenology", value = "crop_phenology_Maize",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheMaize")
+                                                                       ),
+                                                                       shiny::tabPanel("Potato Phenology", value = "crop_phenology_Potato",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPhePotato")
+                                                                       ),
+                                                                       shiny::tabPanel("Rice Phenology", value = "crop_phenology_Rice",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheRice")
+                                                                       ),
+                                                                       shiny::tabPanel("Sweetpotato Phenology", value = "crop_phenology_Sweetpotato",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheSweetpotato")
+                                                                       ),
+                                                                       shiny::tabPanel("Wheat Phenology", value = "crop_phenology_Wheat",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheWheat")
+                                                                       ),
+                                                                       shiny::tabPanel("Other Phenology", value = "crop_phenology_Other",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther")
+                                                                       )
+                                                                     )
+                                                              )
+                                              ),
+          
+                                              shiny::tabPanel("Weather", value = 'tabWeather2', icon = shiny::icon("bolt"),
+                                                              column(width = 12,
+                                                                     h2("Weather details"),
+                                                                     p(class = "text-muted", style="text-align:justify",
+                                                                       paste("Please, select row by click.")
+                                                                     ),
+                                                                     uiOutput("uiWeatherTab2")
+                                                              )
+                                                              
+                                              ),
+                                              
+                                              shiny::tabPanel("Soil", value = 'tabSoil2', icon = shiny::icon("dice-four"),
+                                                              column(width = 12,
                                                                      h2("Soil details"),
                                                                      p(class = "text-muted", style="text-align:justify",
                                                                        paste("Please, select row by click.")
                                                                      ),
-                                                                     br(),
-                                                                     uiOutput("uiSoilTab")
-
-                                                                     # DTOutput('soilDT')
+                                                                     uiOutput("uiSoilTab2")
                                                               )
                                               )
+          
+                                              # shiny::tabPanel("Weather", value = 'tabWeather', icon = shiny::icon("bolt"),
+                                              #                 column(width = 12,
+                                              #                 h2("Weather details"),
+                                              #                 p(class = "text-muted", style="text-align:justify",
+                                              #                   paste("Please, select row by click.")
+                                              #                 )),
+                                              #                 #br(),
+                                              #                 uiOutput("uiWeatherTab")
+                                              # 
+                                              # ),
+                                              # 
+                                              # shiny::tabPanel("Soil", value = 'tabSoil', icon = shiny::icon("bolt"),
+                                              #                 #br(),
+                                              #                 # h2("Weather & Soil"),
+                                              #                 #fluidRow(
+                                              #                 column(width = 12,
+                                              #                        #         h2("Weather & Soil"),
+                                              #                        #shinyTree::shinyTree("designFieldbook_weatherVar_agrofims",search = TRUE,checkbox = TRUE),
+                                              #                        #shinyTree::shinyTree("designFieldbook_soilVar_agrofims",search = TRUE,checkbox = TRUE)
+                                              #                        #br(),
+                                              #                        h2("Soil details"),
+                                              #                        p(class = "text-muted", style="text-align:justify",
+                                              #                          paste("Please, select row by click.")
+                                              #                        ),
+                                              #                        br(),
+                                              #                        uiOutput("uiSoilTab")
+                                              # 
+                                              #                        # DTOutput('soilDT')
+                                              #                 )
+                                              # )
 
                                               # shiny::tabPanel("Phenology dev", value = 'tabPhenoTest', icon = shiny::icon("bolt"),
                                               #                 column(width = 12,

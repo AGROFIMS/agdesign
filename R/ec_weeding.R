@@ -16,7 +16,8 @@ get_ec_weed<- function(allinputs, addId){
                         filter(!str_detect(id, "-selectized")) %>%
                         filter(str_detect(id,"wewd"))
     
-    lbl <- c("Weeding_Start_date", "Weeding_Technique", "Weeding_Notes", "Weeding_Type", "Weeding_Traction")
+    lbl <- c("Weeding_start_date", "Weeding_technique", 
+             "Weeding_notes", "Weeding_implement_type", "Weeding_implement_traction")
     lbl_weed <- vector(mode = "character",length = 0L)
     for(i in 1:length(addId)){
       lbl_weed <- append(lbl_weed, paste(lbl, i,sep="__"))
@@ -48,6 +49,14 @@ get_ec_weed<- function(allinputs, addId){
     dt<- arrange_by_pattern(dt, pattern = addId)
     #extract and tranpose column with valus
     dt<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
+    
+    # TODO : AGREGAR ESTAS COLUMNAS
+    # Weeding_end_date
+    # Weeding_biomass_fresh_weight
+    # Weeding_biomass_subsample_fresh_weight
+    # Weeding_biomass_dry_weight
+    # Weeding_biomass_subsample_dry_weight
+    
     names(dt) <- lbl_weed
     dt
 }
