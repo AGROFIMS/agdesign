@@ -1266,7 +1266,7 @@ display: none;
                                                                                                             fluidRow(
                                                                                                               column(6,textInput("rmgt_residue_inc_depth", "Residue incorporation depth", value="")),
                                                                                                               column(6, selectizeInput("rmgt_residue_inc_depth_unit", "Unit",multiple=T, options=list(maxItems=1, placeholder="Select one..."),
-                                                                                                                                       choices = c("cm", "ft", "in", "m"))
+                                                                                                                                       choices = c("cm", "ft", "in", "m"), selected = "cm")
                                                                                                               )
                                                                                                             )
                                                                                                             
@@ -2217,7 +2217,7 @@ display: none;
                                               #     DTOutput('phenoDT')
                                               #     )
                                               # ),
-                                              shiny::tabPanel("Crop Measurement Mono", value = 'crop_measurement_mono', icon = shiny::icon("leaf"),
+                                              shiny::tabPanel("Crop Measurement", value = 'crop_measurement_mono', icon = shiny::icon("leaf"),
                                                               column(width = 12,
                                                                      h2("Crop measurement"),
                                                                      p(class = "text-muted", style="text-align:justify",
@@ -2227,7 +2227,7 @@ display: none;
                                                               )
                                               ),
           
-                                              shiny::tabPanel("Crop Measurement Inter", value = 'crop_measurement_inter', icon = shiny::icon("leaf"),
+                                              shiny::tabPanel("Crop Measurement", value = 'crop_measurement_inter', icon = shiny::icon("leaf"),
                                                               column(width = 12,
                                                                      h2("Crop measurement"),
                                                                      #actionButton("qwe", "dale"),
@@ -2274,7 +2274,7 @@ display: none;
                                                               )
                                               ),
           
-                                              shiny::tabPanel("Crop Phenology Mono", value = 'crop_phenology_mono', icon = shiny::icon("leaf"),
+                                              shiny::tabPanel("Crop Phenology", value = 'crop_phenology_mono', icon = shiny::icon("leaf"),
                                                               column(width = 12,
                                                                      h2("Crop phenology"),
                                                                      p(class = "text-muted", style="text-align:justify",
@@ -2284,7 +2284,7 @@ display: none;
                                                               )
                                               ),
                                               
-                                              shiny::tabPanel("Crop Phenology Inter", value = 'crop_phenology_inter', icon = shiny::icon("leaf"),
+                                              shiny::tabPanel("Crop Phenology", value = 'crop_phenology_inter', icon = shiny::icon("leaf"),
                                                               column(width = 12,
                                                                      h2("Crop phenology"),
                                                                      #actionButton("qwe", "dale"),
