@@ -237,9 +237,9 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
              useShinyalert(),
              #actionButton("xtest", "Test"),
              actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
-             actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('openFieldbook')"),
+             actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('uisessionagrofims')"),
              actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
-             actionButton("savetest", "save test"),
+             #actionButton("testsession", "test"),
              htmlOutput("lastsaved")
              #uiOutput("saveUI")
       )
@@ -695,7 +695,7 @@ display: none;
               12,
               br(),
               #h2("Experiment Leads (if different from project management entity)"),
-              HTML("<h2 style='display:inline;'>Experiment Leads</h2> (if different from project management entity))"),
+              HTML("<h2 style='display:inline;'>Experiment Leads</h2> <h4 style='display:inline;'>(if different from project management entity)</h4>"),
               fluidRow(id = "fr_experimentLeads_boxes"),
               actionButton("addExperimentLeads", "Add an experiment lead"),
               br(), br(), br()

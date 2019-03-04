@@ -12,22 +12,13 @@
 #' 
 server_design_agrofims <- function(input, output, session, values){
   
-  observeEvent(input$load_inputs, {
-    n <- 5
-    for (i in 1:n) {
-      Sys.sleep(0.1)
-      shinyjs::click("addFundingAgency")
-    }
-  })
-  
-  AllInputsIvan <- reactive({
-    myvalues <- NULL
-    for(i in 1:length(names(input))){
-      myvalues <- as.data.frame(rbind(myvalues,(cbind(names(input)[i],input[[names(input)[i]]]))))
-    }
-    names(myvalues) <- c("Input","Value")
-    myvalues
-  })
+  # observeEvent(input$load_inputs, {
+  #   n <- 5
+  #   for (i in 1:n) {
+  #     Sys.sleep(0.1)
+  #     shinyjs::click("addFundingAgency")
+  #   }
+  # })
   
   observeEvent(input$savetest4, {
     id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
@@ -95,7 +86,6 @@ server_design_agrofims <- function(input, output, session, values){
     write.csv(AllInputs(), paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
     #aa <- data.frame(id = a, values = , stringsAsFactors = F)
   })
-  
   
   observeEvent(input$savetest2, {
     #write.csv(AllInputs(), paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
@@ -228,79 +218,97 @@ server_design_agrofims <- function(input, output, session, values){
    
     #Funcion que crea lista de inputs a guardar: Experiment
     inputsExperiment <- function() {
-      a1 <- a2 <- a3 <- c()
+      a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- c()
       b1 <- b2 <- b3 <- b4 <- b5 <- b6 <- b7 <- b8 <- b9 <- b10 <- b11 <- b12 <- c()
       c1 <- c2 <- c3 <- c4 <- c5 <- c6 <- c7 <- c8 <- c9 <- c10 <- c11 <- c12 <- c13 <- c14 <- c15 <- c16 <- c17 <- c18 <- c()
 
       inputRds <- readRDS(paste0(globalpath, "inputId1_v4.rds"))
       inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment")
       df1 <- inputRds[c(4, 5, 6)]
-
-      # inputs para: Funding agency type
-      if (!is.null(input$designFieldbook_fundAgencyType) && !is.na(input$designFieldbook_fundAgencyType) && length(input$designFieldbook_fundAgencyType) >= 1) {
-        for (i in 1:length(input$designFieldbook_fundAgencyType)) {
-          a1[i] <- paste0("fundName_", i)
-          a2[i] <- "textInput"
-          a3[i] <- "n"
-        }
-        df2 <- data.frame(inputId = a1, type = a2, create = a3, stringsAsFactors = F)
-      } else {
-        df2 <- NULL
+      
+      # inputs para: Funding Agency
+      id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
+      
+      for (i in 1:length(id_rand_fa)) {
+        a1[i] <- paste0("designFieldbook_fundAgencyType_", id_rand_fa[i])
+        a2[i] <- paste0("designFieldbook_fundAgencyType_", id_rand_fa[i], "_other")
+        a3[i] <- paste0("designFieldbook_fundAgencyType_name_", id_rand_fa[i])
+        a4[i] <- paste0("designFieldbook_fundAgencyType_cgiar_", id_rand_fa[i])
+        
+        a5[i] <- "selectizeInput"
+        a6[i] <- "textInput"
+        a7[i] <- "textInput"
+        a8[i] <- "selectizeInput"
+        
+        a9[i] <- "n"
+        a10[i] <- "n"
+        a11[i] <- "n"
+        a12[i] <- "n"
       }
-
-      # inputs para: Number of project management entities
-      if (!is.null(input$numProjEntity) && !is.na(input$numProjEntity) && input$numProjEntity >= 1) {
-        for (i in 1:input$numProjEntity) {
-          b1[i] <- paste0("projEntity_", i)
-          b2[i] <- paste0("projEntity_", i, "_other")
-          b3[i] <- paste0("contCenter_", i)
-          b4[i] <- paste0("contCRP_", i)
-
-          b5[i] <- "selectizeInput"
-          b6[i] <- "textInput"
-          b7[i] <- "selectizeInput"
-          b8[i] <- "selectizeInput"
-
-          b9[i] <- "n"
-          b10[i] <- "n"
-          b11[i] <- "n"
-          b12[i] <- "n"
-        }
-        df3 <- data.frame(inputId = c(b1, b2, b3, b4), type = c(b5, b6, b7, b8), create = c(b9, b10, b11, b12), stringsAsFactors = F)
-      } else {
-        df3 <- NULL
+      
+      df2 <- data.frame(inputId = c(a1, a2, a3, a4),
+                        type = c(a5, a6, a7, a8),
+                        create = c(a9, a10, a11, a12),
+                        stringsAsFactors = F)
+      
+      # inputs para: Project Management Entities
+      id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
+      
+      for (i in 1:length(id_rand_pe)) {
+        b1[i] <- paste0("projEntity_", id_rand_pe[i])
+        b2[i] <- paste0("projEntity_", id_rand_pe[i], "_other")
+        b3[i] <- paste0("contCenter_", id_rand_pe[i])
+        b4[i] <- paste0("contCRP_", id_rand_pe[i])
+        
+        b5[i] <- "selectizeInput"
+        b6[i] <- "textInput"
+        b7[i] <- "selectizeInput"
+        b8[i] <- "selectizeInput"
+        
+        b9[i] <- "n"
+        b10[i] <- "n"
+        b11[i] <- "n"
+        b12[i] <- "n"
       }
-
-      # inputs para: Number of experiment leads
-      if (!is.null(input$numLeads) && !is.na(input$numLeads) && input$numLeads >= 1) {
-        for (i in 1:input$numLeads) {
-          c1[i] <- paste0("projLeadEnt_", i)
-          c2[i] <- paste0("tLeadCenter_", i)
-          c3[i] <- paste0("lead_org_type_1_", i)
-          c4[i] <- paste0("lead_org_type_1_", i, "_other")
-          c5[i] <- paste0("leadNameOther_", i)
-          c6[i] <- paste0("expLead_", i)
-
-          c7[i] <- "selectizeInput"
-          c8[i] <- "selectizeInput"
-          c9[i] <- "selectizeInput"
-          c10[i] <- "textInput"
-          c11[i] <- "textInput"
-          c12[i] <- "textInput"
-
-          c13[i] <- "n"
-          c14[i] <- "n"
-          c15[i] <- "n"
-          c16[i] <- "n"
-          c17[i] <- "n"
-          c18[i] <- "n"
-        }
-        df4 <- data.frame(inputId = c(c1, c2, c3, c4, c5, c6), type = c(c7, c8, c9, c10, c11, c12), create = c(c13, c14, c15, c16, c17, c18), stringsAsFactors = F)
-      } else {
-        df4 <- NULL
+      
+      df3 <- data.frame(inputId = c(b1, b2, b3, b4),
+                        type = c(b5, b6, b7, b8),
+                        create = c(b9, b10, b11, b12),
+                        stringsAsFactors = F)
+      
+      # inputs para: Experiment Leads
+      id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
+      
+      for (i in 1:length(id_rand_el)) {
+        c1[i] <- paste0("projLeadEnt_", id_rand_el[i])
+        c2[i] <- paste0("tLeadCenter_", id_rand_el[i])
+        c3[i] <- paste0("lead_org_type_1_", id_rand_el[i])
+        c4[i] <- paste0("lead_org_type_1_", id_rand_el[i], "_other")
+        c5[i] <- paste0("leadNameOther_", id_rand_el[i])
+        c6[i] <- paste0("expLead_", id_rand_el[i])
+        
+        c7[i] <- "selectizeInput"
+        c8[i] <- "selectizeInput"
+        c9[i] <- "selectizeInput"
+        c10[i] <- "textInput"
+        c11[i] <- "textInput"
+        c12[i] <- "textInput"
+        
+        c13[i] <- "n"
+        c14[i] <- "n"
+        c15[i] <- "n"
+        c16[i] <- "n"
+        c17[i] <- "n"
+        c18[i] <- "n"
       }
-
-      res <- rbind(df1)#, df2, df3, df4)
+      
+      df4 <- data.frame(inputId = c(c1, c2, c3, c4, c5, c6),
+                        type = c(c7, c8, c9, c10, c11, c12),
+                        create = c(c13, c14, c15, c16, c17, c18),
+                        stringsAsFactors = F)
+      
+      # Union de todos los resultados
+      res <- rbind(df1, df2, df3, df4)
       res
     }
     
@@ -814,83 +822,82 @@ server_design_agrofims <- function(input, output, session, values){
     #   }
     # }
     
-    dinamicInputs <- function() {
-      a <- b <- c <- d <- c()
-      
-      id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
-      print(id_rand_fa)
-      
-      for (i in 1:length(id_rand_fa)) {
-        a[i] <- paste0("designFieldbook_fundAgencyType_", id_rand_fa[i])
-        b[i] <- paste0("designFieldbook_fundAgencyType_", id_rand_fa[i], "_other")
-        # c[i] <- paste0("designFieldbook_fundAgencyType_name_", id_rand_fa[i])
-        # d[i] <- paste0("designFieldbook_fundAgencyType_cgiar_", id_rand_fa[i])
-      }
-      
-      #z <- data.frame(id = c(a, b, c, d), values = "", stringsAsFactors = F)
-      z <- data.frame(id = c(a, b), values = "", stringsAsFactors = F)
-      #print(z)
-      
-      zz <- AllInputs() %>% dplyr::filter(id %in% z$id)
-      #print(zz)
-      
-      resall <- arrange_by_pattern(zz, id_rand_fa)
-      print(resall)
-    }
+    # dinamicInputs <- function() {
+    #   a <- b <- c <- d <- c()
+    #   
+    #   id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
+    #   print(id_rand_fa)
+    #   
+    #   for (i in 1:length(id_rand_fa)) {
+    #     a[i] <- paste0("designFieldbook_fundAgencyType_", id_rand_fa[i])
+    #     b[i] <- paste0("designFieldbook_fundAgencyType_", id_rand_fa[i], "_other")
+    #     # c[i] <- paste0("designFieldbook_fundAgencyType_name_", id_rand_fa[i])
+    #     # d[i] <- paste0("designFieldbook_fundAgencyType_cgiar_", id_rand_fa[i])
+    #   }
+    #   
+    #   #z <- data.frame(id = c(a, b, c, d), values = "", stringsAsFactors = F)
+    #   z <- data.frame(id = c(a, b), values = "", stringsAsFactors = F)
+    #   #print(z)
+    #   
+    #   zz <- AllInputs() %>% dplyr::filter(id %in% z$id)
+    #   #print(zz)
+    #   
+    #   resall <- arrange_by_pattern(zz, id_rand_fa)
+    #   print(resall)
+    # }
     
     # Funcion que guarda la session del usuario
     savesession <- function() {
       if(session$userData$logged){
         expid <- input$uniqueId
-        
+
         if (file.exists(isolate(paste0(sessionpath, expid, ".csv")))) {
           x <- read.csv(paste0(sessionpath, expid, ".csv"))
-          #datecreate <- as.character(x[2, 4])
-          datecreate <- as.character(x[2, 2])
+          datecreate <- as.character(x[2, 4])
           datemodified <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
         } else {
           datecreate <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
           datemodified <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
         }
-        
-        #inputs1 <- inputs2 <- inputs3 <- NULL
-        
-        #inputs_to_save <- rbind(inputsExperiment())#,
-        #inputsPersonnel(),
-        #inputsSite(),
-        #inputsCrop(),
-        #inputsDesign(),
-        #inputsExpCon())
-        
-        # case1p <- dplyr::filter(inputs_to_save, type == "textInput" |
-        #                           type == "numericInput" |
-        #                           type == "textAreaInput" |
-        #                           type == "checkboxInput" |
-        #                           type == "dateInput")
-        # case1 <- case1p[[1]]
-        # case1_type <- case1p[[2]]
-        # case1_create <- case1p[[3]]
-        # 
-        # case2p <- dplyr::filter(inputs_to_save, type == "dateRangeInput")
-        # case2 <- case2p[[1]]
-        # case2_type <- case2p[[2]]
-        # case2_create <- case2p[[3]]
-        # 
-        # case3p <- dplyr::filter(inputs_to_save, type == "selectizeInput" | type == "selectInput")
-        # case3 <- case3p[[1]]
-        # case3_type <- case3p[[2]]
-        # case3_create <- case3p[[3]]
-        # 
-        # for (i in 1:length(case1)) {
-        #   # textInput && numericInput && textAreaInput && checkboxInput && dateinput
-        #   if (is.null(input[[paste0(case1[i])]]) || is.na(input[[paste0(case1[i])]])) {
-        #     inputs1[i] <- ""
-        #   } else {
-        #     inputs1[i] <- as.character(input[[paste0(case1[i])]])
-        #   }
-        # }
-        # inputs_data_frame1 <- data.frame(inputId = case1, type = case1_type, create = case1_create, value = inputs1)
-        
+
+        inputs1 <- inputs2 <- inputs3 <- NULL
+
+        inputs_to_save <- rbind(inputsExperiment())#,
+                                #inputsPersonnel(),
+                                #inputsSite(),
+                                #inputsCrop(),
+                                #inputsDesign(),
+                                #inputsExpCon())
+
+        case1p <- dplyr::filter(inputs_to_save, type == "textInput" |
+                                  type == "numericInput" |
+                                  type == "textAreaInput" |
+                                  type == "checkboxInput" |
+                                  type == "dateInput")
+        case1 <- case1p[[1]]
+        case1_type <- case1p[[2]]
+        case1_create <- case1p[[3]]
+
+        case2p <- dplyr::filter(inputs_to_save, type == "dateRangeInput")
+        case2 <- case2p[[1]]
+        case2_type <- case2p[[2]]
+        case2_create <- case2p[[3]]
+
+        case3p <- dplyr::filter(inputs_to_save, type == "selectizeInput" | type == "selectInput")
+        case3 <- case3p[[1]]
+        case3_type <- case3p[[2]]
+        case3_create <- case3p[[3]]
+
+        for (i in 1:length(case1)) {
+          # textInput && numericInput && textAreaInput && checkboxInput && dateinput
+          if (is.null(input[[paste0(case1[i])]]) || is.na(input[[paste0(case1[i])]])) {
+            inputs1[i] <- ""
+          } else {
+            inputs1[i] <- as.character(input[[paste0(case1[i])]])
+          }
+        }
+        inputs_data_frame1 <- data.frame(inputId = case1, type = case1_type, create = case1_create, value = inputs1)
+
         # for (i in 1:length(case2)) {
         #   # dateRangeInput
         #   if (is.null(input[[paste0(case2[i])]]) || is.na( input[[paste0(case2[i])]])) {
@@ -900,41 +907,34 @@ server_design_agrofims <- function(input, output, session, values){
         #   }
         # }
         # inputs_data_frame2 <- data.frame(inputId = case2, type = case2_type, create = case2_create, value = inputs2)
-        
-        # for (i in 1:length(case3)) {
-        #   # selectizeInput && selectInput
-        #   if (is.null(input[[paste0(case3[i])]]) || is.na( input[[paste0(case3[i])]])) {
-        #     inputs3[i] <- ""
-        #   } else {
-        #     inputs3[i] <- paste(input[[paste0(case3[i])]], collapse = "&")
-        #   }
-        # }
-        # inputs_data_frame3 <- data.frame(inputId = case3, type = case3_type, create = case3_create, value = inputs3)
-        
+
+        for (i in 1:length(case3)) {
+          # selectizeInput && selectInput
+          if (is.null(input[[paste0(case3[i])]]) || is.na( input[[paste0(case3[i])]])) {
+            inputs3[i] <- ""
+          } else {
+            inputs3[i] <- paste(input[[paste0(case3[i])]], collapse = "&")
+          }
+        }
+        inputs_data_frame3 <- data.frame(inputId = case3, type = case3_type, create = case3_create, value = inputs3)
+
         #inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame2, inputs_data_frame3)
-        
-        nr1 <- data.frame(id = "user", values = session$userData$userMail)
-        nr2 <- data.frame(id = "datec", values = datecreate)
-        nr3 <- data.frame(id = "datem", values = datemodified)
-        
-        all_inputs <- AllInputs() %>%
-          filter(!str_detect(id, "button")) %>%
-          filter(!str_detect(id, "-selectized"))
-        
-        dinamic_inputs <- dinamicInputs()
-        
-        final_inputs_df <- rbind(nr1, nr2, nr3, all_inputs, dinamic_inputs)
-        
+        inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame3)
+        nr <- data.frame(inputId = "user", type = "", create = "", value = session$userData$userMail)
+        nr2 <- data.frame(inputId = "datec", type = "", create = "", value = datecreate)
+        nr3 <- data.frame(inputId = "datem", type = "", create = "", value = datemodified)
+        final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame)
+
         write.csv(final_inputs_df, paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
         write.csv(final_inputs_df, paste0(sessionpathbk, input$uniqueId, ".csv"), row.names = FALSE)
-        
+
         updateTextInput(session,
                         inputId = "uniqueId",
                         value = "")
         updateTextInput(session,
                         inputId = "uniqueId",
                         value = expid)
-        
+
         shinyalert("Saved successfully", type = "success", timer = 1500, showConfirmButton = F)
       } else {
         shinyalert("Sorry", "You must login to save avance", type = "info", timer = 1500, showConfirmButton = F)
@@ -952,8 +952,7 @@ server_design_agrofims <- function(input, output, session, values){
       
       if (file.exists(isolate(paste0(sessionpath, expid, ".csv")))) {
         x <- read.csv(paste0(sessionpath, expid, ".csv"))
-        #datemodified <- as.character(x[3, 4])
-        datemodified <- as.character(x[3, 2])
+        datemodified <- as.character(x[3, 4])
         datemodified <- paste0("<font color='#00a65a'>", datemodified, "</font>")
       } else {
         datemodified <- paste0("<font color='red'>never</font>")
@@ -973,6 +972,446 @@ server_design_agrofims <- function(input, output, session, values){
     paste0("Last modified: ", timeExp())
   })
   #################### END: GUARDAR SESION DEL FIELDBOOK ####################
+  
+  ##################################
+  ##################################
+  
+  #################### START: LOAD FIELDBOOK ####################
+  
+  # Lista los archivos para crear el DT de sesiones
+  my_files2 <- function() {
+    lf <- list.files(sessionpath)
+    lf
+  }
+  
+  # Crea el DF de sesiones
+  getFbDF <- function() {
+    df <- data.frame()
+    a <- b <- c <- d <- e <- f <- g <- c()
+    
+    if (length(my_files2()) >= 1) {
+      for (i in 1:length(my_files2())) {
+        # Unique ID
+        mf <- my_files2()[i]
+        mf <- unlist(strsplit(mf, "[.]"))
+        a[i] <- mf[1]
+        
+        fl <- read.csv(paste0(sessionpath, my_files2()[i]))
+        
+        # Date modified
+        f[i] <- as.character(fl[3, 4])
+        
+        # User
+        g[i] <- as.character(fl[1, 4])
+      }
+      
+      userM <- session$userData$userMail
+      
+      df <- data.frame(a, f, g, stringsAsFactors = F)
+      df <- dplyr::filter(as.data.frame(df), g == userM)
+      df <- df %>% dplyr::arrange(desc(f))
+      df
+    } else {
+      df <- data.frame()
+    }
+  }
+  
+  # Extrae el ID del libro para devolver el ID 
+  getFbId <- function() {
+    rowDT <- input$dtsession_rows_selected
+    
+    id <- getFbDF()
+    id <- id[rowDT, 1]
+  }
+  
+  # Remueve los dinamicos para dejarlos por defecto
+  removeDin <- function() {
+    
+    # Remueve dinamicos: Funding Agency
+    id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
+    nfa <- length(id_rand_fa)
+    if (nfa > 1) {
+      for (i in 1:nfa-1) {
+        Sys.sleep(0.1)
+        shinyjs::click(paste0("closeBox_FA_", id_rand_fa[i]))
+      }
+    }
+    
+    # Remueve dinamicos: Project Management Entities
+    id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
+    npe <- length(id_rand_fa)
+    if (npe > 1) {
+      for (i in 1:npe-1) {
+        Sys.sleep(0.1)
+        shinyjs::click(paste0("closeBox_PE_", id_rand_pe[i]))
+      }
+    }
+    
+    # Remueve dinamicos: Experiment Leads
+    id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
+    nel <- length(id_rand_fa)
+    if (nel > 1) {
+      for (i in 1:nel-1) {
+        Sys.sleep(0.1)
+        shinyjs::click(paste0("closeBox_EL_", id_rand_el[i]))
+      }
+    }
+  }
+  
+  generateDin <- function() {
+    df <- read.csv(paste0(sessionpath, getFbId(), ".csv"))
+    
+    # Genera dinamicos: Funding Agency
+    df_fa <- df %>% dplyr::filter(str_detect(inputId, "designFieldbook_fundAgencyType_"))
+    nfa <- nrow(df_fa)
+    nfa <- (nfa/4)-1
+    
+    if (nfa >= 1) {
+      for (i in 1:nfa) {
+        Sys.sleep(0.1)
+        shinyjs::click("addFundingAgency")
+      }
+    }
+    
+    # Genera dinamicos: Project Management Entities
+    df_pe <- df %>% dplyr::filter(str_detect(inputId, "projEntity_|contCenter_|contCRP_"))
+    npe <- nrow(df_pe)
+    npe <- (npe/4)-1
+    
+    if (npe >= 1) {
+      for (i in 1:npe) {
+        Sys.sleep(0.1)
+        shinyjs::click("addManagEntity")
+      }
+    }
+    
+    # Genera dinamicos: Experiment Leads
+    df_el <- df %>% dplyr::filter(str_detect(inputId, "projLeadEnt_|tLeadCenter_|lead_org_type_1_|leadNameOther_|expLead_"))
+    nel <- nrow(df_el)
+    nel <- (nel/6)-1
+    
+    if (nel >= 1) {
+      for (i in 1:nel) {
+        Sys.sleep(0.1)
+        shinyjs::click("addExperimentLeads")
+      }
+    }
+  }
+  
+  dftest <- function() {
+    
+    df_old <- read.csv(paste0(sessionpath, getFbId(), ".csv"))
+    print(df_old)
+    
+    
+    # id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
+    # print(id_rand_fa)
+    
+    # inputs_data_frame <- inputsExperiment()
+    # namevector <- "value"
+    # inputs_data_frame[ , namevector] <- ""
+    
+    ######
+    inputs1 <- inputs2 <- inputs3 <- NULL
+    inputs_to_save <- rbind(inputsExperiment())#,
+    #inputsPersonnel(),
+    #inputsSite(),
+    #inputsCrop(),
+    #inputsDesign(),
+    #inputsExpCon())
+    
+    case1p <- dplyr::filter(inputs_to_save, type == "textInput" |
+                              type == "numericInput" |
+                              type == "textAreaInput" |
+                              type == "checkboxInput" |
+                              type == "dateInput")
+    case1 <- case1p[[1]]
+    case1_type <- case1p[[2]]
+    case1_create <- case1p[[3]]
+    
+    case2p <- dplyr::filter(inputs_to_save, type == "dateRangeInput")
+    case2 <- case2p[[1]]
+    case2_type <- case2p[[2]]
+    case2_create <- case2p[[3]]
+    
+    case3p <- dplyr::filter(inputs_to_save, type == "selectizeInput" | type == "selectInput")
+    case3 <- case3p[[1]]
+    case3_type <- case3p[[2]]
+    case3_create <- case3p[[3]]
+    
+    for (i in 1:length(case1)) {
+      # textInput && numericInput && textAreaInput && checkboxInput && dateinput
+      if (is.null(input[[paste0(case1[i])]]) || is.na(input[[paste0(case1[i])]])) {
+        inputs1[i] <- ""
+      } else {
+        inputs1[i] <- as.character(input[[paste0(case1[i])]])
+      }
+    }
+    inputs_data_frame1 <- data.frame(inputId = case1, type = case1_type, create = case1_create, value = inputs1)
+    
+    # for (i in 1:length(case2)) {
+    #   # dateRangeInput
+    #   if (is.null(input[[paste0(case2[i])]]) || is.na( input[[paste0(case2[i])]])) {
+    #     inputs2[i] <- ""
+    #   } else {
+    #     inputs2[i] <- paste(input[[paste0(case2[i])]], collapse = "&")
+    #   }
+    # }
+    # inputs_data_frame2 <- data.frame(inputId = case2, type = case2_type, create = case2_create, value = inputs2)
+    
+    for (i in 1:length(case3)) {
+      # selectizeInput && selectInput
+      if (is.null(input[[paste0(case3[i])]]) || is.na( input[[paste0(case3[i])]])) {
+        inputs3[i] <- ""
+      } else {
+        inputs3[i] <- paste(input[[paste0(case3[i])]], collapse = "&")
+      }
+    }
+    inputs_data_frame3 <- data.frame(inputId = case3, type = case3_type, create = case3_create, value = inputs3)
+    
+    #inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame2, inputs_data_frame3)
+    inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame3)
+    ######
+    
+    nr <- data.frame(inputId = "user", type = "", create = "", value = "")
+    nr2 <- data.frame(inputId = "datec", type = "", create = "", value = "")
+    nr3 <- data.frame(inputId = "datem", type = "", create = "", value = "")
+    final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame)
+    print(final_inputs_df)
+    
+    if (nrow(df_old) == nrow(final_inputs_df)) {
+      final_inputs_df$value <- df_old$value
+      print(final_inputs_df)
+    }
+  }
+  
+  # Funcion load session
+  loadsession <- function() {
+    if (length(getFbId() != 0)) {
+      if (file.exists(isolate(paste0(sessionpath, getFbId(), ".csv")))){
+        
+        #uploaded_inputs <- read.csv(paste0(sessionpath, getFbId(), ".csv"))
+        uploaded_inputs <- dftest()
+        
+        #print(uploaded_inputs)
+        for(i in 1:nrow(uploaded_inputs)) {
+          type <- as.character(uploaded_inputs[i, 2])
+          create <- as.character(uploaded_inputs[i, 3])
+          
+          if (type == "textInput") {
+            updateTextInput(session,
+                            inputId = uploaded_inputs$inputId[i],
+                            value = uploaded_inputs$value[i])
+          }
+          
+          if (type == "dateRangeInput") {
+            if (uploaded_inputs[i, 4] != "") {
+              v <- getInputs(uploaded_inputs[i, 4], "")
+              x <- as.Date(v[1]) + 1
+              y <- as.Date(v[2]) + 1
+              updateAirDateInput(session,
+                                 inputId = uploaded_inputs$inputId[i],
+                                 value = c(x, y),
+                                 clear = T)
+            } else {
+              updateAirDateInput(session,
+                                 inputId = uploaded_inputs$inputId[i],
+                                 clear = T)
+            }
+          }
+          
+          if (type == "selectizeInput" && create == "n") {
+            updateSelectizeInput(session,
+                                 inputId = uploaded_inputs$inputId[i],
+                                 selected = getInputs(uploaded_inputs[i, 4], ""))
+          }
+          
+          if (type == "selectizeInput" && create == "y") {
+            updateSelectizeInput(session,
+                                 inputId = uploaded_inputs$inputId[i],
+                                 selected = getInputs(uploaded_inputs[i, 4], ""),
+                                 choices = getInputs(uploaded_inputs[i, 4], ""),
+                                 options = list('create' = TRUE))
+          }
+          
+          if (type == "textAreaInput") {
+            updateTextAreaInput(session,
+                                inputId = uploaded_inputs$inputId[i],
+                                value = uploaded_inputs$value[i])
+          }
+          
+          if (type == "numericInput") {
+            updateNumericInput(session,
+                               inputId = uploaded_inputs$inputId[i],
+                               value = uploaded_inputs$value[i])
+          }
+          
+          if (type == "checkboxInput") {
+            if (uploaded_inputs$value[i] == "FALSE") {
+              x <- FALSE
+            } else {
+              x <- TRUE
+            }
+            
+            updateCheckboxInput(session,
+                                inputId = uploaded_inputs$inputId[i],
+                                value = x)
+          }
+          
+          if (type == "dateInput") {
+            if (uploaded_inputs[i, 4] != "") {
+              v <- getInputs(uploaded_inputs[i, 4], "")
+              v <- as.Date(v) + 1
+              updateAirDateInput(session,
+                                 inputId = uploaded_inputs$inputId[i],
+                                 value = v,
+                                 clear = T)
+            } else {
+              updateAirDateInput(session,
+                                 inputId = uploaded_inputs$inputId[i],
+                                 clear = T)
+            }
+          }
+        }
+        
+        delay(
+          1500,
+          for(i in 1:nrow(uploaded_inputs)) {
+            type <- as.character(uploaded_inputs[i, 2])
+            create <- as.character(uploaded_inputs[i, 3])
+            
+            if (type == "textInput") {
+              updateTextInput(session,
+                              inputId = uploaded_inputs$inputId[i],
+                              value = uploaded_inputs$value[i])
+            }
+            
+            if (type == "dateRangeInput") {
+              if (uploaded_inputs[i, 4] != "") {
+                v <- getInputs(uploaded_inputs[i, 4], "")
+                x <- as.Date(v[1]) + 1
+                y <- as.Date(v[2]) + 1
+                updateAirDateInput(session,
+                                   inputId = uploaded_inputs$inputId[i],
+                                   value = c(x, y),
+                                   clear = T)
+              } else {
+                updateAirDateInput(session,
+                                   inputId = uploaded_inputs$inputId[i],
+                                   clear = T)
+              }
+            }
+            
+            if (type == "selectizeInput" && create == "n") {
+              updateSelectizeInput(session,
+                                   inputId = uploaded_inputs$inputId[i],
+                                   selected = getInputs(uploaded_inputs[i, 4], ""))
+            }
+            
+            if (type == "selectizeInput" && create == "y") {
+              updateSelectizeInput(session,
+                                   inputId = uploaded_inputs$inputId[i],
+                                   selected = getInputs(uploaded_inputs[i, 4], ""),
+                                   choices = getInputs(uploaded_inputs[i, 4], ""),
+                                   options = list('create' = TRUE))
+            }
+            
+            if (type == "textAreaInput") {
+              updateTextAreaInput(session,
+                                  inputId = uploaded_inputs$inputId[i],
+                                  value = uploaded_inputs$value[i])
+            }
+            
+            if (type == "numericInput") {
+              updateNumericInput(session,
+                                 inputId = uploaded_inputs$inputId[i],
+                                 value = uploaded_inputs$value[i])
+            }
+            
+            if (type == "checkboxInput") {
+              if (uploaded_inputs$value[i] == "FALSE") {
+                x <- FALSE
+              } else {
+                x <- TRUE
+              }
+              
+              updateCheckboxInput(session,
+                                  inputId = uploaded_inputs$inputId[i],
+                                  value = x)
+            }
+            
+            if (type == "dateInput") {
+              if (uploaded_inputs[i, 4] != "") {
+                v <- getInputs(uploaded_inputs[i, 4], "")
+                v <- as.Date(v) + 1
+                updateAirDateInput(session,
+                                   inputId = uploaded_inputs$inputId[i],
+                                   value = v,
+                                   clear = T)
+              } else {
+                updateAirDateInput(session,
+                                   inputId = uploaded_inputs$inputId[i],
+                                   clear = T)
+              }
+            }
+          }
+        )
+        
+        #output$text2 <- renderText({"Loaded successfully"})
+        shinyalert("Loaded successfully", type = "success", timer = 1500, showConfirmButton = F)
+      }
+      else{
+        #output$text <- renderText({"The session file does not exist"})
+        shinyalert("Oops!", "The session file does not exist", type = "error", timer = 1500, showConfirmButton = F)
+      }
+    }
+  }
+  
+  # Funcion que devuelve valores de un array para la funcion Load session
+  getInputs<- function(valor, q){
+    valor <- sapply(valor, as.character)
+    valor[is.na(valor)] <- " "
+    valor
+    
+    if (stringr::str_detect(valor, "&")) {
+      if (q == "start") {
+        valor <- unlist(strsplit(valor, "&"))
+        valor <- valor[[1]]
+      }
+      
+      if (q == "end") {
+        valor <- unlist(strsplit(valor, "&"))
+        valor <- valor[[2]]
+      }
+    }
+    
+    if(stringr::str_detect(valor,"&")){
+      valor<-unlist(strsplit(valor, "&"))
+    } else {
+      valor<-valor
+    }
+    
+    valor
+  }
+  
+  #Boton load session
+  observeEvent(input$load_inputs, {
+    #withProgress(message = 'Loading session...', value = 0, {
+     # Sys.sleep(2)
+      removeDin()
+      
+      delay(500, generateDin())
+      
+      delay(1000, loadsession())
+      
+    #})
+    
+      ############ COD: IVAN CANSADO ###############
+    
+    
+  })
+  
+  #################### END: LOAD FIELDBOOK ####################
   
   #################### START: GENERA NUEVO FIELDBOOK ####################
   # New fieldbook button

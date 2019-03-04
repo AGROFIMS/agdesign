@@ -104,225 +104,223 @@ server_session_agrofims <- function(input, output, session, values){
   ##### End Modulo: Render session list in DT ######
   
   ##### Start Modulo: Load fieldbook #####
-  # Obtiene el id del row del DT
-  selectedRow <- eventReactive(input$load_inputs, {
-    id <- input$dtsession_rows_selected
-    sessionVals$aux[id, 1]
-  })
-  
-  # Load session
-  loadsession <- function() {
-    if (length(selectedRow() != 0)) {
-      if (file.exists(isolate(paste0(sessionpath, selectedRow(), ".csv")))){
-        uploaded_inputs <- read.csv(paste0(sessionpath, selectedRow(), ".csv"))
-        #print(uploaded_inputs)
-        for(i in 1:nrow(uploaded_inputs)) {
-          type <- as.character(uploaded_inputs[i, 2])
-          create <- as.character(uploaded_inputs[i, 3])
-          
-          if (type == "textInput") {
-            updateTextInput(session,
-                            inputId = uploaded_inputs$inputId[i],
-                            value = uploaded_inputs$value[i])
-          }
-          
-          if (type == "dateRangeInput") {
-            if (uploaded_inputs[i, 4] != "") {
-              v <- getInputs(uploaded_inputs[i, 4], "")
-              x <- as.Date(v[1]) + 1
-              y <- as.Date(v[2]) + 1
-              updateAirDateInput(session,
-                                 inputId = uploaded_inputs$inputId[i],
-                                 value = c(x, y),
-                                 clear = T)
-            } else {
-              updateAirDateInput(session,
-                                 inputId = uploaded_inputs$inputId[i],
-                                 clear = T)
-            }
-          }
-          
-          if (type == "selectizeInput" && create == "n") {
-            updateSelectizeInput(session,
-                                 inputId = uploaded_inputs$inputId[i],
-                                 selected = getInputs(uploaded_inputs[i, 4], ""))
-          }
-          
-          if (type == "selectizeInput" && create == "y") {
-            updateSelectizeInput(session,
-                                 inputId = uploaded_inputs$inputId[i],
-                                 selected = getInputs(uploaded_inputs[i, 4], ""),
-                                 choices = getInputs(uploaded_inputs[i, 4], ""),
-                                 options = list('create' = TRUE))
-          }
-          
-          if (type == "textAreaInput") {
-            updateTextAreaInput(session,
-                                inputId = uploaded_inputs$inputId[i],
-                                value = uploaded_inputs$value[i])
-          }
-          
-          if (type == "numericInput") {
-            updateNumericInput(session,
-                               inputId = uploaded_inputs$inputId[i],
-                               value = uploaded_inputs$value[i])
-          }
-          
-          if (type == "checkboxInput") {
-            if (uploaded_inputs$value[i] == "FALSE") {
-              x <- FALSE
-            } else {
-              x <- TRUE
-            }
-            
-            updateCheckboxInput(session,
-                                inputId = uploaded_inputs$inputId[i],
-                                value = x)
-          }
-          
-          if (type == "dateInput") {
-            if (uploaded_inputs[i, 4] != "") {
-              v <- getInputs(uploaded_inputs[i, 4], "")
-              v <- as.Date(v) + 1
-              updateAirDateInput(session,
-                                 inputId = uploaded_inputs$inputId[i],
-                                 value = v,
-                                 clear = T)
-            } else {
-              updateAirDateInput(session,
-                                 inputId = uploaded_inputs$inputId[i],
-                                 clear = T)
-            }
-          }
-        }
-        
-        delay(
-          1500,
-          for(i in 1:nrow(uploaded_inputs)) {
-            type <- as.character(uploaded_inputs[i, 2])
-            create <- as.character(uploaded_inputs[i, 3])
-            
-            if (type == "textInput") {
-              updateTextInput(session,
-                              inputId = uploaded_inputs$inputId[i],
-                              value = uploaded_inputs$value[i])
-            }
-            
-            if (type == "dateRangeInput") {
-              if (uploaded_inputs[i, 4] != "") {
-                v <- getInputs(uploaded_inputs[i, 4], "")
-                x <- as.Date(v[1]) + 1
-                y <- as.Date(v[2]) + 1
-                updateAirDateInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
-                                   value = c(x, y),
-                                   clear = T)
-              } else {
-                updateAirDateInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
-                                   clear = T)
-              }
-            }
-            
-            if (type == "selectizeInput" && create == "n") {
-              updateSelectizeInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
-                                   selected = getInputs(uploaded_inputs[i, 4], ""))
-            }
-            
-            if (type == "selectizeInput" && create == "y") {
-              updateSelectizeInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
-                                   selected = getInputs(uploaded_inputs[i, 4], ""),
-                                   choices = getInputs(uploaded_inputs[i, 4], ""),
-                                   options = list('create' = TRUE))
-            }
-            
-            if (type == "textAreaInput") {
-              updateTextAreaInput(session,
-                                  inputId = uploaded_inputs$inputId[i],
-                                  value = uploaded_inputs$value[i])
-            }
-            
-            if (type == "numericInput") {
-              updateNumericInput(session,
-                                 inputId = uploaded_inputs$inputId[i],
-                                 value = uploaded_inputs$value[i])
-            }
-            
-            if (type == "checkboxInput") {
-              if (uploaded_inputs$value[i] == "FALSE") {
-                x <- FALSE
-              } else {
-                x <- TRUE
-              }
-              
-              updateCheckboxInput(session,
-                                  inputId = uploaded_inputs$inputId[i],
-                                  value = x)
-            }
-            
-            if (type == "dateInput") {
-              if (uploaded_inputs[i, 4] != "") {
-                v <- getInputs(uploaded_inputs[i, 4], "")
-                v <- as.Date(v) + 1
-                updateAirDateInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
-                                   value = v,
-                                   clear = T)
-              } else {
-                updateAirDateInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
-                                   clear = T)
-              }
-            }
-          }
-        )
-        
-        #output$text2 <- renderText({"Loaded successfully"})
-        shinyalert("Loaded successfully", type = "success", timer = 1500, showConfirmButton = F)
-      }
-      else{
-        #output$text <- renderText({"The session file does not exist"})
-        shinyalert("Oops!", "The session file does not exist", type = "error", timer = 1500, showConfirmButton = F)
-      }
-    }
-  }
-  
-  # Funcion que devuelve valores de un array para la funcion Load session
-  getInputs<- function(valor, q){
-    valor <- sapply(valor, as.character)
-    valor[is.na(valor)] <- " "
-    valor
-    
-    if (stringr::str_detect(valor, "&")) {
-      if (q == "start") {
-        valor <- unlist(strsplit(valor, "&"))
-        valor <- valor[[1]]
-      }
-      
-      if (q == "end") {
-        valor <- unlist(strsplit(valor, "&"))
-        valor <- valor[[2]]
-      }
-    }
-    
-    if(stringr::str_detect(valor,"&")){
-      valor<-unlist(strsplit(valor, "&"))
-    } else {
-      valor<-valor
-    }
-    
-    valor
-  }
-  
-  #Load session
-  observeEvent(input$load_inputs, {
-    #loadsession()
-    #print(selectedRow())
-  })
-  
-  
+  # # Obtiene el id del row del DT
+  # selectedRow <- eventReactive(input$load_inputs, {
+  #   id <- input$dtsession_rows_selected
+  #   sessionVals$aux[id, 1]
+  # })
+  # 
+  # # Load session
+  # loadsession <- function() {
+  #   if (length(selectedRow() != 0)) {
+  #     if (file.exists(isolate(paste0(sessionpath, selectedRow(), ".csv")))){
+  #       uploaded_inputs <- read.csv(paste0(sessionpath, selectedRow(), ".csv"))
+  #       #print(uploaded_inputs)
+  #       for(i in 1:nrow(uploaded_inputs)) {
+  #         type <- as.character(uploaded_inputs[i, 2])
+  #         create <- as.character(uploaded_inputs[i, 3])
+  #         
+  #         if (type == "textInput") {
+  #           updateTextInput(session,
+  #                           inputId = uploaded_inputs$inputId[i],
+  #                           value = uploaded_inputs$value[i])
+  #         }
+  #         
+  #         if (type == "dateRangeInput") {
+  #           if (uploaded_inputs[i, 4] != "") {
+  #             v <- getInputs(uploaded_inputs[i, 4], "")
+  #             x <- as.Date(v[1]) + 1
+  #             y <- as.Date(v[2]) + 1
+  #             updateAirDateInput(session,
+  #                                inputId = uploaded_inputs$inputId[i],
+  #                                value = c(x, y),
+  #                                clear = T)
+  #           } else {
+  #             updateAirDateInput(session,
+  #                                inputId = uploaded_inputs$inputId[i],
+  #                                clear = T)
+  #           }
+  #         }
+  #         
+  #         if (type == "selectizeInput" && create == "n") {
+  #           updateSelectizeInput(session,
+  #                                inputId = uploaded_inputs$inputId[i],
+  #                                selected = getInputs(uploaded_inputs[i, 4], ""))
+  #         }
+  #         
+  #         if (type == "selectizeInput" && create == "y") {
+  #           updateSelectizeInput(session,
+  #                                inputId = uploaded_inputs$inputId[i],
+  #                                selected = getInputs(uploaded_inputs[i, 4], ""),
+  #                                choices = getInputs(uploaded_inputs[i, 4], ""),
+  #                                options = list('create' = TRUE))
+  #         }
+  #         
+  #         if (type == "textAreaInput") {
+  #           updateTextAreaInput(session,
+  #                               inputId = uploaded_inputs$inputId[i],
+  #                               value = uploaded_inputs$value[i])
+  #         }
+  #         
+  #         if (type == "numericInput") {
+  #           updateNumericInput(session,
+  #                              inputId = uploaded_inputs$inputId[i],
+  #                              value = uploaded_inputs$value[i])
+  #         }
+  #         
+  #         if (type == "checkboxInput") {
+  #           if (uploaded_inputs$value[i] == "FALSE") {
+  #             x <- FALSE
+  #           } else {
+  #             x <- TRUE
+  #           }
+  #           
+  #           updateCheckboxInput(session,
+  #                               inputId = uploaded_inputs$inputId[i],
+  #                               value = x)
+  #         }
+  #         
+  #         if (type == "dateInput") {
+  #           if (uploaded_inputs[i, 4] != "") {
+  #             v <- getInputs(uploaded_inputs[i, 4], "")
+  #             v <- as.Date(v) + 1
+  #             updateAirDateInput(session,
+  #                                inputId = uploaded_inputs$inputId[i],
+  #                                value = v,
+  #                                clear = T)
+  #           } else {
+  #             updateAirDateInput(session,
+  #                                inputId = uploaded_inputs$inputId[i],
+  #                                clear = T)
+  #           }
+  #         }
+  #       }
+  #       
+  #       delay(
+  #         1500,
+  #         for(i in 1:nrow(uploaded_inputs)) {
+  #           type <- as.character(uploaded_inputs[i, 2])
+  #           create <- as.character(uploaded_inputs[i, 3])
+  #           
+  #           if (type == "textInput") {
+  #             updateTextInput(session,
+  #                             inputId = uploaded_inputs$inputId[i],
+  #                             value = uploaded_inputs$value[i])
+  #           }
+  #           
+  #           if (type == "dateRangeInput") {
+  #             if (uploaded_inputs[i, 4] != "") {
+  #               v <- getInputs(uploaded_inputs[i, 4], "")
+  #               x <- as.Date(v[1]) + 1
+  #               y <- as.Date(v[2]) + 1
+  #               updateAirDateInput(session,
+  #                                  inputId = uploaded_inputs$inputId[i],
+  #                                  value = c(x, y),
+  #                                  clear = T)
+  #             } else {
+  #               updateAirDateInput(session,
+  #                                  inputId = uploaded_inputs$inputId[i],
+  #                                  clear = T)
+  #             }
+  #           }
+  #           
+  #           if (type == "selectizeInput" && create == "n") {
+  #             updateSelectizeInput(session,
+  #                                  inputId = uploaded_inputs$inputId[i],
+  #                                  selected = getInputs(uploaded_inputs[i, 4], ""))
+  #           }
+  #           
+  #           if (type == "selectizeInput" && create == "y") {
+  #             updateSelectizeInput(session,
+  #                                  inputId = uploaded_inputs$inputId[i],
+  #                                  selected = getInputs(uploaded_inputs[i, 4], ""),
+  #                                  choices = getInputs(uploaded_inputs[i, 4], ""),
+  #                                  options = list('create' = TRUE))
+  #           }
+  #           
+  #           if (type == "textAreaInput") {
+  #             updateTextAreaInput(session,
+  #                                 inputId = uploaded_inputs$inputId[i],
+  #                                 value = uploaded_inputs$value[i])
+  #           }
+  #           
+  #           if (type == "numericInput") {
+  #             updateNumericInput(session,
+  #                                inputId = uploaded_inputs$inputId[i],
+  #                                value = uploaded_inputs$value[i])
+  #           }
+  #           
+  #           if (type == "checkboxInput") {
+  #             if (uploaded_inputs$value[i] == "FALSE") {
+  #               x <- FALSE
+  #             } else {
+  #               x <- TRUE
+  #             }
+  #             
+  #             updateCheckboxInput(session,
+  #                                 inputId = uploaded_inputs$inputId[i],
+  #                                 value = x)
+  #           }
+  #           
+  #           if (type == "dateInput") {
+  #             if (uploaded_inputs[i, 4] != "") {
+  #               v <- getInputs(uploaded_inputs[i, 4], "")
+  #               v <- as.Date(v) + 1
+  #               updateAirDateInput(session,
+  #                                  inputId = uploaded_inputs$inputId[i],
+  #                                  value = v,
+  #                                  clear = T)
+  #             } else {
+  #               updateAirDateInput(session,
+  #                                  inputId = uploaded_inputs$inputId[i],
+  #                                  clear = T)
+  #             }
+  #           }
+  #         }
+  #       )
+  #       
+  #       #output$text2 <- renderText({"Loaded successfully"})
+  #       shinyalert("Loaded successfully", type = "success", timer = 1500, showConfirmButton = F)
+  #     }
+  #     else{
+  #       #output$text <- renderText({"The session file does not exist"})
+  #       shinyalert("Oops!", "The session file does not exist", type = "error", timer = 1500, showConfirmButton = F)
+  #     }
+  #   }
+  # }
+  # 
+  # # Funcion que devuelve valores de un array para la funcion Load session
+  # getInputs<- function(valor, q){
+  #   valor <- sapply(valor, as.character)
+  #   valor[is.na(valor)] <- " "
+  #   valor
+  #   
+  #   if (stringr::str_detect(valor, "&")) {
+  #     if (q == "start") {
+  #       valor <- unlist(strsplit(valor, "&"))
+  #       valor <- valor[[1]]
+  #     }
+  #     
+  #     if (q == "end") {
+  #       valor <- unlist(strsplit(valor, "&"))
+  #       valor <- valor[[2]]
+  #     }
+  #   }
+  #   
+  #   if(stringr::str_detect(valor,"&")){
+  #     valor<-unlist(strsplit(valor, "&"))
+  #   } else {
+  #     valor<-valor
+  #   }
+  #   
+  #   valor
+  # }
+  # 
+  # #Load session
+  # observeEvent(input$load_inputs, {
+  #   #loadsession()
+  #   #print(selectedRow())
+  # })
   
   ##### End Modulo: Load fieldbook ######
   
