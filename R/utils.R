@@ -298,6 +298,7 @@ map_fgroup_values <- function(input, id_chr ="sel_factor_", id_rand,  lbl = "Fac
 #' Mimic the functionality of map functions and transform level inputs into data frame
 #' 
 #' @param input shinyInput input values from server side 
+#' @param allinputs reactive shiny object that return a data frame with all the shiny inputs
 #' @param isf character If \code{isf=="yes"} is full factorial, otherwise \code{isf=="no"} is for non-full factorial
 #' @param id_type_dt data.frame Table with type of Factor and types of input form: \code{combo box}, \code{text input}, and \code{date}  
 #  @param id_chr character character pattern id
@@ -308,7 +309,7 @@ map_fgroup_values <- function(input, id_chr ="sel_factor_", id_rand,  lbl = "Fac
 #' @export
 #'
 
-map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("levels_", "select_factor_treatment_"),
+map_level_values <- function(input, allinputs, isf=c("yes","no"), id_type_dt, #id_chr= c("levels_", "select_factor_treatment_"),
                              id_rand, ntrt=2, lbl= "f"){
   
   
@@ -334,7 +335,19 @@ map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("l
           
         if(is.na(id_type[i]) || is.null(id_type[i])){
           levelVals[[i]] <- "-"
-        } 
+        }
+        else if(id_type_dt$GROUP[i]=="Soil fertility"){
+          
+            if(id_type_dt$FACTOR[i]=="Number of fertilizer applications"){
+              levelVals[[i]] <- paste(id_type_dt$FACTOR[i], id_rand[i])
+            } else if(id_type_dt$FACTOR[i]=="Nutrient element application rate") {
+              levelVals[[i]] <- paste(id_type_dt$FACTOR[i], id_rand[i])
+            } else if(id_type_dt$FACTOR[i]=="Fertilizer product application rate"){
+              levelVals[[i]] <- paste(id_type_dt$FACTOR[i], id_rand[i])
+            } else{
+              levelVals[[i]] <- paste("Fertilizer product application rate", id_rand[i])
+            }      
+        }
         else if(id_type[i]=="combo box" || id_type[i]=="text input"){
             id_chr <- "levels_"
             if(is.null(input[[paste0(id_chr, id_rand[i])]] )){
@@ -389,7 +402,7 @@ map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("l
           #id_chr<- "select_factor_treatment_" #by default
           id_chr <- NULL
           
-        }
+        } 
         else if(id_type[i]=="date"){
           #id_chr<- "date_factor_treatment_"
           id_chr<-"input_factor_treatment_"
@@ -408,6 +421,18 @@ map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("l
         
         if(is.null(input[[paste0(id_chr, id_rand[i], "_", j)]]) || is.null(id_chr) ){
           dtnoflvl[i,j] <- "-"
+        }  else if(id_type_dt$GROUP[i]=="Soil fertility"){
+          
+              if(id_type_dt$FACTOR[i]=="Number of fertilizer applications"){
+                dtnoflvl[i,j] <- paste(id_type_dt$FACTOR[i], id_rand[i])
+              } else if(id_type_dt$FACTOR[i]=="Nutrient element application rate") {
+                dtnoflvl[i,j] <- paste(id_type_dt$FACTOR[i], id_rand[i])
+              } else if(id_type_dt$FACTOR[i]=="Fertilizer product application rate"){
+                dtnoflvl[i,j] <- paste(id_type_dt$FACTOR[i], id_rand[i])
+              } else{
+                dtnoflvl[i,j] <- paste("Fertilizer product application rate", id_rand[i])
+              }      
+          
         } else {
           dtnoflvl[i,j] <- map_singleform_values(input[[paste0(id_chr, id_rand[i], "_", j)]], type =  id_type[i])
         }
@@ -421,44 +446,7 @@ map_level_values <- function(input, isf=c("yes","no"), id_type_dt, #id_chr= c("l
   }
   out
   
-  
-  
-  #levelVals <- vector(mode = "list")
-  # isf<- match.arg(isf)
-  # id_chr<- match.arg(id_chr)
-  # 
-  # if(isf=="yes"){
-  # levelVals <- vector(mode = "list")  
-  # for(i in 1:length(id_rand)){
-  #     if(is.null( input[[paste0(id_chr, id_rand[i])]] )){
-  #       levelVals[[i]] <- "-"
-  #     } else {
-  #       levelVals[[i]] <- input[[paste0(id_chr, id_rand[i])]]
-  #     }
-  # }
-  #   out<-levelVals
-  # }
-  # 
-  # 
-  # 
-  # if(isf=="no"){
-  #   #non full factorial
-  #   dtnoflvl <- data.frame()
-  #   for(i in 1:length(id_rand)){
-  #     for(j in 1:ntrt){
-  #         if(is.null( input[[paste0(id_chr, id_rand[i], "_", j)]])){
-  #           dtnoflvl[i,j] <- "-"
-  #         } else {
-  #           dtnoflvl[i,j] <- input[[paste0(id_chr, id_rand[i], "_", j)]]
-  #         }
-  #     }
-  #   }
-  #  out <- t(dtnoflvl) %>% as.tibble()  #transpose and make a list
-  #  nms <- paste0(lbl, 1:ncol(out)) #header's name
-  #  names(out)<- nms
-  #  out<- out %>% as.list()
-  # }
-  # out
+
 
 }
 
@@ -534,7 +522,6 @@ dt_inputs<- function(dt, dt_other){
 }
 
 # Arrange data.frame by pattern
-
 arrange_by_pattern <- function(data, pattern){
   
   if(nrow(data)>0 && length(pattern)>0){
@@ -549,6 +536,20 @@ arrange_by_pattern <- function(data, pattern){
   
   dt
 } 
+
+
+#Smart Bind data frames by columns
+
+smart_colbind <- function(...){
+  
+ dt_list<- as.list(...)
+ # #Remove/Clean all the list (or clean) that are equal to zero
+ dt_list<- rlist::list.clean(dt_list, function(x) length(x) == 0)
+ dt <- bind_cols(dt_list)
+ 
+}
+
+
 
 
 # Get experimental design label (or full name) based on abrreviations
@@ -576,6 +577,7 @@ experimental_design_label <- function(abbr_design = "RCBD"){
 
 }
 
+#Clean header for experiment conditions data frames
 ec_clean_header <- function(dt){
 
   dt$`Fieldbook download`<-NULL
@@ -590,6 +592,7 @@ ec_clean_header <- function(dt){
   dt
 }
 
+#Filter data for experiment conditions
 ec_filter_data <- function(dt){
   
   dt <- dt %>% filter(Fieldbook_download!="")
@@ -598,14 +601,14 @@ ec_filter_data <- function(dt){
   dt <- dt %>% mutate(TraitName=Fieldbook_download)
 }
 
-
+#Get number of evaluations per season for experiment conditions
 get_ns <- function(addId){
   
   n<- length(addId) 
   n
 }
 
-
+#Change units in TraitList sheet
 changes_units <- function(ec, input, allinputs){
   
   
@@ -732,4 +735,5 @@ changes_units <- function(ec, input, allinputs){
   dt
   
 }
+
 

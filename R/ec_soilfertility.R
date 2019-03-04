@@ -63,8 +63,9 @@ get_ec_sf <- function(allinputs, lbl, napp ){
   dt_soil <- arrange_by_pattern(dt_soil, as.character(1:napp) )
   #dt_soil <- arrange_by_pattern(dt_soil,c("1","2","3"))
   ### Label
-  lbl <- c("Soil_fertility_Fertilizer_type","Soil_fertility_Product","Soil_fertility_Product_rate_(kg/ha)", "Soil_fertility_Element","Soil_fertility_Element_rate_(kg/ha)",
-           "Soil_fertility_Start_date", "Soil_fertility_End_date", "Soil_fertility_Technique", "Soil_fertility_Notes")
+  lbl <- c("Soil_fertility_fertilizer_type","Soil_fertility_product","Soil_fertility_product_rate_(kg/ha)", 
+           "Soil_fertility_element","Soil_fertility_element_rate_(kg/ha)",
+           "Soil_fertility_start_date", "Soil_fertility_end_date", "Soil_fertility_technique", "Soil_fertility_notes")
   lbl_soil <- NULL #vector(mode = "character",length = length(lbl)*napp)) 
   for(i in 1:napp){
     lbl_soil  <- append(lbl_soil , paste0(lbl,"__", i))

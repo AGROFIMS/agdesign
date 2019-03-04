@@ -239,7 +239,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
              actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
              actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('openFieldbook')"),
              actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
-             #actionButton("savetest", "save test"),
+             actionButton("savetest", "save test"),
              htmlOutput("lastsaved")
              #uiOutput("saveUI")
       )
@@ -2401,7 +2401,8 @@ display: none;
                                        #shiny::actionButton(inputId = "refresh", label = "Refresh", icon = icon("fa fa-refresh")),
                                        #shinyBS::bsButton( "fbDesign_draft", "BookView" ),
                                        shiny::actionButton("fbDesign_draft_agrofims", "Book Preview", icon("table"), style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                       shiny::actionButton("sendData", "Send to KDSmart", icon("send"), style="color: #000; background-color: #c5c5c5; border-color: #000"),
+                                       #downloadButton("sendKDSmart", "Send to KDSmart", icon("send"), style="color: #000; background-color: #c5c5c5; border-color: #000"),
+                                       actionButton("sendKDSmart", "Send to KDSmart"),
                                        downloadButton("downloadData", "Download", class = "color: #fff; background-color: #51a351; border-color: #51a351"),
                                        
                                        #shinysky::actionButton2("fbDesign_create_agrofims", label = "Download", icon ="file-excel-o", icon.library = "bootstrap", styleclass= "color: #fff; background-color: #51a351; border-color: #51a351"),

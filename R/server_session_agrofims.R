@@ -63,16 +63,25 @@ server_session_agrofims <- function(input, output, session, values){
       df <- data.frame(a, b, c, d, e, f, g, stringsAsFactors = F)
       df <- dplyr::filter(as.data.frame(df), g == userM)
       df <- df %>% dplyr::arrange(desc(f))
-      
+      #print(df)
       sessionVals$aux <- data.frame(df)
       colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
+      #colnames(df) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
+      #print(df)
     } else {
       
       sessionVals$aux <- data.frame()
+      #df <- data.frame()
     }
   }
   
+  # observeEvent(input$aa, {
+  #   print("uhihiuhui")
+  #   
+  # })
+  
   observeEvent(input$refreshsession, {
+    #print("uno")
     refreshDT()
   })
   ##### End Modulo: Refresh list ######
@@ -82,10 +91,11 @@ server_session_agrofims <- function(input, output, session, values){
     DT::datatable(
       sessionVals$aux, 
       #iris,
+      #refreshDT(),
       selection = 'single',
       options = list(
-        pageLength = 5,
-        columnDefs = list(list(visible=FALSE, targets=c(1, 7)))
+        pageLength = 5#,
+        #columnDefs = list(list(visible=FALSE, targets=c(1, 7)))
         #list(width = '30%', targets = c(1)),
         #list(className = 'dt-center', targets = c(7,8))
       )
@@ -308,8 +318,12 @@ server_session_agrofims <- function(input, output, session, values){
   
   #Load session
   observeEvent(input$load_inputs, {
-    loadsession()
+    #loadsession()
+    #print(selectedRow())
   })
+  
+  
+  
   ##### End Modulo: Load fieldbook ######
   
   ##### Start Modulo: Delete fieldbook ######

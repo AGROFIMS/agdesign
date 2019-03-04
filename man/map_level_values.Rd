@@ -4,11 +4,13 @@
 \alias{map_level_values}
 \title{Mimic the functionality of map functions and transform level inputs into data frame}
 \usage{
-map_level_values(input, isf = c("yes", "no"), id_type_dt, id_rand,
-  ntrt = 2, lbl = "f")
+map_level_values(input, allinputs, isf = c("yes", "no"), id_type_dt,
+  id_rand, ntrt = 2, lbl = "f")
 }
 \arguments{
 \item{input}{shinyInput input values from server side}
+
+\item{allinputs}{reactive shiny object that return a data frame with all the shiny inputs}
 
 \item{isf}{character If \code{isf=="yes"} is full factorial, otherwise \code{isf=="no"} is for non-full factorial}
 
