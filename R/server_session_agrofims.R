@@ -94,8 +94,8 @@ server_session_agrofims <- function(input, output, session, values){
       #refreshDT(),
       selection = 'single',
       options = list(
-        pageLength = 5#,
-        #columnDefs = list(list(visible=FALSE, targets=c(1, 7)))
+        pageLength = 5,
+        columnDefs = list(list(visible=FALSE, targets=c(1, 7)))
         #list(width = '30%', targets = c(1)),
         #list(className = 'dt-center', targets = c(7,8))
       )

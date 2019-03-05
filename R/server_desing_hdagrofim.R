@@ -1035,6 +1035,7 @@ server_design_agrofims <- function(input, output, session, values){
         Sys.sleep(0.1)
         shinyjs::click(paste0("closeBox_FA_", id_rand_fa[i]))
       }
+      print("OK rem FA")
     }
     
     # Remueve dinamicos: Project Management Entities
@@ -1045,6 +1046,7 @@ server_design_agrofims <- function(input, output, session, values){
         Sys.sleep(0.1)
         shinyjs::click(paste0("closeBox_PE_", id_rand_pe[i]))
       }
+      print("OK rem PE")
     }
     
     # Remueve dinamicos: Experiment Leads
@@ -1055,7 +1057,10 @@ server_design_agrofims <- function(input, output, session, values){
         Sys.sleep(0.1)
         shinyjs::click(paste0("closeBox_EL_", id_rand_el[i]))
       }
+      print("OK rem EL")
     }
+    
+    print("removidos exitosamente")
   }
   
   generateDin <- function() {
@@ -1071,6 +1076,7 @@ server_design_agrofims <- function(input, output, session, values){
         Sys.sleep(0.1)
         shinyjs::click("addFundingAgency")
       }
+      print("OK add EL")
     }
     
     # Genera dinamicos: Project Management Entities
@@ -1083,6 +1089,7 @@ server_design_agrofims <- function(input, output, session, values){
         Sys.sleep(0.1)
         shinyjs::click("addManagEntity")
       }
+      print("OK add EL")
     }
     
     # Genera dinamicos: Experiment Leads
@@ -1095,7 +1102,10 @@ server_design_agrofims <- function(input, output, session, values){
         Sys.sleep(0.1)
         shinyjs::click("addExperimentLeads")
       }
+      print("OK add EL")
     }
+    
+    print("agregados exitosamente")
   }
   
   dftest <- function() {
@@ -1104,12 +1114,6 @@ server_design_agrofims <- function(input, output, session, values){
     print(df_old)
     
     
-    # id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
-    # print(id_rand_fa)
-    
-    # inputs_data_frame <- inputsExperiment()
-    # namevector <- "value"
-    # inputs_data_frame[ , namevector] <- ""
     
     ######
     inputs1 <- inputs2 <- inputs3 <- NULL
@@ -1398,12 +1402,30 @@ server_design_agrofims <- function(input, output, session, values){
   observeEvent(input$load_inputs, {
     #withProgress(message = 'Loading session...', value = 0, {
      # Sys.sleep(2)
-      removeDin()
+      #removeDin()
       
-      delay(500, generateDin())
+      #delay(500, generateDin())
       
-      delay(1000, loadsession())
+      #delay(1000, dftest())
+      #delay(1000, loadsession())
       
+      n <- 3
+      
+      for (i in 1:3) {
+        if (i == 1) {
+          #removeDin()
+        }
+        
+        if (i == 2) {
+          #generateDin()
+        }
+        
+        if (i == 3) {
+          #dftest()
+        }
+        Sys.sleep(0.5)
+      }
+    
     #})
     
       ############ COD: IVAN CANSADO ###############
@@ -8594,11 +8616,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyMono = dataTableProxy('tblMono')
@@ -8645,11 +8667,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyMonoCassava = dataTableProxy('tblInterCassava')
@@ -8674,11 +8696,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyMonoCommonbean = dataTableProxy('tblInterCommon')
@@ -8703,11 +8725,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyMonoMaize = dataTableProxy('tblInterMaize')
@@ -8732,11 +8754,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyMonoPotato = dataTableProxy('tblInterPotato')
@@ -8761,11 +8783,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyMonoRice = dataTableProxy('tblInterRice')
@@ -8790,11 +8812,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyMonoSweetpotato = dataTableProxy('tblInterSweetpotato')
@@ -8819,11 +8841,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyMonoWheat = dataTableProxy('tblInterWheat')
@@ -8848,11 +8870,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyMonoOther = dataTableProxy('tblInterOther')
@@ -9310,11 +9332,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxyWeather = dataTableProxy('tblWeather')
@@ -9379,11 +9401,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,8,9,10,11)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   proxySoil = dataTableProxy('tblSoil')
@@ -9399,6 +9421,13 @@ server_design_agrofims <- function(input, output, session, values){
   })
   #### End Soil Ultima version ####
  
+  
+  
+  
+  
+  
+  #######
+  
   ### start crop measurement 1 ###
 
   traitsVals <- reactiveValues()
