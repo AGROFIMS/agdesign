@@ -8553,6 +8553,8 @@ server_design_agrofims <- function(input, output, session, values){
   
   
   observe({
+    input$fbDesignNav
+    isolate({
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
     print(ct)
     if (ct == "Intercrop") {
@@ -8573,14 +8575,15 @@ server_design_agrofims <- function(input, output, session, values){
     
     print(cropivan)
 
-    # for (i in 1:length(chu)) {
-    #   shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
-    # }
-    # 
-    # for (i in 1:length(cropivan)) {
-    #   #print(gsub(" ","",cropivan[i]))
-    #   shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
-    # }
+    for (i in 1:length(chu)) {
+      shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+    }
+
+    for (i in 1:length(cropivan)) {
+      #print(gsub(" ","",cropivan[i]))
+      shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
+    }
+    })
     
   })
   
