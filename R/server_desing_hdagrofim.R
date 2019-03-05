@@ -8555,106 +8555,36 @@ server_design_agrofims <- function(input, output, session, values){
   observe({
     input$fbDesignNav
     isolate({
-    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-    print(ct)
-    if (ct == "Intercrop") {
-      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-      #print(id_ic_rand)
-      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-      #print(circm)
-      cropivan <- paste0("crop_measurement_", circm)
-    } else{
-      #if(ct=="Monocrop"){
-      crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-      #print(crp)
-      cropivan <- paste0("crop_measurement_",crp)
-      #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-      #out <- rbind(ctd, crp, var)
-      #}
-    }
-    
-    print(cropivan)
-
-    for (i in 1:length(chu)) {
-      shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
-    }
-
-    for (i in 1:length(cropivan)) {
-      #print(gsub(" ","",cropivan[i]))
-      shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
-    }
+      ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+      #print(ct)
+      if (ct == "Intercrop") {
+        id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+        #print(id_ic_rand)
+        circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+        #print(circm)
+        cropivan <- paste0("crop_measurement_", circm)
+      } else{
+        #if(ct=="Monocrop"){
+        crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+        #print(crp)
+        cropivan <- paste0("crop_measurement_",crp)
+        #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+        #out <- rbind(ctd, crp, var)
+        #}
+      }
+      
+      for (i in 1:length(chu)) {
+        shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+      }
+  
+      for (i in 1:length(cropivan)) {
+        #print(gsub(" ","",cropivan[i]))
+        shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
+      }
     })
     
   })
   
-  observeEvent(input$croppingType, {
-    
-  })
-  
-  
-  
-  
-
-  # shiny::eventReactive(input$croppingType, {
-  #   ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-  #   
-  #   if (ct == "Intercrop") {
-  #     id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-  #     circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-  #     #print(circm)
-  #     cropivan <- paste0("crop_measurement_", circm)
-  #   } else{
-  #     #if(ct=="Monocrop"){
-  #     crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-  #     cropivan <- paste0("crop_measurement_",crp)
-  #     #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-  #     #out <- rbind(ctd, crp, var)
-  #     #}
-  #   }
-  #   
-  #   for (i in 1:length(chu)) {
-  #     shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
-  #   }
-  #   
-  #   for (i in 1:length(cropivan)) {
-  #     #print(gsub(" ","",cropivan[i]))
-  #     shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
-  #   }
-  #   
-  # })
-  
-  observe({
-    #   ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-    #   print(ct)
-    # 
-    # if (ct == "Intercrop") {
-    #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-    #   print(id_ic_rand)
-    #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-    #   #print(circm)
-    #   cropivan <- paste0("crop_measurement_", circm)
-    # } else{
-    #   #if(ct=="Monocrop"){
-    #   crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-    #   cropivan <- paste0("crop_measurement_",crp)
-    #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-    #   #out <- rbind(ctd, crp, var)
-    #   #}
-    # }
-    # 
-    #   observeEvent(cropivan, {  
-    #         for (i in 1:length(chu)) {
-    #           shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
-    #         }
-    #     
-    #         for (i in 1:length(cropivan)) {
-    #           #print(gsub(" ","",cropivan[i]))
-    #           shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
-    #         }
-    #   }) 
-      
-      
-  })
   #### End Tabs Crop Measurement: ####
   
   # Base de datos general para Crop Measurement:
@@ -8665,8 +8595,8 @@ server_design_agrofims <- function(input, output, session, values){
                        "Subgroup",
                        "Measurement",
                        "TraitUnit",
-                       "Crop measurement per season",
-                       "Crop measurement per plot",
+                       "Number of measurements per season",
+                       "Number of Crop measurements per plot",
                        "TraitAlias",
                        "TraitDataType",
                        "TraitValidation",
@@ -9000,34 +8930,49 @@ server_design_agrofims <- function(input, output, session, values){
     # }
   })
   
+  observeEvent(input$croppingType, {
+    if (input$croppingType == "Monocrop") {
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+      shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+    }
+
+    if (input$croppingType == "Intercrop") {
+      shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+    }
+  })
+  
   chuphe <- c("crop_phenology_Cassava", "crop_phenology_Commonbean", "crop_phenology_Maize", "crop_phenology_Potato", "crop_phenology_Rice",
            "crop_phenology_Sweetpotato", "crop_phenology_Wheat", "crop_phenology_Other")
   
   observe({
-    # ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-    # 
-    # if (ct == "Intercrop") {
-    #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
-    #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-    #   #print(circm)
-    #   cropivanphe <- paste0("crop_phenology_", circm)
-    # } else{
-    #   #if(ct=="Monocrop"){
-    #   crp <- map_singleform_values(input$cropCommonNameMono,input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-    #   cropivanphe <- paste0("crop_phenology_",crp)
-    #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-    #   #out <- rbind(ctd, crp, var)
-    #   #}
-    # }
-    # 
-    # for (i in 1:length(chuphe)) {
-    #   shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
-    # }
-    # 
-    # for (i in 1:length(cropivanphe)) {
-    #   #print(gsub(" ","",cropivanphe[i]))
-    #   shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
-    # }
+    input$fbDesignNav
+    isolate({
+      ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+
+      if (ct == "Intercrop") {
+        id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+        circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+        #print(circm)
+        cropivanphe <- paste0("crop_phenology_", circm)
+      } else{
+        #if(ct=="Monocrop"){
+        crp <- map_singleform_values(input$cropCommonNameMono,input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+        cropivanphe <- paste0("crop_phenology_",crp)
+        #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+        #out <- rbind(ctd, crp, var)
+        #}
+      }
+
+      for (i in 1:length(chuphe)) {
+        shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+      }
+
+      for (i in 1:length(cropivanphe)) {
+        #print(gsub(" ","",cropivanphe[i]))
+        shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
+      }
+    })
   })
   #### End Tabs Crop Phenology: ####
   
@@ -9041,8 +8986,8 @@ server_design_agrofims <- function(input, output, session, values){
                        "Measurement",
                        "TraitName",
                        "TraitUnit",
-                       "Crop measurement per season",
-                       "Crop measurement per plot",
+                       "Number of measurements per season",
+                       "Number of Crop measurements per plot",
                        "TraitAlias",
                        "TraitDataType",
                        "TraitValidation",
@@ -9142,11 +9087,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   # proxyInterCassava = dataTableProxy('tblInterPheCassava')
@@ -9171,11 +9116,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   # proxyInterCommonbean = dataTableProxy('tblInterPheCommon')
@@ -9200,11 +9145,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   # proxyInterMaize = dataTableProxy('tblInterPheMaize')
@@ -9229,11 +9174,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   # proxyInterPotato = dataTableProxy('tblInterPhePotato')
@@ -9258,11 +9203,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   # proxyInterRice = dataTableProxy('tblInterPheRice')
@@ -9287,11 +9232,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   # proxyInterSweetpotato = dataTableProxy('tblInterPheSweetpotato')
@@ -9316,11 +9261,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   # proxyInterWheat = dataTableProxy('tblInterPheWheat')
@@ -9345,11 +9290,11 @@ server_design_agrofims <- function(input, output, session, values){
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      )
-    ) %>% formatStyle(
-      c("Crop measurement per season", "Crop measurement per plot"),
-      backgroundColor = ("lightblue")
-    )
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
   )
   
   # proxyInterOther = dataTableProxy('tblInterPheOther')
@@ -9397,16 +9342,16 @@ server_design_agrofims <- function(input, output, session, values){
     # }
     dt<- weather_station_vars
     colnames(dt) <- c("Crop", 
-                         "Group",
-                         "Subgroup",
-                         "Measurement",
-                         "TraitUnit",
-                         "Crop measurement per season",
-                         "Crop measurement per plot",
-                         "TraitAlias",
-                         "TraitDataType",
-                         "TraitValidation",
-                         "VariableId")
+                      "Group",
+                      "Subgroup",
+                      "Measurement",
+                      "TraitUnit",
+                      "Number of measurements per season",
+                      "Number of Crop measurements per plot",
+                      "TraitAlias",
+                      "TraitDataType",
+                      "TraitValidation",
+                      "VariableId")
     dt
   }
   
@@ -9470,16 +9415,16 @@ server_design_agrofims <- function(input, output, session, values){
     # }
     dt<- soil_data
     colnames(dt) <- c("Crop", 
-                             "Group",
-                             "Subgroup",
-                             "Measurement",
-                             "TraitUnit",
-                             "Crop measurement per season",
-                             "Crop measurement per plot",
-                             "TraitAlias",
-                             "TraitDataType",
-                             "TraitValidation",
-                             "VariableId")
+                      "Group",
+                      "Subgroup",
+                      "Measurement",
+                      "TraitUnit",
+                      "Number of measurements per season",
+                      "Number of Crop measurements per plot",
+                      "TraitAlias",
+                      "TraitDataType",
+                      "TraitValidation",
+                      "VariableId")
     dt
   }
   dtSoil <- data.frame()
