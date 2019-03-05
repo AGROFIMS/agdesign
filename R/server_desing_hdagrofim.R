@@ -8584,6 +8584,7 @@ server_design_agrofims <- function(input, output, session, values){
       aux <- dfmea[0,]
     }
   }
+  dtMonocrop<- data.frame()
   
   output$tblMono = renderDT(
     datatable(
@@ -8635,6 +8636,7 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   # Cassava
+  dtInterCassava <- data.frame()
   output$tblInterCassava = renderDT(
     datatable(
       dtInterCassava <<- finter("Cassava"),
@@ -8663,6 +8665,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   # Common bean
+  dtInterCommon <- data.frame()
   output$tblInterCommon = renderDT(
     datatable(
       dtInterCommon <<- finter("Common bean"),
@@ -8691,6 +8694,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   # Maize
+  dtInterMaize <- data.frame()
   output$tblInterMaize = renderDT(
     datatable(
       dtInterMaize <<- finter("Maize"),
@@ -8719,6 +8723,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   # Potato
+  dtInterPotato <- data.frame()
   output$tblInterPotato = renderDT(
     datatable(
       dtInterPotato <<- finter("Potato"),
@@ -8747,6 +8752,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   # Rice
+  dtInterRice <- data.frame()
   output$tblInterRice = renderDT(
     datatable(
       dtInterRice <<- finter("Rice"),
@@ -8775,6 +8781,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   # Sweetpotato
+  dtInterSweetpotato<<- data.frame()
   output$tblInterSweetpotato = renderDT(
     datatable(
       dtInterSweetpotato <<- finter("Sweetpotato"),
@@ -8803,6 +8810,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   # Wheat
+  dtInterWheat <<- data.frame()
   output$tblInterWheat = renderDT(
     datatable(
       dtInterWheat <<- finter("Wheat"),
@@ -8831,6 +8839,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   # Other
+  dtInterOther <- data.frame()
   output$tblInterOther = renderDT(
     datatable(
       dtInterOther <<- finter("Other"),
@@ -8956,6 +8965,9 @@ server_design_agrofims <- function(input, output, session, values){
     }
   }
   
+  dtMonocropphe <- pheno_vars
+  
+  #dtMonocropphe <- fmonophe()
   output$tblMonoPhe = renderDT(
     datatable(
       dtMonocropphe <<- fmonophe(),
@@ -9009,6 +9021,7 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   # Cassava
+  dtInterPheCassava <- data.frame()
   output$tblInterPheCassava = renderDT(
     datatable(
       dtInterPheCassava <<- finterphe("Cassava"),
@@ -9037,6 +9050,7 @@ server_design_agrofims <- function(input, output, session, values){
   # })
   
   # Common bean
+  dtInterPheCommon <- data.frame()
   output$tblInterPheCommon = renderDT(
     datatable(
       dtInterPheCommon <<- finterphe("Common bean"),
@@ -9065,6 +9079,7 @@ server_design_agrofims <- function(input, output, session, values){
   # })
   
   # Maize
+  dtInterPheMaize <- data.frame()
   output$tblInterPheMaize = renderDT(
     datatable(
       dtInterPheMaize <<- finterphe("Maize"),
@@ -9093,6 +9108,7 @@ server_design_agrofims <- function(input, output, session, values){
   # })
   
   # Potato
+  dtInterPhePotato <- data.frame()
   output$tblInterPhePotato = renderDT(
     datatable(
       dtInterPhePotato <<- finterphe("Potato"),
@@ -9121,6 +9137,7 @@ server_design_agrofims <- function(input, output, session, values){
   # })
   
   # Rice
+  dtInterPheRice <- data.frame()
   output$tblInterPheRice = renderDT(
     datatable(
       dtInterPheRice <<- finterphe("Rice"),
@@ -9149,6 +9166,7 @@ server_design_agrofims <- function(input, output, session, values){
   # })
   
   # Sweetpotato
+  dtInterPheSweetpotato <- data.frame()
   output$tblInterPheSweetpotato = renderDT(
     datatable(
       dtInterPheSweetpotato <<- finterphe("Sweetpotato"),
@@ -9177,6 +9195,7 @@ server_design_agrofims <- function(input, output, session, values){
   # })
   
   # Wheat
+  dtInterPheWheat <- data.frame()
   output$tblInterPheWheat = renderDT(
     datatable(
       dtInterPheWheat <<- finterphe("Wheat"),
@@ -9205,6 +9224,7 @@ server_design_agrofims <- function(input, output, session, values){
   # })
   
   # Other
+  dtInterPheOther <- data.frame()
   output$tblInterPheOther = renderDT(
     datatable(
       dtInterPheOther <<- finterphe("Other"),
@@ -9280,6 +9300,8 @@ server_design_agrofims <- function(input, output, session, values){
   
   #dtWeather<- data.frame()
   
+  dtWeather<- data.frame()
+  
   output$tblWeather = renderDT(
     datatable(
       dtWeather <<- fweather(),
@@ -9348,7 +9370,7 @@ server_design_agrofims <- function(input, output, session, values){
                              "VariableId")
     dt
   }
-  
+  dtSoil <- data.frame()
   output$tblSoil = renderDT(
     datatable(
       dtSoil <<- fsoil(),
@@ -10980,19 +11002,6 @@ server_design_agrofims <- function(input, output, session, values){
     fbdesign_id()
   })
 
-  ## Reactive expression for reactive object with agrofims
-  trait_agrofims <- reactive({
-
-    trait_index <-  input$Main_table_rows_selected  #data from fbdesign for hidap-agrofims
-    if(is.null(trait_index)){
-      trait_selected <- data.table::data.table()
-    } else {
-      dt <- traitsVals$Data
-      trait_selected <- dt[trait_index, ]
-    }
-    trait_selected
-  })
-
 
   #Phenomic DataTable ###################################################################
   output$phenoDT = renderDT(
@@ -11337,24 +11346,10 @@ server_design_agrofims <- function(input, output, session, values){
      }
      dt
    })
-   
-  # dt_residual<- reactive({
-  #   
-  #   #ai<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
-  #   #input<-readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
-  #   dt1 <- get_ec_resdesc(input=input)         
-  #   dt2 <- get_ec_resmgt(input=input) 
-  #   dt <- cbind(dt1,dt2) #column bind of two sub tabs (description and management)
-  #   if(nrow(fbdesign())==0){
-  #     dt <- dt
-  #   }else {
-  #     dt <-cbind(fbdesign() ,dt)
-  #   }
-  #   dt
-  # })
+
   
   #seedbed preparation  #############################################################
-   dt_seedbed <- reactive({
+  dt_seedbed <- reactive({
      
      if(isTRUE(input$landLevelling_checkbox)){
        land <- get_ec_sblalv(input=input)
@@ -11386,19 +11381,6 @@ server_design_agrofims <- function(input, output, session, values){
      dt
    })
    
-  # dt_seedbed <- reactive({
-  #   land <- get_ec_sblalv(input=input)
-  #   pud<- get_ec_sbpud(input= input)
-  #   till<- get_ec_sbtill(input=input)
-  #   dt<- cbind(land,pud,till)
-  #   if(nrow(fbdesign())==0){
-  #     dt <- dt
-  #   }else {
-  #     dt <-cbind(fbdesign() ,dt)
-  #   }
-  #   dt
-  #   
-  # })
 
   ## Soil Fertility
   dt_soilFertility <- reactive({
@@ -11422,7 +11404,6 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   ### Planting & Transplanting   #####################################################################
-  #direct seeding
   dt_plantrans <- reactive({
     
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
@@ -11441,7 +11422,7 @@ server_design_agrofims <- function(input, output, session, values){
       
       id_rand_inter <- getAddInputId(intercropVars$ids, "IC_", "") 
       circm <- map_values(input, id_chr="cropCommonNameInter_",id_rand_inter, format = "vector", lbl= "Select crop")
-      dt<- get_ec_plantrans_inter(allinputs=AllInputs(), addId= id_rand_inter, circm)
+      dt<- get_ec_plantrans_inter(allinputs=AllInputs(), input, addId= id_rand_inter, circm)
       
       #Join fbdesign with harvest header of each crop for intercrop trials
       for(j in 1:length(dt)){
@@ -11456,41 +11437,6 @@ server_design_agrofims <- function(input, output, session, values){
     
     dt  
   })
-  
-  
-  
-  # dt_plantrans <- reactive({
-  #   
-  #   ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
-  #   
-  #   if(ct=="Monocrop"){
-  #      dt<- get_ec_plantrans(AllInputs())
-  #     if(nrow(fbdesign())==0){
-  #       dt <- dt
-  #     } else {
-  #       dt <-cbind(fbdesign() ,dt)
-  #     }
-  #   } else {
-  #  
-  #     id_rand_inter <- getAddInputId(intercropVars$ids, "IC_", "") 
-  #     circm <- map_values(input, id_chr="cropCommonNameInter_",id_rand_inter, format = "vector", lbl= "Select crop")
-  #     dt<- get_ec_plantrans_inter(allinputs=AllInputs(), addId= id_rand_inter, circm)
-  #     
-  #     #Join fbdesign with harvest header of each crop for intercrop trials
-  #     for(j in 1:length(dt)){
-  #       if(nrow(fbdesign())==0){
-  #         dt[[ circm[j] ]] <- dt[[ circm[j] ]]
-  #       }else {
-  #         dt[[ circm[j] ]] <-cbind(fbdesign() ,dt[[ circm[j] ]] )
-  #       }
-  #     }
-  #     
-  #   }
-  #   
-  #   dt  
-  # })
-  # 
-  
   
   #'TODO Mulching and residue ############################################################
   dt_mulching <- reactive({
@@ -11658,11 +11604,7 @@ server_design_agrofims <- function(input, output, session, values){
         if(!is.null(phe_row_selected)){  
           dt[[i]] <- intercrop_phetables(dtPhenoInter, fbdesign(), phe_row_selected) 
         } else {
-          dt[[i]] <- data.frame(Status="",Crop="", Group="", Subgroup="", Measurement="",
-                                Measurement_2="",Measurement_3="",
-                                TraitUnit="", TraitAlias="", TraitDataType="",
-                                TraitValidation="", VariableId="",
-                                v1= "", v2="", v3="")
+          dt[[i]] <-  data.frame()
         }
       }
       names(dt) <- circm
@@ -12116,7 +12058,7 @@ server_design_agrofims <- function(input, output, session, values){
 
     gtable <- rbind( exp_dt(), fa_dt(), pe(), epl(), pers_dt(),crop_dt(), infounit(), 
                      #TODO:: MEJORAR
-                     #fct_lvl_dt(), 
+                     fct_lvl_dt(), 
                      site_dt())
     #gtable<- data.table::rbindlist(glist,fill = TRUE)
     #gtable <- as.data.frame(gtable,stringAsFactors=FALSE)
@@ -12297,7 +12239,7 @@ server_design_agrofims <- function(input, output, session, values){
     }
     fb 
   })
-  
+   
   pheno_inter_vars<- reactive({
     
     ct <- map_singleform_values(input$croppingType,  type = "combo box", format = "vector",default = "Monocrop") 
@@ -12405,15 +12347,15 @@ server_design_agrofims <- function(input, output, session, values){
          # print("dt mono")
          # print(dtMonocrop)
          
-         ai <- AllInputs()
-         saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         x <- reactiveValuesToList(input)
-         saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         # ai <- AllInputs()
+         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         # x <- reactiveValuesToList(input)
+         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
 
-         tl <<- traits_dt()
-         phe <<- pheno_dt()
-         phe_v <<- pheno_inter_vars()
-         
+         # tl <<- traits_dt()
+         # phe <<- pheno_dt()
+         # phe_v <<- pheno_inter_vars()
+         # 
          
         if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
@@ -12502,31 +12444,35 @@ server_design_agrofims <- function(input, output, session, values){
          
           
          if(is.element("Planting and transplanting",input$selectAgroFeature)){
-           
-         if(ct=="Monocrop"){ 
-         print("Adding planting")
+           print("Adding planting")
+           if(ct=="Monocrop"){ 
              if(nrow(dt_plantrans())!=0){
              incProgress(7/20,message = "Adding planting and transplating")
              openxlsx::addWorksheet(wb, "Planting_transplating", gridLines = TRUE)
              openxlsx::writeDataTable(wb, "Planting_transplating", x = dt_plantrans(),
                                       colNames = TRUE, withFilter = FALSE)
              }
-         } else {
-           #TODO: 
-           #-Show error when one crop is missing
-           id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")  
-           print(id_ic_rand)
-           circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
-           #-Length(circm ) >1
-           
+           } else {
+             #TODO: #-Show error when one crop is missing
+             id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")  
+             print(id_ic_rand)
+             circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
+ 
                  for(i in 1:length(circm)){
                    incProgress(7/20,message = "Adding planting and transplating" )##paste("Adding", circm[i] , "harvest sheet",sep=""))
+                   
+                   if(nrow(dt_plantrans()[[circm[i]]])!=0 && nrow(fbdesign())!= nrow(dt_plantrans()[[circm[i]]]) ){
                    dt_pltr <- dt_plantrans()
-                   print("paso")
+                   print("paso intercrop planting ")
+                   print(nrow(dt_pltr))
+                   
+                   
                    #TODO: Avoid LONG names in sheetNames (error) max 32 characters
                    openxlsx::addWorksheet(wb,  paste0("Planting-",circm[i]), gridLines = TRUE)
                    openxlsx::writeDataTable(wb, paste0("Planting-",circm[i]), x = dt_pltr[[circm[i]]],
                                             colNames = TRUE, withFilter = FALSE)
+                   }
+                   
                  }
           }
          
@@ -12606,14 +12552,20 @@ server_design_agrofims <- function(input, output, session, values){
           }
          } else {
            #FOR INTERCROP PHENOLOGY
+           print("inicio8")
            id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
            circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
            for(i in 1:length(id_ic_rand)){
-             incProgress(7/20,message = "Adding Phenology data...")
-             openxlsx::addWorksheet(wb, paste0("Phenology-",circm[i]), gridLines = TRUE)
-             openxlsx::writeDataTable(wb, paste0("Phenology-",circm[i]), 
-                                      x = pheno_dt()[[ circm[i] ]],
-                                      colNames = TRUE, withFilter = FALSE)
+             
+             
+             if(nrow(pheno_dt()[[ circm[i] ]])!=0){
+               incProgress(7/20,message = "Adding Phenology data...")
+               openxlsx::addWorksheet(wb, paste0("Phenology-",circm[i]), gridLines = TRUE)
+               openxlsx::writeDataTable(wb, paste0("Phenology-",circm[i]), 
+                                        x = pheno_dt()[[ circm[i] ]],
+                                        colNames = TRUE, withFilter = FALSE)
+             }
+             
            }
          }
          print("inicio9")
@@ -12640,7 +12592,7 @@ server_design_agrofims <- function(input, output, session, values){
          if(ct=="Monocrop"){
            row_sel<- input$tblMono_rows_selected
             if(length(row_sel)>0){
-              print(dtMonocrop[row_sel,])
+              #print(dtMonocrop[row_sel,])
               row_sel<- sort(row_sel)
               cm_tl <- dtMonocrop[row_sel,]
               
@@ -12662,7 +12614,7 @@ server_design_agrofims <- function(input, output, session, values){
               cm_tl<- data.frame()
             }
          } else { #intecrop
-           #kl<<- traits_dt()
+        
            cm_tl <- rbindlist(traits_dt(),fill = TRUE)
            cm_tl <- ec_clean_header(cm_tl)
          }

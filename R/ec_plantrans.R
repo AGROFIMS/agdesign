@@ -172,14 +172,15 @@ get_ec_plantrans <- function(allinputs, addId, input){
 
 #TODO: escoger checkboxed y exportar lo marcado en planting transpling Intercrop
 
-get_ec_plantrans_inter <- function(allinputs, addId, crop){
+get_ec_plantrans_inter <- function(allinputs, input, addId, crop){
   
   
   #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
   #input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
   
+  #if(isTRUE(input[[paste0("directSeeding_checkbox_",addId)]])){
   
-  #direct seedling -------------------------------------------------------------
+  ########################## Direct seedling ###########################################################################
   ptdi <- allinputs %>%  filter(!str_detect(id, "button")) %>%
             filter(!str_detect(id, "-selectized")) %>%
             filter(str_detect(id,"ptdi"))
@@ -268,11 +269,14 @@ get_ec_plantrans_inter <- function(allinputs, addId, crop){
   dt_di <- t(dt_di$values) %>% as.data.frame(stringAsFactors=FALSE)
   names(dt_di) <- lbl_di_inter
   
+  #}
   
-  #planting transplanting ----------------------------------------------------
+  
+  ######################### Planting transplanting ###########################################################################
+  
   ptta <- allinputs %>%  filter(!str_detect(id, "button")) %>%
-    filter(!str_detect(id, "-selectized")) %>%
-    filter(str_detect(id,"ptta"))
+                        filter(!str_detect(id, "-selectized")) %>%
+                        filter(str_detect(id,"ptta"))
   
   ptta_temp  <- data.frame()
   #addId <- c("NGBAKSHG", "VIITIDBD")
@@ -344,7 +348,7 @@ get_ec_plantrans_inter <- function(allinputs, addId, crop){
 
   
   lbl_ta_inter <- NULL
-  for(i in 1:length(lbl_di)){
+  for(i in 1:length(lbl_ta)){
     lbl_ta_inter[[i]] <- paste(lbl_ta[i], addId, sep = "_") 
   }
   lbl_ta_inter <- unlist(lbl_ta_inter)
@@ -353,8 +357,9 @@ get_ec_plantrans_inter <- function(allinputs, addId, crop){
   dt_ta <- t(dt_ta$values) %>% as.data.frame(stringAsFactors=FALSE)
   names(dt_ta) <- lbl_ta_inter
   
+  ###############  BIND DIRECT SEEDLING & TRANSPLANTING ###########################3
+  
   dt_plantrans <- cbind(dt_di, dt_ta)
-  #dt_plantrans
   
   ### Create list of data frames (exp condition tables )per crop
   dt_plantrans_inter <- NULL
@@ -366,9 +371,23 @@ get_ec_plantrans_inter <- function(allinputs, addId, crop){
     dt_plantrans_inter[[i]] <- dt_plantrans[,lgl_header_plantras] 
     names(dt_plantrans_inter[[i]]) <- str_replace_all(names(dt_plantrans_inter[[i]]),
                                                   pattern = paste0("_",addId[i]),
-                                                  replacement = ""  )
+                                                  replacement = "")
   }
   
+  for(i in 1:length(addId)) {
+    if(isTRUE(input[[paste0("directSeeding_checkbox_",addId[i] )]])){
+      dt_plantrans_inter[[i]] <- dt_plantrans_inter[[i]]
+    }else{
+      dt_plantrans_inter[[i]] <- dt_plantrans_inter[[i]][, -grep("Direct_", colnames(dt_plantrans_inter[[i]]))]
+    }
+    
+    if(isTRUE(input[[paste0("transplanting_checkbox_",addId[i])]])){
+      dt_plantrans_inter[[i]] <- dt_plantrans_inter[[i]]
+    }else{
+      dt_plantrans_inter[[i]] <- dt_plantrans_inter[[i]][, -grep("Transplanting_", colnames(dt_plantrans_inter[[i]]))]
+    }
+  }
+
   names(dt_plantrans_inter) <- crop
   dt_plantrans_inter
   
