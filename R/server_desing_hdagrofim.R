@@ -8526,13 +8526,13 @@ server_design_agrofims <- function(input, output, session, values){
   #### Start Tabs Crop Measurement: ####
   observe({
     if (input$croppingType == "Monocrop") {
-      hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
-      showTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
+      shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
     }
     
     if (input$croppingType == "Intercrop") {
-      showTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
-      hideTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+      shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
     }
   })
   
@@ -8557,12 +8557,12 @@ server_design_agrofims <- function(input, output, session, values){
     }
     
     for (i in 1:length(chu)) {
-      hideTab(inputId = "tabpanelinter", target = chu[i])
+      shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
     }
     
     for (i in 1:length(cropivan)) {
       #print(gsub(" ","",cropivan[i]))
-      showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
+      shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
     }
   })
   #### End Tabs Crop Measurement: ####
@@ -8931,12 +8931,12 @@ server_design_agrofims <- function(input, output, session, values){
     }
     
     for (i in 1:length(chuphe)) {
-      hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+      shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
     }
     
     for (i in 1:length(cropivanphe)) {
       #print(gsub(" ","",cropivanphe[i]))
-      showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
+      shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
     }
   })
   #### End Tabs Crop Phenology: ####
