@@ -8524,7 +8524,19 @@ server_design_agrofims <- function(input, output, session, values){
   ######## Start Crop Measurement Ultima Version #########
   
   #### Start Tabs Crop Measurement: ####
-  observe({
+  # observe({
+  #   if (input$croppingType == "Monocrop") {
+  #     shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
+  #     shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+  #   }
+  #   
+  #   if (input$croppingType == "Intercrop") {
+  #     shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
+  #     shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+  #   }
+  # })
+  
+  observeEvent(input$croppingType, {
     if (input$croppingType == "Monocrop") {
       shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
       shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
@@ -8899,45 +8911,45 @@ server_design_agrofims <- function(input, output, session, values){
   
   #### Start Tabs Crop Phenology: ####
   observe({
-    if (input$croppingType == "Monocrop") {
-      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-      shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
-    }
-    
-    if (input$croppingType == "Intercrop") {
-      shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
-    }
+    # if (input$croppingType == "Monocrop") {
+    #   shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+    #   shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+    # }
+    # 
+    # if (input$croppingType == "Intercrop") {
+    #   shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+    #   shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+    # }
   })
   
   chuphe <- c("crop_phenology_Cassava", "crop_phenology_Commonbean", "crop_phenology_Maize", "crop_phenology_Potato", "crop_phenology_Rice",
            "crop_phenology_Sweetpotato", "crop_phenology_Wheat", "crop_phenology_Other")
   
   observe({
-    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-    
-    if (ct == "Intercrop") {
-      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
-      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-      #print(circm)
-      cropivanphe <- paste0("crop_phenology_", circm)
-    } else{
-      #if(ct=="Monocrop"){
-      crp <- map_singleform_values(input$cropCommonNameMono,input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-      cropivanphe <- paste0("crop_phenology_",crp)
-      #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-      #out <- rbind(ctd, crp, var)
-      #}
-    }
-    
-    for (i in 1:length(chuphe)) {
-      shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
-    }
-    
-    for (i in 1:length(cropivanphe)) {
-      #print(gsub(" ","",cropivanphe[i]))
-      shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
-    }
+    # ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+    # 
+    # if (ct == "Intercrop") {
+    #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
+    #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+    #   #print(circm)
+    #   cropivanphe <- paste0("crop_phenology_", circm)
+    # } else{
+    #   #if(ct=="Monocrop"){
+    #   crp <- map_singleform_values(input$cropCommonNameMono,input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+    #   cropivanphe <- paste0("crop_phenology_",crp)
+    #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+    #   #out <- rbind(ctd, crp, var)
+    #   #}
+    # }
+    # 
+    # for (i in 1:length(chuphe)) {
+    #   shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+    # }
+    # 
+    # for (i in 1:length(cropivanphe)) {
+    #   #print(gsub(" ","",cropivanphe[i]))
+    #   shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
+    # }
   })
   #### End Tabs Crop Phenology: ####
   

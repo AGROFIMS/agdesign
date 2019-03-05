@@ -812,8 +812,8 @@ display: none;
                                  choices = c("Monocrop",
                                              "Intercrop",
                                              "Relay crop",
-                                             "Rotation"),
-                                 selected = "Intercrop"
+                                             "Rotation")#,
+                                 #selected = "Intercrop"
               )
             ),
 
