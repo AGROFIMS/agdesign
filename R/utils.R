@@ -542,7 +542,7 @@ arrange_by_pattern <- function(data, pattern){
 
 smart_colbind <- function(...){
   
- dt_list<- as.list(...)
+ dt_list<- list(...)
  # #Remove/Clean all the list (or clean) that are equal to zero
  dt_list<- rlist::list.clean(dt_list, function(x) length(x) == 0)
  dt <- bind_cols(dt_list)

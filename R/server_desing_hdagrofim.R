@@ -8551,31 +8551,69 @@ server_design_agrofims <- function(input, output, session, values){
   chu <- c("crop_measurement_Cassava", "crop_measurement_Commonbean", "crop_measurement_Maize", "crop_measurement_Potato", "crop_measurement_Rice",
            "crop_measurement_Sweetpotato", "crop_measurement_Wheat", "crop_measurement_Other")
   
+  
+  
+  
+  
+  
+  
+
+  # shiny::eventReactive(input$croppingType, {
+  #   ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+  #   
+  #   if (ct == "Intercrop") {
+  #     id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+  #     circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+  #     #print(circm)
+  #     cropivan <- paste0("crop_measurement_", circm)
+  #   } else{
+  #     #if(ct=="Monocrop"){
+  #     crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+  #     cropivan <- paste0("crop_measurement_",crp)
+  #     #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+  #     #out <- rbind(ctd, crp, var)
+  #     #}
+  #   }
+  #   
+  #   for (i in 1:length(chu)) {
+  #     shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+  #   }
+  #   
+  #   for (i in 1:length(cropivan)) {
+  #     #print(gsub(" ","",cropivan[i]))
+  #     shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
+  #   }
+  #   
+  # })
   observe({
-    # ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-    # 
-    # if (ct == "Intercrop") {
-    #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
-    #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-    #   #print(circm)
-    #   cropivan <- paste0("crop_measurement_", circm)
-    # } else{
-    #   #if(ct=="Monocrop"){
-    #   crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-    #   cropivan <- paste0("crop_measurement_",crp)
-    #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-    #   #out <- rbind(ctd, crp, var)
-    #   #}
-    # }
-    # 
-    # for (i in 1:length(chu)) {
-    #   shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
-    # }
-    # 
-    # for (i in 1:length(cropivan)) {
-    #   #print(gsub(" ","",cropivan[i]))
-    #   shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
-    # }
+      ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+
+    if (ct == "Intercrop") {
+      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+      #print(circm)
+      cropivan <- paste0("crop_measurement_", circm)
+    } else{
+      #if(ct=="Monocrop"){
+      crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+      cropivan <- paste0("crop_measurement_",crp)
+      #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+      #out <- rbind(ctd, crp, var)
+      #}
+    }
+
+      observeEvent(cropivan, {  
+            for (i in 1:length(chu)) {
+              shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+            }
+        
+            for (i in 1:length(cropivan)) {
+              #print(gsub(" ","",cropivan[i]))
+              shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
+            }
+      }) 
+      
+      
   })
   #### End Tabs Crop Measurement: ####
   
@@ -12397,6 +12435,24 @@ server_design_agrofims <- function(input, output, session, values){
          # phe <<- pheno_dt()
          # phe_v <<- pheno_inter_vars()
          # 
+         
+         
+        print(input$landLevelling_checkbox)
+       
+         print(input$puddling_checkbox)
+     
+         
+               print(input$tillage_checkbox)
+         
+         
+         land <<- get_ec_sblalv(input=input)
+    
+       
+         pud<<- get_ec_sbpud(input= input)
+       
+         till<<- get_ec_sbtill(input=input)
+         
+         
          
         if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
