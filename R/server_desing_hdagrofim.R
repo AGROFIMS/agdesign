@@ -8900,13 +8900,13 @@ server_design_agrofims <- function(input, output, session, values){
   #### Start Tabs Crop Phenology: ####
   observe({
     if (input$croppingType == "Monocrop") {
-      hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-      showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+      shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
     }
     
     if (input$croppingType == "Intercrop") {
-      showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-      hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+      shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
     }
   })
   
