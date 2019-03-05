@@ -8552,7 +8552,41 @@ server_design_agrofims <- function(input, output, session, values){
            "crop_measurement_Sweetpotato", "crop_measurement_Wheat", "crop_measurement_Other")
   
   
+  observe({
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+    print(ct)
+    if (ct == "Intercrop") {
+      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+      #print(id_ic_rand)
+      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+      #print(circm)
+      cropivan <- paste0("crop_measurement_", circm)
+    } else{
+      #if(ct=="Monocrop"){
+      crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+      #print(crp)
+      cropivan <- paste0("crop_measurement_",crp)
+      #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+      #out <- rbind(ctd, crp, var)
+      #}
+    }
+    
+    print(cropivan)
+
+    # for (i in 1:length(chu)) {
+    #   shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+    # }
+    # 
+    # for (i in 1:length(cropivan)) {
+    #   #print(gsub(" ","",cropivan[i]))
+    #   shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
+    # }
+    
+  })
   
+  observeEvent(input$croppingType, {
+    
+  })
   
   
   
@@ -8585,33 +8619,36 @@ server_design_agrofims <- function(input, output, session, values){
   #   }
   #   
   # })
+  
   observe({
-      ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-
-    if (ct == "Intercrop") {
-      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-      #print(circm)
-      cropivan <- paste0("crop_measurement_", circm)
-    } else{
-      #if(ct=="Monocrop"){
-      crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-      cropivan <- paste0("crop_measurement_",crp)
-      #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-      #out <- rbind(ctd, crp, var)
-      #}
-    }
-
-      observeEvent(cropivan, {  
-            for (i in 1:length(chu)) {
-              shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
-            }
-        
-            for (i in 1:length(cropivan)) {
-              #print(gsub(" ","",cropivan[i]))
-              shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
-            }
-      }) 
+    #   ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+    #   print(ct)
+    # 
+    # if (ct == "Intercrop") {
+    #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    #   print(id_ic_rand)
+    #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+    #   #print(circm)
+    #   cropivan <- paste0("crop_measurement_", circm)
+    # } else{
+    #   #if(ct=="Monocrop"){
+    #   crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+    #   cropivan <- paste0("crop_measurement_",crp)
+    #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+    #   #out <- rbind(ctd, crp, var)
+    #   #}
+    # }
+    # 
+    #   observeEvent(cropivan, {  
+    #         for (i in 1:length(chu)) {
+    #           shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+    #         }
+    #     
+    #         for (i in 1:length(cropivan)) {
+    #           #print(gsub(" ","",cropivan[i]))
+    #           shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
+    #         }
+    #   }) 
       
       
   })
