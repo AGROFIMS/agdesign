@@ -8519,12 +8519,24 @@ server_design_agrofims <- function(input, output, session, values){
   
   
   
-  
-  
-  ######## Start Crop Measurement Ultima Version #########
-  
-  #### Start Tabs Crop Measurement: ####
-  # observe({
+  # # oculto ininio
+  # 
+  # ######## Start Crop Measurement Ultima Version #########
+  # 
+  # #### Start Tabs Crop Measurement: ####
+  # # observe({
+  # #   if (input$croppingType == "Monocrop") {
+  # #     shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
+  # #     shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+  # #   }
+  # #   
+  # #   if (input$croppingType == "Intercrop") {
+  # #     shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
+  # #     shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+  # #   }
+  # # })
+  # 
+  # observeEvent(input$croppingType, {
   #   if (input$croppingType == "Monocrop") {
   #     shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
   #     shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
@@ -8535,797 +8547,788 @@ server_design_agrofims <- function(input, output, session, values){
   #     shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
   #   }
   # })
-  
-  observeEvent(input$croppingType, {
-    if (input$croppingType == "Monocrop") {
-      shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
-      shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
-    }
-    
-    if (input$croppingType == "Intercrop") {
-      shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
-      shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
-    }
-  })
-  
-  chu <- c("crop_measurement_Cassava", "crop_measurement_Commonbean", "crop_measurement_Maize", "crop_measurement_Potato", "crop_measurement_Rice",
-           "crop_measurement_Sweetpotato", "crop_measurement_Wheat", "crop_measurement_Other")
-  
-  
-  observeEvent(input$fbDesignNav, {
-      
-    # ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-    # #print(ct)
-    # if (ct == "Intercrop") {
-    #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-    #   #print(id_ic_rand)
-    #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-    #   #print(circm)
-    #   cropivan <- paste0("crop_measurement_", circm)
-    # } else{
-    #   #if(ct=="Monocrop"){
-    #   crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-    #   #print(crp)
-    #   cropivan <- paste0("crop_measurement_",crp)
-    #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-    #   #out <- rbind(ctd, crp, var)
-    #   #}
-    # }
-    
-    if (input$croppingType == "Intercrop") {
-      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-      #print(id_ic_rand)
-      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-      #print(circm)
-      cropivan <- paste0("crop_measurement_", circm)
-      
-      for (i in 1:length(chu)) {
-        shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
-      }
-      
-      for (i in 1:length(cropivan)) {
-        #print(gsub(" ","",cropivan[i]))
-        shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
-      }
-    }
-    
-    
-    
-  })
-  
-  #### End Tabs Crop Measurement: ####
-  
-  # Base de datos general para Crop Measurement:
-  dfmea <- readRDS(paste0(globalpath, "crop_measurements_v6.3.rds"))
-  dfmea <- as.data.frame(dfmea, stringsAsFactors=FALSE)
-  colnames(dfmea) <- c("Crop", 
-                       "Group",
-                       "Subgroup",
-                       "Measurement",
-                       "TraitUnit",
-                       "Number of measurements per season",
-                       "Number of Crop measurements per plot",
-                       "TraitAlias",
-                       "TraitDataType",
-                       "TraitValidation",
-                       "VariableId")
-  
-  #### Start Crop Measurement Monocrop ####
-  output$uiCropMeaMono <- renderUI({
-    DTOutput("tblMono")
-  })
-  
-  fmono <- function(){
-    crop_in <- input$cropCommonNameMono
-    oth <- input$cropCommonNameMono_other
-    
-    if (!is.null(crop_in) && crop_in != "Other") {
-      aux <- dplyr::filter(dfmea, Crop == crop_in)
-    } else if(!is.null(crop_in) && crop_in == "Other") {
-      aux <- dplyr::filter(dfmea, Crop == "Other")
-      
-      if (oth != "") {
-        aux$Crop <- oth
-        aux
-      } else {
-        aux
-      }
-    } else {
-      aux <- dfmea[0,]
-    }
-  }
-  dtMonocrop<- data.frame()
-  
-  output$tblMono = renderDT(
-    datatable(
-      dtMonocrop <<- fmono(),
-      selection = 'multiple',
-      editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  proxyMono = dataTableProxy('tblMono')
-  
-  observeEvent(input$tblMono_cell_edit, {
-    info = input$tblMono_cell_edit
-    #str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    dtMonocrop[i, j] <<- DT::coerceValue(v, dtMonocrop[i, j])
-    replaceData(proxyMono, dtMonocrop, resetPaging = FALSE, clearSelection = "none")
-  })
-  #### End Crop Measurement Monocrop ####
-  
-  #### Start Crop Measurement Intercrop ####
-  finter <- function(crop_in) {
-    #crop_in <- input$cropCommonNameMono
-    oth <- input$cropCommonNameMono_other
-    
-    if (!is.null(crop_in) && crop_in != "Other") {
-      aux <- dplyr::filter(dfmea, Crop == crop_in)
-    } else if(!is.null(crop_in) && crop_in == "Other") {
-      aux <- dplyr::filter(dfmea, Crop == "Other")
-      
-      if (oth != "") {
-        aux$Crop <- oth
-        aux
-      } else {
-        aux
-      }
-    } else {
-      aux <- dfmea[0,]
-    }
-  }
-  
-  # Cassava
-  dtInterCassava <- data.frame()
-  output$tblInterCassava = renderDT(
-    datatable(
-      dtInterCassava <<- finter("Cassava"),
-      selection = 'multiple',
-      editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  proxyMonoCassava = dataTableProxy('tblInterCassava')
-  
-  observeEvent(input$tblInterCassava_cell_edit, {
-    info = input$tblInterCassava_cell_edit
-    #str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    dtInterCassava[i, j] <<- DT::coerceValue(v, dtInterCassava[i, j])
-    replaceData(proxyMonoCassava, dtInterCassava, resetPaging = FALSE, clearSelection = "none")
-  })
-  
-  # Common bean
-  dtInterCommon <- data.frame()
-  output$tblInterCommon = renderDT(
-    datatable(
-      dtInterCommon <<- finter("Common bean"),
-      selection = 'multiple',
-      editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  proxyMonoCommonbean = dataTableProxy('tblInterCommon')
-  
-  observeEvent(input$tblInterCommon_cell_edit, {
-    info = input$tblInterCommon_cell_edit
-    #str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    dtInterCommon[i, j] <<- DT::coerceValue(v, dtInterCommon[i, j])
-    replaceData(proxyMonoCommonbean, dtInterCommon, resetPaging = FALSE, clearSelection = "none")
-  })
-  
-  # Maize
-  dtInterMaize <- data.frame()
-  output$tblInterMaize = renderDT(
-    datatable(
-      dtInterMaize <<- finter("Maize"),
-      selection = 'multiple',
-      editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  proxyMonoMaize = dataTableProxy('tblInterMaize')
-  
-  observeEvent(input$tblInterMaize_cell_edit, {
-    info = input$tblInterMaize_cell_edit
-    #str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    dtInterMaize[i, j] <<- DT::coerceValue(v, dtInterMaize[i, j])
-    replaceData(proxyMonoMaize, dtInterMaize, resetPaging = FALSE, clearSelection = "none")
-  })
-  
-  # Potato
-  dtInterPotato <- data.frame()
-  output$tblInterPotato = renderDT(
-    datatable(
-      dtInterPotato <<- finter("Potato"),
-      selection = 'multiple',
-      editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  proxyMonoPotato = dataTableProxy('tblInterPotato')
-  
-  observeEvent(input$tblInterPotato_cell_edit, {
-    info = input$tblInterPotato_cell_edit
-    #str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    dtInterPotato[i, j] <<- DT::coerceValue(v, dtInterPotato[i, j])
-    replaceData(proxyMonoPotato, dtInterPotato, resetPaging = FALSE, clearSelection = "none")
-  })
-  
-  # Rice
-  dtInterRice <- data.frame()
-  output$tblInterRice = renderDT(
-    datatable(
-      dtInterRice <<- finter("Rice"),
-      selection = 'multiple',
-      editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  proxyMonoRice = dataTableProxy('tblInterRice')
-  
-  observeEvent(input$tblInterRice_cell_edit, {
-    info = input$tblInterRice_cell_edit
-    #str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    dtInterRice[i, j] <<- DT::coerceValue(v, dtInterRice[i, j])
-    replaceData(proxyMonoRice, dtInterRice, resetPaging = FALSE, clearSelection = "none")
-  })
-  
-  # Sweetpotato
-  dtInterSweetpotato<<- data.frame()
-  output$tblInterSweetpotato = renderDT(
-    datatable(
-      dtInterSweetpotato <<- finter("Sweetpotato"),
-      selection = 'multiple',
-      editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  proxyMonoSweetpotato = dataTableProxy('tblInterSweetpotato')
-  
-  observeEvent(input$tblInterSweetpotato_cell_edit, {
-    info = input$tblInterSweetpotato_cell_edit
-    #str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    dtInterSweetpotato[i, j] <<- DT::coerceValue(v, dtInterSweetpotato[i, j])
-    replaceData(proxyMonoSweetpotato, dtInterSweetpotato, resetPaging = FALSE, clearSelection = "none")
-  })
-  
-  # Wheat
-  dtInterWheat <<- data.frame()
-  output$tblInterWheat = renderDT(
-    datatable(
-      dtInterWheat <<- finter("Wheat"),
-      selection = 'multiple',
-      editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  proxyMonoWheat = dataTableProxy('tblInterWheat')
-  
-  observeEvent(input$tblInterWheat_cell_edit, {
-    info = input$tblInterWheat_cell_edit
-    #str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    dtInterWheat[i, j] <<- DT::coerceValue(v, dtInterWheat[i, j])
-    replaceData(proxyMonoWheat, dtInterWheat, resetPaging = FALSE, clearSelection = "none")
-  })
-  
-  # Other
-  dtInterOther <- data.frame()
-  output$tblInterOther = renderDT(
-    datatable(
-      dtInterOther <<- finter("Other"),
-      selection = 'multiple',
-      editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  proxyMonoOther = dataTableProxy('tblInterOther')
-  
-  observeEvent(input$tblInterOther_cell_edit, {
-    info = input$tblInterOther_cell_edit
-    #str(info)
-    i = info$row
-    j = info$col
-    v = info$value
-    dtInterOther[i, j] <<- DT::coerceValue(v, dtInterOther[i, j])
-    replaceData(proxyMonoOther, dtInterOther, resetPaging = FALSE, clearSelection = "none")
-  })
-  #### End Crop Measurement Intercrop ####
-  
-  ######## End Crop Measurement Ultima Version #########
-  
-  ######################################################
-  ######################################################
-  
-  ######## Start Crop Phenology Ultima Version #########
-  
-  #### Start Tabs Crop Phenology: ####
-  observe({
-    # if (input$croppingType == "Monocrop") {
-    #   shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-    #   shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
-    # }
-    # 
-    # if (input$croppingType == "Intercrop") {
-    #   shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-    #   shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
-    # }
-  })
-  
-  observeEvent(input$croppingType, {
-    if (input$croppingType == "Monocrop") {
-      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-      shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
-    }
-
-    if (input$croppingType == "Intercrop") {
-      shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
-    }
-  })
-  
-  chuphe <- c("crop_phenology_Cassava", "crop_phenology_Commonbean", "crop_phenology_Maize", "crop_phenology_Potato", "crop_phenology_Rice",
-           "crop_phenology_Sweetpotato", "crop_phenology_Wheat", "crop_phenology_Other")
-  
-  observeEvent(input$fbDesignNav, {
-      
-    # ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-    # 
-    # if (ct == "Intercrop") {
-    #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-    #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-    #   #print(circm)
-    #   cropivanphe <- paste0("crop_phenology_", circm)
-    # } else{
-    #   #if(ct=="Monocrop"){
-    #   crp <- map_singleform_values(input$cropCommonNameMono,input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-    #   cropivanphe <- paste0("crop_phenology_",crp)
-    #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-    #   #out <- rbind(ctd, crp, var)
-    #   #}
-    # }
-    
-    if (input$croppingType == "Intercrop") {
-      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-      #print(circm)
-      cropivanphe <- paste0("crop_phenology_", circm)
-      
-      for (i in 1:length(chuphe)) {
-        shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
-      }
-      
-      for (i in 1:length(cropivanphe)) {
-        #print(gsub(" ","",cropivanphe[i]))
-        shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
-      }
-    }
-    
-    
-  })
-  #### End Tabs Crop Phenology: ####
-  
-  # Base de datos general para Crop Phenology:
-  #dfphe <- readRDS(paste0(globalpath, "crop_measurements_v6.3.rds"))
-  dfphe <- pheno_vars #as.data.frame(dfphe, stringsAsFactors=FALSE)
-  dfphe <- ec_clean_header(dfphe)
-  colnames(dfphe) <- c("Crop", 
-                       "Group",
-                       "Subgroup",
-                       "Measurement",
-                       "TraitName",
-                       "TraitUnit",
-                       "Number of measurements per season",
-                       "Number of Crop measurements per plot",
-                       "TraitAlias",
-                       "TraitDataType",
-                       "TraitValidation",
-                       "VariableId",
-                       "Fieldbook_download")
-  
-  #### Start Crop Phenology Monocrop ####
-  output$uiCropPheMono <- renderUI({
-    DTOutput("tblMonoPhe")
-  })
-  
-  fmonophe <- function(){
-    crop_in <- input$cropCommonNameMono
-    oth <- input$cropCommonNameMono_other
-    
-    if (!is.null(crop_in) && crop_in != "Other") {
-      #aux <- dplyr::filter(dfmea, Crop == crop_in)
-      aux <- dfphe
-    } else if(!is.null(crop_in) && crop_in == "Other") {
-      #aux <- dplyr::filter(dfmea, Crop == "Other")
-      aux <- dfphe
-      
-      if (oth != "") {
-        # aux$Crop <- oth
-        # aux
-        aux <- dfphe
-      } else {
-        aux
-      }
-    } else {
-      aux <- dfphe[0,]
-    }
-  }
-  
-  dtMonocropphe <- pheno_vars
-  
-  #dtMonocropphe <- fmonophe()
-  output$tblMonoPhe = renderDT(
-    datatable(
-      dtMonocropphe <<- fmonophe(),
-      selection = 'multiple',
-      #editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      )
-    )# %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  # proxyMonoPhe = dataTableProxy('tblMonoPhe')
   # 
-  # observeEvent(input$tblMonoPhe_cell_edit, {
-  #   info = input$tblMonoPhe_cell_edit
+  # chu <- c("crop_measurement_Cassava", "crop_measurement_Commonbean", "crop_measurement_Maize", "crop_measurement_Potato", "crop_measurement_Rice",
+  #          "crop_measurement_Sweetpotato", "crop_measurement_Wheat", "crop_measurement_Other")
+  # 
+  # 
+  # observeEvent(input$fbDesignNav, {
+  #     
+  #   # ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+  #   # #print(ct)
+  #   # if (ct == "Intercrop") {
+  #   #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+  #   #   #print(id_ic_rand)
+  #   #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+  #   #   #print(circm)
+  #   #   cropivan <- paste0("crop_measurement_", circm)
+  #   # } else{
+  #   #   #if(ct=="Monocrop"){
+  #   #   crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+  #   #   #print(crp)
+  #   #   cropivan <- paste0("crop_measurement_",crp)
+  #   #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+  #   #   #out <- rbind(ctd, crp, var)
+  #   #   #}
+  #   # }
+  #   
+  #   if (input$croppingType == "Intercrop") {
+  #     id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+  #     #print(id_ic_rand)
+  #     circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+  #     #print(circm)
+  #     cropivan <- paste0("crop_measurement_", circm)
+  #     
+  #     for (i in 1:length(chu)) {
+  #       shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+  #     }
+  #     
+  #     for (i in 1:length(cropivan)) {
+  #       #print(gsub(" ","",cropivan[i]))
+  #       shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
+  #     }
+  #   }
+  #   
+  #   
+  #   
+  # })
+  # 
+  # #### End Tabs Crop Measurement: ####
+  # 
+  # # Base de datos general para Crop Measurement:
+  # dfmea <- readRDS(paste0(globalpath, "crop_measurements_v6.3.rds"))
+  # dfmea <- as.data.frame(dfmea, stringsAsFactors=FALSE)
+  # colnames(dfmea) <- c("Crop", 
+  #                      "Group",
+  #                      "Subgroup",
+  #                      "Measurement",
+  #                      "TraitUnit",
+  #                      "Number of measurements per season",
+  #                      "Number of Crop measurements per plot",
+  #                      "TraitAlias",
+  #                      "TraitDataType",
+  #                      "TraitValidation",
+  #                      "VariableId")
+  # 
+  # #### Start Crop Measurement Monocrop ####
+  # output$uiCropMeaMono <- renderUI({
+  #   DTOutput("tblMono")
+  # })
+  # 
+  # fmono <- function(){
+  #   crop_in <- input$cropCommonNameMono
+  #   oth <- input$cropCommonNameMono_other
+  #   
+  #   if (!is.null(crop_in) && crop_in != "Other") {
+  #     aux <- dplyr::filter(dfmea, Crop == crop_in)
+  #   } else if(!is.null(crop_in) && crop_in == "Other") {
+  #     aux <- dplyr::filter(dfmea, Crop == "Other")
+  #     
+  #     if (oth != "") {
+  #       aux$Crop <- oth
+  #       aux
+  #     } else {
+  #       aux
+  #     }
+  #   } else {
+  #     aux <- dfmea[0,]
+  #   }
+  # }
+  # dtMonocrop<- data.frame()
+  # 
+  # output$tblMono = renderDT(
+  #   datatable(
+  #     dtMonocrop <<- fmono(),
+  #     selection = 'multiple',
+  #     editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # proxyMono = dataTableProxy('tblMono')
+  # 
+  # observeEvent(input$tblMono_cell_edit, {
+  #   info = input$tblMono_cell_edit
   #   #str(info)
   #   i = info$row
   #   j = info$col
   #   v = info$value
-  #   dtMonocropphe[i, j] <<- DT::coerceValue(v, dtMonocropphe[i, j])
-  #   replaceData(proxyMono, dtMonocropphe, resetPaging = FALSE, clearSelection = "none")
+  #   dtMonocrop[i, j] <<- DT::coerceValue(v, dtMonocrop[i, j])
+  #   replaceData(proxyMono, dtMonocrop, resetPaging = FALSE, clearSelection = "none")
   # })
-  #### End Crop Phenology Monocrop ####
-  
-  #### Start Crop Phenology Intercrop ####
-  finterphe <- function(crop_in) {
-    #crop_in <- input$cropCommonNameMono
-    oth <- input$cropCommonNameMono_other
-    
-    if (!is.null(crop_in) && crop_in != "Other") {
-      #aux <- dplyr::filter(dfmea, Crop == crop_in)
-      aux <- dfphe
-    } else if(!is.null(crop_in) && crop_in == "Other") {
-      #aux <- dplyr::filter(dfmea, Crop == "Other")
-      aux <- dfphe
-      
-      if (oth != "") {
-        # aux$Crop <- oth
-        # aux
-        aux <- dfphe
-      } else {
-        aux
-      }
-    } else {
-      aux <- dfphe[0,]
-    }
-  }
-  
-  # Cassava
-  dtInterPheCassava <- data.frame()
-  output$tblInterPheCassava = renderDT(
-    datatable(
-      dtInterPheCassava <<- finterphe("Cassava"),
-      selection = 'multiple',
-      #editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  # proxyInterCassava = dataTableProxy('tblInterPheCassava')
+  # #### End Crop Measurement Monocrop ####
   # 
-  # observeEvent(input$tblInterPheCassava_cell_edit, {
-  #   info = input$tblInterPheCassava_cell_edit
+  # #### Start Crop Measurement Intercrop ####
+  # finter <- function(crop_in) {
+  #   #crop_in <- input$cropCommonNameMono
+  #   oth <- input$cropCommonNameMono_other
+  #   
+  #   if (!is.null(crop_in) && crop_in != "Other") {
+  #     aux <- dplyr::filter(dfmea, Crop == crop_in)
+  #   } else if(!is.null(crop_in) && crop_in == "Other") {
+  #     aux <- dplyr::filter(dfmea, Crop == "Other")
+  #     
+  #     if (oth != "") {
+  #       aux$Crop <- oth
+  #       aux
+  #     } else {
+  #       aux
+  #     }
+  #   } else {
+  #     aux <- dfmea[0,]
+  #   }
+  # }
+  # 
+  # # Cassava
+  # dtInterCassava <- data.frame()
+  # output$tblInterCassava = renderDT(
+  #   datatable(
+  #     dtInterCassava <<- finter("Cassava"),
+  #     selection = 'multiple',
+  #     editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # proxyMonoCassava = dataTableProxy('tblInterCassava')
+  # 
+  # observeEvent(input$tblInterCassava_cell_edit, {
+  #   info = input$tblInterCassava_cell_edit
   #   #str(info)
   #   i = info$row
   #   j = info$col
   #   v = info$value
-  #   dtInterPheCassava[i, j] <<- DT::coerceValue(v, dtInterPheCassava[i, j])
-  #   replaceData(proxyInterCassava, dtInterPheCassava, resetPaging = FALSE, clearSelection = "none")
+  #   dtInterCassava[i, j] <<- DT::coerceValue(v, dtInterCassava[i, j])
+  #   replaceData(proxyMonoCassava, dtInterCassava, resetPaging = FALSE, clearSelection = "none")
   # })
-  
-  # Common bean
-  dtInterPheCommon <- data.frame()
-  output$tblInterPheCommon = renderDT(
-    datatable(
-      dtInterPheCommon <<- finterphe("Common bean"),
-      selection = 'multiple',
-      #editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  # proxyInterCommonbean = dataTableProxy('tblInterPheCommon')
   # 
-  # observeEvent(input$tblInterPheCommon_cell_edit, {
-  #   info = input$tblInterPheCommon_cell_edit
+  # # Common bean
+  # dtInterCommon <- data.frame()
+  # output$tblInterCommon = renderDT(
+  #   datatable(
+  #     dtInterCommon <<- finter("Common bean"),
+  #     selection = 'multiple',
+  #     editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # proxyMonoCommonbean = dataTableProxy('tblInterCommon')
+  # 
+  # observeEvent(input$tblInterCommon_cell_edit, {
+  #   info = input$tblInterCommon_cell_edit
   #   #str(info)
   #   i = info$row
   #   j = info$col
   #   v = info$value
-  #   dtInterPheCommon[i, j] <<- DT::coerceValue(v, dtInterPheCommon[i, j])
-  #   replaceData(proxyInterCommonbean, dtInterPheCommon, resetPaging = FALSE, clearSelection = "none")
+  #   dtInterCommon[i, j] <<- DT::coerceValue(v, dtInterCommon[i, j])
+  #   replaceData(proxyMonoCommonbean, dtInterCommon, resetPaging = FALSE, clearSelection = "none")
   # })
-  
-  # Maize
-  dtInterPheMaize <- data.frame()
-  output$tblInterPheMaize = renderDT(
-    datatable(
-      dtInterPheMaize <<- finterphe("Maize"),
-      selection = 'multiple',
-      #editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  # proxyInterMaize = dataTableProxy('tblInterPheMaize')
   # 
-  # observeEvent(input$tblInterPheMaize_cell_edit, {
-  #   info = input$tblInterPheMaize_cell_edit
+  # # Maize
+  # dtInterMaize <- data.frame()
+  # output$tblInterMaize = renderDT(
+  #   datatable(
+  #     dtInterMaize <<- finter("Maize"),
+  #     selection = 'multiple',
+  #     editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # proxyMonoMaize = dataTableProxy('tblInterMaize')
+  # 
+  # observeEvent(input$tblInterMaize_cell_edit, {
+  #   info = input$tblInterMaize_cell_edit
   #   #str(info)
   #   i = info$row
   #   j = info$col
   #   v = info$value
-  #   dtInterPheMaize[i, j] <<- DT::coerceValue(v, dtInterPheMaize[i, j])
-  #   replaceData(proxyInterMaize, dtInterPheMaize, resetPaging = FALSE, clearSelection = "none")
+  #   dtInterMaize[i, j] <<- DT::coerceValue(v, dtInterMaize[i, j])
+  #   replaceData(proxyMonoMaize, dtInterMaize, resetPaging = FALSE, clearSelection = "none")
   # })
-  
-  # Potato
-  dtInterPhePotato <- data.frame()
-  output$tblInterPhePotato = renderDT(
-    datatable(
-      dtInterPhePotato <<- finterphe("Potato"),
-      selection = 'multiple',
-      #editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  # proxyInterPotato = dataTableProxy('tblInterPhePotato')
   # 
-  # observeEvent(input$tblInterPhePotato_cell_edit, {
-  #   info = input$tblInterPhePotato_cell_edit
+  # # Potato
+  # dtInterPotato <- data.frame()
+  # output$tblInterPotato = renderDT(
+  #   datatable(
+  #     dtInterPotato <<- finter("Potato"),
+  #     selection = 'multiple',
+  #     editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # proxyMonoPotato = dataTableProxy('tblInterPotato')
+  # 
+  # observeEvent(input$tblInterPotato_cell_edit, {
+  #   info = input$tblInterPotato_cell_edit
   #   #str(info)
   #   i = info$row
   #   j = info$col
   #   v = info$value
-  #   dtInterPhePotato[i, j] <<- DT::coerceValue(v, dtInterPhePotato[i, j])
-  #   replaceData(proxyInterPotato, dtInterPhePotato, resetPaging = FALSE, clearSelection = "none")
+  #   dtInterPotato[i, j] <<- DT::coerceValue(v, dtInterPotato[i, j])
+  #   replaceData(proxyMonoPotato, dtInterPotato, resetPaging = FALSE, clearSelection = "none")
   # })
-  
-  # Rice
-  dtInterPheRice <- data.frame()
-  output$tblInterPheRice = renderDT(
-    datatable(
-      dtInterPheRice <<- finterphe("Rice"),
-      selection = 'multiple',
-      #editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  # proxyInterRice = dataTableProxy('tblInterPheRice')
   # 
-  # observeEvent(input$tblInterPheRice_cell_edit, {
-  #   info = input$tblInterPheRice_cell_edit
+  # # Rice
+  # dtInterRice <- data.frame()
+  # output$tblInterRice = renderDT(
+  #   datatable(
+  #     dtInterRice <<- finter("Rice"),
+  #     selection = 'multiple',
+  #     editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # proxyMonoRice = dataTableProxy('tblInterRice')
+  # 
+  # observeEvent(input$tblInterRice_cell_edit, {
+  #   info = input$tblInterRice_cell_edit
   #   #str(info)
   #   i = info$row
   #   j = info$col
   #   v = info$value
-  #   dtInterPheRice[i, j] <<- DT::coerceValue(v, dtInterPheRice[i, j])
-  #   replaceData(proxyInterRice, dtInterPheRice, resetPaging = FALSE, clearSelection = "none")
+  #   dtInterRice[i, j] <<- DT::coerceValue(v, dtInterRice[i, j])
+  #   replaceData(proxyMonoRice, dtInterRice, resetPaging = FALSE, clearSelection = "none")
   # })
-  
-  # Sweetpotato
-  dtInterPheSweetpotato <- data.frame()
-  output$tblInterPheSweetpotato = renderDT(
-    datatable(
-      dtInterPheSweetpotato <<- finterphe("Sweetpotato"),
-      selection = 'multiple',
-      #editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  # proxyInterSweetpotato = dataTableProxy('tblInterPheSweetpotato')
   # 
-  # observeEvent(input$tblInterPheSweetpotato_cell_edit, {
-  #   info = input$tblInterPheSweetpotato_cell_edit
+  # # Sweetpotato
+  # dtInterSweetpotato<<- data.frame()
+  # output$tblInterSweetpotato = renderDT(
+  #   datatable(
+  #     dtInterSweetpotato <<- finter("Sweetpotato"),
+  #     selection = 'multiple',
+  #     editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # proxyMonoSweetpotato = dataTableProxy('tblInterSweetpotato')
+  # 
+  # observeEvent(input$tblInterSweetpotato_cell_edit, {
+  #   info = input$tblInterSweetpotato_cell_edit
   #   #str(info)
   #   i = info$row
   #   j = info$col
   #   v = info$value
-  #   dtInterPheSweetpotato[i, j] <<- DT::coerceValue(v, dtInterPheSweetpotato[i, j])
-  #   replaceData(proxyInterSweetpotato, dtInterPheSweetpotato, resetPaging = FALSE, clearSelection = "none")
+  #   dtInterSweetpotato[i, j] <<- DT::coerceValue(v, dtInterSweetpotato[i, j])
+  #   replaceData(proxyMonoSweetpotato, dtInterSweetpotato, resetPaging = FALSE, clearSelection = "none")
   # })
-  
-  # Wheat
-  dtInterPheWheat <- data.frame()
-  output$tblInterPheWheat = renderDT(
-    datatable(
-      dtInterPheWheat <<- finterphe("Wheat"),
-      selection = 'multiple',
-      #editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  # proxyInterWheat = dataTableProxy('tblInterPheWheat')
   # 
-  # observeEvent(input$tblInterPheWheat_cell_edit, {
-  #   info = input$tblInterPheWheat_cell_edit
+  # # Wheat
+  # dtInterWheat <<- data.frame()
+  # output$tblInterWheat = renderDT(
+  #   datatable(
+  #     dtInterWheat <<- finter("Wheat"),
+  #     selection = 'multiple',
+  #     editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # proxyMonoWheat = dataTableProxy('tblInterWheat')
+  # 
+  # observeEvent(input$tblInterWheat_cell_edit, {
+  #   info = input$tblInterWheat_cell_edit
   #   #str(info)
   #   i = info$row
   #   j = info$col
   #   v = info$value
-  #   dtInterPheWheat[i, j] <<- DT::coerceValue(v, dtInterPheWheat[i, j])
-  #   replaceData(proxyInterWheat, dtInterPheWheat, resetPaging = FALSE, clearSelection = "none")
+  #   dtInterWheat[i, j] <<- DT::coerceValue(v, dtInterWheat[i, j])
+  #   replaceData(proxyMonoWheat, dtInterWheat, resetPaging = FALSE, clearSelection = "none")
   # })
-  
-  # Other
-  dtInterPheOther <- data.frame()
-  output$tblInterPheOther = renderDT(
-    datatable(
-      dtInterPheOther <<- finterphe("Other"),
-      selection = 'multiple',
-      #editable = TRUE,
-      options = list(
-        pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
-      ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
-  )
-  
-  # proxyInterOther = dataTableProxy('tblInterPheOther')
   # 
-  # observeEvent(input$tblInterPheOther_cell_edit, {
-  #   info = input$tblInterPheOther_cell_edit
+  # # Other
+  # dtInterOther <- data.frame()
+  # output$tblInterOther = renderDT(
+  #   datatable(
+  #     dtInterOther <<- finter("Other"),
+  #     selection = 'multiple',
+  #     editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # proxyMonoOther = dataTableProxy('tblInterOther')
+  # 
+  # observeEvent(input$tblInterOther_cell_edit, {
+  #   info = input$tblInterOther_cell_edit
   #   #str(info)
   #   i = info$row
   #   j = info$col
   #   v = info$value
-  #   dtInterPheOther[i, j] <<- DT::coerceValue(v, dtInterPheOther[i, j])
-  #   replaceData(proxyInterOther, dtInterPheOther, resetPaging = FALSE, clearSelection = "none")
+  #   dtInterOther[i, j] <<- DT::coerceValue(v, dtInterOther[i, j])
+  #   replaceData(proxyMonoOther, dtInterOther, resetPaging = FALSE, clearSelection = "none")
   # })
-  #### End Crop Phenology Intercrop ####
+  # #### End Crop Measurement Intercrop ####
+  # 
+  # ######## End Crop Measurement Ultima Version #########
+  # 
+  # ######################################################
+  # ######################################################
+  # 
+  # ######## Start Crop Phenology Ultima Version #########
+  # 
+  # #### Start Tabs Crop Phenology: ####
+  # observe({
+  #   # if (input$croppingType == "Monocrop") {
+  #   #   shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+  #   #   shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+  #   # }
+  #   # 
+  #   # if (input$croppingType == "Intercrop") {
+  #   #   shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+  #   #   shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+  #   # }
+  # })
+  # 
+  # observeEvent(input$croppingType, {
+  #   if (input$croppingType == "Monocrop") {
+  #     shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+  #     shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+  #   }
+  # 
+  #   if (input$croppingType == "Intercrop") {
+  #     shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+  #     shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+  #   }
+  # })
+  # 
+  # chuphe <- c("crop_phenology_Cassava", "crop_phenology_Commonbean", "crop_phenology_Maize", "crop_phenology_Potato", "crop_phenology_Rice",
+  #          "crop_phenology_Sweetpotato", "crop_phenology_Wheat", "crop_phenology_Other")
+  # 
+  # observeEvent(input$fbDesignNav, {
+  #     
+  #   # ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
+  #   # 
+  #   # if (ct == "Intercrop") {
+  #   #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+  #   #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+  #   #   #print(circm)
+  #   #   cropivanphe <- paste0("crop_phenology_", circm)
+  #   # } else{
+  #   #   #if(ct=="Monocrop"){
+  #   #   crp <- map_singleform_values(input$cropCommonNameMono,input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
+  #   #   cropivanphe <- paste0("crop_phenology_",crp)
+  #   #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
+  #   #   #out <- rbind(ctd, crp, var)
+  #   #   #}
+  #   # }
+  #   
+  #   if (input$croppingType == "Intercrop") {
+  #     id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+  #     circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+  #     #print(circm)
+  #     cropivanphe <- paste0("crop_phenology_", circm)
+  #     
+  #     for (i in 1:length(chuphe)) {
+  #       shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+  #     }
+  #     
+  #     for (i in 1:length(cropivanphe)) {
+  #       #print(gsub(" ","",cropivanphe[i]))
+  #       shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
+  #     }
+  #   }
+  #   
+  #   
+  # })
+  # #### End Tabs Crop Phenology: ####
+  # 
+  # # Base de datos general para Crop Phenology:
+  # #dfphe <- readRDS(paste0(globalpath, "crop_measurements_v6.3.rds"))
+  # dfphe <- pheno_vars #as.data.frame(dfphe, stringsAsFactors=FALSE)
+  # dfphe <- ec_clean_header(dfphe)
+  # colnames(dfphe) <- c("Crop", 
+  #                      "Group",
+  #                      "Subgroup",
+  #                      "Measurement",
+  #                      "TraitName",
+  #                      "TraitUnit",
+  #                      "Number of measurements per season",
+  #                      "Number of Crop measurements per plot",
+  #                      "TraitAlias",
+  #                      "TraitDataType",
+  #                      "TraitValidation",
+  #                      "VariableId",
+  #                      "Fieldbook_download")
+  # 
+  # #### Start Crop Phenology Monocrop ####
+  # output$uiCropPheMono <- renderUI({
+  #   DTOutput("tblMonoPhe")
+  # })
+  # 
+  # fmonophe <- function(){
+  #   crop_in <- input$cropCommonNameMono
+  #   oth <- input$cropCommonNameMono_other
+  #   
+  #   if (!is.null(crop_in) && crop_in != "Other") {
+  #     #aux <- dplyr::filter(dfmea, Crop == crop_in)
+  #     aux <- dfphe
+  #   } else if(!is.null(crop_in) && crop_in == "Other") {
+  #     #aux <- dplyr::filter(dfmea, Crop == "Other")
+  #     aux <- dfphe
+  #     
+  #     if (oth != "") {
+  #       # aux$Crop <- oth
+  #       # aux
+  #       aux <- dfphe
+  #     } else {
+  #       aux
+  #     }
+  #   } else {
+  #     aux <- dfphe[0,]
+  #   }
+  # }
+  # 
+  # dtMonocropphe <- pheno_vars
+  # 
+  # #dtMonocropphe <- fmonophe()
+  # output$tblMonoPhe = renderDT(
+  #   datatable(
+  #     dtMonocropphe <<- fmonophe(),
+  #     selection = 'multiple',
+  #     #editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+  #     )
+  #   )# %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # # proxyMonoPhe = dataTableProxy('tblMonoPhe')
+  # # 
+  # # observeEvent(input$tblMonoPhe_cell_edit, {
+  # #   info = input$tblMonoPhe_cell_edit
+  # #   #str(info)
+  # #   i = info$row
+  # #   j = info$col
+  # #   v = info$value
+  # #   dtMonocropphe[i, j] <<- DT::coerceValue(v, dtMonocropphe[i, j])
+  # #   replaceData(proxyMono, dtMonocropphe, resetPaging = FALSE, clearSelection = "none")
+  # # })
+  # #### End Crop Phenology Monocrop ####
+  # 
+  # #### Start Crop Phenology Intercrop ####
+  # finterphe <- function(crop_in) {
+  #   #crop_in <- input$cropCommonNameMono
+  #   oth <- input$cropCommonNameMono_other
+  #   
+  #   if (!is.null(crop_in) && crop_in != "Other") {
+  #     #aux <- dplyr::filter(dfmea, Crop == crop_in)
+  #     aux <- dfphe
+  #   } else if(!is.null(crop_in) && crop_in == "Other") {
+  #     #aux <- dplyr::filter(dfmea, Crop == "Other")
+  #     aux <- dfphe
+  #     
+  #     if (oth != "") {
+  #       # aux$Crop <- oth
+  #       # aux
+  #       aux <- dfphe
+  #     } else {
+  #       aux
+  #     }
+  #   } else {
+  #     aux <- dfphe[0,]
+  #   }
+  # }
+  # 
+  # # Cassava
+  # dtInterPheCassava <- data.frame()
+  # output$tblInterPheCassava = renderDT(
+  #   datatable(
+  #     dtInterPheCassava <<- finterphe("Cassava"),
+  #     selection = 'multiple',
+  #     #editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # # proxyInterCassava = dataTableProxy('tblInterPheCassava')
+  # # 
+  # # observeEvent(input$tblInterPheCassava_cell_edit, {
+  # #   info = input$tblInterPheCassava_cell_edit
+  # #   #str(info)
+  # #   i = info$row
+  # #   j = info$col
+  # #   v = info$value
+  # #   dtInterPheCassava[i, j] <<- DT::coerceValue(v, dtInterPheCassava[i, j])
+  # #   replaceData(proxyInterCassava, dtInterPheCassava, resetPaging = FALSE, clearSelection = "none")
+  # # })
+  # 
+  # # Common bean
+  # dtInterPheCommon <- data.frame()
+  # output$tblInterPheCommon = renderDT(
+  #   datatable(
+  #     dtInterPheCommon <<- finterphe("Common bean"),
+  #     selection = 'multiple',
+  #     #editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # # proxyInterCommonbean = dataTableProxy('tblInterPheCommon')
+  # # 
+  # # observeEvent(input$tblInterPheCommon_cell_edit, {
+  # #   info = input$tblInterPheCommon_cell_edit
+  # #   #str(info)
+  # #   i = info$row
+  # #   j = info$col
+  # #   v = info$value
+  # #   dtInterPheCommon[i, j] <<- DT::coerceValue(v, dtInterPheCommon[i, j])
+  # #   replaceData(proxyInterCommonbean, dtInterPheCommon, resetPaging = FALSE, clearSelection = "none")
+  # # })
+  # 
+  # # Maize
+  # dtInterPheMaize <- data.frame()
+  # output$tblInterPheMaize = renderDT(
+  #   datatable(
+  #     dtInterPheMaize <<- finterphe("Maize"),
+  #     selection = 'multiple',
+  #     #editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # # proxyInterMaize = dataTableProxy('tblInterPheMaize')
+  # # 
+  # # observeEvent(input$tblInterPheMaize_cell_edit, {
+  # #   info = input$tblInterPheMaize_cell_edit
+  # #   #str(info)
+  # #   i = info$row
+  # #   j = info$col
+  # #   v = info$value
+  # #   dtInterPheMaize[i, j] <<- DT::coerceValue(v, dtInterPheMaize[i, j])
+  # #   replaceData(proxyInterMaize, dtInterPheMaize, resetPaging = FALSE, clearSelection = "none")
+  # # })
+  # 
+  # # Potato
+  # dtInterPhePotato <- data.frame()
+  # output$tblInterPhePotato = renderDT(
+  #   datatable(
+  #     dtInterPhePotato <<- finterphe("Potato"),
+  #     selection = 'multiple',
+  #     #editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # # proxyInterPotato = dataTableProxy('tblInterPhePotato')
+  # # 
+  # # observeEvent(input$tblInterPhePotato_cell_edit, {
+  # #   info = input$tblInterPhePotato_cell_edit
+  # #   #str(info)
+  # #   i = info$row
+  # #   j = info$col
+  # #   v = info$value
+  # #   dtInterPhePotato[i, j] <<- DT::coerceValue(v, dtInterPhePotato[i, j])
+  # #   replaceData(proxyInterPotato, dtInterPhePotato, resetPaging = FALSE, clearSelection = "none")
+  # # })
+  # 
+  # # Rice
+  # dtInterPheRice <- data.frame()
+  # output$tblInterPheRice = renderDT(
+  #   datatable(
+  #     dtInterPheRice <<- finterphe("Rice"),
+  #     selection = 'multiple',
+  #     #editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # # proxyInterRice = dataTableProxy('tblInterPheRice')
+  # # 
+  # # observeEvent(input$tblInterPheRice_cell_edit, {
+  # #   info = input$tblInterPheRice_cell_edit
+  # #   #str(info)
+  # #   i = info$row
+  # #   j = info$col
+  # #   v = info$value
+  # #   dtInterPheRice[i, j] <<- DT::coerceValue(v, dtInterPheRice[i, j])
+  # #   replaceData(proxyInterRice, dtInterPheRice, resetPaging = FALSE, clearSelection = "none")
+  # # })
+  # 
+  # # Sweetpotato
+  # dtInterPheSweetpotato <- data.frame()
+  # output$tblInterPheSweetpotato = renderDT(
+  #   datatable(
+  #     dtInterPheSweetpotato <<- finterphe("Sweetpotato"),
+  #     selection = 'multiple',
+  #     #editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # # proxyInterSweetpotato = dataTableProxy('tblInterPheSweetpotato')
+  # # 
+  # # observeEvent(input$tblInterPheSweetpotato_cell_edit, {
+  # #   info = input$tblInterPheSweetpotato_cell_edit
+  # #   #str(info)
+  # #   i = info$row
+  # #   j = info$col
+  # #   v = info$value
+  # #   dtInterPheSweetpotato[i, j] <<- DT::coerceValue(v, dtInterPheSweetpotato[i, j])
+  # #   replaceData(proxyInterSweetpotato, dtInterPheSweetpotato, resetPaging = FALSE, clearSelection = "none")
+  # # })
+  # 
+  # # Wheat
+  # dtInterPheWheat <- data.frame()
+  # output$tblInterPheWheat = renderDT(
+  #   datatable(
+  #     dtInterPheWheat <<- finterphe("Wheat"),
+  #     selection = 'multiple',
+  #     #editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # # proxyInterWheat = dataTableProxy('tblInterPheWheat')
+  # # 
+  # # observeEvent(input$tblInterPheWheat_cell_edit, {
+  # #   info = input$tblInterPheWheat_cell_edit
+  # #   #str(info)
+  # #   i = info$row
+  # #   j = info$col
+  # #   v = info$value
+  # #   dtInterPheWheat[i, j] <<- DT::coerceValue(v, dtInterPheWheat[i, j])
+  # #   replaceData(proxyInterWheat, dtInterPheWheat, resetPaging = FALSE, clearSelection = "none")
+  # # })
+  # 
+  # # Other
+  # dtInterPheOther <- data.frame()
+  # output$tblInterPheOther = renderDT(
+  #   datatable(
+  #     dtInterPheOther <<- finterphe("Other"),
+  #     selection = 'multiple',
+  #     #editable = TRUE,
+  #     options = list(
+  #       pageLength = 25,
+  #       columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+  #     ))
+  #   # ) %>% formatStyle(
+  #   #   c("Crop measurement per season", "Crop measurement per plot"),
+  #   #   backgroundColor = ("lightblue")
+  #   # )
+  # )
+  # 
+  # # proxyInterOther = dataTableProxy('tblInterPheOther')
+  # # 
+  # # observeEvent(input$tblInterPheOther_cell_edit, {
+  # #   info = input$tblInterPheOther_cell_edit
+  # #   #str(info)
+  # #   i = info$row
+  # #   j = info$col
+  # #   v = info$value
+  # #   dtInterPheOther[i, j] <<- DT::coerceValue(v, dtInterPheOther[i, j])
+  # #   replaceData(proxyInterOther, dtInterPheOther, resetPaging = FALSE, clearSelection = "none")
+  # # })
+  # #### End Crop Phenology Intercrop ####
+  # 
+  # ######## End Crop Phenology Ultima Version #########
+  # 
+  # # oculto fin
   
-  ######## End Crop Phenology Ultima Version #########
   
   
   
