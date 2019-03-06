@@ -3153,7 +3153,7 @@ server_design_agrofims <- function(input, output, session, values){
       xt <- unlist(str_split(intercropVars$ids[intercropVars$num-1], "_"))
       mtarget <- paste0("intercrop_tab_measu_",xt[2])
       ptarget <- paste0("intercrop_tab_pheno_",xt[2])
-      isolate(insertTabInterCrop(tt[2], mtarget, ptarget))
+      #isolate(insertTabInterCrop(tt[2], mtarget, ptarget))
       isolate(drawAgroBoxes(tt[2]))
     }
   })
@@ -3661,10 +3661,10 @@ server_design_agrofims <- function(input, output, session, values){
     ptitle <- paste0(mtext, " Phenology")
     
     
-    isolate(renameTab(paste0("intercrop_tab_measu_title_",crop_order), mtitle))
-    isolate(renameTab(paste0("intercrop_tab_pheno_title_",crop_order), ptitle))
+    #isolate(renameTab(paste0("intercrop_tab_measu_title_",crop_order), mtitle))
+    #isolate(renameTab(paste0("intercrop_tab_pheno_title_",crop_order), ptitle))
     renameAgroBoxes(crop_order,crop_order, mtext)
-    updateCropMeasurementTable(crop_order, "Other")
+    #updateCropMeasurementTable(crop_order, "Other")
     
   })
 
@@ -9617,10 +9617,10 @@ server_design_agrofims <- function(input, output, session, values){
       #         position =  "after",
       #         target = "Crop_Measurement_intercrop")
 
-     isolate(drawTabsIntercrop(ids))
+     #isolate(drawTabsIntercrop(ids))
      isolate(removeAgroBoxesMonocrop())
      expCondsVars$ids_harvest <- c()
-     isolate(drawAgroBoxesIntercrop())
+     #isolate(drawAgroBoxesIntercrop())
      shinyjs::hide(id="addHarvest")
     }
   })
@@ -9720,9 +9720,9 @@ server_design_agrofims <- function(input, output, session, values){
     )
     
     
-    isolate(renameTab(paste0("intercrop_tab_measu_title_",index), mtitle))
-    isolate(renameTab(paste0("intercrop_tab_pheno_title_",index), ptitle))
-    updateCropMeasurementTable(index,mcrop)
+    #isolate(renameTab(paste0("intercrop_tab_measu_title_",index), mtitle))
+    #isolate(renameTab(paste0("intercrop_tab_pheno_title_",index), ptitle))
+    #updateCropMeasurementTable(index,mcrop)
   }
   
   ##Insert Relay Crop
