@@ -3640,10 +3640,10 @@ server_design_agrofims <- function(input, output, session, values){
       cropsVar$CropsSelectedInterCrop[[paste0('C', crop_order)]] <- value
     }
     
-    isolate(renameTab(paste0("intercrop_tab_measu_title_",crop_order), paste0(xtitle, " Measurement")))
-    isolate(renameTab(paste0("intercrop_tab_pheno_title_",crop_order), paste0(xtitle, " Phenology")))
+    #isolate(renameTab(paste0("intercrop_tab_measu_title_",crop_order), paste0(xtitle, " Measurement")))
+    #isolate(renameTab(paste0("intercrop_tab_pheno_title_",crop_order), paste0(xtitle, " Phenology")))
     renameAgroBoxes(crop_order,crop_order, xtitle)
-    updateCropMeasurementTable(crop_order,value)
+    #updateCropMeasurementTable(crop_order,value)
     
   })
   
