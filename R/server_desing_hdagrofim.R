@@ -12479,10 +12479,10 @@ server_design_agrofims <- function(input, output, session, values){
          # print("dt mono")
          # print(dtMonocrop)
          
-         ai <- AllInputs()
-         saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         x <- reactiveValuesToList(input)
-         saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         # ai <- AllInputs()
+         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         # x <- reactiveValuesToList(input)
+         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
 
       
          
