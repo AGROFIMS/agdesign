@@ -9424,6 +9424,7 @@ server_design_agrofims <- function(input, output, session, values){
                       "TraitUnit",
                       "Number of measurements per season",
                       "Number of Crop measurements per plot",
+                      "TraitName",
                       "TraitAlias",
                       "TraitDataType",
                       "TraitValidation",
@@ -9442,7 +9443,7 @@ server_design_agrofims <- function(input, output, session, values){
       editable = TRUE,
       options = list(
         pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,8,9,10,11)))
+        columnDefs = list(list(visible=F, targets=c(1,2,3,8,9,10,11,12)))
       ))
     # ) %>% formatStyle(
     #   c("Crop measurement per season", "Crop measurement per plot"),
@@ -11975,6 +11976,7 @@ server_design_agrofims <- function(input, output, session, values){
         if(length(soil_flvl)>0){
             for(i in 1:length(flvl)){
               for( j in 1:length(soil_flvl)){
+                print(paste("yes-",j))
                 if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
                   flvl[[i]] <- soil_flvl[[j]]
                 }
@@ -12000,6 +12002,7 @@ server_design_agrofims <- function(input, output, session, values){
         if(length(soil_flvl)>0){
             for(i in 1:length(flvl)){
               for( j in 1:length(soil_flvl)){
+                print(paste("yes-",j))
                 if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
                   flvl[[i]] <- soil_flvl[[j]]
                 }
@@ -12198,7 +12201,7 @@ server_design_agrofims <- function(input, output, session, values){
 
     gtable <- rbind( exp_dt(), fa_dt(), pe(), epl(), pers_dt(),crop_dt(), infounit(), 
                      #TODO:: MEJORAR
-                     fct_lvl_dt(), 
+                     #fct_lvl_dt(), 
                      site_dt())
     #gtable<- data.table::rbindlist(glist,fill = TRUE)
     #gtable <- as.data.frame(gtable,stringAsFactors=FALSE)
@@ -12206,32 +12209,21 @@ server_design_agrofims <- function(input, output, session, values){
     gtable
   })
 
-  ## Trait Table ####################################################################
-  # traits_dt <- function(){
-  #   a<- traitsVals$Data
-  #   if(nrow(traitsVals$Data) >0){
-  #     row_select <- input$dt_rows_selected
-  #     row_select <- sort(row_select)
-  #     #aux_dt <- dplyr::filter(traitsVals$Data, Status=="Selected")
-  #     aux_dt<- a[row_select,]
-  #     #Remove Status column
-  #     aux_dt$Status <- NULL
-  #     a<- aux_dt
-  #   }
-  # 
-  #   return(a)
-  # }
+
   traits_dt <- function(){
     
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
     if(ct=="Monocrop"){
       a<- dtMonocrop #fg()
-      colnames(a) <- c("Crop","Group","Subgroup","Measurement",
-                           "TraitUnit","CropMeasurementPerSeason",
-                           "CropMeasurementPerPlot","TraitAlias",
-                           "TraitDataType","TraitValidation","VariableId")
+      
 
       if(nrow(a) >0){
+        
+        colnames(a) <- c("Crop","Group","Subgroup","Measurement",
+                         "TraitUnit","CropMeasurementPerSeason",
+                         "CropMeasurementPerPlot","TraitAlias",
+                         "TraitDataType","TraitValidation","VariableId")
+        
         #a<- traitsVals$Data
         #a <- fg()
         #row_select <- input$dt_rows_selected
@@ -12253,7 +12245,7 @@ server_design_agrofims <- function(input, output, session, values){
         # Asign final trait_dt to a  
         a<- aux_dt
         
-      }
+      } 
     } 
     else {
       #For intercrop trial
@@ -12487,33 +12479,12 @@ server_design_agrofims <- function(input, output, session, values){
          # print("dt mono")
          # print(dtMonocrop)
          
-         # ai <- AllInputs()
-         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         # x <- reactiveValuesToList(input)
-         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         ai <- AllInputs()
+         saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         x <- reactiveValuesToList(input)
+         saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
 
-         # tl <<- traits_dt()
-         # phe <<- pheno_dt()
-         # phe_v <<- pheno_inter_vars()
-         # 
-         
-         
-        print(input$landLevelling_checkbox)
-       
-         print(input$puddling_checkbox)
-     
-         
-               print(input$tillage_checkbox)
-         
-         
-         land <<- get_ec_sblalv(input=input)
-    
-       
-         pud<<- get_ec_sbpud(input= input)
-       
-         till<<- get_ec_sbtill(input=input)
-         
-         
+      
          
         if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
@@ -12805,7 +12776,7 @@ server_design_agrofims <- function(input, output, session, values){
            
            colnames(w_tl) <- c("Crop","Group","Subgroup","Measurement",
                                   "TraitUnit","CropMeasurementPerSeason",
-                                  "CropMeasurementPerPlot","TraitAlias",
+                                  "CropMeasurementPerPlot","TraitName", "TraitAlias",
                                   "TraitDataType","TraitValidation","VariableId")
            #w_tl<- data.table(weather_dt())
            w_tl$Group <- "Weather"
@@ -12872,7 +12843,6 @@ server_design_agrofims <- function(input, output, session, values){
            kds_soilf<- readxl::read_excel(paste0(globalpath,"AgroFIMS_Agronomy_DataDictionary_27-2-2019.xlsx"),
                                           sheet = "Soil fertility")
            kds_soilf <- ec_filter_data(kds_soilf)
-           kds_sedbed <- data.table(kds_sedbed)
            kds_soilf <- data.table(kds_soilf)
            dt_kds<-rbindlist(list(dt_kds,kds_soilf),fill = TRUE)
            dt_kds<-ec_clean_header(dt_kds)
@@ -12932,15 +12902,14 @@ server_design_agrofims <- function(input, output, session, values){
          #                 'Measurement_3', 'TraitUnit', 'TraitAlias','TraitDataType',
          #                 'TraitValidation', 'VariableId')
          lbl_traitlist_dt <- c("Crop","Group","Subgroup","Measurement","TraitName",
-                             "TraitUnit","CropMeasurementPerSeason",
-                             "CropMeasurementPerPlot","TraitAlias",
+                             "TraitUnit",
+                             "CropMeasurementPerSeason","CropMeasurementPerPlot",
+                             "TraitAlias",
                              "TraitDataType","TraitValidation","VariableId")
          
          
          dt_kds <- dt_kds[,lbl_traitlist_dt]
          dt_kds<- changes_units(ec=dt_kds, input, allinputs= AllInputs())
-         
-         #omar<<- dt_kds  
          
          print("inicio17")
          #dt_kds<- ec_clean_header(dt_kds)

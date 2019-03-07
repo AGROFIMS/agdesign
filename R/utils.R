@@ -598,7 +598,15 @@ ec_filter_data <- function(dt){
   dt <- dt %>% filter(Fieldbook_download!="")
                #filter(Fieldbook_download!="Residue_management_end_date") %>% 
                #filter(Fieldbook_download!="Residue_management_residue_incorporation_depth")
-  dt <- dt %>% mutate(TraitName=Fieldbook_download)
+  
+  if(is.element("Fieldbook_download", names(dt))){
+    dt <- dt %>% mutate(TraitName=Fieldbook_download)
+    
+  } else{
+    dt
+  }
+  
+  dt
 }
 
 #Get number of evaluations per season for experiment conditions

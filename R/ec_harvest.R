@@ -153,9 +153,9 @@ get_ec_harv <- function(allinputs, addId){
   lbl_comph <- paste("Harvest_crop_component_harvested",1:length(addId),sep = "__")
   lbl_ha_area <-  paste("Harvestable_area", 1:length(addId),sep = "__")
   
-  lbl_cut <- paste(paste("Harvest_cut_height", cut_unit$values, sep="_"),  1:length(addId),sep = "__")
   lbl_amount <- paste(paste("Harvest_amount", amount_unit$values, sep="_"),  1:length(addId),sep = "__")
-  
+  lbl_cut <- paste(paste("Harvest_cut_height", cut_unit$values, sep="_"),  1:length(addId),sep = "__")
+   
    
   lbl_type<- paste("Harvest_implement_type", 1:length(addId),sep = "__")
   lbl_traction<- paste("Harvest_implement_traction", 1:length(addId),sep = "__")
@@ -164,7 +164,7 @@ get_ec_harv <- function(allinputs, addId){
   lbl_notes<- paste("Harvest_notes", 1:length(addId),sep = "__")
   
   lbl_harv <- c(lbl_start, lbl_end, lbl_method, lbl_comph, lbl_ha_area,
-                lbl_ha_area_num, lbl_cut, lbl_amount, lbl_type, lbl_traction, lbl_notes)
+                lbl_ha_area_num,  lbl_amount, lbl_cut, lbl_type, lbl_traction, lbl_notes)
   
   
   #Special case:
@@ -345,7 +345,7 @@ get_ec_harv_inter <- function(allinputs, addId, crop){
   lbl_notes<- paste("Harvest_notes", 1:length(addId),sep = "__")
   
   lbl_harv <- c(lbl_start, lbl_end, lbl_method, lbl_comph, lbl_ha_area,
-                lbl_ha_area_num, lbl_cut, lbl_amount, lbl_type, lbl_traction, lbl_notes)
+                lbl_ha_area_num,  lbl_amount,lbl_cut, lbl_type, lbl_traction, lbl_notes)
   
   
   #Special case:

@@ -64,7 +64,7 @@ get_ec_resdesc <- function(input, lbl){
 
 get_ec_resmgt <- function(input, lbl){
 
-  lbl <-   c("Residue_management_description_start date", 
+  lbl <-   c("Residue_management_description_start_date", 
                    "Residue_management_description_technique",
                    "Residue_management_description_traction",
                    "Residue_management_description_notes"
@@ -94,7 +94,7 @@ get_ec_resmgt <- function(input, lbl){
       
      lbl <-   c("Residue_management_description_start_date", 
                  "Residue_management_description_technique",
-                 paste0("Residue_management_residue_incorporation_depth",rb_incordepthunit),
+                 paste0("Residue_management_residue_incorporation_depth_",rb_incordepthunit),
                  "Residue_management_description_traction",
                  "Residue_management_description_notes")
      

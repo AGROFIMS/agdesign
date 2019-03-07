@@ -40,7 +40,7 @@ get_ec_irri <- function(allinputs, addId){
                tech_splin  <- dt_inputs(tech_splin,splin_other)
             }
            }
-           lbl<- paste("Irrigation_splinkler_irrigation_system", addId[i],sep="_")
+           lbl<- paste("Irrigation_splinkler_irrigation_system", addId[i],sep="__")
            dt_irri_system <- tech_splin
            # irrigation_system[i,1]<- "Splinkler irrigation system"
            # irrigation_system[i,2]<- tech_splin[i,2]
@@ -48,7 +48,7 @@ get_ec_irri <- function(allinputs, addId){
         else if(technique[i,2]=="Localized"){
            tech_local<- irri %>% filter(str_detect(id, paste0("irid_localized_irrigation_technique",addId[i],"$")))
 
-           lbl<-  paste("Irrigation_localized_irrigation_system", addId[i],sep="_")
+           lbl<-  paste("Irrigation_localized_irrigation_system", addId[i],sep="__")
            if(tech_local[1,2]=="Other"){
              local_other<- irri %>% filter(str_detect(id, paste0("irid_localized_irrigation_technique",addId[i],"_other", "$")))
              tech_local <- dt_inputs(tech_local,local_other)
@@ -57,7 +57,7 @@ get_ec_irri <- function(allinputs, addId){
            dt_irri_system<-tech_local
        }
         else if(technique[i,2]=="Surface"){
-          lbl<- paste("Irrigation_surface_irrigation_system" , addId[i],sep="_")
+          lbl<- paste("Irrigation_surface_irrigation_system" , addId[i],sep="__")
           tech_surface<-  irri %>% filter(str_detect(id, paste0("irid_surface_irrigation_technique_",addId[i],"$")))
           if(tech_surface[1,2]=="Other"){
             surface_other<- irri %>% filter(str_detect(id, paste0("irid_surface_irrigation_technique_",addId[i],"_other","$")))
@@ -69,7 +69,7 @@ get_ec_irri <- function(allinputs, addId){
             # irrigation_system[i,2]<- tech_surface[i,2]
       }
         else if(technique[i,2]=="Other"){
-          lbl<- paste("Irrigation_other_irrigation technique" , addId[i],sep="_")
+          lbl<- paste("Irrigation_other_irrigation technique" , addId[i],sep="__")
           tech_other <- irri %>% filter(str_detect(id, paste0("irid_irrigation_technique_", addId[i],"_other","$")))
           # irrigation_system[i,1]<- "Other irrigation system"
           # irrigation_system[i,2]<- tech_other[i,2]
