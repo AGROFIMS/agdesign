@@ -1027,89 +1027,130 @@ server_design_agrofims <- function(input, output, session, values){
   # Remueve los dinamicos para dejarlos por defecto
   removeDin <- function() {
     
-    # Remueve dinamicos: Funding Agency
     id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
     nfa <- length(id_rand_fa)
-    if (nfa > 1) {
-      for (i in 1:nfa-1) {
-        Sys.sleep(0.1)
-        shinyjs::click(paste0("closeBox_FA_", id_rand_fa[i]))
-      }
-      print("OK rem FA")
-    }
-    
-    # Remueve dinamicos: Project Management Entities
     id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
-    npe <- length(id_rand_fa)
-    if (npe > 1) {
-      for (i in 1:npe-1) {
-        Sys.sleep(0.1)
-        shinyjs::click(paste0("closeBox_PE_", id_rand_pe[i]))
-      }
-      print("OK rem PE")
-    }
-    
-    # Remueve dinamicos: Experiment Leads
+    npe <- length(id_rand_pe)
     id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
-    nel <- length(id_rand_fa)
-    if (nel > 1) {
-      for (i in 1:nel-1) {
-        Sys.sleep(0.1)
-        shinyjs::click(paste0("closeBox_EL_", id_rand_el[i]))
+    nel <- length(id_rand_el)
+    
+    print(nfa)
+    print(npe)
+    print(nel)
+    print("fin removidos")
+    
+    for (i in 1:4) {
+      if (i == 1) {
+        # Remueve dinamicos: Funding Agency
+        id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
+        nfa <- length(id_rand_fa)
+        if (nfa > 1) {
+          for (i in 1:nfa-1) {
+            Sys.sleep(0.1)
+            shinyjs::click(paste0("closeBox_FA_", id_rand_fa[i]))
+          }
+          #print("OK rem FA")
+        }
       }
-      print("OK rem EL")
+      
+      if (i == 2) {
+        # Remueve dinamicos: Project Management Entities
+        id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
+        npe <- length(id_rand_pe)
+        if (npe > 1) {
+          for (i in 1:npe-1) {
+            Sys.sleep(0.1)
+            shinyjs::click(paste0("closeBox_PE_", id_rand_pe[i]))
+          }
+          #print("OK rem PE")
+        }
+      }
+      
+      if (i == 3) {
+        # Remueve dinamicos: Experiment Leads
+        id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
+        nel <- length(id_rand_el)
+        if (nel > 1) {
+          for (i in 1:nel-1) {
+            Sys.sleep(0.1)
+            shinyjs::click(paste0("closeBox_EL_", id_rand_el[i]))
+          }
+          #print("OK rem EL")
+        }
+      }
+      
     }
     
-    print("removidos exitosamente")
+    
+    
+    #print("removidos exitosamente")
   }
   
   generateDin <- function() {
+    print(getFbId())
     df <- read.csv(paste0(sessionpath, getFbId(), ".csv"))
-    
-    # Genera dinamicos: Funding Agency
-    df_fa <- df %>% dplyr::filter(str_detect(inputId, "designFieldbook_fundAgencyType_"))
-    nfa <- nrow(df_fa)
-    nfa <- (nfa/4)-1
-    
-    if (nfa >= 1) {
-      for (i in 1:nfa) {
-        Sys.sleep(0.1)
-        shinyjs::click("addFundingAgency")
+    #print(df)
+    for (i in 1:3) {
+      
+      if (i == 1) {
+        # Genera dinamicos: Funding Agency
+        df_fa <- df %>% dplyr::filter(str_detect(inputId, "designFieldbook_fundAgencyType_"))
+        nfa <- nrow(df_fa)
+        nfatest <- nfa/4
+        print(nfatest)
+        nfa <- (nfa/4)-1
+        
+        if (nfa >= 1) {
+          for (i in 1:nfa) {
+            Sys.sleep(0.1)
+            shinyjs::click("addFundingAgency")
+          }
+          #print("OK add EL")
+        }
       }
-      print("OK add EL")
+      
+      if (i == 2) {
+        # Genera dinamicos: Project Management Entities
+        df_pe <- df %>% dplyr::filter(str_detect(inputId, "projEntity_|contCenter_|contCRP_"))
+        npe <- nrow(df_pe)
+        npetest <- npe/4
+        print(npetest)
+        npe <- (npe/4)-1
+        
+        if (npe >= 1) {
+          for (i in 1:npe) {
+            Sys.sleep(0.1)
+            shinyjs::click("addManagEntity")
+          }
+          #print("OK add EL")
+        }
+      }
+      
+      if (i == 3) {
+        # Genera dinamicos: Experiment Leads
+        df_el <- df %>% dplyr::filter(str_detect(inputId, "projLeadEnt_|tLeadCenter_|lead_org_type_1_|leadNameOther_|expLead_"))
+        nel <- nrow(df_el)
+        neltest <- nel/6
+        print(neltest)
+        nel <- (nel/6)-1
+        
+        if (nel >= 1) {
+          for (i in 1:nel) {
+            Sys.sleep(0.1)
+            shinyjs::click("addExperimentLeads")
+          }
+          #print("OK add EL")
+        }
+      }
+      
     }
     
-    # Genera dinamicos: Project Management Entities
-    df_pe <- df %>% dplyr::filter(str_detect(inputId, "projEntity_|contCenter_|contCRP_"))
-    npe <- nrow(df_pe)
-    npe <- (npe/4)-1
-    
-    if (npe >= 1) {
-      for (i in 1:npe) {
-        Sys.sleep(0.1)
-        shinyjs::click("addManagEntity")
-      }
-      print("OK add EL")
-    }
-    
-    # Genera dinamicos: Experiment Leads
-    df_el <- df %>% dplyr::filter(str_detect(inputId, "projLeadEnt_|tLeadCenter_|lead_org_type_1_|leadNameOther_|expLead_"))
-    nel <- nrow(df_el)
-    nel <- (nel/6)-1
-    
-    if (nel >= 1) {
-      for (i in 1:nel) {
-        Sys.sleep(0.1)
-        shinyjs::click("addExperimentLeads")
-      }
-      print("OK add EL")
-    }
-    
-    print("agregados exitosamente")
+    #print("agregados exitosamente")
   }
   
   dftest <- function() {
-    
+    Sys.sleep(10)
+    tutu()
     df_old <- read.csv(paste0(sessionpath, getFbId(), ".csv"))
     print(df_old)
     
@@ -1398,6 +1439,20 @@ server_design_agrofims <- function(input, output, session, values){
     valor
   }
   
+  tutu <- function() {
+    Sys.sleep(0.1)
+    id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
+    a <- length(id_rand_fa)
+    id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
+    b <- length(id_rand_pe)
+    id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
+    c <- length(id_rand_el)
+    
+    print(id_rand_fa)
+    print(id_rand_pe)
+    print(id_rand_el)
+  }
+  
   #Boton load session
   observeEvent(input$load_inputs, {
     #withProgress(message = 'Loading session...', value = 0, {
@@ -1409,22 +1464,39 @@ server_design_agrofims <- function(input, output, session, values){
       #delay(1000, dftest())
       #delay(1000, loadsession())
       
-      n <- 3
-      
+    withProgress(message = 'Calculation in progress', value = 0, {
       for (i in 1:3) {
+        Sys.sleep(0.1)
         if (i == 1) {
-          #removeDin()
+          removeDin()
+          print("fin 1")
         }
-        
+
         if (i == 2) {
+          #Sys.sleep(3)
           #generateDin()
+          delay(5000, generateDin())
+          #tutu()
+          print("fin 2")
         }
-        
+
         if (i == 3) {
+          #loadsession()
           #dftest()
+          delay(10000, dftest())
+          print("fin 3")
         }
-        Sys.sleep(0.5)
       }
+    })
+    
+    # list(
+    #   removeDin(),
+    #   generateDin(),
+    #   
+    #   dftest()
+    # )
+      
+      
     
     #})
     
@@ -11467,13 +11539,13 @@ server_design_agrofims <- function(input, output, session, values){
      #input<-readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
      
      if(isTRUE(input$residueDesc_checkbox)){
-       dt1 <- get_ec_resdesc(input=input)         
+       dt1 <- get_ec_resdesc(input=input)$dt         
      }else {
        dt1 <- data.frame()
      }
      
      if(isTRUE(input$residueManag_checkbox)){
-       dt2 <- get_ec_resmgt(input=input) 
+       dt2 <- get_ec_resmgt(input=input)$dt 
      } else{
        dt2 <- data.frame()
      }
@@ -12322,6 +12394,14 @@ server_design_agrofims <- function(input, output, session, values){
     #co <- trait$VariableId
     cs <- paste(cr,sb, cm, sc, sep="_")
     
+    ##NEW CODE
+    ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
+    if(ct=="Monocrop"){
+      cs<- add_season_prefix(trait)  
+    }
+    
+    ## NEW CODE
+    
     #trait_selected <- trait_agrofims() %>% as.data.frame(stringsAsFactors =FALSE) #unlist(shinyTree::get_selected(input$designFieldbook_traits_agrofims))
     trait_selected <- cs
      
@@ -12356,6 +12436,7 @@ server_design_agrofims <- function(input, output, session, values){
         cs <- paste(cr,sb, cm, sc, sep="-")
         
         #trait_selected <- trait_agrofims() %>% as.data.frame(stringsAsFactors =FALSE) #unlist(shinyTree::get_selected(input$designFieldbook_traits_agrofims))
+        cs<- add_season_prefix(trait[[i]])
         trait_selected <- cs
         
         if(!is.null(trait_selected) || length(trait_selected)==0 ){
@@ -12474,10 +12555,9 @@ server_design_agrofims <- function(input, output, session, values){
 
        withProgress(message = 'Downloading fieldbook', value = 0, {
         
-         # print("mono con f")
-         # print(fmono())
-         # print("dt mono")
-         # print(dtMonocrop)
+         # row_sel<- input$tblMono_rows_selected
+         # row_sel<- sort(row_sel)
+         # monito <<- dtMonocrop[row_sel,]
          
          # ai <- AllInputs()
          # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")

@@ -92,3 +92,52 @@ get_ec_sbtill <- function(input){
   
   
 }
+
+
+
+#################################################### LABEL ####################################################
+#Get label for land levelling
+get_label_sblalv<- function(input){
+ 
+  llNames<- c("Land_levelling_start_date_(yyyy/mm/dd)", 
+              "Land_levelling_total_number_of_levelling_passes", "Land_levelling_notes",
+              "Land_levelling_implement_type", "Land_levelling_implement_traction")
+  
+}
+
+
+#Get label for puddling
+get_label_sbpud <- function(input){
+  
+  lp_depth_unit <- map_singleform_values(input = input$puddling_depth_unit, 
+                                         type = "select", format = "vector", label = "Factor")
+
+  
+  lpNames <- c("Puddling_start_date_(yyyy/mm/dd)", 
+               paste0("Puddling_depth_",lp_depth_unit),
+               "Puddling_total_number_of_puddling_passes",
+               "Puddling_notes", "Puddling_implement_type", "Puddling_implement_traction")
+ 
+  
+}
+
+
+#Get label for tillage
+get_label_sbtill <- function(input){
+  
+  lt_depth_unit  <- map_singleform_values(input = input$tillage_depth_unit,type = "select", format = "vector", label = "Factor" )
+  
+  ltNames <- c("Tillage_start_date_(yyyy/mm/dd)", 
+               "Tillage_technique",
+               paste0("Tillage_depth_",lt_depth_unit), 
+               "Tillage_total_number_of_tillage_passes", "Tillage_notes", 
+               "Tillage_implement_type", "Tillage_implement_traction")
+  
+  
+}
+
+
+
+
+
+
