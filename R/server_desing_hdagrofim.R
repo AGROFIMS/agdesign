@@ -9570,6 +9570,7 @@ server_design_agrofims <- function(input, output, session, values){
                       "TraitUnit",
                       "Number of measurements per season",
                       "Number of Crop measurements per plot",
+                      "TraitName",
                       "TraitAlias",
                       "TraitDataType",
                       "TraitValidation",
@@ -9584,7 +9585,7 @@ server_design_agrofims <- function(input, output, session, values){
       editable = TRUE,
       options = list(
         pageLength = 25,
-        columnDefs = list(list(visible=F, targets=c(1,2,3,8,9,10,11)))
+        columnDefs = list(list(visible=F, targets=c(1,2,3,8,9,10,11,12)))
       ))
     # ) %>% formatStyle(
     #   c("Crop measurement per season", "Crop measurement per plot"),
@@ -11837,7 +11838,8 @@ server_design_agrofims <- function(input, output, session, values){
     
     if(nrow(ww)>0){
       #a2<- a2#[, c("Measurement", "Unit")]
-      ww<- ww$Measurement
+      #ww<- ww$Measurement
+      ww<- ww$TraitName
       m <- data.frame(matrix("", ncol = length(ww), nrow = 1),stringsAsFactors = FALSE)
       names(m)<-ww
       ww<-m
@@ -11857,8 +11859,9 @@ server_design_agrofims <- function(input, output, session, values){
     
     row_select <- input$tblSoil_rows_selected
     dt <- dtSoil[row_select,  ] #soil_data[row_select,  ]
-    lbl <- dt$Measurement
-
+    #lbl <- dt$Measurement
+    lbl <- dt$TraitName
+    
     if(length(lbl)==0){
      dt <- data.frame()
     } else if(nrow(fbdesign())==0 && length(lbl)>=1){
@@ -12436,8 +12439,12 @@ server_design_agrofims <- function(input, output, session, values){
         cs <- paste(cr,sb, cm, sc, sep="-")
         
         #trait_selected <- trait_agrofims() %>% as.data.frame(stringsAsFactors =FALSE) #unlist(shinyTree::get_selected(input$designFieldbook_traits_agrofims))
+        ## CHECK IF Trait table for each crop has information of the crop, in case not skip
+        if(trait[[i]]$Crop[1]!=""){
         cs<- add_season_prefix(trait[[i]])
+        }
         trait_selected <- cs
+        
         
         if(!is.null(trait_selected) || length(trait_selected)==0 ){
           mm  <-  matrix(nrow = nrow(fb), ncol = length(trait_selected) )
@@ -12836,8 +12843,9 @@ server_design_agrofims <- function(input, output, session, values){
            dt <- dtSoil[row_select, ]
            soil_tl <- data.table(dt)
            colnames(soil_tl) <- c("Crop","Group","Subgroup","Measurement",
-                                "TraitUnit","CropMeasurementPerSeason",
-                                "CropMeasurementPerPlot","TraitAlias",
+                                "TraitUnit",
+                                "CropMeasurementPerSeason","CropMeasurementPerPlot",
+                                "TraitName", "TraitAlias",
                                 "TraitDataType","TraitValidation","VariableId")
            #soil_tl <- data.table(soil_dt())
            soil_tl$Group <- "Soil"
@@ -12990,6 +12998,9 @@ server_design_agrofims <- function(input, output, session, values){
          
          dt_kds <- dt_kds[,lbl_traitlist_dt]
          dt_kds<- changes_units(ec=dt_kds, input, allinputs= AllInputs())
+         
+         
+         
          
          print("inicio17")
          #dt_kds<- ec_clean_header(dt_kds)
