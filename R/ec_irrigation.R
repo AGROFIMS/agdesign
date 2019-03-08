@@ -138,6 +138,12 @@ get_ec_irri <- function(allinputs, addId){
     #transpose data as rows   
     dt_irri<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
     names(dt_irri) <- dt$id
-    dt_irri
-
+    #dt_irri
+    
+    #LABEL FOR TRAITLIST
+    lbl <- str_replace_all(string = names(dt_irri), pattern = "__[:digit:]+$",replacement = "") %>% unique()
+    
+    #OUTPUT
+    out<- list(dt=dt_irri, lbl = lbl)
+    
 }

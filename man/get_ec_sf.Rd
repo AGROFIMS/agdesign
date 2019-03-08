@@ -4,12 +4,10 @@
 \alias{get_ec_sf}
 \title{Get exp conditions , soil and fertilkity tab}
 \usage{
-get_ec_sf(allinputs, lbl, napp)
+get_ec_sf(allinputs, napp)
 }
 \arguments{
 \item{allinputs}{shiny reactiveValuesList provided by AGROFIMS}
-
-\item{lbl}{\code{character} vector labels}
 
 \item{napp}{\code{numeric} number of applications}
 }

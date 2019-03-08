@@ -48,7 +48,7 @@ get_ec_weed<- function(allinputs, addId){
     dt<- rbind(startD, tech, notes, type, traction)
     dt<- arrange_by_pattern(dt, pattern = addId)
     #extract and tranpose column with valus
-    dt<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
+    dt <- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
     
     # TODO : AGREGAR ESTAS COLUMNAS
     # Weeding_end_date
@@ -58,6 +58,14 @@ get_ec_weed<- function(allinputs, addId){
     # Weeding_biomass_subsample_dry_weight
     
     names(dt) <- lbl_weed
-    dt
+    #dt
+    
+    #LABEL FOR TRAITLIST
+    lbl <- str_replace_all(string = names(dt), pattern = "__[:digit:]+$",replacement = "") %>% unique()
+    
+    #OUTPUT
+    out<- list(dt=dt, lbl = lbl)
+    
+    
 }
 

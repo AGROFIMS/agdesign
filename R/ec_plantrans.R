@@ -79,6 +79,8 @@ get_ec_plantrans <- function(allinputs, addId, input){
               paste("Direct_seeding_distance_between_bunds","_",bund_unit$values,sep=""),
               "Direct_seeding_notes"
               )
+  lbl_di <-   lbl_dt <- paste(lbl_di, rep("1", length(lbl_di)) ,sep="__") 
+  
   
   #TODO: AGREGAR END DATE "Planting_direct_seeding_end_date"
   
@@ -158,6 +160,9 @@ get_ec_plantrans <- function(allinputs, addId, input){
               paste0("Transplanting_distance_between_bunds","_",ta_bunds_unit$values,sep=""),
               "Transplanting_notes")      
   
+  lbl_ta <-   lbl_ta <- paste(lbl_ta, rep("1", length(lbl_ta)) ,sep="__") 
+  
+  
   dt_ta <- t(dt_ta$values) %>% as.data.frame(stringAsFactors=FALSE)
   names(dt_ta) <- lbl_ta
   }
@@ -166,8 +171,12 @@ get_ec_plantrans <- function(allinputs, addId, input){
   }
   
   #dt_plantrans <- cbind(dt_di, dt_ta)
-  dt_plantrans<- dplyr::bind_cols(dt_di,dt_ta)
-  dt_plantrans
+  dt_plantrans<- smart_colbind(dt_di,dt_ta)
+  
+  #LABEL FOR TRAITLIST
+  lbl<- str_replace_all(string = names(dt_plantrans), pattern = "__[:digit:]+$", replacement = "") %>% unique()
+  
+  out <- list(dt= dt_plantrans, lbl=lbl)
 }
 
 #TODO: escoger checkboxed y exportar lo marcado en planting transpling Intercrop
@@ -255,6 +264,8 @@ get_ec_plantrans_inter <- function(allinputs, input, addId, crop){
               "Direct_seeding_number_of_rows", "Direct_seeding_plant_density",
               "Direct_seeding_distance_between_bunds","Direct_seeding_notes"
   )
+  
+  lbl_di <- paste(lbl_di, rep("1", length(lbl_di)) ,sep="__") 
   
   #TODO: agregar end date: "Planting_direct_seeding_end_date"
   
@@ -346,6 +357,7 @@ get_ec_plantrans_inter <- function(allinputs, input, addId, crop){
               "Transplanting_distance_between_bunds",
               "Transplanting_notes")      
 
+  lbl_ta <- paste(lbl_ta, rep("1", length(lbl_ta)) ,sep="__") 
   
   lbl_ta_inter <- NULL
   for(i in 1:length(lbl_ta)){

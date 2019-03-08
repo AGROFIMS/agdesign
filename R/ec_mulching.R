@@ -63,7 +63,7 @@ get_ec_mulching <- function(allinputs){
   dt<- rbind(startD,type1,mthick, mamount, mcolor, mper, mrstarD,mrendD, notes, type2, traction)
   dt<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
   
-  #Labels
+  #BASE LABELS
   lbl <- c("Mulch_start_date", "Mulch_type", 
            paste0("Mulch_thickness_", mthick_unit$values),
            paste0("Mulch_amount_",mamount_unit$values),
@@ -76,8 +76,12 @@ get_ec_mulching <- function(allinputs){
            "Mulch_implement_traction"
            )
   
+  #LABELS FOR SPREADSHEETS and KDSMART
+  lbl_dt<- paste(lbl, rep("1", length(lbl)) ,sep="__") 
+  
   #TODO : AGREGAR END DATE "Mulch_end_date"
-  names(dt) <- lbl
-  dt
+  names(dt) <- lbl_dt
+  
+  out<- list(dt = dt, lbl=lbl)
   
 }

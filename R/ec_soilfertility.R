@@ -2,11 +2,10 @@
 #'@description get all input values related to the experiment conditions \code{soil and fertility} experiment condition tab, 
 #'provided by users when type in AGROFIMS.
 #'@param allinputs shiny reactiveValuesList provided by AGROFIMS
-#'@param lbl \code{character} vector labels
 #'@param napp \code{numeric} number of applications
 #'@author Omar Benites
 
-get_ec_sf <- function(allinputs, lbl, napp ){
+get_ec_sf <- function(allinputs, napp ){
   
   #allinputs$id<-as.character(allinputs$id)
   #allinputs$values<-as.character(allinputs$values)  
@@ -74,29 +73,13 @@ get_ec_sf <- function(allinputs, lbl, napp ){
   dt <- data.frame(matrix(ncol = length(lbl_soil), nrow = 1))
   names(dt) <- lbl_soil
   dt[1,]<- dt_soil[,"values"]
-  dt
+  
+  ##LABEL FOR TRAITLIST :remove all double underscore from soil_fertility labels
+  lbl<- str_replace_all(string = lbl_soil, pattern = "__[:digit:]+$",replacement = "")
+  lbl <- unique(lbl)
+  
+  out<- list(dt=dt, lbl= lbl)
+  
   
 }
 
-
-# dt_inputs<- function(dt, dt_other){
-# 
-#   for(i in 1:nrow(dt)){
-#     
-#     if(dt[i,"values"]=="Other" || dt[i,"values"]=="other" ){
-#        dt[i,"values"] <-  dt_other[i,"values"]
-#     }
-#     else{
-#       dt[i,"values"]<- dt[i,"values"]
-#     }
-#   }  
-#   dt
-# }
-# 
-# lbl <- c("Fertilizer_type","Product","Product_rate_(kg/ha)", "Element","Element_rate_(kg/ha)",
-#          "Start_date", "End_date", "Technique", "Notes")
-# allinputs <- 
-# 
-
-
-#dt<- get_ec_sf(allinputs, lbl, napp )

@@ -50,53 +50,53 @@ get_ec_harv <- function(allinputs, addId){
       #input$hahd_crop_component_harvested_m2_[:uppercase:]{8}
       ha_m2 <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_m2_",addId[i],"$")))
       values_ha_area_sp <- append(values_ha_area_sp, ha_m2$values)
-      lbl_ha_area_sp <-  append(lbl_ha_area_sp, paste("Harvest_number_of_m2_units_harvested",addId[i],sep="_"))
+      lbl_ha_area_sp <-  append(lbl_ha_area_sp, paste("Harvestable_area_number_of_m2_units_harvested",addId[i],sep="_"))
       #label with numbers
-      lbl_ha_area_num <-  append(lbl_ha_area_num, paste("Harvest_number_of_m2_units_harvested",i, sep="__"))
+      lbl_ha_area_num <-  append(lbl_ha_area_num, paste("Harvestable_area_number_of_m2_units_harvested",i, sep="__"))
       
     } else if(ha_area$values[i]=="Individual plants"){
       #Harvesta area : individual plants
       ha_ip <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_ip_",addId[i],"$")))
       values_ha_area_sp<- append(values_ha_area_sp, ha_ip$values)
-      lbl_ha_area_sp<-  append(lbl_ha_area_sp,paste("Harvest_number_of_plants_harvested",addId[i],sep="_"))
+      lbl_ha_area_sp<-  append(lbl_ha_area_sp,paste("Harvestable_area_number_of_individual_plants_harvested",addId[i],sep="_"))
       #label with numbers
-      lbl_ha_area_num <-  append(lbl_ha_area_num,paste("Harvest_number_of_plants_harvested", i, sep="__"))
+      lbl_ha_area_num <-  append(lbl_ha_area_num,paste("Harvestable_area_number_of_individual_plants_harvested", i, sep="__"))
       
       
     } else if(ha_area$values[i]=="Rows"){
       #Harvesta area : rows---------------------------------------------------------
       ha_row_num <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_num_",addId[i],"$")))
       values_ha_area_sp <- append(values_ha_area_sp, ha_row_num$values)
-      lbl_ha_area_sp <-  append(lbl_ha_area_sp, paste("Harvest_number_of_plants_harvested",addId[i],sep="_"))
+      lbl_ha_area_sp <-  append(lbl_ha_area_sp, paste("Harvestable_area_number_of_rows_harvested",addId[i],sep="_"))
       #label with numbers
-      lbl_ha_area_num <-  append(lbl_ha_area_num, paste("Harvest_number_of_plants_harvested", i ,sep="__"))
+      lbl_ha_area_num <-  append(lbl_ha_area_num, paste("Harvestable_area_number_of_rows_harvested", i ,sep="__"))
       
       
       #rows length
       ha_row_len <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_len_",addId[i],"$")))
       values_ha_area_sp <- append(values_ha_area_sp, ha_row_len$values)
       ha_row_len_unit <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_lenunit_",addId[i],"$")))
-      lbl_ha_area_sp <-  append(lbl_ha_area_sp, paste("Harvest_Length_of_rows_harvested",ha_row_len_unit$values, addId[i], sep="_"))
+      lbl_ha_area_sp <-  append(lbl_ha_area_sp, paste("Harvestable_area_length_of_rows_harvested",ha_row_len_unit$values, addId[i], sep="_"))
       #numeric labels
-      lbl_ha_area_num <-  append(lbl_ha_area_num, paste(paste("Harvest_Length_of_rows_harvested", ha_row_len_unit$values, sep="_"), i, sep="__"))
+      lbl_ha_area_num <-  append(lbl_ha_area_num, paste(paste("Harvestable_area_length_of_rows_harvested", ha_row_len_unit$values, sep="_"), i, sep="__"))
       
       
       #rows width
       ha_row_width <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_width_",addId[i],"$")))
       values_ha_area_sp <- append(values_ha_area_sp, ha_row_width$values)
       ha_row_width_unit <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_widthunit_",addId[i],"$")))
-      lbl_ha_area_sp <-  append(lbl_ha_area_sp,paste("Harvest_Width_within_rows_harvested", ha_row_width_unit$values, addId[i], sep="_"))
+      lbl_ha_area_sp <-  append(lbl_ha_area_sp,paste("Harvestable_area_width_within_rows_harvested", ha_row_width_unit$values, addId[i], sep="_"))
       #numeric labels
-      lbl_ha_area_num <-  append(lbl_ha_area_num, paste(paste("Harvest_Width_within_rows_harvested", ha_row_width_unit$values, sep="_"),i, sep="__"))
+      lbl_ha_area_num <-  append(lbl_ha_area_num, paste(paste("Harvestable_area_width_within_rows_harvested", ha_row_width_unit$values, sep="_"),i, sep="__"))
       
       
       #rows space
       ha_row_space<- harv  %>% filter(str_detect(id, paste0("hahd_space_rows_harvested_",addId[i],"$")))
       values_ha_area_sp <- append(values_ha_area_sp, ha_row_space$values)
       ha_row_space_unit <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_spaceunit_",addId[i],"$"))) 
-      lbl_ha_area_sp<-  append(lbl_ha_area_sp, paste("Harvest_Space_between_rows_harvested",ha_row_space_unit$values,addId[i],sep="_"))
+      lbl_ha_area_sp<-  append(lbl_ha_area_sp, paste("Harvestable_area_space_between_rows_harvested",ha_row_space_unit$values,addId[i],sep="_"))
       #numeric labels
-      lbl_ha_area_num<-  append(lbl_ha_area_num, paste(paste("Harvest_Space_between_rows_harvested",ha_row_space_unit$values,sep="_"),i, sep="__"))     
+      lbl_ha_area_num<-  append(lbl_ha_area_num, paste(paste("Harvestable_area_space_between_rows_harvested",ha_row_space_unit$values,sep="_"),i, sep="__"))     
       
       
     } else if(ha_area$values[i]=="Entire plot"){
@@ -104,17 +104,17 @@ get_ec_harv <- function(allinputs, addId){
       ha_row_plot_area <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_entire_",addId[i],"$"))) 
       values_ha_area_sp <- append(values_ha_area_sp, ha_row_plot_area$values)
       ha_row_plot_area_unit<- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_entireunit_",addId[i],"$"))) 
-      lbl_ha_area_sp <- append(lbl_ha_area_sp,paste("Harvest_plot_area_harvested",ha_row_plot_area_unit$values,addId[i],sep="_"))
+      lbl_ha_area_sp <- append(lbl_ha_area_sp,paste("Harvestable_area_entire_plot_area_harvested",ha_row_plot_area_unit$values,addId[i],sep="_"))
       #numeric labels
-      lbl_ha_area_num <- append(lbl_ha_area_num, paste(paste("Harvest_plot_area_harvested",ha_row_plot_area_unit$values,sep="_"),i,sep="__"))
+      lbl_ha_area_num <- append(lbl_ha_area_num, paste(paste("Harvestable_area_entire_plot_area_harvested",ha_row_plot_area_unit$values,sep="_"),i,sep="__"))
       
     } else if(ha_area$values[i]=="Other"){
       #Harvesta area : other 
       ha_area_other <- harv  %>% filter(str_detect(id, paste0("hahd_crop_harvestable_area_",addId[i],"_other$")))
       values_ha_area_sp <- append(values_ha_area_sp, ha_area_other$values)
-      lbl_ha_area_sp<-  append(lbl_ha_area_sp,paste("Harvest_area", addId[i],sep="_"))
+      lbl_ha_area_sp<-  append(lbl_ha_area_sp,paste("Harvest_area_other", addId[i],sep="_")) #TODO CHECK THIS `OTHER` 
       #numeric labels
-      lbl_ha_area_num<-  append(lbl_ha_area_num, paste("Harvest_area", i, sep="__"))
+      lbl_ha_area_num<-  append(lbl_ha_area_num, paste("Harvest_area_other", i, sep="__")) #TODO CHECK THIS `OTHER`
       
     }
   }
@@ -177,7 +177,14 @@ get_ec_harv <- function(allinputs, addId){
   #transpose data as rows   
   dt_harv<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
   names(dt_harv) <- dt$id
-  dt_harv
+  #dt_harv
+  
+  #LABEL FOR TRAITLIST
+  lbl <- str_replace_all(string = names(dt_harv), pattern = "__[:digit:]+$",replacement = "") %>% unique()
+  
+  #OUTPUT
+  out<- list(dt=dt_harv, lbl = lbl)
+  
   
 }
 

@@ -12,13 +12,18 @@ get_ec_sblalv<- function(input){
   
   dt<- data.frame(ll_start_date, ll_npasses, ll_notes, ll_type, ll_traction)
   
-  llNames<- c("Land_levelling_start_date_(yyyy/mm/dd)", 
+  #BASE FORM OF HEADERS
+  lbl<- c("Land_levelling_start_date_(yyyy/mm/dd)", 
               "Land_levelling_total_number_of_levelling_passes", "Land_levelling_notes",
               "Land_levelling_implement_type", "Land_levelling_implement_traction")
   
+  #Label for spreadsheet and kdsmart headers
+  lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
+  
+  
   #TODO: AGREGAR END DATE
-  names(dt)<-llNames
-  dt
+  names(dt)<-lbl_dt
+  out <- list(dt=dt, lbl=lbl)
   
 }
 
@@ -45,13 +50,19 @@ get_ec_sbpud <- function(input){
   dt <- data.frame(lp_start_date, lp_depth_val, lp_npasses, lp_notes, lp_type, lp_traction) 
   
   
-  lpNames <- c("Puddling_start_date_(yyyy/mm/dd)", 
+  lbl <- c("Puddling_start_date_(yyyy/mm/dd)", 
                paste0("Puddling_depth_",lp_depth_unit),
                "Puddling_total_number_of_puddling_passes",
                "Puddling_notes", "Puddling_implement_type", "Puddling_implement_traction")
+  
+  #Label for spreadsheet and kdsmart headers
+  lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__")
+  
   #TODO: AGREGAR END DATE
-  names(dt) <- lpNames
-  dt
+  names(dt) <- lbl_dt
+  
+  #OUTPUT
+  out <- list(dt=dt, lbl= lbl) 
   
 }
 
@@ -77,7 +88,7 @@ get_ec_sbtill <- function(input){
   lt_traction <- map_singleform_values(input =input$till_traction, input$till_traction_other,
                                        type = "select", format = "vector", label = "Factor")
   
-  ltNames <- c("Tillage_start_date_(yyyy/mm/dd)", 
+  lbl <- c("Tillage_start_date_(yyyy/mm/dd)", 
                "Tillage_technique",
                paste0("Tillage_depth_",lt_depth_unit), 
                "Tillage_total_number_of_tillage_passes", "Tillage_notes", 
@@ -86,55 +97,17 @@ get_ec_sbtill <- function(input){
   dt <- data.frame(lt_start_date, lt_technique,
                      lt_depth, lt_npasses ,lt_notes, lt_type, lt_traction,stringsAsFactors = FALSE )
   
+  
+  #Label for spreadsheet and kdsmart headers
+  lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__")
+  
   #TODO: AGREGAR END DATE
-  names(dt) <- ltNames
-  dt
+  names(dt) <- lbl_dt
   
-  
-}
-
-
-
-#################################################### LABEL ####################################################
-#Get label for land levelling
-get_label_sblalv<- function(input){
- 
-  llNames<- c("Land_levelling_start_date_(yyyy/mm/dd)", 
-              "Land_levelling_total_number_of_levelling_passes", "Land_levelling_notes",
-              "Land_levelling_implement_type", "Land_levelling_implement_traction")
+  out <- list(dt=dt, lbl=lbl)
   
 }
 
-
-#Get label for puddling
-get_label_sbpud <- function(input){
-  
-  lp_depth_unit <- map_singleform_values(input = input$puddling_depth_unit, 
-                                         type = "select", format = "vector", label = "Factor")
-
-  
-  lpNames <- c("Puddling_start_date_(yyyy/mm/dd)", 
-               paste0("Puddling_depth_",lp_depth_unit),
-               "Puddling_total_number_of_puddling_passes",
-               "Puddling_notes", "Puddling_implement_type", "Puddling_implement_traction")
- 
-  
-}
-
-
-#Get label for tillage
-get_label_sbtill <- function(input){
-  
-  lt_depth_unit  <- map_singleform_values(input = input$tillage_depth_unit,type = "select", format = "vector", label = "Factor" )
-  
-  ltNames <- c("Tillage_start_date_(yyyy/mm/dd)", 
-               "Tillage_technique",
-               paste0("Tillage_depth_",lt_depth_unit), 
-               "Tillage_total_number_of_tillage_passes", "Tillage_notes", 
-               "Tillage_implement_type", "Tillage_implement_traction")
-  
-  
-}
 
 
 

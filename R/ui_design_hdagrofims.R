@@ -2269,9 +2269,45 @@ display: none;
                                                                                        br(),
                                                                                        DTOutput("tblInterWheat")
                                                                        ),
-                                                                       shiny::tabPanel("Other Measurement", value = "crop_measurement_Other",
+                                                                       shiny::tabPanel("Other 1 Measurement", value = "crop_measurement_Other_1",
                                                                                        br(),
-                                                                                       DTOutput("tblInterOther")
+                                                                                       DTOutput("tblInterOther1")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 2 Measurement", value = "crop_measurement_Other_2",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther2")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 3 Measurement", value = "crop_measurement_Other_3",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther3")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 4 Measurement", value = "crop_measurement_Other_4",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther4")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 5 Measurement", value = "crop_measurement_Other_5",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther5")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 6 Measurement", value = "crop_measurement_Other_6",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther6")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 7 Measurement", value = "crop_measurement_Other_7",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther7")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 8 Measurement", value = "crop_measurement_Other_8",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther8")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 9 Measurement", value = "crop_measurement_Other_9",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther9")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 10 Measurement", value = "crop_measurement_Other_10",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterOther10")
                                                                        )
                                                                      )
                                                               )
