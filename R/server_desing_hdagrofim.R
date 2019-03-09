@@ -13024,20 +13024,20 @@ server_design_agrofims <- function(input, output, session, values){
          # x <- reactiveValuesToList(input)
          # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
 
-         tat <<- traits_dt()
-      
-         print("--LABELS--")
-         print(lbl_residual())
-         print(lbl_seedbed())
-         print(lbl_plantrans())
-         print("--lbl_plants length---")
-         print(length(lbl_plantrans()) )
-         print(lbl_soilFertility())
-         print(lbl_mulching())
-         print(lbl_irrigation())
-         print(lbl_weeding())
-         print(lbl_harvest())
-         print("---END LABELS--")
+         # tat <<- traits_dt()
+         # 
+         # print("--LABELS--")
+         # print(lbl_residual())
+         # print(lbl_seedbed())
+         # print(lbl_plantrans())
+         # print("--lbl_plants length---")
+         # print(length(lbl_plantrans()) )
+         # print(lbl_soilFertility())
+         # print(lbl_mulching())
+         # print(lbl_irrigation())
+         # print(lbl_weeding())
+         # print(lbl_harvest())
+         # print("---END LABELS--")
          
         if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
@@ -13145,8 +13145,8 @@ server_design_agrofims <- function(input, output, session, values){
                    #
                    if(nrow(dt_plantrans()[[circm[i]]])!=0  && ncol(fbdesign())!= ncol(dt_plantrans()[[circm[i]]])){
                    dt_pltr <- dt_plantrans()
-                   print("paso intercrop planting ")
-                   print(nrow(dt_pltr))
+                   # print("paso intercrop planting ")
+                   # print(nrow(dt_pltr))
                    
                    
                    #TODO: Avoid LONG names in sheetNames (error) max 32 characters
@@ -13375,6 +13375,7 @@ server_design_agrofims <- function(input, output, session, values){
          dt_kds<- ec_clean_header(dt_kds)
          # 
          ecname <- "AgroFIMS_Agronomy_DataDictionary_05-3-2019.xlsx"
+         
          if(is.element("Residue management",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
           
