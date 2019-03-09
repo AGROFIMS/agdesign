@@ -12548,7 +12548,7 @@ server_design_agrofims <- function(input, output, session, values){
     tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
     #print(tf)
     fct<- paste(fct_lvl()$fg$GROUP, fct_lvl()$fg$FACTOR, sep = "-" )#get factor labels
-    fct <- paste(fct, 1:length(fct), sep="f-")
+    fct <- paste(fct, 1:length(fct), sep="-f")
     #print(fct)
     flvl<- fct_lvl()$flvl #get factor's levels
     #print(flvl)
