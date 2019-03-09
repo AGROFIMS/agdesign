@@ -1744,7 +1744,8 @@ display: none;
                                                                           p(tags$b(""))
                                                                    ),
                                                                  box(id="mulch_management_boxid",
-                                                                     title = checkboxInput("mulchManag_checkbox", actionLink("mulch_management_titleId", "Mulching details"), T),
+                                                                     #title = checkboxInput("mulchManag_checkbox", actionLink("mulch_management_titleId", "Mulching details"), T),
+                                                                     title= "Mulching details",
                                                                      status = "primary",
                                                                      solidHeader = TRUE,
                                                                      width = 12, collapsible = TRUE, collapsed = FALSE,
@@ -2271,6 +2272,7 @@ display: none;
                                                                        ),
                                                                        shiny::tabPanel("Other 1 Measurement", value = "crop_measurement_Other_1",
                                                                                        br(),
+                                                                                       actionButton("do", "do"),
                                                                                        DTOutput("tblInterOther1")
                                                                        ),
                                                                        shiny::tabPanel("Other 2 Measurement", value = "crop_measurement_Other_2",

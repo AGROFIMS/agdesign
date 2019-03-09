@@ -195,8 +195,8 @@ map_values <- function(input, id_chr="", id_rand,
  
     if(is.null(input[[paste0(id_chr, i)]])){
       funAgenVals[[i]] <- ""        
-                                                                   
     } 
+  
     else if (input[[paste0(id_chr, i)]]=="Other"){
       
       #special cases 1 (for Project Lead) : projLeadEnt ==
@@ -229,15 +229,41 @@ map_values <- function(input, id_chr="", id_rand,
         }
     }
    
-    # Special cases 2 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+    #SPECIAL CASE: id_chr ="designFieldbook_fundAgencyType_name_" && input[["designFieldbook_fundAgencyType_"]]=="CGIAR"
+    #When user select CGIAR center in Funding agency type select combo
+    
+    if(id_chr=="designFieldbook_fundAgencyType_name_") { 
+      #special cases 3 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+      if(!is.null(input[[paste0("designFieldbook_fundAgencyType_",i)]])) {
+        
+        if(input[[paste0("designFieldbook_fundAgencyType_",i)]]=="CGIAR center"){
+          funAgenVals[[i]] <- map_singleform_values(input = input[[paste0("designFieldbook_fundAgencyType_cgiar_", i)]],
+                                                    input_other = "None",
+                                                    type = "select", format="vector",default = "None")
+        }
+      }
+     }  #Specia
+    
+    #SPECIAL CASE:  (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
     if(!is.null(input[[paste0("projLeadEnt_",i)]] )) { 
       #special cases 3 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
       if( input[[paste0("projLeadEnt_",i)]]=="Other" &&  id_chr=="tLeadCenter_"){
         funAgenVals[[i]] <- ""
       }
-    }  #Special cases 4 (get Experiment, lead organization name): projLeadEnt == NULO &  id_chr=="tLeadCenter_" & tLeadCenter=="NULL
-   
- 
+    }  
+    
+    #SPECIAL CASE:  id_chr="tLeadCenter_" y projecLeadEnt=="Other" in EXPERIMENT LEAD BOX
+    if( id_chr=="tLeadCenter_") { 
+      #special cases 3 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+      if( input[[paste0("projLeadEnt_",i)]]=="Other"){
+        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("leadNameOther_", i)]],
+                                                   input_other = "",
+                                                   type = "select", format="vector",default = "None")
+      }
+    }  
+    
+    
+    #Special cases 4 (get Experiment, lead organization name): projLeadEnt == NULO &  id_chr=="tLeadCenter_" & tLeadCenter=="NULL
     if(length(input[[paste0("projLeadEnt_",i)]])==0 && id_chr=="tLeadCenter_") {
        #special cases 5: if id="tLeadCenter", projLeadEnt=0
        print("case 5")
@@ -619,7 +645,7 @@ get_ns <- function(addId){
 #Change units in TraitList sheet
 changes_units <- function(ec, input, allinputs){
   
-  
+   
   dt <- as.data.frame(ec,stringsAsFactors=FALSE)
   col_name <- "TraitUnit"
   ############## Residue management ##############
@@ -784,21 +810,17 @@ add_numplot_prefix <- function(dt, cs){
   if(length(nplot_idx)>0){
     dt$CropMeasurementPerPlot[nplot_idx]<- 1
   }
-  
+  out <- NULL
   for(i in 1:nrow(dt)) {
-    if(dt$CropMeasurementPerPlot[i]!=1){
+    #if(dt$CropMeasurementPerPlot[i]!=1){
       out<- append(out, paste(cs[i],1:dt$CropMeasurementPerPlot[i],sep="#") )
-    } else {
-      out <- append(out, paste(cs[i]))
-    }
-   
-    
+    #} else {
+     # out <- append(out, paste(cs[i]))
+    #}
   }
   
   } else {
-    
     out<-NULL
-    
   }
   out
   
