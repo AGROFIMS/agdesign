@@ -9037,50 +9037,39 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Other 1: ===================================================
   finterMOt1 <- eventReactive(input$do, {
-    
     id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
     
     crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[1])]])
-    print(crop_id)
     oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[1], "_other")]])
-    print(oth)
     
-    sd <- dtInterOther1
-    print(sd[1, 1])
-    # if (exists(sd) && is.data.frame(get(sd))) {
-    #   sd <- auxw$crop[, 1]
-    #   print(sd)
-    # } else {
-    #   sd <- "no existe df"
-    # }
-    
-    if (crop_id == "Other" && is.null(sd)) {
-      print("entra1")
-      f2()
+    if (nrow(dtInterOther1) >= 1) {
+      
+      if (crop_id == "Other" && dtInterOther1[1, 1] != oth) {
+        f1()
+      } else {
+        dtInterOther1
+      }
+      
+    } else {
+      f1()
     }
     
-    if (crop_id == "Other" && sd != oth) {
-      print("entra2")
-      #f2()
-    }
-    
-    #f2()
   }, ignoreNULL = FALSE)
   
-  f2 <- function() {
+  f1 <- function() {
     id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
     
     # Cambiar el parametro numerico [?] para cada other
     o <- paste0("cropCommonNameInter_", id_ic_rand[1], "_other")
     oth <- as.character(input[[o]])
     
-    auxw <<- dplyr::filter(dfmea, Crop == "Other")
+    aux <- dplyr::filter(dfmea, Crop == "Other")
     
     if (oth != "") {
-      auxw$Crop <- oth
-      auxw
+      aux$Crop <- oth
+      aux
     } else {
-      auxw
+      aux
     }
   }
   
@@ -9109,38 +9098,10 @@ server_design_agrofims <- function(input, output, session, values){
     }
   }
   
-  DF <- reactive({
-    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-    
-    # Cambiar el parametro numerico [?] para cada other
-    o <- paste0("cropCommonNameInter_", id_ic_rand[1], "_other")
-    oth <- as.character(input[[o]])
-    print(length(oth))
-    print(oth)
-    aux <- dplyr::filter(dfmea, Crop == "Other")
-    
-    if (length(oth >= 1)) {
-      print("a")
-      if (oth != "") {
-        print("b")
-        aux$Crop <- oth
-        aux
-      } else {
-        aux
-      }
-    } else {
-      aux
-      print("c")
-    }
-    print(aux)
-    return(aux)
-  })
-  
   dtInterOther1 <<- data.frame()
   output$tblInterOther1 = renderDT(
     datatable(
       dtInterOther1 <<- finterMOt1(),
-      #dtInterOther1 <<- DF(),
       selection = 'multiple',
       editable = TRUE,
       options = list(
@@ -9161,173 +9122,253 @@ server_design_agrofims <- function(input, output, session, values){
     replaceData(proxyMonoOther1, dtInterOther1, resetPaging = FALSE, clearSelection = "none")
   })
   
-  # # Other 2: ===================================================
-  # finterMOt2 <- eventReactive(input$do, {
-  #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-  #   
-  #   # Cambiar el parametro numerico [?] para cada other
-  #   o <- paste0("cropCommonNameInter_", id_ic_rand[2], "_other")
-  #   oth <- as.character(input[[o]])
-  #   
-  #   aux <- dplyr::filter(dfmea, Crop == "Other")
-  #   
-  #   if (oth != "") {
-  #     aux$Crop <- oth
-  #     aux
-  #   } else {
-  #     aux
-  #   }
-  # }, ignoreNULL = FALSE)
-  # 
-  # dtInterOther2 <<- data.frame()
-  # output$tblInterOther2 = renderDT(
-  #   datatable(
-  #     dtInterOther2 <<- finterMOt2(),
-  #     selection = 'multiple',
-  #     editable = TRUE,
-  #     options = list(
-  #       pageLength = 25,
-  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-  #     ))
-  # )
-  # 
-  # proxyMonoOther2 = dataTableProxy('tblInterOther2')
-  # 
-  # observeEvent(input$tblInterOther2_cell_edit, {
-  #   info = input$tblInterOther2_cell_edit
-  #   #str(info)
-  #   i = info$row
-  #   j = info$col
-  #   v = info$value
-  #   dtInterOther2[i, j] <<- DT::coerceValue(v, dtInterOther2[i, j])
-  #   replaceData(proxyMonoOther2, dtInterOther2, resetPaging = FALSE, clearSelection = "none")
-  # })
-  # 
-  # # Other 3: ===================================================
-  # finterMOt3 <- eventReactive(input$do, {
-  #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-  #   
-  #   # Cambiar el parametro numerico [?] para cada other
-  #   o <- paste0("cropCommonNameInter_", id_ic_rand[3], "_other")
-  #   oth <- as.character(input[[o]])
-  #   
-  #   aux <- dplyr::filter(dfmea, Crop == "Other")
-  #   
-  #   if (oth != "") {
-  #     aux$Crop <- oth
-  #     aux
-  #   } else {
-  #     aux
-  #   }
-  # }, ignoreNULL = FALSE)
-  # 
-  # dtInterOther3 <<- data.frame()
-  # output$tblInterOther3 = renderDT(
-  #   datatable(
-  #     dtInterOther3 <<- finterMOt3(),
-  #     selection = 'multiple',
-  #     editable = TRUE,
-  #     options = list(
-  #       pageLength = 25,
-  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-  #     ))
-  # )
-  # 
-  # proxyMonoOther3 = dataTableProxy('tblInterOther3')
-  # 
-  # observeEvent(input$tblInterOther3_cell_edit, {
-  #   info = input$tblInterOther3_cell_edit
-  #   #str(info)
-  #   i = info$row
-  #   j = info$col
-  #   v = info$value
-  #   dtInterOther3[i, j] <<- DT::coerceValue(v, dtInterOther3[i, j])
-  #   replaceData(proxyMonoOther3, dtInterOther3, resetPaging = FALSE, clearSelection = "none")
-  # })
-  # 
-  # # Other 4: ===================================================
-  # finterMOt4 <- eventReactive(input$do, {
-  #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-  #   
-  #   # Cambiar el parametro numerico [?] para cada other
-  #   o <- paste0("cropCommonNameInter_", id_ic_rand[4], "_other")
-  #   oth <- as.character(input[[o]])
-  #   
-  #   aux <- dplyr::filter(dfmea, Crop == "Other")
-  #   
-  #   if (oth != "") {
-  #     aux$Crop <- oth
-  #     aux
-  #   } else {
-  #     aux
-  #   }
-  # }, ignoreNULL = FALSE)
-  # 
-  # dtInterOther4 <<- data.frame()
-  # output$tblInterOther4 = renderDT(
-  #   datatable(
-  #     dtInterOther4 <<- finterMOt4(),
-  #     selection = 'multiple',
-  #     editable = TRUE,
-  #     options = list(
-  #       pageLength = 25,
-  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-  #     ))
-  # )
-  # 
-  # proxyMonoOther4 = dataTableProxy('tblInterOther4')
-  # 
-  # observeEvent(input$tblInterOther4_cell_edit, {
-  #   info = input$tblInterOther4_cell_edit
-  #   #str(info)
-  #   i = info$row
-  #   j = info$col
-  #   v = info$value
-  #   dtInterOther4[i, j] <<- DT::coerceValue(v, dtInterOther4[i, j])
-  #   replaceData(proxyMonoOther4, dtInterOther4, resetPaging = FALSE, clearSelection = "none")
-  # })
-  # 
-  # # Other 5: ===================================================
-  # finterMOt5 <- eventReactive(input$do, {
-  #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-  #   
-  #   # Cambiar el parametro numerico [?] para cada other
-  #   o <- paste0("cropCommonNameInter_", id_ic_rand[5], "_other")
-  #   oth <- as.character(input[[o]])
-  #   
-  #   aux <- dplyr::filter(dfmea, Crop == "Other")
-  #   
-  #   if (oth != "") {
-  #     aux$Crop <- oth
-  #     aux
-  #   } else {
-  #     aux
-  #   }
-  # }, ignoreNULL = FALSE)
-  # 
-  # dtInterOther5 <<- data.frame()
-  # output$tblInterOther5 = renderDT(
-  #   datatable(
-  #     dtInterOther5 <<- finterMOt5(),
-  #     selection = 'multiple',
-  #     editable = TRUE,
-  #     options = list(
-  #       pageLength = 25,
-  #       columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
-  #     ))
-  # )
-  # 
-  # proxyMonoOther5 = dataTableProxy('tblInterOther5')
-  # 
-  # observeEvent(input$tblInterOther5_cell_edit, {
-  #   info = input$tblInterOther5_cell_edit
-  #   #str(info)
-  #   i = info$row
-  #   j = info$col
-  #   v = info$value
-  #   dtInterOther5[i, j] <<- DT::coerceValue(v, dtInterOther5[i, j])
-  #   replaceData(proxyMonoOther5, dtInterOther5, resetPaging = FALSE, clearSelection = "none")
-  # })
+  # Other 2: ===================================================
+  finterMOt2 <- eventReactive(input$do, {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[2])]])
+    oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[2], "_other")]])
+    
+    if (nrow(dtInterOther2) >= 1) {
+      
+      if (crop_id == "Other" && dtInterOther2[1, 1] != oth) {
+        f2()
+      } else {
+        dtInterOther2
+      }
+      
+    } else {
+      f2()
+    }
+    
+  }, ignoreNULL = FALSE)
+  
+  f2 <- function() {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    # Cambiar el parametro numerico [?] para cada other
+    o <- paste0("cropCommonNameInter_", id_ic_rand[2], "_other")
+    oth <- as.character(input[[o]])
+    
+    aux <- dplyr::filter(dfmea, Crop == "Other")
+    
+    if (oth != "") {
+      aux$Crop <- oth
+      aux
+    } else {
+      aux
+    }
+  }
+
+  dtInterOther2 <<- data.frame()
+  output$tblInterOther2 = renderDT(
+    datatable(
+      dtInterOther2 <<- finterMOt2(),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+  )
+
+  proxyMonoOther2 = dataTableProxy('tblInterOther2')
+
+  observeEvent(input$tblInterOther2_cell_edit, {
+    info = input$tblInterOther2_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterOther2[i, j] <<- DT::coerceValue(v, dtInterOther2[i, j])
+    replaceData(proxyMonoOther2, dtInterOther2, resetPaging = FALSE, clearSelection = "none")
+  })
+
+  # Other 3: ===================================================
+  finterMOt3 <- eventReactive(input$do, {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[3])]])
+    oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[3], "_other")]])
+    
+    if (nrow(dtInterOther3) >= 1) {
+      
+      if (crop_id == "Other" && dtInterOther3[1, 1] != oth) {
+        f3()
+      } else {
+        dtInterOther3
+      }
+      
+    } else {
+      f3()
+    }
+    
+  }, ignoreNULL = FALSE)
+  
+  f3 <- function() {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    # Cambiar el parametro numerico [?] para cada other
+    o <- paste0("cropCommonNameInter_", id_ic_rand[3], "_other")
+    oth <- as.character(input[[o]])
+    
+    aux <- dplyr::filter(dfmea, Crop == "Other")
+    
+    if (oth != "") {
+      aux$Crop <- oth
+      aux
+    } else {
+      aux
+    }
+  }
+
+  dtInterOther3 <<- data.frame()
+  output$tblInterOther3 = renderDT(
+    datatable(
+      dtInterOther3 <<- finterMOt3(),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+  )
+
+  proxyMonoOther3 = dataTableProxy('tblInterOther3')
+
+  observeEvent(input$tblInterOther3_cell_edit, {
+    info = input$tblInterOther3_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterOther3[i, j] <<- DT::coerceValue(v, dtInterOther3[i, j])
+    replaceData(proxyMonoOther3, dtInterOther3, resetPaging = FALSE, clearSelection = "none")
+  })
+
+  # Other 4: ===================================================
+  finterMOt4 <- eventReactive(input$do, {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[4])]])
+    oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[4], "_other")]])
+    
+    if (nrow(dtInterOther4) >= 1) {
+      
+      if (crop_id == "Other" && dtInterOther4[1, 1] != oth) {
+        f4()
+      } else {
+        dtInterOther4
+      }
+      
+    } else {
+      f4()
+    }
+    
+  }, ignoreNULL = FALSE)
+  
+  f4 <- function() {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    # Cambiar el parametro numerico [?] para cada other
+    o <- paste0("cropCommonNameInter_", id_ic_rand[4], "_other")
+    oth <- as.character(input[[o]])
+    
+    aux <- dplyr::filter(dfmea, Crop == "Other")
+    
+    if (oth != "") {
+      aux$Crop <- oth
+      aux
+    } else {
+      aux
+    }
+  }
+
+  dtInterOther4 <<- data.frame()
+  output$tblInterOther4 = renderDT(
+    datatable(
+      dtInterOther4 <<- finterMOt4(),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+  )
+
+  proxyMonoOther4 = dataTableProxy('tblInterOther4')
+
+  observeEvent(input$tblInterOther4_cell_edit, {
+    info = input$tblInterOther4_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterOther4[i, j] <<- DT::coerceValue(v, dtInterOther4[i, j])
+    replaceData(proxyMonoOther4, dtInterOther4, resetPaging = FALSE, clearSelection = "none")
+  })
+
+  # Other 5: ===================================================
+  finterMOt5 <- eventReactive(input$do, {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[5])]])
+    oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[5], "_other")]])
+    
+    if (nrow(dtInterOther5) >= 1) {
+      
+      if (crop_id == "Other" && dtInterOther5[1, 1] != oth) {
+        f5()
+      } else {
+        dtInterOther5
+      }
+      
+    } else {
+      f5()
+    }
+    
+  }, ignoreNULL = FALSE)
+  
+  f5 <- function() {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    # Cambiar el parametro numerico [?] para cada other
+    o <- paste0("cropCommonNameInter_", id_ic_rand[5], "_other")
+    oth <- as.character(input[[o]])
+    
+    aux <- dplyr::filter(dfmea, Crop == "Other")
+    
+    if (oth != "") {
+      aux$Crop <- oth
+      aux
+    } else {
+      aux
+    }
+  }
+
+  dtInterOther5 <<- data.frame()
+  output$tblInterOther5 = renderDT(
+    datatable(
+      dtInterOther5 <<- finterMOt5(),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+  )
+
+  proxyMonoOther5 = dataTableProxy('tblInterOther5')
+
+  observeEvent(input$tblInterOther5_cell_edit, {
+    info = input$tblInterOther5_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtInterOther5[i, j] <<- DT::coerceValue(v, dtInterOther5[i, j])
+    replaceData(proxyMonoOther5, dtInterOther5, resetPaging = FALSE, clearSelection = "none")
+  })
   #### End Crop Measurement Intercrop ####
 
   ######## End Crop Measurement Ultima Version #########
