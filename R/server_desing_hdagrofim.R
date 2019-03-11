@@ -9045,6 +9045,8 @@ server_design_agrofims <- function(input, output, session, values){
     shinyjs::hide("do")
   })
   
+  previousSelection <- NULL
+  
   # Other 1: ===================================================
   finterMOt1 <- eventReactive(input$do, {
     id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
@@ -9057,6 +9059,8 @@ server_design_agrofims <- function(input, output, session, values){
       if (crop_id == "Other" && dtInterOther1[1, 1] != oth) {
         f1()
       } else {
+        
+        previousSelection <<- input$tblInterOther1_rows_selected
         dtInterOther1
       }
       
@@ -9112,7 +9116,8 @@ server_design_agrofims <- function(input, output, session, values){
   output$tblInterOther1 = renderDT(
     datatable(
       dtInterOther1 <<- finterMOt1(),
-      selection = 'multiple',
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
       editable = TRUE,
       options = list(
         pageLength = 25,
@@ -9144,6 +9149,7 @@ server_design_agrofims <- function(input, output, session, values){
       if (crop_id == "Other" && dtInterOther2[1, 1] != oth) {
         f2()
       } else {
+        previousSelection <<- input$tblInterOther2_rows_selected
         dtInterOther2
       }
       
@@ -9174,7 +9180,8 @@ server_design_agrofims <- function(input, output, session, values){
   output$tblInterOther2 = renderDT(
     datatable(
       dtInterOther2 <<- finterMOt2(),
-      selection = 'multiple',
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
       editable = TRUE,
       options = list(
         pageLength = 25,
@@ -9206,6 +9213,7 @@ server_design_agrofims <- function(input, output, session, values){
       if (crop_id == "Other" && dtInterOther3[1, 1] != oth) {
         f3()
       } else {
+        previousSelection <<- input$tblInterOther3_rows_selected
         dtInterOther3
       }
       
@@ -9236,7 +9244,8 @@ server_design_agrofims <- function(input, output, session, values){
   output$tblInterOther3 = renderDT(
     datatable(
       dtInterOther3 <<- finterMOt3(),
-      selection = 'multiple',
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
       editable = TRUE,
       options = list(
         pageLength = 25,
@@ -9268,6 +9277,7 @@ server_design_agrofims <- function(input, output, session, values){
       if (crop_id == "Other" && dtInterOther4[1, 1] != oth) {
         f4()
       } else {
+        previousSelection <<- input$tblInterOther4_rows_selected
         dtInterOther4
       }
       
@@ -9298,7 +9308,8 @@ server_design_agrofims <- function(input, output, session, values){
   output$tblInterOther4 = renderDT(
     datatable(
       dtInterOther4 <<- finterMOt4(),
-      selection = 'multiple',
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
       editable = TRUE,
       options = list(
         pageLength = 25,
@@ -9330,6 +9341,7 @@ server_design_agrofims <- function(input, output, session, values){
       if (crop_id == "Other" && dtInterOther5[1, 1] != oth) {
         f5()
       } else {
+        previousSelection <<- input$tblInterOther5_rows_selected
         dtInterOther5
       }
       
@@ -9360,7 +9372,8 @@ server_design_agrofims <- function(input, output, session, values){
   output$tblInterOther5 = renderDT(
     datatable(
       dtInterOther5 <<- finterMOt5(),
-      selection = 'multiple',
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
       editable = TRUE,
       options = list(
         pageLength = 25,
@@ -12872,7 +12885,7 @@ server_design_agrofims <- function(input, output, session, values){
 
     gtable <- rbind( exp_dt(), fa_dt(), pe(), epl(), pers_dt(),crop_dt(), infounit(), 
                      #TODO:: MEJORAR
-                     #fct_lvl_dt(), 
+                     fct_lvl_dt(), 
                      site_dt())
     #gtable<- data.table::rbindlist(glist,fill = TRUE)
     #gtable <- as.data.frame(gtable,stringAsFactors=FALSE)
@@ -13184,12 +13197,12 @@ server_design_agrofims <- function(input, output, session, values){
          # print(lbl_harvest())
          # print("---END LABELS--")
 
-         print("")
-         id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
-         
-         circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
-         print("intecrop crops")
-         print(circm)
+         # print("")
+         # id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
+         # 
+         # circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
+         # print("intecrop crops")
+         # print(circm)
                   
         if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")

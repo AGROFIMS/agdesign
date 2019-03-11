@@ -14,7 +14,7 @@ design_choices_agrofims <- c(
   #"Factorial Two-Way Design in RCBD (F2RCBD)" = "F2RCBD",
   #"Split Plot with Plots in CRD (SPCRD)" = "SPCRD",
   #"Strip-Split-Plot Design" = "STRIP",
-  "Split Plot" = "SPRCBD" #R.Eyzaguirre recommends just one Split Design
+  "Split Plot Design" = "SPRCBD" #R.Eyzaguirre recommends just one Split Design
   #"Split Plot with Plots Design" = "SPRCBD", #
   #"Split Plot with Plots in LSD (SPLSD)" = "SPLSD",
   #"Strip Plot Design (STRIP)" = "STRIP"
