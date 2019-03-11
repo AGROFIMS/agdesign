@@ -2364,9 +2364,46 @@ display: none;
                                                                                        br(),
                                                                                        DTOutput("tblInterPheWheat")
                                                                        ),
-                                                                       shiny::tabPanel("Other Phenology", value = "crop_phenology_Other",
+                                                                       shiny::tabPanel("Other 1 Phenology", value = "crop_phenology_Other_1",
                                                                                        br(),
-                                                                                       DTOutput("tblInterPheOther")
+                                                                                       #actionButton("dop", "dop"),
+                                                                                       DTOutput("tblInterPheOther1")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 2 Phenology", value = "crop_phenology_Other_2",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther2")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 3 Phenology", value = "crop_phenology_Other_3",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther3")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 4 Phenology", value = "crop_phenology_Other_4",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther4")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 5 Phenology", value = "crop_phenology_Other_5",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther5")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 6 Phenology", value = "crop_phenology_Other_6",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther6")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 7 Phenology", value = "crop_phenology_Other_7",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther7")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 8 Phenology", value = "crop_phenology_Other_8",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther8")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 9 Phenology", value = "crop_phenology_Other_9",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther9")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 10 Phenology", value = "crop_phenology_Other_10",
+                                                                                       br(),
+                                                                                       DTOutput("tblInterPheOther10")
                                                                        )
                                                                      )
                                                               )

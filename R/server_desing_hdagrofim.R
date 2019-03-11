@@ -8625,6 +8625,12 @@ server_design_agrofims <- function(input, output, session, values){
            "crop_measurement_Other_4", "crop_measurement_Other_5", "crop_measurement_Other_6", "crop_measurement_Other_7", "crop_measurement_Other_8",
            "crop_measurement_Other_9", "crop_measurement_Other_10")
   
+  observe({
+    for (i in 1:length(chu)) {
+      shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+    }
+  })
+  
   # observe({
   #   
   #   ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
@@ -8699,31 +8705,35 @@ server_design_agrofims <- function(input, output, session, values){
       #     a[i] <- paste0("crop_measurement_Other_", i)
       #   }
       # }
+      print(length(rt))
       
-      for (i in 1:length(rt)) {
-        if (rt[i] == "Other") {
-          b[i] <- paste0("crop_measurement_Other_", i)
+      if (length(rt) >= 1) {
+        for (i in 1:length(rt)) {
+          if (rt[i] == "Other") {
+            b[i] <- paste0("crop_measurement_Other_", i)
+          }
+        }
+        
+        #a <- a[!is.null(a)]
+        #print(a)
+        b <- b[!is.null(b)]
+        
+        cropivan <- paste0("crop_measurement_", rt)
+        cropivan <- cropivan[!cropivan %in% "crop_measurement_Other"]
+        cropivan <- c(cropivan, b)
+        
+        #print(cropivan)
+        
+        for (i in 1:length(chu)) {
+          shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+        }
+        
+        for (i in 1:length(cropivan)) {
+          #print(gsub(" ","",cropivan[i]))
+          shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
         }
       }
       
-      #a <- a[!is.null(a)]
-      #print(a)
-      b <- b[!is.null(b)]
-      
-      cropivan <- paste0("crop_measurement_", rt)
-      cropivan <- cropivan[!cropivan %in% "crop_measurement_Other"]
-      cropivan <- c(cropivan, b)
-      
-      #print(cropivan)
-      
-      for (i in 1:length(chu)) {
-        shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
-      }
-
-      for (i in 1:length(cropivan)) {
-        #print(gsub(" ","",cropivan[i]))
-        shiny::showTab(inputId = "tabpanelinter", target = gsub(" ","",cropivan[i]), select = T)
-      }
     }
 
   })
@@ -9058,7 +9068,7 @@ server_design_agrofims <- function(input, output, session, values){
   
   f1 <- function() {
     id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-    
+    #print("entraivan")
     # Cambiar el parametro numerico [?] para cada other
     o <- paste0("cropCommonNameInter_", id_ic_rand[1], "_other")
     oth <- as.character(input[[o]])
@@ -9379,18 +9389,6 @@ server_design_agrofims <- function(input, output, session, values){
   ######## Start Crop Phenology Ultima Version #########
 
   #### Start Tabs Crop Phenology: ####
-  observe({
-    # if (input$croppingType == "Monocrop") {
-    #   shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-    #   shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
-    # }
-    #
-    # if (input$croppingType == "Intercrop") {
-    #   shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
-    #   shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
-    # }
-  })
-
   observeEvent(input$croppingType, {
     if (input$croppingType == "Monocrop") {
       shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
@@ -9404,71 +9402,77 @@ server_design_agrofims <- function(input, output, session, values){
   })
 
   chuphe <- c("crop_phenology_Cassava", "crop_phenology_Commonbean", "crop_phenology_Maize", "crop_phenology_Potato", "crop_phenology_Rice",
-           "crop_phenology_Sweetpotato", "crop_phenology_Wheat", "crop_phenology_Other")
+           "crop_phenology_Sweetpotato", "crop_phenology_Wheat", "crop_phenology_Other_1",
+           "crop_phenology_Other_2",
+           "crop_phenology_Other_3",
+           "crop_phenology_Other_4",
+           "crop_phenology_Other_5",
+           "crop_phenology_Other_6",
+           "crop_phenology_Other_7",
+           "crop_phenology_Other_8",
+           "crop_phenology_Other_9",
+           "crop_phenology_Other_10")
   
-  # observe({
-  #   
-  #   ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-  # 
-  #   if (ct == "Intercrop") {
-  #     id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-  #     circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-  #     #print(circm)
-  #     cropivanphe <- paste0("crop_phenology_", circm)
-  #   } else{
-  #     #if(ct=="Monocrop"){
-  #     crp <- map_singleform_values(input$cropCommonNameMono,input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-  #     cropivanphe <- paste0("crop_phenology_",crp)
-  #     #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-  #     #out <- rbind(ctd, crp, var)
-  #     #}
-  #   }
-  #   
-  #   for (i in 1:length(chuphe)) {
-  #     shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
-  #   }
-  #   
-  #   for (i in 1:length(cropivanphe)) {
-  #     #print(gsub(" ","",cropivanphe[i]))
-  #     shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
-  #   }
-  #   
-  # })
-
+  observe({
+    for (i in 1:length(chuphe)) {
+      shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+    }
+  })
+  
   observeEvent(input$fbDesignNav, {
 
-    # ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector", default = "Monocrop")
-    #
-    # if (ct == "Intercrop") {
+    # if (input$croppingType == "Intercrop") {
     #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
     #   circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
     #   #print(circm)
     #   cropivanphe <- paste0("crop_phenology_", circm)
-    # } else{
-    #   #if(ct=="Monocrop"){
-    #   crp <- map_singleform_values(input$cropCommonNameMono,input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector", label = "Crop",default = "Maize")
-    #   cropivanphe <- paste0("crop_phenology_",crp)
-    #   #var<- map_singleform_values(input$cultivarNameMono, type= "combo box", format = "data.frame",label = "Crop variety(s)",collapsed = TRUE)
-    #   #out <- rbind(ctd, crp, var)
-    #   #}
+    # 
+    #   for (i in 1:length(chuphe)) {
+    #     shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+    #   }
+    # 
+    #   for (i in 1:length(cropivanphe)) {
+    #     #print(gsub(" ","",cropivanphe[i]))
+    #     shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
+    #   }
     # }
-
+    
     if (input$croppingType == "Intercrop") {
+      rtphe <- c()
+      
       id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
-      #print(circm)
-      cropivanphe <- paste0("crop_phenology_", circm)
-
-      for (i in 1:length(chuphe)) {
-        shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+      #circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Select crop")
+      
+      for (i in 1:length(id_ic_rand)) {
+        rtphe[i] <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[i])]])
       }
-
-      for (i in 1:length(cropivanphe)) {
-        #print(gsub(" ","",cropivanphe[i]))
-        shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
+      
+      aa <- bb <- c()
+      
+      if (length(rtphe) >= 1) {
+        for (i in 1:length(rtphe)) {
+          if (rtphe[i] == "Other") {
+            bb[i] <- paste0("crop_phenology_Other_", i)
+          }
+        }
+        
+        bb <- bb[!is.null(bb)]
+        
+        cropivanphe <- paste0("crop_phenology_", rtphe)
+        cropivanphe <- cropivanphe[!cropivanphe %in% "crop_phenology_Other"]
+        cropivanphe <- c(cropivanphe, bb)
+        
+        for (i in 1:length(chuphe)) {
+          shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+        }
+        
+        for (i in 1:length(cropivanphe)) {
+          shiny::showTab(inputId = "tabpanelinterphe", target = gsub(" ","",cropivanphe[i]), select = T)
+        }
       }
+      
+      
     }
-
 
   })
   #### End Tabs Crop Phenology: ####
@@ -9777,34 +9781,121 @@ server_design_agrofims <- function(input, output, session, values){
   #   replaceData(proxyInterWheat, dtInterPheWheat, resetPaging = FALSE, clearSelection = "none")
   # })
 
-  # Other
-  dtInterPheOther <- data.frame()
-  output$tblInterPheOther = renderDT(
+  ## Funcione para Others de Intercrop: Crop Phenology
+  
+  # Funcion que hace clic al boton cada vez que cambiamos de tap panel, asi ejecuta el update del DT de others
+  # observeEvent(input$fbDesignNav, {
+  #   shinyjs::click("dop")
+  # })
+  
+  # Funcion que oculta el boton por defecto a vista del usuario
+  # observe({
+  #   shinyjs::hide("dop")
+  # })
+  
+  # Other 1 Phe: ===================================================
+  # finterPOt1 <- eventReactive(input$dop, {
+  #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+  #   
+  #   crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[1])]])
+  #   oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[1], "_other")]])
+  #   
+  #   if (nrow(dtInterPheOther1) >= 1) {
+  #     
+  #     if (crop_id == "Other" && dtInterPheOther1[1, 1] != oth) {
+  #       fp1()
+  #     } else {
+  #       dtInterPheOther1
+  #     }
+  #     
+  #   } else {
+  #     fp1()
+  #   }
+  #   
+  # }, ignoreNULL = FALSE)
+  # 
+  # fp1 <- function() {
+  #   id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+  #   
+  #   # Cambiar el parametro numerico [?] para cada other
+  #   o <- paste0("cropCommonNameInter_", id_ic_rand[1], "_other")
+  #   oth <- as.character(input[[o]])
+  #   
+  #   #aux <- dplyr::filter(dfphe, Crop == "Other")
+  #   aux <- dfphe
+  #   
+  #   if (oth != "") {
+  #     # aux$Crop <- oth
+  #     # aux
+  #     aux <- dfphe
+  #   } else {
+  #     aux
+  #   }
+  # }
+  
+  dtInterPheOther1 <<- data.frame()
+  output$tblInterPheOther1 = renderDT(
     datatable(
-      dtInterPheOther <<- finterphe("Other"),
+      dtInterPheOther1 <<- dfphe,
       selection = 'multiple',
       #editable = TRUE,
       options = list(
         pageLength = 25,
         columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
       ))
-    # ) %>% formatStyle(
-    #   c("Crop measurement per season", "Crop measurement per plot"),
-    #   backgroundColor = ("lightblue")
-    # )
   )
-
-  # proxyInterOther = dataTableProxy('tblInterPheOther')
-  #
-  # observeEvent(input$tblInterPheOther_cell_edit, {
-  #   info = input$tblInterPheOther_cell_edit
-  #   #str(info)
-  #   i = info$row
-  #   j = info$col
-  #   v = info$value
-  #   dtInterPheOther[i, j] <<- DT::coerceValue(v, dtInterPheOther[i, j])
-  #   replaceData(proxyInterOther, dtInterPheOther, resetPaging = FALSE, clearSelection = "none")
-  # })
+  
+  # Other 2 Phe: ===================================================
+  dtInterPheOther2 <<- data.frame()
+  output$tblInterPheOther2 = renderDT(
+    datatable(
+      dtInterPheOther2 <<- dfphe,
+      selection = 'multiple',
+      #editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+      ))
+  )
+  
+  # Other 3 Phe: ===================================================
+  dtInterPheOther3 <<- data.frame()
+  output$tblInterPheOther3 = renderDT(
+    datatable(
+      dtInterPheOther3 <<- dfphe,
+      selection = 'multiple',
+      #editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+      ))
+  )
+  
+  # Other 4 Phe: ===================================================
+  dtInterPheOther4 <<- data.frame()
+  output$tblInterPheOther4 = renderDT(
+    datatable(
+      dtInterPheOther4 <<- dfphe,
+      selection = 'multiple',
+      #editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+      ))
+  )
+  
+  # Other 5 Phe: ===================================================
+  dtInterPheOther5 <<- data.frame()
+  output$tblInterPheOther5 = renderDT(
+    datatable(
+      dtInterPheOther5 <<- dfphe,
+      selection = 'multiple',
+      #editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=F, targets=c(1,2,3,5,7,8,9,10,11,12,13)))
+      ))
+  )
   #### End Crop Phenology Intercrop ####
 
   ######## End Crop Phenology Ultima Version #########
@@ -12339,26 +12430,39 @@ server_design_agrofims <- function(input, output, session, values){
     row_select <- sort(input$tblSoil_rows_selected)
     dt <- dtSoil[row_select,  ] #IF row_select ==NULL -> OUTPUT: empty data frame(0 rows/0 cols) WITH headers
     
-    colnames(dt) <- c("Crop","Group","Subgroup","Measurement",
-                      "TraitUnit","CropMeasurementPerSeason",
-                      "CropMeasurementPerPlot","TraitName", "TraitAlias",
-                      "TraitDataType","TraitValidation","VariableId")
+    
     
     #NEW CODE: add prefix per season and per plot
-    cs<- add_season_prefix(dt=dt)
-    cs<- add_numplot_prefix(dt=dt,cs)
-    lbl<- cs
-    #NEW CODE 
+    if(nrow(dt)>0){
+      
+      colnames(dt) <- c("Crop","Group","Subgroup","Measurement",
+                        "TraitUnit","CropMeasurementPerSeason",
+                        "CropMeasurementPerPlot","TraitName", "TraitAlias",
+                        "TraitDataType","TraitValidation","VariableId")
+      cs<- add_season_prefix(dt=dt)
+      cs<- add_numplot_prefix(dt=dt,cs)
+      lbl<- cs
+      
+        
+    } else {
+      lbl <- NULL
+    }
+      
     
+    
+    #NEW CODE 
     #OLD CODE
     #lbl <- dt$TraitName
+    #END OLD CODE
     
     if(length(lbl)==0){
      dt <- data.frame()
     } else if(nrow(fbdesign())==0 && length(lbl)>=1){
+      
       dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
       names(dt) <- lbl
     } else if(nrow(fbdesign())>0 && length(lbl)>=1) {
+      print("case 3")
       dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
       names(dt) <- lbl
       dt <-cbind(fbdesign() ,dt)
@@ -13079,7 +13183,14 @@ server_design_agrofims <- function(input, output, session, values){
          # print(lbl_weeding())
          # print(lbl_harvest())
          # print("---END LABELS--")
+
+         print("")
+         id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
          
+         circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
+         print("intecrop crops")
+         print(circm)
+                  
         if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
            fname <- paste(file,"xlsx",sep=".")
