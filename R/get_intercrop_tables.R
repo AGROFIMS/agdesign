@@ -15,6 +15,7 @@ intercrop_cmtables <- function(dtInterCrop, inter_row_selected ){
     #Remove Status column
     aux_dt$Status <- NULL
     
+    ##OLD CODE
     #Place TraitName in traits_dt()
     cr<- aux_dt$Crop
     sb<- aux_dt$Subgroup
@@ -23,18 +24,18 @@ intercrop_cmtables <- function(dtInterCrop, inter_row_selected ){
     sc[is.na(sc)] <- "unitless"
     cs <- paste(cr,sb, cm, sc, sep="_")
     aux_dt$TraitName <- cs
-    # Asign final trait_dt to a  
+    #--- Asign final trait_dt to a
     a<- aux_dt
+    #END OLD CODE
   }
   
 }  
-  
 
 intercrop_phetables <- function(dtInterCrop, fbdesign, inter_row_selected ){
 
   row_select <- sort(inter_row_selected)
   dt <- dtInterCrop[row_select, ]
-  lbl <- dt$Measurement
+  lbl <- dt$TraitName
   
   if(length(lbl)==0 && nrow(dt)==0){
     dt <- data.frame()

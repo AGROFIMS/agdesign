@@ -2314,6 +2314,90 @@ display: none;
                                                                      )
                                                               )
                                               ),
+          
+                                              shiny::tabPanel("Crop Measurement relay", value = 'crop_measurement_relay', icon = shiny::icon("leaf"),
+                                                              column(width = 12,
+                                                                     h2("Crop measurement"),
+                                                                     #actionButton("qwe", "dale"),
+                                                                     p(class = "text-muted", style="text-align:justify",
+                                                                       paste("Please, select measurement by click.")
+                                                                     ),
+                                                                     #uiOutput("uiCropMeaInter"),
+                                                                     tabsetPanel(
+                                                                       id = "tabpanelrelay",
+                                                                       #selected = 1,
+                                                                       shiny::tabPanel("Cassava Measurement", value = "crop_measurement_relay_Cassava",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayCassava")
+                                                                       ),
+                                                                       shiny::tabPanel("Common bean Measurement", value = "crop_measurement_relay_Commonbean",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayCommon")
+                                                                       ),
+                                                                       shiny::tabPanel("Maize Measurement", value = "crop_measurement_relay_Maize",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayMaize")
+                                                                       ),
+                                                                       shiny::tabPanel("Potato Measurement", value = "crop_measurement_relay_Potato",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPotato")
+                                                                       ),
+                                                                       shiny::tabPanel("Rice Measurement", value = "crop_measurement_relay_Rice",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayRice")
+                                                                       ),
+                                                                       shiny::tabPanel("Sweetpotato Measurement", value = "crop_measurement_relay_Sweetpotato",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelaySweetpotato")
+                                                                       ),
+                                                                       shiny::tabPanel("Wheat Measurement", value = "crop_measurement_relay_Wheat",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayWheat")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 1 Measurement", value = "crop_measurement_relay_Other_1",
+                                                                                       br(),
+                                                                                       actionButton("doRelay", "do"),
+                                                                                       DTOutput("tblRelayOther1")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 2 Measurement", value = "crop_measurement_relay_Other_2",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayOther2")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 3 Measurement", value = "crop_measurement_relay_Other_3",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayOther3")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 4 Measurement", value = "crop_measurement_relay_Other_4",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayOther4")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 5 Measurement", value = "crop_measurement_relay_Other_5",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayOther5")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 6 Measurement", value = "crop_measurement_relay_Other_6",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayOther6")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 7 Measurement", value = "crop_measurement_relay_Other_7",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayOther7")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 8 Measurement", value = "crop_measurement_relay_Other_8",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayOther8")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 9 Measurement", value = "crop_measurement_relay_Other_9",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayOther9")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 10 Measurement", value = "crop_measurement_relay_Other_10",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayOther10")
+                                                                       )
+                                                                     )
+                                                              )
+                                              ),
 
                                               shiny::tabPanel("Crop Phenology", value = 'crop_phenology_mono', icon = shiny::icon("leaf"),
                                                               column(width = 12,
@@ -2404,6 +2488,90 @@ display: none;
                                                                        shiny::tabPanel("Other 10 Phenology", value = "crop_phenology_Other_10",
                                                                                        br(),
                                                                                        DTOutput("tblInterPheOther10")
+                                                                       )
+                                                                     )
+                                                              )
+                                              ),
+          
+                                              shiny::tabPanel("Crop Phenology relay", value = 'crop_phenology_relay', icon = shiny::icon("leaf"),
+                                                              column(width = 12,
+                                                                     h2("Crop phenology"),
+                                                                     #actionButton("qwe", "dale"),
+                                                                     p(class = "text-muted", style="text-align:justify",
+                                                                       paste("Please, select phenology by click.")
+                                                                     ),
+                                                                     #uiOutput("uiCropMeaInter"),
+                                                                     tabsetPanel(
+                                                                       id = "tabpanelrelayphe",
+                                                                       #selected = 1,
+                                                                       shiny::tabPanel("Cassava Phenology", value = "crop_phenology_relay_Cassava",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheCassava")
+                                                                       ),
+                                                                       shiny::tabPanel("Common bean Phenology", value = "crop_phenology_relay_Commonbean",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheCommon")
+                                                                       ),
+                                                                       shiny::tabPanel("Maize Phenology", value = "crop_phenology_relay_Maize",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheMaize")
+                                                                       ),
+                                                                       shiny::tabPanel("Potato Phenology", value = "crop_phenology_relay_Potato",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPhePotato")
+                                                                       ),
+                                                                       shiny::tabPanel("Rice Phenology", value = "crop_phenology_relay_Rice",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheRice")
+                                                                       ),
+                                                                       shiny::tabPanel("Sweetpotato Phenology", value = "crop_phenology_relay_Sweetpotato",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheSweetpotato")
+                                                                       ),
+                                                                       shiny::tabPanel("Wheat Phenology", value = "crop_phenology_relay_Wheat",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheWheat")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 1 Phenology", value = "crop_phenology_relay_Other_1",
+                                                                                       br(),
+                                                                                       #actionButton("dop", "dop"),
+                                                                                       DTOutput("tblRelayPheOther1")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 2 Phenology", value = "crop_phenology_relay_Other_2",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheOther2")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 3 Phenology", value = "crop_phenology_relay_Other_3",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheOther3")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 4 Phenology", value = "crop_phenology_relay_Other_4",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheOther4")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 5 Phenology", value = "crop_phenology_relay_Other_5",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheOther5")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 6 Phenology", value = "crop_phenology_relay_Other_6",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheOther6")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 7 Phenology", value = "crop_phenology_relay_Other_7",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheOther7")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 8 Phenology", value = "crop_phenology_relay_Other_8",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheOther8")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 9 Phenology", value = "crop_phenology_relay_Other_9",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheOther9")
+                                                                       ),
+                                                                       shiny::tabPanel("Other 10 Phenology", value = "crop_phenology_relay_Other_10",
+                                                                                       br(),
+                                                                                       DTOutput("tblRelayPheOther10")
                                                                        )
                                                                      )
                                                               )

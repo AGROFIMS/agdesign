@@ -8611,12 +8611,20 @@ server_design_agrofims <- function(input, output, session, values){
   observeEvent(input$croppingType, {
     if (input$croppingType == "Monocrop") {
       shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_relay")
       shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
     }
 
     if (input$croppingType == "Intercrop") {
       shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
       shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_relay")
+    }
+    
+    if (input$croppingType == "Relay crop") {
+      shiny::showTab(inputId = "fbDesignNav", target = "crop_measurement_relay")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_mono")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_measurement_inter")
     }
   })
 
@@ -8628,6 +8636,17 @@ server_design_agrofims <- function(input, output, session, values){
   observe({
     for (i in 1:length(chu)) {
       shiny::hideTab(inputId = "tabpanelinter", target = chu[i])
+    }
+  })
+  
+  chuRelay <- c("crop_measurement_relay_Cassava", "crop_measurement_relay_Commonbean", "crop_measurement_relay_Maize", "crop_measurement_relay_Potato", "crop_measurement_relay_Rice",
+           "crop_measurement_relay_Sweetpotato", "crop_measurement_relay_Wheat", "crop_measurement_relay_Other_1", "crop_measurement_relay_Other_2", "crop_measurement_relay_Other_3",
+           "crop_measurement_relay_Other_4", "crop_measurement_relay_Other_5", "crop_measurement_relay_Other_6", "crop_measurement_relay_Other_7", "crop_measurement_relay_Other_8",
+           "crop_measurement_relay_Other_9", "crop_measurement_relay_Other_10")
+  
+  observe({
+    for (i in 1:length(chuRelay)) {
+      shiny::hideTab(inputId = "tabpanelrelay", target = chuRelay[i])
     }
   })
   
@@ -8735,6 +8754,41 @@ server_design_agrofims <- function(input, output, session, values){
       }
       
     }
+    
+    if (input$croppingType == "Relay crop") {
+      rtrel <- c()
+      
+      id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+      
+      for (i in 1:length(id_re_rand)) {
+        rtrel[i] <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[i])]])
+      }
+      
+      ar <- br <- c()
+      
+      if (length(rtrel) >= 1) {
+        for (i in 1:length(rtrel)) {
+          if (rtrel[i] == "Other") {
+            br[i] <- paste0("crop_measurement_relay_Other_", i)
+          }
+        }
+        
+        br <- br[!is.null(br)]
+        
+        cropivanrel <- paste0("crop_measurement_relay_", rtrel)
+        cropivanrel <- cropivanrel[!cropivanrel %in% "crop_measurement_relay_Other"]
+        cropivanrel <- c(cropivanrel, br)
+        
+        for (i in 1:length(chuRelay)) {
+          shiny::hideTab(inputId = "tabpanelrelay", target = chuRelay[i])
+        }
+        
+        for (i in 1:length(cropivanrel)) {
+          shiny::showTab(inputId = "tabpanelrelay", target = gsub(" ","",cropivanrel[i]), select = T)
+        }
+      }
+      
+    }
 
   })
 
@@ -8748,8 +8802,8 @@ server_design_agrofims <- function(input, output, session, values){
                        "Subgroup",
                        "Measurement",
                        "TraitUnit",
-                       "Number of measurements per season",
-                       "Number of Crop measurements per plot",
+                       "NumberOfMeasurementsPerSeason",
+                       "NumberOfMeasurementsPerPlot",
                        "TraitAlias",
                        "TraitDataType",
                        "TraitValidation",
@@ -9393,6 +9447,566 @@ server_design_agrofims <- function(input, output, session, values){
     replaceData(proxyMonoOther5, dtInterOther5, resetPaging = FALSE, clearSelection = "none")
   })
   #### End Crop Measurement Intercrop ####
+  
+  #### Start Crop Measurement Relay crop ####
+  frelay <- function(crop_in) {
+    #crop_in <- input$cropCommonNameMono
+    oth <- input$cropCommonNameMono_other
+    
+    if (!is.null(crop_in) && crop_in != "Other") {
+      aux <- dplyr::filter(dfmea, Crop == crop_in)
+    } else if(!is.null(crop_in) && crop_in == "Other") {
+      aux <- dplyr::filter(dfmea, Crop == "Other")
+      
+      if (oth != "") {
+        aux$Crop <- oth
+        aux
+      } else {
+        aux
+      }
+    } else {
+      aux <- dfmea[0,]
+    }
+  }
+  
+  # Cassava
+  dtRelayCassava <- data.frame()
+  output$tblRelayCassava = renderDT(
+    datatable(
+      dtRelayCassava <<- frelay("Cassava"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
+  )
+  
+  proxyRelayCassava = dataTableProxy('tblRelayCassava')
+  
+  observeEvent(input$tblRelayCassava_cell_edit, {
+    info = input$tblRelayCassava_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayCassava[i, j] <<- DT::coerceValue(v, dtRelayCassava[i, j])
+    replaceData(proxyRelayCassava, dtRelayCassava, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Common bean
+  dtRelayCommon <- data.frame()
+  output$tblRelayCommon = renderDT(
+    datatable(
+      dtRelayCommon <<- frelay("Common bean"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
+  )
+  
+  proxyRelayCommonbean = dataTableProxy('tblRelayCommon')
+  
+  observeEvent(input$tblRelayCommon_cell_edit, {
+    info = input$tblRelayCommon_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayCommon[i, j] <<- DT::coerceValue(v, dtRelayCommon[i, j])
+    replaceData(proxyRelayCommonbean, dtRelayCommon, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Maize
+  dtRelayMaize <- data.frame()
+  output$tblRelayMaize = renderDT(
+    datatable(
+      dtRelayMaize <<- frelay("Maize"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
+  )
+  
+  proxyRelayMaize = dataTableProxy('tblRelayMaize')
+  
+  observeEvent(input$tblRelayMaize_cell_edit, {
+    info = input$tblRelayMaize_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayMaize[i, j] <<- DT::coerceValue(v, dtRelayMaize[i, j])
+    replaceData(proxyRelayMaize, dtRelayMaize, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Potato
+  dtRelayPotato <- data.frame()
+  output$tblRelayPotato = renderDT(
+    datatable(
+      dtRelayPotato <<- frelay("Potato"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
+  )
+  
+  proxyRelayPotato = dataTableProxy('tblRelayPotato')
+  
+  observeEvent(input$tblRelayPotato_cell_edit, {
+    info = input$tblRelayPotato_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayPotato[i, j] <<- DT::coerceValue(v, dtRelayPotato[i, j])
+    replaceData(proxyRelayPotato, dtRelayPotato, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Rice
+  dtRelayrRice <- data.frame()
+  output$tblRelayRice = renderDT(
+    datatable(
+      dtRelayrRice <<- frelayr("Rice"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
+  )
+  
+  proxyRelayRice = dataTableProxy('tblRelayRice')
+  
+  observeEvent(input$tblRelayRice_cell_edit, {
+    info = input$tblRelayRice_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayrRice[i, j] <<- DT::coerceValue(v, dtRelayrRice[i, j])
+    replaceData(proxyRelayRice, dtRelayrRice, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Sweetpotato
+  dtRelaySweetpotato<<- data.frame()
+  output$tblRelaySweetpotato = renderDT(
+    datatable(
+      dtRelaySweetpotato <<- frelayr("Sweetpotato"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
+  )
+  
+  proxyRelaySweetpotato = dataTableProxy('tblRelaySweetpotato')
+  
+  observeEvent(input$tblRelaySweetpotato_cell_edit, {
+    info = input$tblRelaySweetpotato_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelaySweetpotato[i, j] <<- DT::coerceValue(v, dtRelaySweetpotato[i, j])
+    replaceData(proxyRelaySweetpotato, dtRelaySweetpotato, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Wheat
+  dtRelayWheat <<- data.frame()
+  output$tblRelayWheat = renderDT(
+    datatable(
+      dtRelayWheat <<- frelay("Wheat"),
+      selection = 'multiple',
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+    # ) %>% formatStyle(
+    #   c("Crop measurement per season", "Crop measurement per plot"),
+    #   backgroundColor = ("lightblue")
+    # )
+  )
+  
+  proxyRelayWheat = dataTableProxy('tblRelayWheat')
+  
+  observeEvent(input$tblRelayWheat_cell_edit, {
+    info = input$tblRelayWheat_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayWheat[i, j] <<- DT::coerceValue(v, dtRelayWheat[i, j])
+    replaceData(proxyRelayWheat, dtRelayWheat, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  ## Funcione para Others de Relay crop: Crop Measurement
+  
+  # Funcion que hace clic al boton cada vez que cambiamos de tap panel, asi ejecuta el update del DT de others
+  observeEvent(input$fbDesignNav, {
+    shinyjs::click("doRelay")
+  })
+  
+  # Funcion que oculta el boton por defecto a vista del usuario
+  observe({
+    shinyjs::hide("doRelay")
+  })
+  
+  previousSelection <- NULL
+  
+  # Other 1: ===================================================
+  frelayMOt1 <- eventReactive(input$doRelay, {
+    id_re_rand <- getAddInputId(relaycropVars$ids, "IC_", "")
+    
+    crop_id <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[1])]])
+    oth <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[1], "_other")]])
+    
+    if (nrow(dtRelayOther1) >= 1) {
+      
+      if (crop_id == "Other" && dtRelayOther1[1, 1] != oth) {
+        frel1()
+      } else {
+        
+        previousSelection <<- input$tblRelayOther1_rows_selected
+        dtRelayOther1
+      }
+      
+    } else {
+      frel1()
+    }
+    
+  }, ignoreNULL = FALSE)
+  
+  frel1 <- function() {
+    id_re_rand <- getAddInputId(relaycropVars$ids, "IC_", "")
+    #print("entraivan")
+    # Cambiar el parametro numerico [?] para cada other
+    o <- paste0("cropCommonNameRelay_", id_re_rand[1], "_other")
+    oth <- as.character(input[[o]])
+    
+    aux <- dplyr::filter(dfmea, Crop == "Other")
+    
+    if (oth != "") {
+      aux$Crop <- oth
+      aux
+    } else {
+      aux
+    }
+  }
+  
+  dtRelayOther1 <<- data.frame()
+  output$tblRelayOther1 = renderDT(
+    datatable(
+      dtRelayOther1 <<- frelayMOt1(),
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+  )
+  
+  proxyRelayOther1 = dataTableProxy('tblRelayOther1')
+  
+  observeEvent(input$tblRelayOther1_cell_edit, {
+    info = input$tblRelayOther1_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayOther1[i, j] <<- DT::coerceValue(v, dtRelayOther1[i, j])
+    replaceData(proxyRelayOther1, dtRelayOther1, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Other 2: ===================================================
+  frelayMOt2 <- eventReactive(input$do, {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[2])]])
+    oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[2], "_other")]])
+    
+    if (nrow(dtInterOther2) >= 1) {
+      
+      if (crop_id == "Other" && dtInterOther2[1, 1] != oth) {
+        f2()
+      } else {
+        previousSelection <<- input$tblInterOther2_rows_selected
+        dtInterOther2
+      }
+      
+    } else {
+      f2()
+    }
+    
+  }, ignoreNULL = FALSE)
+  
+  f2 <- function() {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    # Cambiar el parametro numerico [?] para cada other
+    o <- paste0("cropCommonNameInter_", id_ic_rand[2], "_other")
+    oth <- as.character(input[[o]])
+    
+    aux <- dplyr::filter(dfmea, Crop == "Other")
+    
+    if (oth != "") {
+      aux$Crop <- oth
+      aux
+    } else {
+      aux
+    }
+  }
+  
+  dtRelayOther2 <<- data.frame()
+  output$tblRelayOther2 = renderDT(
+    datatable(
+      dtRelayOther2 <<- frelayMOt2(),
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+  )
+  
+  proxyRelayOther2 = dataTableProxy('tblRelayOther2')
+  
+  observeEvent(input$tblRelayOther2_cell_edit, {
+    info = input$tblRelayOther2_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayOther2[i, j] <<- DT::coerceValue(v, dtRelayOther2[i, j])
+    replaceData(proxyRelayOther2, dtRelayOther2, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Other 3: ===================================================
+  frelayMOt3 <- eventReactive(input$do, {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[3])]])
+    oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[3], "_other")]])
+    
+    if (nrow(dtInterOther3) >= 1) {
+      
+      if (crop_id == "Other" && dtInterOther3[1, 1] != oth) {
+        f3()
+      } else {
+        previousSelection <<- input$tblInterOther3_rows_selected
+        dtInterOther3
+      }
+      
+    } else {
+      f3()
+    }
+    
+  }, ignoreNULL = FALSE)
+  
+  f3 <- function() {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    # Cambiar el parametro numerico [?] para cada other
+    o <- paste0("cropCommonNameInter_", id_ic_rand[3], "_other")
+    oth <- as.character(input[[o]])
+    
+    aux <- dplyr::filter(dfmea, Crop == "Other")
+    
+    if (oth != "") {
+      aux$Crop <- oth
+      aux
+    } else {
+      aux
+    }
+  }
+  
+  dtRelayOther3 <<- data.frame()
+  output$tblRelayOther3 = renderDT(
+    datatable(
+      dtRelayOther3 <<- frelayMOt3(),
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+  )
+  
+  proxyRelayOther3 = dataTableProxy('tblRelayOther3')
+  
+  observeEvent(input$tblRelayOther3_cell_edit, {
+    info = input$tblRelayOther3_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayOther3[i, j] <<- DT::coerceValue(v, dtRelayOther3[i, j])
+    replaceData(proxyRelayOther3, dtRelayOther3, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Other 4: ===================================================
+  frelayMOt4 <- eventReactive(input$do, {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[4])]])
+    oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[4], "_other")]])
+    
+    if (nrow(dtInterOther4) >= 1) {
+      
+      if (crop_id == "Other" && dtInterOther4[1, 1] != oth) {
+        f4()
+      } else {
+        previousSelection <<- input$tblInterOther4_rows_selected
+        dtInterOther4
+      }
+      
+    } else {
+      f4()
+    }
+    
+  }, ignoreNULL = FALSE)
+  
+  f4 <- function() {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    # Cambiar el parametro numerico [?] para cada other
+    o <- paste0("cropCommonNameInter_", id_ic_rand[4], "_other")
+    oth <- as.character(input[[o]])
+    
+    aux <- dplyr::filter(dfmea, Crop == "Other")
+    
+    if (oth != "") {
+      aux$Crop <- oth
+      aux
+    } else {
+      aux
+    }
+  }
+  
+  dtRelayOther4 <<- data.frame()
+  output$tblRelayOther4 = renderDT(
+    datatable(
+      dtRelayOther4 <<- frelayMOt4(),
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+  )
+  
+  proxyRelayOther4 = dataTableProxy('tblRelayOther4')
+  
+  observeEvent(input$tblRelayOther4_cell_edit, {
+    info = input$tblRelayOther4_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayOther4[i, j] <<- DT::coerceValue(v, dtRelayOther4[i, j])
+    replaceData(proxyRelayOther4, dtRelayOther4, resetPaging = FALSE, clearSelection = "none")
+  })
+  
+  # Other 5: ===================================================
+  frelayMOt5 <- eventReactive(input$do, {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    crop_id <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[5])]])
+    oth <- as.character(input[[paste0("cropCommonNameInter_", id_ic_rand[5], "_other")]])
+    
+    if (nrow(dtInterOther5) >= 1) {
+      
+      if (crop_id == "Other" && dtInterOther5[1, 1] != oth) {
+        f5()
+      } else {
+        previousSelection <<- input$tblInterOther5_rows_selected
+        dtInterOther5
+      }
+      
+    } else {
+      f5()
+    }
+    
+  }, ignoreNULL = FALSE)
+  
+  f5 <- function() {
+    id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+    
+    # Cambiar el parametro numerico [?] para cada other
+    o <- paste0("cropCommonNameInter_", id_ic_rand[5], "_other")
+    oth <- as.character(input[[o]])
+    
+    aux <- dplyr::filter(dfmea, Crop == "Other")
+    
+    if (oth != "") {
+      aux$Crop <- oth
+      aux
+    } else {
+      aux
+    }
+  }
+  
+  dtRelayOther5 <<- data.frame()
+  output$tblRelayOther5 = renderDT(
+    datatable(
+      dtRelayOther5 <<- frelayMOt5(),
+      #selection = 'multiple',
+      selection = list(mode = "multiple", target = "row", selected = previousSelection),
+      editable = TRUE,
+      options = list(
+        pageLength = 25,
+        columnDefs = list(list(visible=FALSE, targets=c(8,9,10,11)))
+      ))
+  )
+  
+  proxyRelayOther5 = dataTableProxy('tblRelayOther5')
+  
+  observeEvent(input$tblRelayOther5_cell_edit, {
+    info = input$tblRelayOther5_cell_edit
+    #str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    dtRelayOther5[i, j] <<- DT::coerceValue(v, dtRelayOther5[i, j])
+    replaceData(proxyRelayOther5, dtRelayOther5, resetPaging = FALSE, clearSelection = "none")
+  })
+  #### End Crop Measurement Relay crop ####
 
   ######## End Crop Measurement Ultima Version #########
 
@@ -9405,12 +10019,20 @@ server_design_agrofims <- function(input, output, session, values){
   observeEvent(input$croppingType, {
     if (input$croppingType == "Monocrop") {
       shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_relay")
       shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
     }
 
     if (input$croppingType == "Intercrop") {
       shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
       shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_relay")
+    }
+    
+    if (input$croppingType == "Relay crop") {
+      shiny::showTab(inputId = "fbDesignNav", target = "crop_phenology_relay")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_mono")
+      shiny::hideTab(inputId = "fbDesignNav", target = "crop_phenology_inter")
     }
   })
 
@@ -9429,6 +10051,24 @@ server_design_agrofims <- function(input, output, session, values){
   observe({
     for (i in 1:length(chuphe)) {
       shiny::hideTab(inputId = "tabpanelinterphe", target = chuphe[i])
+    }
+  })
+  
+  chupheRelay <- c("crop_phenology_relay_Cassava", "crop_phenology_relay_Commonbean", "crop_phenology_relay_Maize", "crop_phenology_relay_Potato", "crop_phenology_relay_Rice",
+                   "crop_phenology_relay_Sweetpotato", "crop_phenology_relay_Wheat", "crop_phenology_relay_Other_1",
+                   "crop_phenology_relay_Other_2",
+                   "crop_phenology_relay_Other_3",
+                   "crop_phenology_relay_Other_4",
+                   "crop_phenology_relay_Other_5",
+                   "crop_phenology_relay_Other_6",
+                   "crop_phenology_relay_Other_7",
+                   "crop_phenology_relay_Other_8",
+                   "crop_phenology_relay_Other_9",
+                   "crop_phenology_relay_Other_10")
+  
+  observe({
+    for (i in 1:length(chupheRelay)) {
+      shiny::hideTab(inputId = "tabpanelrelayphe", target = chupheRelay[i])
     }
   })
   
@@ -9500,8 +10140,8 @@ server_design_agrofims <- function(input, output, session, values){
                        "Measurement",
                        "TraitName",
                        "TraitUnit",
-                       "Number of measurements per season",
-                       "Number of Crop measurements per plot",
+                       "NumberOfMeasurementsPerSeason",
+                       "NumberOfMeasurementsPerPlot",
                        "TraitAlias",
                        "TraitDataType",
                        "TraitValidation",
@@ -9950,8 +10590,8 @@ server_design_agrofims <- function(input, output, session, values){
                       "Subgroup",
                       "Measurement",
                       "TraitUnit",
-                      "Number of measurements per season",
-                      "Number of Crop measurements per plot",
+                      "NumberOfMeasurmentsPerSeason",
+                      "NumberOfMeasurmentsPerPlot",
                       "TraitName",
                       "TraitAlias",
                       "TraitDataType",
@@ -10024,8 +10664,8 @@ server_design_agrofims <- function(input, output, session, values){
                       "Subgroup",
                       "Measurement",
                       "TraitUnit",
-                      "Number of measurements per season",
-                      "Number of Crop measurements per plot",
+                      "NumberOfMeasurmentsPerSeason",
+                      "NumberOfMeasurmentsPerPlot",
                       "TraitName",
                       "TraitAlias",
                       "TraitDataType",
@@ -12328,7 +12968,7 @@ server_design_agrofims <- function(input, output, session, values){
     if(ct=="Monocrop"){
         row_select <- input$tblMonoPhe_rows_selected
         dt <- dtMonocropphe[row_select, ]
-        lbl <- dt$Measurement
+        lbl <- dt$TraitName
     
         if(length(lbl)==0 && nrow(dt)==0){
           dt <- data.frame()
@@ -12925,6 +13565,7 @@ server_design_agrofims <- function(input, output, session, values){
         sc <- aux_dt$TraitUnit
         sc[is.na(sc)] <- "unitless"
         cs <- paste(cr,sb, cm, sc, sep="_")
+        
         aux_dt$TraitName <- cs
         # Asign final trait_dt to a  
         a<- aux_dt
@@ -12936,7 +13577,8 @@ server_design_agrofims <- function(input, output, session, values){
       id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
       circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
       dt<-list()
-      #
+      crop_oficial <- c("Cassava","Common bean","Maize",  "Potato",  "Rice",  "Sweetpotato",  "Wheat")
+      
       for(i in 1:length(circm)){
          
         #TODO: check when crop_row_selected is zero length
@@ -12968,10 +13610,32 @@ server_design_agrofims <- function(input, output, session, values){
                 inter_row_selected<-input$tblInterWheat_rows_selected
                 dtInterCrop<-dtInterWheat
               }  
-              if(circm[i]=="Other"){
-                inter_row_selected<- input$tblInterOther_rows_selected
-                dtInterCrop<-dtInterOther
+            if(!is.element(circm[i],crop_oficial)){
+              # inter_row_selected<- input$tblInterOther_rows_selected
+              # dtInterCrop<-dtInterOther
+              pos<- i
+              
+              if(i==1){
+                tbl <- dtInterOther1
+                inter_row_selected<- input[[paste0("tblInterOther",i,"_rows_selected")]]
+              }else if(i==2){
+                tbl <- dtInterOther2
+                inter_row_selected<- input[[paste0("tblInterOther",i,"_rows_selected")]]
+              }else if(i==3){
+                tbl <- dtInterOther3
+                inter_row_selected<- input[[paste0("tblInterOther",i,"_rows_selected")]]
+              }else if(i==4){
+                tbl<- dtInterOther4
+                inter_row_selected<- input[[paste0("tblInterOther",i,"_rows_selected")]]
+              }else if(i==5){
+                tbl <- dtInterOther5
+                inter_row_selected<- input[[paste0("tblInterOther",i,"_rows_selected")]]
               }
+              dtInterCrop<- tbl
+              
+            }      
+        
+        
         
         if(!is.null(inter_row_selected)){  
           dt[[i]] <- intercrop_cmtables(dtInterCrop ,inter_row_selected) 
@@ -12993,24 +13657,29 @@ server_design_agrofims <- function(input, output, session, values){
   fbdesign_traits <- reactive({
     
     fb <- fbdesign()
-    trait <- traits_dt()
+    trait_dt <- traits_dt()
     #print(trait)
-    cr<- trait$Crop
-    sb<- trait$Subgroup
-    cm <- trait$Measurement
-    #cm <- trait$Crop.measurement
-    #sc <- trait$Scale
-    sc <- trait$TraitUnit
-    
-    sc[is.na(sc)] <- "unitless"
-    #co <- trait$VariableId
-    cs <- paste(cr,sb, cm, sc, sep="_")
-    
+
     ##NEW CODE
+  
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
     if(ct=="Monocrop"){
-      cs<- add_season_prefix(dt=trait)
-      cs<- add_numplot_prefix(dt=trait,cs)
+      
+      cr<- trait_dt$Crop
+      sb<- trait_dt$Subgroup
+      cm <- trait_dt$Measurement
+      cm <- trait_dt$Crop.measurement
+      sc <- trait_dt$Scale
+      sc <- trait_dt$TraitUnit
+      
+      sc[is.na(sc)] <- "unitless"
+      #co <- trait$VariableId
+      cs <- paste(cr,sb, cm, sc, sep="_")
+      
+      cs<- add_season_prefix(dt=trait_dt) #trait is a table
+      cs<- add_numplot_prefix(dt=trait_dt,cs)
+    } else{
+      cs<-NULL
     }
     
     ## NEW CODE
@@ -13034,7 +13703,7 @@ server_design_agrofims <- function(input, output, session, values){
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Intercrop") 
     circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
     
-    if(ct=="Intercrop"){
+    if(ct!="Monocrop"){
       
       fb <- fbdesign()
       trait <- traits_dt()
@@ -13074,12 +13743,15 @@ server_design_agrofims <- function(input, output, session, values){
   pheno_inter_vars<- reactive({
     
     ct <- map_singleform_values(input$croppingType,  type = "combo box", format = "vector",default = "Monocrop") 
+    dt<-list()
     ## BEGIN MONORCROP 
-    if(ct=="Intercrop"){
+    if(ct!="Monocrop"){
     
       id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
       circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
       dt<-list()
+      crop_oficial <- c("Cassava","Common bean","Maize",  "Potato",  "Rice",  "Sweetpotato",  "Wheat")
+      
       #iterate per crop
       for(i in 1:length(circm)){
         
@@ -13089,6 +13761,7 @@ server_design_agrofims <- function(input, output, session, values){
           dtPhenoInter <-dtInterPheCassava
         }
         if(circm[i]=="Common bean"){
+          print("omar")
           phe_row_selected<-input$tblInterPheCommon_rows_selected
           dtPhenoInter <-dtInterPheCommon
         }
@@ -13112,13 +13785,41 @@ server_design_agrofims <- function(input, output, session, values){
           phe_row_selected<-input$tblInterPheWheat_rows_selected
           dtPhenoInter <-dtInterPheWheat
         }  
-        if(circm[i]=="Other"){
-          phe_row_selected<- input$tblInterPheOther_rows_selected
-          dtPhenoInter <- dtInterPheOther
+        if(!is.element(circm[i],crop_oficial)){
+          pos<- i
+          
+          if(i==1){
+            tbl <- dtInterPheOther1
+            phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
+          }else if(i==2){
+            tbl <- dtInterPheOther2
+            phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
+          }else if(i==3){
+            tbl <- dtInterPheOther3
+            phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
+          }else if(i==4){
+            tbl<- dtInterPheOther4
+            phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
+          }else if(i==5){
+            tbl <- dtInterPheOther5
+            phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
+          }
+          dtPhenoInter <- tbl
+          
         }
         
         if(!is.null(phe_row_selected)){  
-          dt[[i]] <-intercrop_phe_vars(dtPhenoInter, phe_row_selected) 
+          dt[[i]] <- intercrop_phe_vars(dtPhenoInter, phe_row_selected) 
+          dt[[i]]$Crop <- circm[i]
+          
+          colnames(dt[[i]]) <- c("Crop","Group","Subgroup","Measurement",
+                              "TraitUnit","CropMeasurementPerSeason",
+                              "CropMeasurementPerPlot","TraitName", "TraitAlias",
+                              "TraitDataType","TraitValidation","VariableId")
+          
+          
+          dt[[i]]$CropMeasurementPerSeason<-1
+          dt[[i]]$CropMeasurementPerPlot<-1
         } else {
           dt[[i]] <- data.frame(Status="",Crop="", Group="", Subgroup="", Measurement="",
                                 Measurement_2="",Measurement_3="",
@@ -13128,7 +13829,7 @@ server_design_agrofims <- function(input, output, session, values){
         }
       }
       names(dt) <- circm
-      a<-dt
+      #a<-dt
     } 
   dt
     
@@ -13203,6 +13904,8 @@ server_design_agrofims <- function(input, output, session, values){
          # circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
          # print("intecrop crops")
          # print(circm)
+         
+         trp <<- traits_dt()
                   
         if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
@@ -13422,7 +14125,7 @@ server_design_agrofims <- function(input, output, session, values){
          openxlsx::writeDataTable(wb, "Weather", x = weather_dt(),
                                   colNames = TRUE, withFilter = FALSE)
          }
-         #SOIL SHEET ------------------------------------------------------------ 
+         # SOIL SHEET ------------------------------------------------------------ 
          print("inicio10")
          if(nrow(soil_dt())!=0){
            openxlsx::addWorksheet(wb, "Labbook", gridLines = TRUE)
@@ -13520,6 +14223,8 @@ server_design_agrofims <- function(input, output, session, values){
              }
            
          } else {
+            
+           intevp<<- pheno_inter_vars()  
                ph_tl <- rbindlist(pheno_inter_vars(),fill = TRUE)
                ph_tl <- ec_clean_header(ph_tl)
          }  
@@ -13669,7 +14374,13 @@ server_design_agrofims <- function(input, output, session, values){
          dt_kds <- dt_kds[,lbl_traitlist_dt]
          #dt_kds<- changes_units(ec=dt_kds, input, allinputs= AllInputs())
          
-         
+         #TODO: Update current internal data
+         #Changes names in per season and per plot
+         names(dt_kds)<- c("Crop","Group","Subgroup","Measurement","TraitName",
+                          "TraitUnit",
+                          "NumberOfMeasurementsPerSeason","NumberOfMeasurementsPerPlot",
+                          "TraitAlias",
+                          "TraitDataType","TraitValidation","VariableId")
          
          
          print("inicio17")
