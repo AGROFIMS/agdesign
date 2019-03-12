@@ -1022,15 +1022,138 @@ display: none;
 
             column(
               width = 6,
-              h2("Information on experimental unit"),
-              selectizeInput("info_experiment_unit", "Information on experimental unit", multiple = T,
-                             options = list(maxItems =1, placeholder="Select one..."),
-                             choices = c("plot",
-                                         "field",
-                                         "pot")
+              #br(),
+              h2("Design information"),
+              shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'CRD', multiple = FALSE,
+                                 c("Choose one" = "", design_choices_agrofims)
               ),
-
-              conditionalPanel("input.info_experiment_unit == 'plot'",
+              br(),
+              conditionalPanel("input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD'",
+                               h2("Information on experimental unit"),
+                               selectizeInput("info_experiment_unit", "Information on experimental unit", multiple = T,
+                                              options = list(maxItems =1, placeholder="Select one..."),
+                                              choices = c("plot",
+                                                          "field",
+                                                          "pot")
+                               ),
+                               
+                               conditionalPanel("input.info_experiment_unit == 'plot'",
+                                                fluidRow(
+                                                  column(width = 3, textInput("expt_plot_length", label="Length", value="")),
+                                                  column(
+                                                    width = 3,
+                                                    selectizeInput("expt_plot_length_unit", label="Unit", multiple = TRUE,
+                                                                   options = list(maxItems =1, placeholder ="Select one..."),
+                                                                   choices = c("m",
+                                                                               "ft")
+                                                    )
+                                                  ),
+                                                  column(width = 3, textInput("expt_plot_width", label="Width", value="")),
+                                                  column(
+                                                    width = 3,
+                                                    selectizeInput("expt_plot_width_unit", label="Unit", multiple = TRUE,
+                                                                   options = list(maxItems =1, placeholder ="Select one..."),
+                                                                   choices = c("m",
+                                                                               "ft")
+                                                    )
+                                                  )
+                                                )
+                               ),
+                               
+                               conditionalPanel("input.info_experiment_unit == 'field'",
+                                                fluidRow(
+                                                  column(width = 3, textInput("expt_field_length", label="Length", value="")),
+                                                  column(
+                                                    width = 3,
+                                                    selectizeInput("expt_field_length_unit", label="Unit", multiple = TRUE,
+                                                                   options = list(maxItems =1, placeholder ="Select one..."),
+                                                                   choices = c("m",
+                                                                               "km",
+                                                                               "ft",
+                                                                               "mi")
+                                                    )
+                                                  ),
+                                                  column(width = 3, textInput("expt_field_width", label="Width", value="")),
+                                                  column(
+                                                    width = 3,
+                                                    selectizeInput("expt_field_width_unit", label="Unit", multiple = TRUE,
+                                                                   options = list(maxItems =1, placeholder ="Select one..."),
+                                                                   choices = c("m",
+                                                                               "km",
+                                                                               "ft",
+                                                                               "mi")
+                                                    )
+                                                  )
+                                                )
+                               ),
+                               
+                               conditionalPanel("input.info_experiment_unit == 'pot'",
+                                                fluidRow(
+                                                  column(width = 3, textInput("pot_diameter", label="Diameter", value="")),
+                                                  column(
+                                                    width = 3,
+                                                    selectizeInput("pot_diameter_unit", label="Unit", multiple = TRUE,
+                                                                   options = list(maxItems =1, placeholder ="Select one..."),
+                                                                   choices = c("cm",
+                                                                               "in")
+                                                    )
+                                                  ),
+                                                  
+                                                  column(width = 3, textInput("pot_depth", label="Depth", value="")),
+                                                  column(
+                                                    width = 3,
+                                                    selectizeInput("pot_depth_unit", label="Unit", multiple = TRUE,
+                                                                   options = list(maxItems =1, placeholder ="Select one..."),
+                                                                   choices = c("cm",
+                                                                               "in")
+                                                    )
+                                                  )
+                                                )
+                               )
+              ),
+              
+              #br(),
+              conditionalPanel("input.designFieldbook_agrofims == 'SPRCBD'",
+                               h2("Information on experimental unit"),
+                               # selectizeInput("info_experiment_unit", "Information on experimental unit", multiple = T,
+                               #                options = list(maxItems =1, placeholder="Select one..."),
+                               #                choices = c("plot")#,
+                               #                            # "field",
+                               #                            # "pot")
+                               # ),
+                               fluidRow(
+                                 column(
+                                   width = 12, 
+                                   h4("Information on main plot")
+                                 )
+                               ),
+                               fluidRow(
+                                 column(width = 3, textInput("expt_plot_length", label="Length", value="")),
+                                 column(
+                                   width = 3,
+                                   selectizeInput("expt_plot_length_unit", label="Unit", multiple = TRUE,
+                                                  options = list(maxItems =1, placeholder ="Select one..."),
+                                                  choices = c("m",
+                                                              "ft")
+                                   )
+                                 ),
+                                 column(width = 3, textInput("expt_plot_width", label="Width", value="")),
+                                 column(
+                                   width = 3,
+                                   selectizeInput("expt_plot_width_unit", label="Unit", multiple = TRUE,
+                                                  options = list(maxItems =1, placeholder ="Select one..."),
+                                                  choices = c("m",
+                                                              "ft")
+                                   )
+                                 )
+                               ),
+                               
+                               fluidRow(
+                                 column(
+                                   width = 12, 
+                                   h4("Information on sub plot")
+                                 )
+                               ),
                                fluidRow(
                                  column(width = 3, textInput("expt_plot_length", label="Length", value="")),
                                  column(
@@ -1051,64 +1174,17 @@ display: none;
                                    )
                                  )
                                )
-              ),
-
-              conditionalPanel("input.info_experiment_unit == 'field'",
-                               fluidRow(
-                                 column(width = 3, textInput("expt_field_length", label="Length", value="")),
-                                 column(
-                                   width = 3,
-                                   selectizeInput("expt_field_length_unit", label="Unit", multiple = TRUE,
-                                                  options = list(maxItems =1, placeholder ="Select one..."),
-                                                  choices = c("m",
-                                                              "km",
-                                                              "ft",
-                                                              "mi")
-                                   )
-                                 ),
-                                 column(width = 3, textInput("expt_field_width", label="Width", value="")),
-                                 column(
-                                   width = 3,
-                                   selectizeInput("expt_field_width_unit", label="Unit", multiple = TRUE,
-                                                  options = list(maxItems =1, placeholder ="Select one..."),
-                                                  choices = c("m",
-                                                              "km",
-                                                              "ft",
-                                                              "mi")
-                                   )
-                                 )
-                               )
-              ),
-
-              conditionalPanel("input.info_experiment_unit == 'pot'",
-                               fluidRow(
-                                 column(width = 3, textInput("pot_diameter", label="Diameter", value="")),
-                                 column(
-                                   width = 3,
-                                   selectizeInput("pot_diameter_unit", label="Unit", multiple = TRUE,
-                                                  options = list(maxItems =1, placeholder ="Select one..."),
-                                                  choices = c("cm",
-                                                              "in")
-                                   )
-                                 ),
-
-                                 column(width = 3, textInput("pot_depth", label="Depth", value="")),
-                                 column(
-                                   width = 3,
-                                   selectizeInput("pot_depth_unit", label="Unit", multiple = TRUE,
-                                                  options = list(maxItems =1, placeholder ="Select one..."),
-                                                  choices = c("cm",
-                                                              "in")
-                                   )
-                                 )
-                               )
-              ),
-
-              br(),
-              h2("Design information"),
-              shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'CRD', multiple = FALSE,
-                                 c("Choose one" = "", design_choices_agrofims)
+                               
               )
+              
+              
+              #,
+
+              # br(),
+              # h2("Design information"),
+              # shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'CRD', multiple = FALSE,
+              #                    c("Choose one" = "", design_choices_agrofims)
+              # )
             ),
 
             column(
@@ -1131,7 +1207,9 @@ display: none;
                   br(),
                   column(
                     width = 12,
+                    h3("Main and sub plot factors (1st factor applies to main plot; 2nd factor to sub plot)"),
                     fluidRow(id = "fluid_treatment_description"),
+                    
                     fluidRow(id="fluid_factor_input")
                   )
                 )
