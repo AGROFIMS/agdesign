@@ -316,52 +316,46 @@ server_design_agrofims <- function(input, output, session, values){
     inputsPersonnel <- function() {
       a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- a13 <- a14 <- a15 <- a16 <- a17 <- a18 <- a19 <- a20 <- a21 <- a22 <- a23 <- a24 <- a25 <- a26 <- a27 <- c()
       
-      inputRds <- readRDS(paste0(globalpath, "inputId1_v3.rds"))
-      inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Personnel")
-      df1 <- inputRds[c(4, 5, 6)]
-      
       # inputs para: Number of personnel
-      if (!is.null(input$npersons) && !is.na(input$npersons) && input$npersons >= 1) {
-        for (i in 1:input$npersons) {
-          a1[i] <- paste0("personnel", i, "Type")
-          a2[i] <- paste0("personnel", i, "Type_other")
-          a3[i] <- paste0("person", i, "FirstName")
-          a4[i] <- paste0("person", i, "LastName")
-          a5[i] <- paste0("person", i, "Email")
-          a6[i] <- paste0("person", i, "Affiliation")
-          a7[i] <- paste0("person", i, "Center")
-          a8[i] <- paste0("person", i, "Affiliation_other")
-          a9[i] <- paste0("person", i, "ORCID")
-          
-          a10[i] <- "selectizeInput"
-          a11[i] <- "textInput"
-          a12[i] <- "textInput"
-          a13[i] <- "textInput"
-          a14[i] <- "textInput"
-          a15[i] <- "selectizeInput"
-          a16[i] <- "selectizeInput"
-          a17[i] <- "textInput"
-          a18[i] <- "textInput"
-          
-          a19[i] <- "n"
-          a20[i] <- "n"
-          a21[i] <- "n"
-          a22[i] <- "n"
-          a23[i] <- "n"
-          a24[i] <- "n"
-          a25[i] <- "n"
-          a26[i] <- "n"
-          a27[i] <- "n"
-        }
-        df2 <- data.frame(inputId = c(a1, a2, a3, a4, a5, a6, a7, a8, a9),
-                          type = c(a10, a11, a12, a13, a14, a15, a16, a17, a18),
-                          create = c(a19, a20, a21, a22, a23, a24, a25, a26, a27),
-                          stringsAsFactors = F)
-      } else {
-        df2 <- NULL
-      }
+      id_rand_pers <-  getAddInputId(personnelVars$ids, "PERS_", "")
       
-      res <- rbind(df1, df2)
+      for (i in 1:id_rand_pers) {
+        a1[i] <- paste0("personnel_type_", id_rand_pers[i])
+        a2[i] <- paste0("personnel_type_", id_rand_pers[i], "_other")
+        a3[i] <- paste0("person_firstName_", id_rand_pers[i])
+        a4[i] <- paste0("person_lastName_", id_rand_pers[i])
+        a5[i] <- paste0("person_email_", id_rand_pers[i])
+        a6[i] <- paste0("person_affiliation_", id_rand_pers[i])
+        a7[i] <- paste0("person_center_", id_rand_pers[i])
+        a8[i] <- paste0("person_affiliation_", id_rand_pers[i], "_other")
+        a9[i] <- paste0("person_orcid_", id_rand_pers[i])
+        
+        a10[i] <- "selectizeInput"
+        a11[i] <- "textInput"
+        a12[i] <- "textInput"
+        a13[i] <- "textInput"
+        a14[i] <- "textInput"
+        a15[i] <- "selectizeInput"
+        a16[i] <- "selectizeInput"
+        a17[i] <- "textInput"
+        a18[i] <- "textInput"
+        
+        a19[i] <- "n"
+        a20[i] <- "n"
+        a21[i] <- "n"
+        a22[i] <- "n"
+        a23[i] <- "n"
+        a24[i] <- "n"
+        a25[i] <- "n"
+        a26[i] <- "n"
+        a27[i] <- "n"
+      }
+      df1 <- data.frame(inputId = c(a1, a2, a3, a4, a5, a6, a7, a8, a9),
+                        type = c(a10, a11, a12, a13, a14, a15, a16, a17, a18),
+                        create = c(a19, a20, a21, a22, a23, a24, a25, a26, a27),
+                        stringsAsFactors = F)
+      
+      res <- df1
       res
     }
     
@@ -392,29 +386,46 @@ server_design_agrofims <- function(input, output, session, values){
       }
       
       # inputs para: Intercrop
+      id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
+      
       if (!is.null(input$croppingType) && !is.na(input$croppingType) && input$croppingType == "Intercrop") {
-        # inputs para: Select crops
-        if (!is.null(input$cropsSelected) && length(input$cropsSelected) >= 1) {
-          for (i in 1:length(input$cropsSelected)) {
-            a1[i] <- paste0("cropCommonName", i)
-            a2[i] <- paste0("cropVarietyName", i)
-            a3[i] <- paste0("intercropValue_row_crop_", i)
-            
-            a4[i] <- "textInput"
-            a5[i] <- "selectizeInput"
-            a6[i] <- "textInput"
-            
-            a7[i] <- "n"
-            a8[i] <- "y"
-            a9[i] <- "n"
-          }
-          df3 <- data.frame(inputId = c(a1, a2, a3), type = c(a4, a5, a6), create = c(a7, a8, a9), stringsAsFactors = F)
-        } else {
-          df3 <- NULL
+        for (i in 1:length(id_ic_rand)) {
+          a1[i] <- paste0("cropCommonNameInter_", id_ic_rand[i])
+          a2[i] <- paste0("cropCommonNameInter_", id_ic_rand[i], "_other", i)
+          a3[i] <- paste0("cropVarietyName_", id_ic_rand[i])
+          
+          a4[i] <- "selectizeInput"
+          a5[i] <- "textInput"
+          a6[i] <- "selectizeInput"
+          
+          a7[i] <- "n"
+          a8[i] <- "n"
+          a9[i] <- "y"
         }
+        df3 <- data.frame(inputId = c(a1, a2, a3), type = c(a4, a5, a6), create = c(a7, a8, a9), stringsAsFactors = F)
       }
       
-      res <- rbind(df1, df2, df3)
+      # inputs para: Relay crop
+      id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+      
+      if (!is.null(input$croppingType) && !is.na(input$croppingType) && input$croppingType == "Intercrop") {
+        for (i in 1:length(id_re_rand)) {
+          b1[i] <- paste0("cropCommonNameRelay_", id_re_rand[i])
+          b2[i] <- paste0("cropCommonNameRelay_", id_re_rand[i], "_other", i)
+          b3[i] <- paste0("cropVarietyName_", id_re_rand[i])
+          
+          b4[i] <- "selectizeInput"
+          b5[i] <- "textInput"
+          b6[i] <- "selectizeInput"
+          
+          b7[i] <- "n"
+          b8[i] <- "n"
+          b9[i] <- "y"
+        }
+        df4 <- data.frame(inputId = c(b1, b2, b3), type = c(b4, b5, b6), create = c(b7, b8, b9), stringsAsFactors = F)
+      }
+      
+      res <- rbind(df1, df2, df3, df4)
       res
     }
     
