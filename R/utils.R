@@ -784,6 +784,7 @@ add_season_prefix<- function(dt){
     dt$CropMeasurementPerPlot <- as.numeric(dt$CropMeasurementPerPlot)
     season_idx <- which(dt$CropMeasurementPerSeason<=0)
     nplot_idx <-  which(dt$CropMeasurementPerPlot<=0)
+    out2<- list()
     
         if(length(season_idx)>0){
           dt$CropMeasurementPerSeason[season_idx]<- 1
@@ -793,8 +794,15 @@ add_season_prefix<- function(dt){
         }
         
         for(i in 1:nrow(dt)) {
-          out<- append(out, paste(dt$TraitName[i],1:dt$CropMeasurementPerSeason[i],sep="__") )
+          out<- paste(dt$TraitName[i],1:dt$CropMeasurementPerSeason[i],sep="__") 
         }
+    
+        out2<- list()
+        for( i in 1:length(dt)){
+          out2[[i]]<- sort( as.vector(outer(out[[i]], 1:dt$CropMeasurementPerPlot[i], paste, sep="#")))
+        }
+        
+        out<- unlist(out2)
     
   } else {
     
