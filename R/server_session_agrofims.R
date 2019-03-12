@@ -9,6 +9,7 @@
 #' @export
 
 server_session_agrofims <- function(input, output, session, values){
+  
   # path global para lectura de RDS's
   globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
   

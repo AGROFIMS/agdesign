@@ -1049,6 +1049,7 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Remueve los dinamicos para dejarlos por defecto
   removeDin <- function() {
+    beforeRemoveDinCheck()
     
     for (i in 1:3) {
       if (i == 1) {
@@ -1524,7 +1525,7 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   #Boton load session
-  observeEvent(input$load_inputs, {
+  observeEvent(input$load_inputNew1, {
     
     
     # withProgress(message = 'Before remove dinamics', value = 0, {
@@ -1536,14 +1537,15 @@ server_design_agrofims <- function(input, output, session, values){
     #   }
     # })
     # 
-    # withProgress(message = 'Remove dinamics', value = 0, {
-    #   delay(500, removeDin())
-    #   n <- 10
-    #   for (i in 1:n) {
-    #     incProgress(1/n, detail = paste("Doing part", i))
-    #     Sys.sleep(0.1)
-    #   }
-    # })
+    withProgress(message = 'Remove dinamics', value = 0, {
+      removeDin()
+      #removeDin()
+      n <- 10
+      for (i in 1:n) {
+        incProgress(1/n, detail = paste("Doing part", i))
+        Sys.sleep(0.1)
+      }
+    })
     # 
     # withProgress(message = 'After remove dinamics', value = 0, {
     #   delay(2000, afterRemoveDinCheck())
@@ -1624,6 +1626,18 @@ server_design_agrofims <- function(input, output, session, values){
       ############ COD: IVAN CANSADO ###############
     
     
+  })
+  
+  observeEvent(input$load_inputNew2, {
+    print("tatat")
+    withProgress(message = 'After remove dinamics', value = 0, {
+      afterRemoveDinCheck()
+      n <- 10
+      for (i in 1:n) {
+        incProgress(1/n, detail = paste("Doing part", i))
+        Sys.sleep(0.1)
+      }
+    })
   })
   
   #################### END: LOAD FIELDBOOK ####################

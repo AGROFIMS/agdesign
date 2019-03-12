@@ -15,6 +15,9 @@ get_ec_sf <- function(allinputs, napp ){
 
   napp<- as.numeric(napp)
   
+  ## Number of fertilizer
+  napp_vector <- rep(napp,napp) 
+    
   ## Fertilizer type -------------------------------------------------------------------------------------------------
   ft <-allinputs %>% filter(str_detect(id, "^select_fertilizerType_soil_table_row_")) %>%
                       filter(!str_detect(id, "selectized")) %>% arrange_("id")
@@ -62,7 +65,7 @@ get_ec_sf <- function(allinputs, napp ){
   dt_soil <- arrange_by_pattern(dt_soil, as.character(1:napp) )
   #dt_soil <- arrange_by_pattern(dt_soil,c("1","2","3"))
   ### Label
-  lbl <- c("Soil_fertility_fertilizer_type","Soil_fertility_product","Soil_fertility_product_rate_(kg/ha)", 
+  lbl <- c("Soil_fertility_number_of_fertilizer", "Soil_fertility_fertilizer_type","Soil_fertility_product","Soil_fertility_product_rate_(kg/ha)", 
            "Soil_fertility_element","Soil_fertility_element_rate_(kg/ha)",
            "Soil_fertility_start_date", "Soil_fertility_end_date", "Soil_fertility_technique", "Soil_fertility_notes")
   lbl_soil <- NULL #vector(mode = "character",length = length(lbl)*napp)) 

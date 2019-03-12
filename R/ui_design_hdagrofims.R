@@ -2315,7 +2315,7 @@ display: none;
                                                               )
                                               ),
           
-                                              shiny::tabPanel("Crop Measurement relay", value = 'crop_measurement_relay', icon = shiny::icon("leaf"),
+                                              shiny::tabPanel("Crop Measurement", value = 'crop_measurement_relay', icon = shiny::icon("leaf"),
                                                               column(width = 12,
                                                                      h2("Crop measurement"),
                                                                      #actionButton("qwe", "dale"),
@@ -2493,7 +2493,7 @@ display: none;
                                                               )
                                               ),
           
-                                              shiny::tabPanel("Crop Phenology relay", value = 'crop_phenology_relay', icon = shiny::icon("leaf"),
+                                              shiny::tabPanel("Crop Phenology", value = 'crop_phenology_relay', icon = shiny::icon("leaf"),
                                                               column(width = 12,
                                                                      h2("Crop phenology"),
                                                                      #actionButton("qwe", "dale"),
