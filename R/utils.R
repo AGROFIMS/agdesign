@@ -775,8 +775,7 @@ changes_units <- function(ec, input, allinputs){
   
 }
 
-
-add_season_prefix<- function(dt){
+add_season_numplot_prefix<- function(dt){
   
   if(!is.null(dt) && nrow(dt)!=0){
     out<-NULL
@@ -784,7 +783,7 @@ add_season_prefix<- function(dt){
     dt$CropMeasurementPerPlot <- as.numeric(dt$CropMeasurementPerPlot)
     season_idx <- which(dt$CropMeasurementPerSeason<=0)
     nplot_idx <-  which(dt$CropMeasurementPerPlot<=0)
-    out2<- list()
+    #out2<- list()
     
         if(length(season_idx)>0){
           dt$CropMeasurementPerSeason[season_idx]<- 1
@@ -792,13 +791,13 @@ add_season_prefix<- function(dt){
         if(length(nplot_idx)>0){
           dt$CropMeasurementPerPlot[nplot_idx]<- 1
         }
-        
+        out <- list()
         for(i in 1:nrow(dt)) {
-          out<- paste(dt$TraitName[i],1:dt$CropMeasurementPerSeason[i],sep="__") 
+          out[[i]]<- paste(dt$TraitName[i],1:dt$CropMeasurementPerSeason[i],sep="__") 
         }
     
         out2<- list()
-        for( i in 1:length(dt)){
+        for( i in 1:nrow(dt)){
           out2[[i]]<- sort( as.vector(outer(out[[i]], 1:dt$CropMeasurementPerPlot[i], paste, sep="#")))
         }
         
@@ -814,28 +813,28 @@ add_season_prefix<- function(dt){
 } 
 
 #TODO MEJORAR Y HACER 2 FOR LOOPS
-add_numplot_prefix <- function(dt, cs){
-  
-  if(!is.null(dt) && nrow(dt)!=0){
-  
-  dt$CropMeasurementPerPlot <- as.numeric(dt$CropMeasurementPerPlot)
-  nplot_idx <-  which(dt$CropMeasurementPerPlot<=0)
-  if(length(nplot_idx)>0){
-    dt$CropMeasurementPerPlot[nplot_idx]<- 1
-  }
-  out <- NULL
-  for(i in 1:nrow(dt)) {
-    #if(dt$CropMeasurementPerPlot[i]!=1){
-      out<- append(out, paste(cs[i],1:dt$CropMeasurementPerPlot[i],sep="#") )
-    #} else {
-     # out <- append(out, paste(cs[i]))
-    #}
-  }
-  
-  } else {
-    out<-NULL
-  }
-  out
-  
-}
+# add_numplot_prefix <- function(dt, cs){
+#   
+#   if(!is.null(dt) && nrow(dt)!=0){
+#   
+#   dt$CropMeasurementPerPlot <- as.numeric(dt$CropMeasurementPerPlot)
+#   nplot_idx <-  which(dt$CropMeasurementPerPlot<=0)
+#   if(length(nplot_idx)>0){
+#     dt$CropMeasurementPerPlot[nplot_idx]<- 1
+#   }
+#   out <- NULL
+#   for(i in 1:nrow(dt)) {
+#     #if(dt$CropMeasurementPerPlot[i]!=1){
+#       out<- append(out, paste(cs[i],1:dt$CropMeasurementPerPlot[i],sep="#") )
+#     #} else {
+#      # out <- append(out, paste(cs[i]))
+#     #}
+#   }
+#   
+#   } else {
+#     out<-NULL
+#   }
+#   out
+#   
+# }
 

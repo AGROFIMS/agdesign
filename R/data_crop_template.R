@@ -326,3 +326,16 @@ NULL
 #' @format A list of installation sheet data in HiDAP-AGROFIMS
 #' @source CGIAR Big Data Platform, Bioversity, International Potato Center CIP, CIAT,  CGIAR
 NULL
+
+
+
+#' @name extra_variables
+#' @title extra_variables
+#' @docType data
+#' @aliases extra_variables
+#' @description  A list of extra variables that should be placed in TraitList for KDSMART
+#' @references This data is related to AGROFIMS crop template
+#' @usage extra_variables
+#' @format data.frame
+#' @source CGIAR Big Data Platform, Bioversity, International Potato Center, CIAT,  CGIAR
+NULL
