@@ -1047,7 +1047,7 @@ server_design_agrofims <- function(input, output, session, values){
     print(paste0("before: ", nel, " - Funding Agency"))
   }
   
-  # Remueve los dinamicos para dejarlos por defecto
+  # Remueve los dinamicos para dejarlos por defecto en 1
   removeDin <- function() {
     beforeRemoveDinCheck()
     
@@ -1056,6 +1056,7 @@ server_design_agrofims <- function(input, output, session, values){
         # Remueve dinamicos: Funding Agency
         id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
         nfa <- length(id_rand_fa)
+        
         if (nfa > 1) {
           for (i in 1:nfa-1) {
             Sys.sleep(0.1)
@@ -1068,6 +1069,7 @@ server_design_agrofims <- function(input, output, session, values){
         # Remueve dinamicos: Project Management Entities
         id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
         npe <- length(id_rand_pe)
+        
         if (npe > 1) {
           for (i in 1:npe-1) {
             Sys.sleep(0.1)
@@ -1080,6 +1082,7 @@ server_design_agrofims <- function(input, output, session, values){
         # Remueve dinamicos: Experiment Leads
         id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
         nel <- length(id_rand_el)
+        
         if (nel > 1) {
           for (i in 1:nel-1) {
             Sys.sleep(0.1)
@@ -1091,7 +1094,7 @@ server_design_agrofims <- function(input, output, session, values){
     
   }
   
-  # Verifica los removidos
+  # Verifica los removidos si estan en 1
   afterRemoveDinCheck <- function() {
     
     print("After remove dinamics")
@@ -1120,12 +1123,13 @@ server_design_agrofims <- function(input, output, session, values){
     }
   }
   
+  # Genera los dinamicos de acuerdo al fieldbook
   generateDin <- function() {
-    #print(getFbId())
+    afterRemoveDinCheck()
+    
     df <- read.csv(paste0(sessionpath, getFbId(), ".csv"))
-    #print(df)
-    for (i in 1:4) {
-      
+    
+    for (i in 1:3) {
       if (i == 1) {
         # Genera dinamicos: Funding Agency
         df_fa <- df %>% dplyr::filter(str_detect(inputId, "designFieldbook_fundAgencyType_"))
@@ -1139,7 +1143,6 @@ server_design_agrofims <- function(input, output, session, values){
             Sys.sleep(0.1)
             shinyjs::click("addFundingAgency")
           }
-          #print("OK add EL")
         }
       }
       
@@ -1156,7 +1159,6 @@ server_design_agrofims <- function(input, output, session, values){
             Sys.sleep(0.1)
             shinyjs::click("addManagEntity")
           }
-          #print("OK add EL")
         }
       }
       
@@ -1173,34 +1175,56 @@ server_design_agrofims <- function(input, output, session, values){
             Sys.sleep(0.1)
             shinyjs::click("addExperimentLeads")
           }
-          #print("OK add EL")
         }
       }
-      
-      if (i == 4) {
-        Sys.sleep(2)
-        id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
-        nfanew <- length(id_rand_fa)
-        id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
-        npenew <- length(id_rand_pe)
-        id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
-        nelnew <- length(id_rand_el)
-        
-        print(paste0("up new", nfanew))
-        print(paste0("up new", npenew))
-        print(paste0("up new", nelnew))
-        
-        if (nfanew == nfatest && npenew == npetest && nelnew == neltest) {
-          print("agregados exitosamente")
-        } else {
-          print("fallo agregados")
-        }
-      }
-      
     }
+  }
+  
+  # Valida los generados
+  afterRemoveDinCheck <- function() {
     
+    # print("After remove dinamics")
+    # 
+    # ## Experiment details
+    # 
+    # # Funding Agency
+    # id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
+    # nfa <- length(id_rand_fa)
+    # print(paste0("after: ", nfa, " - Funding Agency"))
+    # 
+    # # Project Management Entities
+    # id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
+    # npe <- length(id_rand_pe)
+    # print(paste0("after: ", npe, " - Project Management Entities"))
+    # 
+    # # Experiment Leads
+    # id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
+    # nel <- length(id_rand_el)
+    # print(paste0("after: ", nel, " - Funding Agency"))
+    # 
+    # if (nfa == 1 && npe == 1 && nel == 1) {
+    #   print("Successful removal")
+    # } else {
+    #   print("Remove failed")
+    # }
     
+    Sys.sleep(2)
+    id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
+    nfanew <- length(id_rand_fa)
+    id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
+    npenew <- length(id_rand_pe)
+    id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
+    nelnew <- length(id_rand_el)
     
+    print(paste0("up new", nfanew))
+    print(paste0("up new", npenew))
+    print(paste0("up new", nelnew))
+    
+    if (nfanew == nfatest && npenew == npetest && nelnew == neltest) {
+      print("agregados exitosamente")
+    } else {
+      print("fallo agregados")
+    }
   }
   
   dftest <- function() {
@@ -1629,9 +1653,9 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   observeEvent(input$load_inputNew2, {
-    print("tatat")
     withProgress(message = 'After remove dinamics', value = 0, {
-      afterRemoveDinCheck()
+      
+      
       n <- 10
       for (i in 1:n) {
         incProgress(1/n, detail = paste("Doing part", i))

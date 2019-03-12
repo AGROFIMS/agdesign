@@ -53,7 +53,8 @@ ui_session_agrofims <- function(type="tab",title="Session manage",name="session_
             column(6, align = "right", style = "margin-top: 26px;",
                    actionButton("refreshsession", "Refresh", icon("refresh"), width = "100px"),
                    actionButton('load_inputNew1', 'Load 1', icon("download"), class = "btn-primary", style="color: #fff;", onclick = "openTab('newFieldbookAgrofims')", width = "100px"),
-                   actionButton('load_inputNew2', 'Load 2', icon("download"), class = "btn-primary", style="color: #fff;", onclick = "openTab('newFieldbookAgrofims')", width = "100px")
+                   actionButton('load_inputNew2', 'Load 2', icon("download"), class = "btn-primary", style="color: #fff;", onclick = "openTab('newFieldbookAgrofims')", width = "100px"),
+                   actionButton('load_inputNew3', 'Load 3', icon("download"), class = "btn-primary", style="color: #fff;", onclick = "openTab('newFieldbookAgrofims')", width = "100px")
                    #,actionButton("aa", "aaaa")
             )
           ),
