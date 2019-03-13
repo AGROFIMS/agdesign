@@ -15540,9 +15540,27 @@ server_design_agrofims <- function(input, output, session, values){
           label_level<- paste("Factor ",1:length(bl$fg$value)," Levels", sep="")
           levelitos <- bl$fg$value
           
-          dtf<- data.frame(Parameter=label_fct, Value=factorcito)
+          dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
+          dsg_dt <- data.frame(Parameter=c("Experimental design label","Experimental design abbrevation"), 
+                               Value= c(dsg, experimental_design_label(dsg)[1]))
+         
+          
+          # dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
+          # tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
+          # if(tf=="yes"){
+          #   nrep <- as.numeric(input$designFieldbook_agrofims_r_y)
+          #   lbl_dsg<- experimental_design_label(dsg)[1]
+          # }else{
+          #   nrep <- as.numeric(input$designFieldbook_agrofims_r_n)
+          #   lbl_dsg <- experimental_design_label(dsg)[1]
+          # }
+          # dt_dsg <- data.frame(Factor = c("Experimental design","Experimental design abbreviation", "Number of repetition or blocks"),
+          #                      Value = c(lbl_dsg, dsg, nrep))
+          # 
+          
+          dtf <- data.frame(Parameter=label_fct, Value=factorcito)
           dtl <- data.frame(Parameter= label_level, Value= levelitos)
-          dtot<- rbind(dtf, dtl)
+          dtot<- rbind(dsg_dt, dtf, dtl)
           
           
           ############
