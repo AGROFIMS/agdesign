@@ -13663,6 +13663,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   lbl_harvest <- reactive({
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
+    
     if(ct=="Monocrop" || ct== "Relay crop"){
       addId <- getAddInputId(addId = expCondsVars$ids_harvest, "HARV_", "")
       lbl <- get_ec_harv(allinputs=AllInputs(), addId=addId)$lbl
@@ -13672,16 +13673,12 @@ server_design_agrofims <- function(input, output, session, values){
       #id_rand_inter <- getAddInputId(intercropVars$ids, "IC_", "") 
       #circm <- map_values(input, id_chr="cropCommonNameInter_",id_rand_inter, format = "vector", lbl= "Select crop")
       
-      if(ct=="Intercrop"){
+      #if(ct=="Intercrop"){
         id_rand <- getAddInputId(intercropVars$ids, "IC_", "")
         circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_rand, format = "vector", lbl= "Select crop")
-      }
+      #}
       
-      if(ct=="Relay crop"){
-        id_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
-        circm <- map_values(input = input, id_chr="cropCommonNameRelay_",id_rand, format = "vector", lbl= "Select crop")
-      }
-      
+
       
       dt<- get_ec_harv_inter(allinputs=AllInputs(), addId= id_rand, circm)
       lbl<- NULL
@@ -14419,8 +14416,156 @@ server_design_agrofims <- function(input, output, session, values){
     out
   })
   
+  
+  globalMetadata<- function(){
+
+     gtable <- rbind( exp_dt(), fa_dt(), pe(), epl(), pers_dt(),crop_dt(), infounit(),
+                      #TODO:: MEJORAR
+                      #fct_lvl_dt(),
+                      site_dt())
+     #gtable<- data.table::rbindlist(glist,fill = TRUE)
+     #gtable <- as.data.frame(gtable,stringAsFactors=FALSE)
+     names(gtable)[1]<- "Parameter"
+     gtable
+   }
+  
+  
+  #fct_lvl<-NULL
+  
+  # observeEvent(input$fullFactorialRB, {
+  #   
+  #   #fct_lvl<-NULL
+  #   
+  #   fct_lvl <- function(){
+  #     #Type of design                                         
+  #     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
+  #     tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
+  #     
+  #     path <- fbglobal::get_base_dir()
+  #     fp <- file.path(path, "listFactors_v7.rds")
+  #     factors <- as.data.frame(readRDS(fp))
+  #     
+  #     if(tf=="yes"){
+  #       #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
+  #       id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
+  #       #id_rand<- id_ff_rand
+  #       fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
+  #       id_type_dt <- dplyr::left_join(fg, factors) #get a table with the intersection
+  #       flvl <- map_level_values(input= input, isf = tf , id_type_dt= id_type_dt, id_rand = id_ff_rand, lbl= "Level")
+  #       ##NUEVO CODE
+  #       soil_flvl <- get_soil_factor_level(id_ff_rand, AllInputs()) 
+  #       
+  #       if(length(soil_flvl)>0){
+  #         for(i in 1:length(flvl)){
+  #           for( j in 1:length(soil_flvl)){
+  #             print(paste("yes-",j))
+  #             if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
+  #               flvl[[i]] <- soil_flvl[[j]]
+  #             }
+  #           }
+  #         }
+  #       }
+  #       ##END NUEVO CODE
+  #       
+  #       
+  #     }  
+  #     else if(tf=="no"){ 
+  #       #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
+  #       ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
+  #       id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
+  #       #id_rand <- id_nff_rand
+  #       fg<- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
+  #       id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
+  #       flvl <- map_level_values(input= input,isf = tf, id_type_dt= id_type_dt, 
+  #                                id_rand = id_nff_rand, ntrt= ntrt , lbl= "Level")
+  #       soil_flvl <- get_soil_factor_level(id_nff_rand, AllInputs()) 
+  #       ### Incorporate soil fertility inpust in the table, in case it are necessary
+  #       
+  #       if(length(soil_flvl)>0){
+  #         for(i in 1:length(flvl)){
+  #           for( j in 1:length(soil_flvl)){
+  #             print(paste("yes-",j))
+  #             if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
+  #               flvl[[i]] <- soil_flvl[[j]]
+  #             }
+  #           }
+  #         }
+  #       }
+  #       
+  #     }
+  #     out<- list(fg=fg, flvl= flvl)
+  #     
+  #   }    
+  #   
+  # })
   #List of Factors and Levels
-  fct_lvl <- reactive({
+  # fct_lvl <- reactive({
+  #     #Type of design                                         
+  #     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
+  #     tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
+  #     
+  #     path <- fbglobal::get_base_dir()
+  #     fp <- file.path(path, "listFactors_v7.rds")
+  #     factors <- as.data.frame(readRDS(fp))
+  #   
+  #     if(tf=="yes"){
+  #       #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
+  #       id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
+  #       #id_rand<- id_ff_rand
+  #       fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
+  #       id_type_dt <- dplyr::left_join(fg, factors) #get a table with the intersection
+  #       flvl <- map_level_values(input= input, isf = tf , id_type_dt= id_type_dt, id_rand = id_ff_rand, lbl= "Level")
+  #       ##NUEVO CODE
+  #       soil_flvl <- get_soil_factor_level(id_ff_rand, AllInputs()) 
+  #       
+  #       if(length(soil_flvl)>0){
+  #           for(i in 1:length(flvl)){
+  #             for( j in 1:length(soil_flvl)){
+  #               print(paste("yes-",j))
+  #               if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
+  #                 flvl[[i]] <- soil_flvl[[j]]
+  #               }
+  #             }
+  #           }
+  #       }
+  #       ##END NUEVO CODE
+  #       
+  #       
+  #     }  
+  #     else if(tf=="no"){ 
+  #       #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
+  #       ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
+  #       id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
+  #       #id_rand <- id_nff_rand
+  #       fg<- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
+  #       id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
+  #       flvl <- map_level_values(input= input,isf = tf, id_type_dt= id_type_dt, 
+  #                                id_rand = id_nff_rand, ntrt= ntrt , lbl= "Level")
+  #       soil_flvl <- get_soil_factor_level(id_nff_rand, AllInputs()) 
+  #       ### Incorporate soil fertility inpust in the table, in case it are necessary
+  #       
+  #       if(length(soil_flvl)>0){
+  #           for(i in 1:length(flvl)){
+  #             for( j in 1:length(soil_flvl)){
+  #               print(paste("yes-",j))
+  #               if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
+  #                 flvl[[i]] <- soil_flvl[[j]]
+  #               }
+  #             }
+  #           }
+  #       }
+  #       
+  #     }
+  #     out<- list(fg=fg, flvl= flvl)
+  #     
+  # })
+  # 
+  #Fieldbook design (statistical design)
+  fbdesign <- function(){
+    
+    
+    
+    fct_lvl <- function(){
       #Type of design                                         
       dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
       tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
@@ -14428,7 +14573,7 @@ server_design_agrofims <- function(input, output, session, values){
       path <- fbglobal::get_base_dir()
       fp <- file.path(path, "listFactors_v7.rds")
       factors <- as.data.frame(readRDS(fp))
-    
+      
       if(tf=="yes"){
         #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
         id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
@@ -14440,20 +14585,20 @@ server_design_agrofims <- function(input, output, session, values){
         soil_flvl <- get_soil_factor_level(id_ff_rand, AllInputs()) 
         
         if(length(soil_flvl)>0){
-            for(i in 1:length(flvl)){
-              for( j in 1:length(soil_flvl)){
-                print(paste("yes-",j))
-                if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
-                  flvl[[i]] <- soil_flvl[[j]]
-                }
+          for(i in 1:length(flvl)){
+            for( j in 1:length(soil_flvl)){
+              print(paste("yes-",j))
+              if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
+                flvl[[i]] <- soil_flvl[[j]]
               }
             }
+          }
         }
         ##END NUEVO CODE
         
         
       }  
-      if(tf=="no"){ 
+      else if(tf=="no"){ 
         #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
         ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
         id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
@@ -14466,32 +14611,33 @@ server_design_agrofims <- function(input, output, session, values){
         ### Incorporate soil fertility inpust in the table, in case it are necessary
         
         if(length(soil_flvl)>0){
-            for(i in 1:length(flvl)){
-              for( j in 1:length(soil_flvl)){
-                print(paste("yes-",j))
-                if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
-                  flvl[[i]] <- soil_flvl[[j]]
-                }
+          for(i in 1:length(flvl)){
+            for( j in 1:length(soil_flvl)){
+              print(paste("yes-",j))
+              if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
+                flvl[[i]] <- soil_flvl[[j]]
               }
             }
+          }
         }
         
       }
       out<- list(fg=fg, flvl= flvl)
       
-  })
-  
-  #Fieldbook design (statistical design)
-  fbdesign <- function(){
+    }    
+    
+    fct_lvl<- fct_lvl()
+    
+ 
     
     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
     #print(dsg)
     tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
     #print(tf)
-    fct<- paste(fct_lvl()$fg$GROUP, fct_lvl()$fg$FACTOR, sep = "-" )#get factor labels
+    fct<- paste(fct_lvl$fg$GROUP, fct_lvl$fg$FACTOR, sep = "-" )#get factor labels
     fct <- paste(fct, 1:length(fct), sep="-f")
     #print(fct)
-    flvl<- fct_lvl()$flvl #get factor's levels
+    flvl<- fct_lvl$flvl #get factor's levels
     #print(flvl)
     
     try({
@@ -14626,7 +14772,7 @@ server_design_agrofims <- function(input, output, session, values){
 
   })
   
-  fct_lvl_dt <- reactive({
+  fct_lvl_dt <- function(){ #reactive({
     
     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
     tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
@@ -14662,19 +14808,9 @@ server_design_agrofims <- function(input, output, session, values){
     names(dt)<- c("Factor", "Value")
     dt<- rbind(dt_dsg, dt_nf, dt)
     dt
-  })
+  #})
+  }
   
-  globalMetadata<- reactive({
-
-    gtable <- rbind( exp_dt(), fa_dt(), pe(), epl(), pers_dt(),crop_dt(), infounit(), 
-                     #TODO:: MEJORAR
-                     fct_lvl_dt(), 
-                     site_dt())
-    #gtable<- data.table::rbindlist(glist,fill = TRUE)
-    #gtable <- as.data.frame(gtable,stringAsFactors=FALSE)
-    names(gtable)[1]<- "Parameter"
-    gtable
-  })
 
 
   traits_dt <- function(){
@@ -15288,7 +15424,8 @@ server_design_agrofims <- function(input, output, session, values){
 
    })
   
- 
+
+   
  
   ############# donwload fieldbook ##################################################
    output$downloadData <- downloadHandler(
@@ -15328,9 +15465,92 @@ server_design_agrofims <- function(input, output, session, values){
          } 
         else {
          
-         gmetadata <- globalMetadata() #metadata_dt2()
-
-         fname <- paste(file,"xlsx",sep=".")
+          ###FACTOR TABLE ###
+          fct_lvl <- function(){
+            #Type of design                                         
+            dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
+            tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
+            
+            path <- fbglobal::get_base_dir()
+            fp <- file.path(path, "listFactors_v7.rds")
+            factors <- as.data.frame(readRDS(fp))
+            
+            if(tf=="yes"){
+              #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
+              id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
+              #id_rand<- id_ff_rand
+              fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
+              id_type_dt <- dplyr::left_join(fg, factors) #get a table with the intersection
+              flvl <- map_level_values(input= input, isf = tf , id_type_dt= id_type_dt, id_rand = id_ff_rand, lbl= "Level")
+              ##NUEVO CODE
+              soil_flvl <- get_soil_factor_level(id_ff_rand, AllInputs()) 
+              
+              if(length(soil_flvl)>0){
+                for(i in 1:length(flvl)){
+                  for( j in 1:length(soil_flvl)){
+                    print(paste("yes-",j))
+                    if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
+                      flvl[[i]] <- soil_flvl[[j]]
+                    }
+                  }
+                }
+              }
+              ##END NUEVO CODE
+              
+              
+            }  
+            else if(tf=="no"){ 
+              #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
+              ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
+              id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
+              #id_rand <- id_nff_rand
+              fg<- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
+              id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
+              flvl <- map_level_values(input= input,isf = tf, id_type_dt= id_type_dt, 
+                                       id_rand = id_nff_rand, ntrt= ntrt , lbl= "Level")
+              soil_flvl <- get_soil_factor_level(id_nff_rand, AllInputs()) 
+              ### Incorporate soil fertility inpust in the table, in case it are necessary
+              
+              if(length(soil_flvl)>0){
+                for(i in 1:length(flvl)){
+                  for( j in 1:length(soil_flvl)){
+                    print(paste("yes-",j))
+                    if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
+                      flvl[[i]] <- soil_flvl[[j]]
+                    }
+                  }
+                }
+              }
+              
+            }
+            out<- list(fg=fg, flvl= flvl)
+            
+          }   
+          bl<- fct_lvl() 
+          
+          id<- bl$fg$NUM
+          value<-NULL
+          for(i in 1:length(bl$flvl)){
+            value[[i]]<- paste(bl$flvl[[i]], collapse=", ")  
+          }
+          bl$fg$value<- unlist(value)
+          
+          label_fct <-  bl$fg$NUM
+          factorcito <- bl$fg$FACTOR
+          label_level<- paste("Factor ",1:length(bl$fg$value)," Levels", sep="")
+          levelitos <- bl$fg$value
+          
+          dtf<- data.frame(Parameter=label_fct, Value=factorcito)
+          dtl <- data.frame(Parameter= label_level, Value= levelitos)
+          dtot<- rbind(dtf, dtl)
+          
+          
+          ############
+         #gmetadata <- globalMetadata() #metadata_dt2()
+          gmetadata <- rbind(globalMetadata(), dtot)
+          
+          
+        fname <- paste(file,"xlsx",sep=".")
          fb  <- fbdesign_traits()
          
          

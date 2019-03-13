@@ -1024,7 +1024,7 @@ display: none;
               width = 6,
               #br(),
               h2("Design information"),
-              shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'CRD', multiple = FALSE,
+              shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'RCBD', multiple = FALSE,
                                  c("Choose one" = "", design_choices_agrofims)
               ),
               br(),
