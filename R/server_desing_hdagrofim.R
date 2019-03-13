@@ -4596,6 +4596,7 @@ server_design_agrofims <- function(input, output, session, values){
     selector <- vars[4]
     
     value <-  input[[input$selectFactorID]]
+    print(factor)
     
     if(selector == "1"){
       
@@ -14563,8 +14564,7 @@ server_design_agrofims <- function(input, output, session, values){
   #Fieldbook design (statistical design)
   fbdesign <- function(){
     
-    
-    
+  
     fct_lvl <- function(){
       #Type of design                                         
       dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
@@ -14628,7 +14628,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     fct_lvl<- fct_lvl()
     
- 
+    
     
     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
     #print(dsg)
@@ -14641,62 +14641,52 @@ server_design_agrofims <- function(input, output, session, values){
     #print(flvl)
     
     try({
-        if(tf=="yes"){
-          
-         if(dsg!="sprcbd"){
-            nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
-            fb <- try(st4gi::cr.f(fnames = fct, flevels = flvl, design = dsg, nrep = nrep, nc = 10)$book)
-            if(dsg=="crd"){
-              names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT") #rename first 4 cols
-            } 
-            if(dsg=="rcbd"){
-               names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")  #rename first 5 cols
-            }
+      if(tf=="yes"){
+        
+        if(dsg!="sprcbd"){
+          nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
+          fb <- try(st4gi::cr.f(fnames = fct, flevels = flvl, design = dsg, nrep = nrep)$book)
+          if(dsg=="crd"){
+            names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT") #rename first 4 cols
+          } 
+          if(dsg=="rcbd"){
+            names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")  #rename first 5 cols
           }
-          
-          if(dsg=="sprcbd"){
-            nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
-            fb <- try( st4gi::cr.spld(fnames = fct, flevels = flvl, nb = nrep)$book)
-            names(fb)[1:6] <- c("BLOCK" ,"PLOT","SUBPLOT","ROW","COL","TREATMENT")  #rename first 5 cols
+        }
+        
+        if(dsg=="sprcbd"){
+          nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
+          fb <- try( st4gi::cr.spld(fnames = fct, flevels = flvl, nb = nrep)$book)
+          names(fb)[1:6] <- c("BLOCK" ,"PLOT","SUBPLOT","ROW","COL","TREATMENT")  #rename first 5 cols
+        }
+        # if(dsg=="strip"){
+        #   nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
+        #   fb <- try( st4gi::cr.strd(fnames = fct, flevels = flvl, nb = nrep)$book)
+        #   names(fb)[1:6] <- c("BLOCK" ,"PLOT","SUBPLOT","ROW","COL","TREATMENT")  #rename first 5 cols
+        # }
+        
+        
+      }
+      if(tf=="no"){
+        
+        nrep <- as.numeric(input$designFieldbook_agrofims_r_n)  #for blocks and reps (crd and rcbd)
+        ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
+        nfactor <- length(fct) #number of factors
+        print("n factor")
+        flvl<- do.call("paste", c(flvl, sep = "-"))
+        #if(nfactor==1){
+          trt <- unlist(flvl)
+          if(dsg=="crd"){
+            fb<- try(st4gi::cr.crd(geno = trt,nrep = nrep )$book)
+            names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT")
+          } 
+          if(dsg=="rcbd"){
+            fb<- try(st4gi::cr.rcbd(geno = trt, nb = nrep)$book)
+            names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")
           }
-          # if(dsg=="strip"){
-          #   nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
-          #   fb <- try( st4gi::cr.strd(fnames = fct, flevels = flvl, nb = nrep)$book)
-          #   names(fb)[1:6] <- c("BLOCK" ,"PLOT","SUBPLOT","ROW","COL","TREATMENT")  #rename first 5 cols
-          # }
-          
-          
-        }
-        if(tf=="no"){
-          
-          nrep <- as.numeric(input$designFieldbook_agrofims_r_n)  #for blocks and reps (crd and rcbd)
-          ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
-          nfactor <- length(fct) #number of factors
-          print("n factor")
-          print(nfactor)
-          if(nfactor==1){
-             trt <- unlist(flvl)
-             if(dsg=="crd"){
-               fb<- try(st4gi::cr.crd(geno = trt,nrep = nrep ,nc = 10)$book)
-               names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT")
-             } 
-             if(dsg=="rcbd"){
-               fb<- try(st4gi::cr.rcbd(geno = trt, nb = nrep ,nc = 10)$book)
-               names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")
-             }
-          } else{
-               fb<- try(st4gi::cr.f(fnames = fct,flevels = flvl, design = dsg, nrep = nrep, nc = 10)$book)
-               if(dsg=="crd"){
-                  fb <- fb[,1:4]
-                  names(fb) <- c("PLOT","ROW","COL","TREATMENT")
-               } 
-               if(dsg=="rcbd"){
-                  fb <- fb[,1:5]
-                  names(fb) <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")
-               }
-          }  
-        }
-        fb
+        #} 
+      }
+      fb
     })
   }
   
