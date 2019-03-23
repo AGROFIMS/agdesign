@@ -13900,271 +13900,6 @@ server_design_agrofims <- function(input, output, session, values){
     dt
   })
   
-  
-  
-  ##phenology  ############################################
-  # pheno_dt <- reactive({
-  #   ct <- map_singleform_values(input$croppingType,  type = "combo box", format = "vector",default = "Monocrop") 
-  #   ## BEGIN MONORCROP 
-  #   if(ct=="Monocrop"){
-  #       row_select <- input$tblMonoPhe_rows_selected
-  #       dt <- dtMonocropphe[row_select, ]
-  #       lbl <- dt$TraitName
-  #   
-  #       if(length(lbl)==0 && nrow(dt)==0){
-  #         dt <- data.frame()
-  #       } else if(nrow(fbdesign())==0 && length(lbl)>=1){
-  #         dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
-  #         names(dt) <- lbl
-  #       } else if(nrow(fbdesign())>0 && length(lbl)>=1) {
-  #         dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
-  #         names(dt) <- lbl
-  #         dt <-cbind(fbdesign() ,dt)
-  #       }
-  #   ## END MONORCROP 
-  #       
-  #   # BEGIN INTERCORP
-  #   } else {
-  #     
-  #     
-  #     if(ct=="Intercrop"){
-  #       id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
-  #       circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
-  #     }
-  #     
-  #     if(ct=="Relay crop"){
-  #       id_rc_rand <- getAddInputId(relaycropVars$ids, "RC_", "") 
-  #       circm <- map_values(input = input, id_chr="cropCommonNameRelay_",id_rc_rand, format = "vector", lbl= "Select crop")
-  #     }
-  #     
-  #     print(circm)
-  #     
-  #     if(ct=="Intercrop"){
-  #      
-  #       crop_oficial <- c("Cassava","Common bean","Maize",  "Potato",  "Rice",  "Sweetpotato",  "Wheat")
-  #       #phe_row_selected<-NULL
-  #       
-  #       #iterate per crop
-  #       for(i in 1:length(circm)){
-  #         
-  #         #TODO: check when crop_row_selected is zero length
-  #         if(circm[i]=="Cassava"){
-  #           phe_row_selected<-input$tblInterPheCassava_rows_selected
-  #           dtPhenoInter <-dtInterPheCassava
-  #         }
-  #         if(circm[i]=="Common bean"){
-  #           print("omar")
-  #           phe_row_selected<-input$tblInterPheCommon_rows_selected
-  #           dtPhenoInter <-dtInterPheCommon
-  #         }
-  #         if(circm[i]=="Maize"){
-  #           phe_row_selected<-input$tblInterPheMaize_rows_selected
-  #           dtPhenoInter <-dtInterPheMaize
-  #         }
-  #         if(circm[i]=="Potato"){
-  #           phe_row_selected<-input$tblInterPhePotato_rows_selected
-  #           dtPhenoInter <-dtInterPhePotato
-  #         }
-  #         if(circm[i]=="Rice"){
-  #           phe_row_selected<-input$tblInterPheRice_rows_selected
-  #           dtPhenoInter <-dtInterPheRice
-  #         }
-  #         if(circm[i]=="Sweetpotato"){
-  #           phe_row_selected<-input$tblInterPheSweetpotato_rows_selected
-  #           dtPhenoInter <-dtInterPheSweetpotato
-  #         }
-  #         if(circm[i]=="Wheat"){
-  #           phe_row_selected<-input$tblInterPheWheat_rows_selected
-  #           dtPhenoInter <-dtInterPheWheat
-  #         }  
-  #         if(!is.element(circm[i],crop_oficial)){
-  #           pos<- i
-  #           
-  #           if(i==1){
-  #             tbl <- dtInterPheOther1
-  #             phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #           }else if(i==2){
-  #             tbl <- dtInterPheOther2
-  #             phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #           }else if(i==3){
-  #             tbl <- dtInterPheOther3
-  #             phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #           }else if(i==4){
-  #             tbl<- dtInterPheOther4
-  #             phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #           }else if(i==5){
-  #             tbl <- dtInterPheOther5
-  #             phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #           }
-  #           dtPhenoInter <- tbl
-  #           
-  #         }
-  #         
-  #         if(!is.null(phe_row_selected)){  
-  #           
-  #           if(!is.null(phe_row_selected)){
-  #             dt[[i]] <- intercrop_phetables(dtPhenoInter, fbdesign(), phe_row_selected)
-  #           } else {
-  #             dt[[i]] <-  data.frame()
-  #           }
-  #         }
-  #         names(dt) <- circm
-  #         a<-dt  
-  #           
-  #           
-  #       }
-  #       
-  #     }
-  #      if(ct=="Relay crop"){
-  #     
-  #       crop_oficial <- c("Cassava","Common bean","Maize",  "Potato",  "Rice",  "Sweetpotato",  "Wheat")
-  #       #phe_row_selected<-NULL
-  #       
-  #       #iterate per crop
-  #       for(i in 1:length(circm)){
-  #         
-  #         #TODO: check when crop_row_selected is zero length
-  #         if(circm[i]=="Cassava"){
-  #           phe_row_selected<-input$tblRelayPheCassava_rows_selected
-  #           dtPhenoRelay <-dtRelayPheCassava
-  #         }
-  #         if(circm[i]=="Common bean"){
-  #           print("omar")
-  #           phe_row_selected<-input$tblRelayPheCommon_rows_selected
-  #           dtPhenoRelay <-dtRelayPheCommon
-  #         }
-  #         if(circm[i]=="Maize"){
-  #           phe_row_selected<-input$tblRelayPheMaize_rows_selected
-  #           dtPhenoRelay <-dtRelayPheMaize
-  #         }
-  #         if(circm[i]=="Potato"){
-  #           phe_row_selected<-input$tblRelayPhePotato_rows_selected
-  #           dtPhenoRelay <-dtRelayPhePotato
-  #         }
-  #         if(circm[i]=="Rice"){
-  #           phe_row_selected<-input$tblRelayPheRice_rows_selected
-  #           dtPhenoRelay <-dtRelayPheRice
-  #         }
-  #         if(circm[i]=="Sweetpotato"){
-  #           phe_row_selected<-input$tblRelayPheSweetpotato_rows_selected
-  #           dtPhenoRelay <-dtRelayPheSweetpotato
-  #         }
-  #         if(circm[i]=="Wheat"){
-  #           phe_row_selected<-input$tblRelayPheWheat_rows_selected
-  #           dtPhenoRelay <-dtRelayPheWheat
-  #         }  
-  #         if(!is.element(circm[i],crop_oficial)){
-  #           pos<- i
-  #           
-  #           if(i==1){
-  #             tbl <- dtRelayPheOther1
-  #             phe_row_selected<- input[[paste0("tblRelayPheOther",i,"_rows_selected")]]
-  #           }else if(i==2){
-  #             tbl <- dtRelayPheOther2
-  #             phe_row_selected<- input[[paste0("tblRelayPheOther",i,"_rows_selected")]]
-  #           }else if(i==3){
-  #             tbl <- dtRelayPheOther3
-  #             phe_row_selected<- input[[paste0("tblRelayPheOther",i,"_rows_selected")]]
-  #           }else if(i==4){
-  #             tbl<- dtRelayPheOther4
-  #             phe_row_selected<- input[[paste0("tblRelayPheOther",i,"_rows_selected")]]
-  #           }else if(i==5){
-  #             tbl <- dtRelayPheOther5
-  #             phe_row_selected<- input[[paste0("tblRelayPheOther",i,"_rows_selected")]]
-  #           }
-  #           dtPhenoRelay <- tbl
-  #           
-  #         }
-  #         
-  #         
-  #         if(!is.null(phe_row_selected)){
-  #           dt[[i]] <- intercrop_phetables(dtPhenoRelay, fbdesign(), phe_row_selected)
-  #         } else {
-  #           dt[[i]] <-  data.frame()
-  #         }
-  #       }
-  #       names(dt) <- circm
-  #       a<-dt
-  #     }
-  #     
-  #     
-  #     
-  #     # #OLDER INTECROP
-  #     # id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
-  #     # circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
-  #     # crop_oficial <- c("Cassava","Common bean","Maize",  "Potato",  "Rice",  "Sweetpotato",  "Wheat")
-  #     # 
-  #     # dt<-list()
-  #     # #iterate per crop
-  #     # for(i in 1:length(circm)){
-  #     # 
-  #     #   #TODO: check when crop_row_selected is zero length
-  #     #   if(circm[i]=="Cassava"){
-  #     #     phe_row_selected<-input$tblInterPheCassava_rows_selected
-  #     #     dtPhenoInter <-dtInterPheCassava
-  #     #   }
-  #     #   if(circm[i]=="Common bean"){
-  #     #     phe_row_selected<-input$tblInterPheCommon_rows_selected
-  #     #     dtPhenoInter <-dtInterPheCommon
-  #     #   }
-  #     #   if(circm[i]=="Maize"){
-  #     #     phe_row_selected<-input$tblInterPheMaize_rows_selected
-  #     #     dtPhenoInter <-dtInterPheMaize
-  #     #   }
-  #     #   if(circm[i]=="Potato"){
-  #     #     phe_row_selected<-input$tblInterPhePotato_rows_selected
-  #     #     dtPhenoInter <-dtInterPhePotato
-  #     #   }
-  #     #   if(circm[i]=="Rice"){
-  #     #     phe_row_selected<-input$tblInterPheRice_rows_selected
-  #     #     dtPhenoInter <-dtInterPheRice
-  #     #   }
-  #     #   if(circm[i]=="Sweetpotato"){
-  #     #     phe_row_selected<-input$tblInterPheSweetpotato_rows_selected
-  #     #     dtPhenoInter <-dtInterPheSweetpotato
-  #     #   }
-  #     #   if(circm[i]=="Wheat"){
-  #     #     phe_row_selected<-input$tblInterPheWheat_rows_selected
-  #     #     dtPhenoInter <-dtInterPheWheat
-  #     #   }
-  #     #  
-  #     #   if(!is.element(circm[i],crop_oficial)){
-  #     #     pos<- i
-  #     #     
-  #     #     if(i==1){
-  #     #       tbl <- dtInterPheOther1
-  #     #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #     #     }else if(i==2){
-  #     #       tbl <- dtInterPheOther2
-  #     #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #     #     }else if(i==3){
-  #     #       tbl <- dtInterPheOther3
-  #     #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #     #     }else if(i==4){
-  #     #       tbl<- dtInterPheOther4
-  #     #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #     #     }else if(i==5){
-  #     #       tbl <- dtInterPheOther5
-  #     #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-  #     #     }
-  #     #     dtPhenoInter <- tbl
-  #     #     
-  #     #   }
-  #     #   
-  #     # 
-  #     #   if(!is.null(phe_row_selected)){
-  #     #     dt[[i]] <- intercrop_phetables(dtPhenoInter, fbdesign(), phe_row_selected)
-  #     #   } else {
-  #     #     dt[[i]] <-  data.frame()
-  #     #   }
-  #     # }
-  #     # names(dt) <- circm
-  #     # a<-dt
-  #     # } 
-  #   ##END INTERCROP 
-  #   dt
-  #   }
-  # })
 
   ##reactive weather   ####################################
   weather_dt <- reactive({
@@ -14337,10 +14072,33 @@ server_design_agrofims <- function(input, output, session, values){
     }
     if(ct=="Intercrop"){
       id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
-      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "data.frame", lbl= "Select crop")
-      cirvar <- map_values(input, id_chr="cropVarietyName_", id_ic_rand,format = "data.frame", lbl= "Crop variety(s)")
+      circm <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "data.frame", lbl= "Crop")
+      cirvar <- map_values(input, id_chr="cropVarietyName_", id_ic_rand,format = "data.frame", lbl= "Crop variety")
+      
+      #Generate labels according to each crop ####################################
+      #Related to issue: 
+      #https://github.com/AGROFIMS/hagrofims/issues/166#issuecomment-474452350
+      circm_lbl <- map_values(input, id_chr="cropCommonNameInter_", id_ic_rand, format = "vector", lbl= "Crop")
+      cil<- reactiveValuesToList(input)
+      id_chr <- "cropVarietyName_"
+      crim_val<- crim_lbl <- NULL
+      for(i in 1:length(id_ic_rand)){
+        if( is.null( cil[[paste0(id_chr, id_ic_rand[i])]] )){
+          crim_val[[i]]<-"-"
+          crim_lbl[[i]]<- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
+        } else{
+          crim_val[[i]]<- cil[[paste0(id_chr, id_ic_rand[i])]]
+          crim_lbl[[i]] <- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
+        }
+      }
+      crim_lbl<- unlist(crim_lbl)
+      #Changing labels in crop table for intercrop
+      cirvar[,1]<-crim_lbl
+      ################################################################################
+      
       ciarre<- map_singleform_values(input = input$fr_intercrop_arrangement, 
                                      type="combo box",format = "data.frame", label= "Intercrop arragement")
+      
       row <- map_values(input, id_chr="intercropValue_row_crop_", id_ic_rand, format = "data.frame", lbl= "Row geometry")
       out <- rbind(ctd, circm, cirvar, ciarre, row) 
     } 
@@ -14430,137 +14188,7 @@ server_design_agrofims <- function(input, output, session, values){
      gtable
    }
   
-  
-  #fct_lvl<-NULL
-  
-  # observeEvent(input$fullFactorialRB, {
-  #   
-  #   #fct_lvl<-NULL
-  #   
-  #   fct_lvl <- function(){
-  #     #Type of design                                         
-  #     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
-  #     tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
-  #     
-  #     path <- fbglobal::get_base_dir()
-  #     fp <- file.path(path, "listFactors_v7.rds")
-  #     factors <- as.data.frame(readRDS(fp))
-  #     
-  #     if(tf=="yes"){
-  #       #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
-  #       id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
-  #       #id_rand<- id_ff_rand
-  #       fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
-  #       id_type_dt <- dplyr::left_join(fg, factors) #get a table with the intersection
-  #       flvl <- map_level_values(input= input, isf = tf , id_type_dt= id_type_dt, id_rand = id_ff_rand, lbl= "Level")
-  #       ##NUEVO CODE
-  #       soil_flvl <- get_soil_factor_level(id_ff_rand, AllInputs()) 
-  #       
-  #       if(length(soil_flvl)>0){
-  #         for(i in 1:length(flvl)){
-  #           for( j in 1:length(soil_flvl)){
-  #             print(paste("yes-",j))
-  #             if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
-  #               flvl[[i]] <- soil_flvl[[j]]
-  #             }
-  #           }
-  #         }
-  #       }
-  #       ##END NUEVO CODE
-  #       
-  #       
-  #     }  
-  #     else if(tf=="no"){ 
-  #       #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
-  #       ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
-  #       id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
-  #       #id_rand <- id_nff_rand
-  #       fg<- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
-  #       id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
-  #       flvl <- map_level_values(input= input,isf = tf, id_type_dt= id_type_dt, 
-  #                                id_rand = id_nff_rand, ntrt= ntrt , lbl= "Level")
-  #       soil_flvl <- get_soil_factor_level(id_nff_rand, AllInputs()) 
-  #       ### Incorporate soil fertility inpust in the table, in case it are necessary
-  #       
-  #       if(length(soil_flvl)>0){
-  #         for(i in 1:length(flvl)){
-  #           for( j in 1:length(soil_flvl)){
-  #             print(paste("yes-",j))
-  #             if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
-  #               flvl[[i]] <- soil_flvl[[j]]
-  #             }
-  #           }
-  #         }
-  #       }
-  #       
-  #     }
-  #     out<- list(fg=fg, flvl= flvl)
-  #     
-  #   }    
-  #   
-  # })
-  #List of Factors and Levels
-  # fct_lvl <- reactive({
-  #     #Type of design                                         
-  #     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
-  #     tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
-  #     
-  #     path <- fbglobal::get_base_dir()
-  #     fp <- file.path(path, "listFactors_v7.rds")
-  #     factors <- as.data.frame(readRDS(fp))
-  #   
-  #     if(tf=="yes"){
-  #       #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
-  #       id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
-  #       #id_rand<- id_ff_rand
-  #       fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
-  #       id_type_dt <- dplyr::left_join(fg, factors) #get a table with the intersection
-  #       flvl <- map_level_values(input= input, isf = tf , id_type_dt= id_type_dt, id_rand = id_ff_rand, lbl= "Level")
-  #       ##NUEVO CODE
-  #       soil_flvl <- get_soil_factor_level(id_ff_rand, AllInputs()) 
-  #       
-  #       if(length(soil_flvl)>0){
-  #           for(i in 1:length(flvl)){
-  #             for( j in 1:length(soil_flvl)){
-  #               print(paste("yes-",j))
-  #               if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
-  #                 flvl[[i]] <- soil_flvl[[j]]
-  #               }
-  #             }
-  #           }
-  #       }
-  #       ##END NUEVO CODE
-  #       
-  #       
-  #     }  
-  #     else if(tf=="no"){ 
-  #       #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
-  #       ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
-  #       id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
-  #       #id_rand <- id_nff_rand
-  #       fg<- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
-  #       id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
-  #       flvl <- map_level_values(input= input,isf = tf, id_type_dt= id_type_dt, 
-  #                                id_rand = id_nff_rand, ntrt= ntrt , lbl= "Level")
-  #       soil_flvl <- get_soil_factor_level(id_nff_rand, AllInputs()) 
-  #       ### Incorporate soil fertility inpust in the table, in case it are necessary
-  #       
-  #       if(length(soil_flvl)>0){
-  #           for(i in 1:length(flvl)){
-  #             for( j in 1:length(soil_flvl)){
-  #               print(paste("yes-",j))
-  #               if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
-  #                 flvl[[i]] <- soil_flvl[[j]]
-  #               }
-  #             }
-  #           }
-  #       }
-  #       
-  #     }
-  #     out<- list(fg=fg, flvl= flvl)
-  #     
-  # })
-  # 
+   
   #Fieldbook design (statistical design)
   fbdesign <- function(){
     
@@ -14801,8 +14429,6 @@ server_design_agrofims <- function(input, output, session, values){
   #})
   }
   
-
-
   traits_dt <- function(){
     
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
@@ -14833,6 +14459,7 @@ server_design_agrofims <- function(input, output, session, values){
         sc <- aux_dt$TraitUnit
         sc[is.na(sc)] <- "unitless"
         cs <- paste(cr,sb, cm, sc, sep="_")
+        cs<- stringr::str_replace_all(cs,pattern = "[[:space:]]","_")
         
         aux_dt$TraitName <- cs
         # Asign final trait_dt to a  
@@ -15026,6 +14653,7 @@ server_design_agrofims <- function(input, output, session, values){
       sc[is.na(sc)] <- "unitless"
       #co <- trait$VariableId
       cs <- paste(cr,sb, cm, sc, sep="_")
+      cs<- stringr::str_replace_all(cs,pattern = "[[:space:]]","_")
       
       cs<- add_season_numplot_prefix(dt=trait_dt) #trait is a table
       #cs<- add_numplot_prefix(dt=trait_dt,cs)
@@ -15076,7 +14704,7 @@ server_design_agrofims <- function(input, output, session, values){
         sc <- trait[[i]]$TraitUnit
         sc[is.na(sc)] <- "unitless"
         cs <- paste(cr,sb, cm, sc, sep="-")
-        
+        cs <- stringr::str_replace_all(cs,"[[:space:]]","_")
         #trait_selected <- trait_agrofims() %>% as.data.frame(stringsAsFactors =FALSE) #unlist(shinyTree::get_selected(input$designFieldbook_traits_agrofims))
         ## CHECK IF Trait table for each crop has information of the crop, in case not skip
         if(trait[[i]]$Crop[1]!=""){
@@ -15413,12 +15041,10 @@ server_design_agrofims <- function(input, output, session, values){
      })
 
    })
-  
 
-   
  
   ############# donwload fieldbook ##################################################
-   output$downloadData <- downloadHandler(
+  output$downloadData <- downloadHandler(
      filename = "fileNameBook.xlsx",
      content = function(file) {
 
@@ -15428,7 +15054,7 @@ server_design_agrofims <- function(input, output, session, values){
          # row_sel<- sort(row_sel)
          # monito <<- dtMonocrop[row_sel,]
          
-         # ai <- AllInputs()
+         ai <<- AllInputs()
          # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
          # x <- reactiveValuesToList(input)
          # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
@@ -15532,8 +15158,9 @@ server_design_agrofims <- function(input, output, session, values){
           
           dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
           dsg_dt <- data.frame(Parameter=c("Experimental design label","Experimental design abbrevation"), 
-                               Value= c(dsg, experimental_design_label(dsg)[1]))
+                               Value= c(dsg, experimental_design_label(dsg)[1]) ,stringsAsFactors = FALSE )
          
+          
           
           # dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
           # tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
@@ -15548,10 +15175,12 @@ server_design_agrofims <- function(input, output, session, values){
           #                      Value = c(lbl_dsg, dsg, nrep))
           # 
           
-          dtf <- data.frame(Parameter=label_fct, Value=factorcito)
-          dtl <- data.frame(Parameter= label_level, Value= levelitos)
-          dtot<- rbind(dsg_dt, dtf, dtl)
+          dtf <- data.frame(Parameter=label_fct, Value=factorcito,stringsAsFactors = FALSE)
+          dtl <- data.frame(Parameter= label_level, Value= levelitos,stringsAsFactors = FALSE)
+        
+          dtot <<- rbind(dsg_dt, dtf, dtl)
           
+          dtot <- dtot %>% arrange(Parameter)
           
           ############
          #gmetadata <- globalMetadata() #metadata_dt2()
@@ -15887,6 +15516,7 @@ server_design_agrofims <- function(input, output, session, values){
               sc <- cm_tl$TraitUnit
               sc[is.na(sc)] <- "unitless"
               cs <- paste(cr,sb, cm, sc, sep="_")
+              cs<- stringr::str_replace_all(cs,"[[:space:]]","_")
               cm_tl$TraitName <- cs
               cm_tl <- cm_tl
             } else{
@@ -16142,5 +15772,13 @@ server_design_agrofims <- function(input, output, session, values){
      },
      contentType="application/xlsx"
    )
+  
+  ##Invalidate donwloadData
+  observe({
+    #After all this conditions has been made, 0the submit button will appear to save the information
+    toggleState("downloadData", !is.null(input$croppingType)
+    )
+  })
+
 
 }

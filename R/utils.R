@@ -288,8 +288,6 @@ map_values <- function(input, id_chr="", id_rand,
   }
   if(format=="data.frame") {
     res <- as.data.frame(res) %>% as.tibble() #tibble::rownames_to_column()
-    #print("table")
-    #print(funAgenVals)
     label<- paste(lbl, 1:nrow(res))
     res <- tibble::add_column(res , label,.before = 1) #add label column in the second position
   }
@@ -775,6 +773,8 @@ changes_units <- function(ec, input, allinputs){
   
 }
 
+# Function to attach underscore and hashtag
+#
 add_season_numplot_prefix<- function(dt){
   
   if(!is.null(dt) && nrow(dt)!=0){
@@ -792,17 +792,32 @@ add_season_numplot_prefix<- function(dt){
           dt$CropMeasurementPerPlot[nplot_idx]<- 1
         }
         out <- list()
+        
+        #Number of instaces per seasons
         for(i in 1:nrow(dt)) {
           out[[i]]<- paste(dt$TraitName[i],1:dt$CropMeasurementPerSeason[i],sep="__") 
         }
     
-        out2<- list()
-        for( i in 1:nrow(dt)){
-          out2[[i]]<- sort( as.vector(outer(out[[i]], 1:dt$CropMeasurementPerPlot[i], paste, sep="#")))
+        if(all(dt$CropMeasurementPerPlot==1L)){
+          
+          out<- unlist(out)
+          
+        } else{
+          
+          out2<- list()
+          for( i in 1:nrow(dt)){
+            
+            if(dt$CropMeasurementPerPlot[i]==1L){
+              out2[[i]] <- out[[i]]
+            }else{
+              out2[[i]]<- sort( as.vector(outer(out[[i]], 1:dt$CropMeasurementPerPlot[i], paste, sep="#")))
+            }
+          }
+          
+          out<- unlist(out2)
+          
         }
-        
-        out<- unlist(out2)
-    
+
   } else {
     
     out<-NULL

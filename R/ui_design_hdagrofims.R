@@ -253,7 +253,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
 
     # To reset panels and UI
     shinyjs::useShinyjs(),
-
+    #useShinyFeedback(),
+    
     tags$head(
       tags$script(
         HTML("

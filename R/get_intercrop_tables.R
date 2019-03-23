@@ -23,6 +23,7 @@ intercrop_cmtables <- function(dtInterCrop, inter_row_selected ){
     sc <- aux_dt$TraitUnit
     sc[is.na(sc)] <- "unitless"
     cs <- paste(cr,sb, cm, sc, sep="_")
+    cs <- stringr::str_replace_all(cs,pattern = " ","_")
     aux_dt$TraitName <- cs
     #--- Asign final trait_dt to a
     a<- aux_dt
