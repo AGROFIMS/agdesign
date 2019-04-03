@@ -5631,6 +5631,603 @@ server_design_agrofims <- function(input, output, session, values){
 
 
   ################# fin design ######################################################
+  
+  
+  ########################################## Start: Design Ivan New ##################################################
+  
+  # Database
+  factores <- agdesign::dtfactordesign   #agdesign::dtfactordesign  #readxl::read_excel("FACTOR_V9.xlsx")
+  #factores<- gsheet::gsheet2tbl("https://docs.google.com/spreadsheets/d/1M5KA4JTqd1zdv1p-Gu5kfsLNi8WHWAyCMvCNBDa9G_Y/edit#gid=1932177125")
+  #dtf<- factores
+  dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+  
+  ##################### Start: FCRD & FRCBD #####################
+  
+  # FCRD
+  factorFCRD <- reactiveValues()
+  factorFCRD$num <- 0
+  factorFCRD$DEFAULT <- 2
+  
+  # FRCBD
+  factorFRCBD <- reactiveValues()
+  factorFRCBD$num <- 0
+  factorFRCBD$DEFAULT <- 2
+  
+  # Por defecto parace dos row's en FCRD & FRCBD
+  observe({
+    # FCRD
+    if(factorFCRD$num == 0) {
+      defaultFCRD <- factorFCRD$DEFAULT
+      
+      for(i in 1:defaultFCRD) {
+        insertRow_FAC(i, "fcrd")
+      }
+    }
+    
+    # FRCBD
+    if(factorFRCBD$num == 0) {
+      defaultFRCBD <- factorFRCBD$DEFAULT
+      
+      for(i in 1:defaultFRCBD) {
+        insertRow_FAC(i, "frcbd")
+      }
+    }
+  })
+  
+  # Agrega un row al hacer clic en el boton "Add factor" --> FCRD
+  observeEvent(input$fcrd_add, {
+    if(factorFCRD$num >= 1) {
+      insertRow_FAC(factorFCRD$num + 1, "fcrd")
+    }
+  })
+  
+  # Agrega un row al hacer clic en el boton "Add factor" --> FRCBD
+  observeEvent(input$frcbd_add, {
+    if(factorFRCBD$num >= 1) {
+      insertRow_FAC(factorFRCBD$num + 1, "frcbd")
+    }
+  })
+  
+  # Funcion que inserta el UI dependiendo del diseño
+  insertRow_FAC <- function(index, design) {
+    # FCRD
+    if (design == "fcrd") {
+      insertUI(
+        selector = "#fcrd_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_FAC(index, design)
+      )
+      factorFCRD$num <- factorFCRD$num + 1
+    }
+    # FRCBD
+    if (design == "frcbd") {
+      insertUI(
+        selector = "#frcbd_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_FAC(index, design)
+      )
+      factorFRCBD$num <- factorFRCBD$num + 1
+    }
+  }
+  
+  getDesignUI_FAC <- function(index, design) {
+    fluidRow(
+      id = paste0(design, "_full_factor_box_", index), 
+      box(
+        solidHeader = TRUE, status = "warning", width=12,
+        column(12, offset = 0, 
+               column(6,style='padding:0px; text-align:left;',
+                      h4("Factor", style="font-weight: 800;color: #555;")
+               ),
+               column(6, 
+                      style='padding:0px; text-align:right; ',  actionButton(paste0(design, "_closeBox_", index), "", icon("close"))
+               )
+        ),
+        column(
+          12,
+          fluidRow(
+            column(
+              6,
+              fluidRow(
+                column(
+                  10,
+                  selectizeInput(
+                    paste0(design, "_sel_factor_", index), "", multiple = TRUE,
+                    options = list(placeholder ="Select...", maxItems =1),
+                    choices = c(dt$fchoices)
+                  )
+                )
+              )
+            ),
+            column(
+              6,
+              fluidRow(
+                column(width = 7,
+                       fluidRow(id = paste0(design, "_fl_title_factor_aux_", index))
+                       
+                ),
+                column(width = 5,
+                       hidden(selectInput(paste0(design, "_numLevels_", index), "Number of levels", choices = 2:10, selected = 2))
+                )
+              ),
+              fluidRow(id = paste0(design, "_levelSelection_aux_", index)),
+              fluidRow(id = paste0(design,"_note_aux_",index))
+            )
+          ),
+          column(
+            12, style="text-align:right",
+            fluidRow(actionButton(paste0(design, "_btDuplicate_", index), "Duplicate"))
+          )
+        )
+      )
+    )
+  }
+  
+  # FCRD
+  observeEvent(input$selectFCRD, {
+    vars <- unlist(strsplit(input$selectFCRDid, "_"))
+    index <- vars[4]
+    
+    value <-  input[[input$selectFCRDid]]
+    value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR")
+    
+    isolate(updateLevelSelectionFAC(index, value, design = "fcrd"))
+  })
+  
+  # FRCBD
+  observeEvent(input$selectFRCBD, {
+    vars <- unlist(strsplit(input$selectFRCBDid, "_"))
+    index <- vars[4]
+    
+    value <-  input[[input$selectFRCBDid]]
+    value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR") 
+    
+    isolate(updateLevelSelectionFAC(index, value, design = "frcbd"))
+  })
+  
+  updateLevelSelectionFAC <- function(index, value, design) {
+    
+    ###OMAR ###
+    factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
+    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    ### ######
+    
+    removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
+    removeUI(selector = paste0("#", design, "_note_", index), immediate = T)
+    removeUI(selector = paste0("#", design, "_levelSelection_", index), immediate = T)
+    hide(id = paste0(design, "_numLevels_", index))
+    
+    if (value != "") {
+      # Title
+      insertUI(
+        selector = paste0("#", design, "_fl_title_factor_aux_", index),
+        where = "beforeBegin",
+        ui = fluidRow(id = paste0(design, "_fl_title_factor_", index), column(12, h4(HTML(paste0("<b>", value, "</b>")))))
+      )
+      
+      # Note
+      insertUI(
+        selector = paste0("#", design, "_note_aux_", index),
+        where = "beforeBegin",
+        ui = fluidRow(
+          column(12, id = paste0(design, "_note_", index), textAreaInput(paste0(design, "_note_factor_", index), "Note"))
+        )
+      )
+    }
+    
+    if (!is.null(value)) {
+      type_form <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "FORM")
+      
+      if(!is.null(type_form) && type_form == "combo box"){
+        drawComboBoxLevelGEN(order = index, dt = dt, design,
+                             input_choice = input[[paste0(design, "_sel_factor_", index)]])
+        hide(id = paste0(design, "_numLevels_", index))
+        
+      } else if(!is.null(type_form) && type_form == "text input") {
+        drawTextInputLevelGEN(order = index, dt = dt, design, 
+                              input_choice = input[[paste0(design, "_sel_factor_", index)]])
+        hide(id = paste0(design, "_numLevels_", index))
+        
+      } else if(!is.null(type_form) && type_form == "date"){
+        drawDateComboLevelGEN(order = index, dt = dt, design, 
+                              input_choice = input[[paste0(design, "_sel_factor_", index)]])
+        show(id = paste0(design, "_numLevels_", index))
+      }
+    }
+  }
+  
+  # FCRD
+  observeEvent(input$closeBox_button_FCRD, {
+    index <- unlist(strsplit(input$closeBox_button_FCRDid,"_"))
+    
+    if (index[3] >= 3) {
+      removeUI(selector = paste0("#fcrd_full_factor_box_", index[3]), immediate = T)
+    }
+  })
+  
+  # FRCBD
+  observeEvent(input$closeBox_button_FRCBD, {
+    index <- unlist(strsplit(input$closeBox_button_FRCBDid,"_"))
+    
+    if (index[3] >= 3) {
+      removeUI(selector = paste0("#frcbd_full_factor_box_", index[3]), immediate = T)
+    }
+  })
+  
+  ###################### End: FCRD & FRCBD ######################
+  
+  ###################### START: SPRCBD & SPSP ######################
+  
+  # SPRCBD
+  factorSPRCBD <- reactiveValues()
+  factorSPRCBD$num <- 0
+  factorSPRCBD$DEFAULT <- 2
+  
+  # SPSP
+  factorSPSP <- reactiveValues()
+  factorSPSP$num <- 0
+  factorSPSP$DEFAULT <- 3
+  
+  # Por defecto parace dos row's en SPRCBD & SPSP
+  observe({
+    # SPRCBD
+    if(factorSPRCBD$num == 0) {
+      defaultSPRCBD <- factorSPRCBD$DEFAULT
+      
+      for(i in 1:defaultSPRCBD) {
+        insertRow_SP(i, "sprcbd")
+      }
+    }
+    
+    # SPSP
+    if(factorSPSP$num == 0) {
+      defaultSPSP <- factorSPSP$DEFAULT
+      
+      for(i in 1:defaultSPSP) {
+        insertRow_SP(i, "spsp")
+      }
+    }
+  })
+  
+  # Agrega un row al hacer clic en el boton "Add factor" --> SPRCBD
+  observeEvent(input$sprcbd_add, {
+    if(factorSPRCBD$num >= 1) {
+      insertRow_SP(factorSPRCBD$num + 1, "sprcbd")
+    }
+  })
+  
+  # Agrega un row al hacer clic en el boton "Add factor" --> SPSP
+  observeEvent(input$spsp_add, {
+    if(factorSPSP$num >= 1) {
+      insertRow_SP(factorSPSP$num + 1, "spsp")
+    }
+  })
+  
+  # Funcion que inserta el UI dependiendo del diseño
+  insertRow_SP <- function(index, design) {
+    # SPRCBD
+    if (design == "sprcbd") {
+      insertUI(
+        selector = "#sprcbd_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_SP(index, design)
+      )
+      factorSPRCBD$num <- factorSPRCBD$num + 1
+    }
+    # SPSP
+    if (design == "spsp") {
+      insertUI(
+        selector = "#spsp_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_SP(index, design)
+      )
+      factorSPSP$num <- factorSPSP$num + 1
+    }
+  }
+  
+  titleSP <- function(index, design) {
+    if (design == "sprcbd") {
+      if (index == 1) {
+        title <- "Factor: main plot"
+      } else if (index == 2) {
+        title <- "Factor: sub plot"
+      } else if (index >= 3) {
+        title <- "Factor"
+      }
+    } else if (design == "spsp") {
+      if (index == 1) {
+        title <- "Factor: main plot"
+      } else if (index == 2) {
+        title <- "Factor: sub plot"
+      } else if (index == 3) {
+        title <- "Factor: sub-sub plot"
+      } else if (index >= 4) {
+        title <- "Factor"
+      }
+    } else {
+      title <- "Factor"
+    }
+  }
+  
+  getDesignUI_SP <- function(index, design) {
+    
+    title <- titleSP(index, design)
+    
+    fluidRow(
+      id = paste0(design, "_full_factor_box_", index), 
+      box(
+        solidHeader = TRUE, status = "warning", width=12,
+        column(12, offset = 0, 
+               column(6,style='padding:0px; text-align:left;',
+                      h4(title, style="font-weight: 800;color: #555;")
+               ),
+               column(6#, 
+                      #style='padding:0px; text-align:right; ',  actionButton(paste0(design, "_closeBox_", index), "", icon("close"))
+               )
+        ),
+        column(
+          12,
+          fluidRow(
+            column(
+              6,
+              fluidRow(
+                column(
+                  10,
+                  selectizeInput(
+                    paste0(design, "_sel_factor_", index), "", multiple = TRUE,
+                    options = list(placeholder ="Select...", maxItems =1),
+                    choices = c(dt$fchoices)
+                  )
+                )
+              )
+            ),
+            column(
+              6,
+              fluidRow(
+                column(width = 7,
+                       fluidRow(id = paste0(design, "_fl_title_factor_aux_", index))
+                       
+                ),
+                column(width = 5,
+                       hidden(selectInput(paste0(design, "_numLevels_", index), "Number of levels", choices = 2:10, selected = 2))
+                )
+              ),
+              fluidRow(id = paste0(design, "_levelSelection_aux_", index)),
+              fluidRow(id = paste0(design,"_note_aux_",index))
+            )
+          )#,
+          # column(
+          #   12, style="text-align:right",
+          #   fluidRow(actionButton(paste0(design, "_btDuplicate_", index), "Duplicate"))
+          # )
+        )
+      )
+    )
+  }
+  
+  # SPRCBD
+  observeEvent(input$selectSPRCBD, {
+    vars <- unlist(strsplit(input$selectSPRCBDid, "_"))
+    index <- vars[4]
+    
+    value <-  input[[input$selectSPRCBDid]]
+    value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR") 
+    
+    isolate(updateLevelSelectionSP(index, value, design = "sprcbd"))
+  })
+  
+  # SPSP
+  observeEvent(input$selectSPSP, {
+    vars <- unlist(strsplit(input$selectSPSPid, "_"))
+    index <- vars[4]
+    
+    value <-  input[[input$selectSPSPid]]
+    value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR") 
+    
+    isolate(updateLevelSelectionSP(index, value, design = "spsp"))
+  })
+  
+  updateLevelSelectionSP <- function(index, value, design) {
+    
+    ###OMAR ###
+    factores <- agdesign::dtfactordesign # readxl::read_excel("FACTOR_V9.xlsx")
+    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    ### ######
+    
+    removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
+    removeUI(selector = paste0("#", design, "_note_", index), immediate = T)
+    removeUI(selector = paste0("#", design, "_levelSelection_", index), immediate = T)
+    hide(id = paste0(design, "_numLevels_", index))
+    
+    if (value != "") {
+      # Title
+      insertUI(
+        selector = paste0("#", design, "_fl_title_factor_aux_", index),
+        where = "beforeBegin",
+        ui = fluidRow(id = paste0(design, "_fl_title_factor_", index), column(12, h4(HTML(paste0("<b>", value, "</b>")))))
+      )
+      
+      # Note
+      insertUI(
+        selector = paste0("#", design, "_note_aux_", index),
+        where = "beforeBegin",
+        ui = fluidRow(
+          column(12, id = paste0(design, "_note_", index), textAreaInput(paste0(design, "_note_factor_", index), "Note"))
+        )
+      )
+    }
+    
+    if (!is.null(value)) {
+      type_form <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "FORM")
+      
+      if(!is.null(type_form) && type_form == "combo box"){
+        drawComboBoxLevelGEN(order = index, dt = dt, design,
+                             input_choice = input[[paste0(design, "_sel_factor_", index)]])
+        hide(id = paste0(design, "_numLevels_", index))
+        
+      } else if(!is.null(type_form) && type_form == "text input") {
+        drawTextInputLevelGEN(order = index, dt = dt, design, 
+                              input_choice = input[[paste0(design, "_sel_factor_", index)]])
+        hide(id = paste0(design, "_numLevels_", index))
+        
+      } else if(!is.null(type_form) && type_form == "date"){
+        drawDateComboLevelGEN(order = index, dt = dt, design, 
+                              input_choice = input[[paste0(design, "_sel_factor_", index)]])
+        show(id = paste0(design, "_numLevels_", index))
+      }
+    }
+  }
+  
+  ###################### END: SPRCBD & SPSP ######################
+  
+  #Get design-factor values from design_factor table
+  get_dfa_values <- function(dt, choice= "Abiotic stress Abiotic stress End date", 
+                             attribute ="LEVEL"){
+    if(!is.null(choice)){
+      out<- dt %>% filter(fchoices==choice)
+      out <- out[,attribute][[1]]
+    } else{
+      out<-  ""
+    }
+    out
+  }
+  
+  # Draw ComboBox
+  drawComboBoxLevelGEN <- function(order, dt, design = "fcrd", input_choice) {
+    flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
+    choices <- strsplit(flevel, split = ";")
+    
+    names(choices) <- "Levels"
+    lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
+    unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT") 
+    
+    if(is.na(unit)){
+      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+      
+      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+               where = "afterEnd",
+               ui = fluidRow(
+                 id = paste0(design, "_levelSelection_", order),
+                 column(
+                   12,
+                   selectizeInput(
+                     inputId = paste0(design, "_lvl_",order), label = "Enter levels",
+                     multiple = TRUE,
+                     options = list(placeholder = "Select..."),
+                     choices = choices
+                   )
+                 )
+               )
+      )
+    } else {
+      choices_unit<- strsplit(unit,",")[[1]]
+      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+      
+      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+               where = "afterEnd",
+               ui = fluidRow(
+                 id = paste0(design, "_levelSelection_", order),
+                 column(
+                   6,
+                   selectizeInput(
+                     inputId = paste0(design, "_lvl_",order), label = "Enter levels",
+                     multiple = TRUE,
+                     options = list(placeholder = "Select..."),
+                     choices = choices
+                   )#,
+                   #textAreaInput(paste0(design,"_note_factor_",order), "Note")
+                 ),
+                 column(
+                   6,
+                   selectInput(
+                     inputId = paste0(design,"_lvl_unit_", order), label = "Unit",
+                     choices = c(choices_unit), 
+                     selected = 2 
+                   )
+                 )
+               )
+      )
+    }
+  }
+  
+  #Draw TextInput
+  drawTextInputLevelGEN <- function(order, dt,  design="crd", input_choice) {
+    lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
+    unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT") 
+    
+    removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+    
+    if(is.na(unit)){
+      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+               where = "afterEnd",
+               ui = fluidRow(
+                 id = paste0(design, "_levelSelection_", order),
+                 column(
+                   12,
+                   selectizeInput(
+                     paste0(design,"_lvl_", order), label = "Enter levels",
+                     multiple = T, choices = c(),
+                     options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+                   )
+                 )
+               )
+      )
+    } else {
+      choices_unit <- strsplit(unit,",")[[1]]
+      
+      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+      
+      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+               where = "afterEnd",
+               ui = fluidRow(
+                 id = paste0(design, "_levelSelection_", order),
+                 column(
+                   6,
+                   selectizeInput(
+                     paste0(design,"_lvl_", order), label = "Enter levels",
+                     multiple = T, choices = c(),
+                     options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+                   )#,
+                   #textAreaInput(paste0(design,"_note_factor_",order), "Note")
+                 ),
+                 column(
+                   6,
+                   selectInput(
+                     inputId = paste0(design,"_lvl_unit_", order), label = "Unit",
+                     choices = c(choices_unit), selected = 2 
+                   )
+                 )
+               )
+      )
+    }
+  }
+  
+  #Draw Date
+  drawDateComboLevelGEN <- function(order, dt,  design="crd", input_choice) {
+    lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
+    
+    removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+    
+    insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+             where = "afterEnd",
+             ui = fluidRow(
+               id= paste0(design, "_levelSelection_", order),
+               column(
+                 12,
+                 airDatepickerInput(
+                   inputId = paste0(design,"_lvl_", order),
+                   label = paste0("#1 ", lbl),
+                   dateFormat = "yyyy-mm-dd",
+                   value = Sys.Date(),
+                   placeholder = "yyyy-mm-dd",
+                   clearButton = TRUE
+                 )
+               )
+             )
+    )
+  }
+  
+  ########################################## End: Design Ivan New ##################################################
 
 
   ###########################################################
@@ -5648,21 +6245,21 @@ server_design_agrofims <- function(input, output, session, values){
 
   ## dibuja selectizeInput en los factores cuando tercer select es del tipo lista
   drawComboboxLevel <- function(order, num, lev){
-    opt <- strsplit(lev, ";")
-    removeUI(selector = paste0("#fluid_levels_", order), immediate = T)
-    insertUI(selector = paste0("#levelSelection_", order),
-             where = "afterEnd",
-             ui = fluidRow( id= paste0("fluid_levels_", order),
-                  column(width = 12,
-                    selectizeInput(paste0("levels_", order), HTML("Select levels"),
-                                   multiple =T,
-                                   options = list(maxItems = num, placeholder = "Select ..." ),
-                                   choices = opt[[1]]
+      opt <- strsplit(lev, ";")
+      removeUI(selector = paste0("#fluid_levels_", order), immediate = T)
+      insertUI(selector = paste0("#levelSelection_", order),
+               where = "afterEnd",
+               ui = fluidRow( id= paste0("fluid_levels_", order),
+                    column(width = 12,
+                      selectizeInput(paste0("levels_", order), HTML("Select levels"),
+                                     multiple =T,
+                                     options = list(maxItems = num, placeholder = "Select ..." ),
+                                     choices = opt[[1]]
+                      )
                     )
-                  )
-             )
-    )
-  }
+               )
+      )
+    }
 
   ## dibuja selectizeInput para escribir en los factores cuando tercer select es del tipo text input
   drawTextInputLevel <- function(order, num, units){
@@ -12962,6 +13559,12 @@ server_design_agrofims <- function(input, output, session, values){
     )
   })
 
+  
+  
+  ############ Omar Benites xxx #################################################################################################################################
+  
+  
+  
   dat <- reactive({
     dat<- traitsVals$Data
     colnames(dat) <- c("Status", "Crop", "Group", "Subgroup", "Measurement", "a",
@@ -13332,7 +13935,7 @@ server_design_agrofims <- function(input, output, session, values){
 
   })
 
-  ###############################Agrofeatures #######################################
+  ############################### BEGIN EXPERIMENT CONDITIONS #######################################
   
   AllInputs <- reactive({
      x <- reactiveValuesToList(input)
@@ -13452,7 +14055,7 @@ server_design_agrofims <- function(input, output, session, values){
     
   }) 
 
-  ## Soil Fertility
+  ## Soil Fertility     #############################################################
   dt_soilFertility <- reactive({
     
     if(is.null(input$soil_fertilizer_num_apps)){
@@ -13637,16 +14240,7 @@ server_design_agrofims <- function(input, output, session, values){
         id_rand <- getAddInputId(intercropVars$ids, "IC_", "")
         circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_rand, format = "vector", lbl= "Select crop")
       }
-      
-      # if(ct=="Relay crop"){
-      #   id_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
-      #   circm <- map_values(input = input, id_chr="cropCommonNameRelay_",id_rand, format = "vector", lbl= "Select crop")
-      # }
-      
-      
-      #id_rand_inter <- getAddInputId(intercropVars$ids, "IC_", "") 
-      #circm <- map_values(input, id_chr="cropCommonNameInter_",id_rand, format = "vector", lbl= "Select crop")
-      
+        
       dt<- get_ec_harv_inter(allinputs=AllInputs(), addId= id_rand, circm)
       
       #Join fbdesign with harvest header of each crop for intercrop trials
@@ -13701,11 +14295,12 @@ server_design_agrofims <- function(input, output, session, values){
     ns
   }) 
   
-  ################################End agrofeatures ###################################
+  ################################END EXPERIMENT CONDITIONS ########################################
 
   
   ##################### Phenolgy,  Weather and Soil tables #######################################
   
+  #Reactive phenology data #######################################################
   pheno_dt <- reactive({
     ct <- map_singleform_values(input$croppingType,  type = "combo box", format = "vector",default = "Monocrop") 
     ## BEGIN MONORCROP 
@@ -13729,7 +14324,7 @@ server_design_agrofims <- function(input, output, session, values){
       # BEGIN INTERCORP
     } else {
       
-      
+      ##TODO :CHECK REMOVE THESE FRIST TWO(2) IFS
         if(ct=="Intercrop"){
             id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "")
             circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
@@ -13801,8 +14396,7 @@ server_design_agrofims <- function(input, output, session, values){
               dtPhenoInter <- tbl
               
             }
-            
-            
+          
             if(!is.null(phe_row_selected)){
               dt[[i]] <- intercrop_phetables(dtPhenoInter, fbdesign(), phe_row_selected)
             } else {
@@ -13900,8 +14494,7 @@ server_design_agrofims <- function(input, output, session, values){
     dt
   })
   
-
-  ##reactive weather   ####################################
+  ##Reactive weather   ###########################################################
   weather_dt <- reactive({
     
     #wstation<- weather_station_vars #%>% dplyr::select(Measurement, Unit)
@@ -13940,14 +14533,11 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
   
-  
-  ##reactive soil  ########################################
+  ##reactive soil  ###############################################################
   soil_dt<- reactive({
     
     row_select <- sort(input$tblSoil_rows_selected)
     dt <- dtSoil[row_select,  ] #IF row_select ==NULL -> OUTPUT: empty data frame(0 rows/0 cols) WITH headers
-    
-    
     
     #NEW CODE: add prefix per season and per plot
     if(nrow(dt)>0){
@@ -13965,13 +14555,6 @@ server_design_agrofims <- function(input, output, session, values){
       lbl <- NULL
     }
       
-    
-    
-    #NEW CODE 
-    #OLD CODE
-    #lbl <- dt$TraitName
-    #END OLD CODE
-    
     if(length(lbl)==0){
      dt <- data.frame()
     } else if(nrow(fbdesign())==0 && length(lbl)>=1){
@@ -13987,8 +14570,7 @@ server_design_agrofims <- function(input, output, session, values){
     dt 
   })
   
-
-  #############  metadata_dt2 ########################################################
+  #############  Metadata ########################################################
   #experiment
   exp_dt<- reactive({
     id<- map_singleform_values(input = input$experimentId, type = "text input",format = "data.frame", label="Experiment ID")
@@ -14123,201 +14705,196 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   
-  #### Design tab ####################################################################
+  #### Design tab ###############################################################
   #Unit in design
   infounit<- reactive({
-    ifunit<- agdesign::map_singleform_values(input$info_experiment_unit, type="select")
-    if(ifunit==""){
-      out <- data.frame(Factor = c("Information on experimental unit","Width", "Length"), 
-                        Value = c("","","") ,stringsAsFactors = FALSE )
-    }
-    if(ifunit == "plot"){
-     
-      wi <- map_singleform_values(input = input$expt_plot_width, type = "text",format = "vector", label = "Factor") 
-      wunit <- map_singleform_values(input = input$expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
-      len <- map_singleform_values(input = input$expt_plot_length   , type = "text",format = "vector", label = "Factor") 
-      lunit <-  map_singleform_values(input = input$expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
-      wif<- paste(wi, wunit)
-      lenf<-  paste(len, lunit)
-      iou<- data.frame(Factor = "Information on experimental unit", Value = ifunit )
-      ow<- data.frame(Factor = "Experimental plot width", Value = wif )
-      ol<- data.frame(Factor = "Experimental plot length",Value = lenf )
-      out<- rbind(iou, ow, ol)
-      
-    }
-    if(ifunit == "field"){
    
-      wi <- map_singleform_values(input = input$expt_field_width , type = "text",format = "vector", label = "Factor") 
-      wunit <- map_singleform_values(input = input$expt_field_width_unit, type = "combo box",format = "vector", label = "Factor")
-      len <- map_singleform_values(input = input$expt_field_length   , type = "text",format = "vector", label = "Factor") 
-      lunit <-  map_singleform_values(input = input$expt_field_length_unit, type = "combo box",format = "vector", label = "Factor")
-      wif<- paste(wi, wunit)
-      lenf<-  paste(len, lunit)
-      iou<- data.frame(Factor = "Information on experimental unit", Value = ifunit )
-      ow<- data.frame(Factor = "Experimental field width", Value = wif )
-      ol<- data.frame(Factor = "Experimental field length", Value = lenf )
-      out<- rbind(iou,ow, ol)
-    } 
-    if(ifunit == "pot"){
+    if(input$designFieldbook_agrofims=="CRD" ||input$designFieldbook_agrofims=="RCBD"||  input$designFieldbook_agrofims=="FCRD"||
+       input$designFieldbook_agrofims=="FRCBD"){
+     
+      ifunit<- agdesign::map_singleform_values(input$info_experiment_unit, type="select")
+      if(ifunit==""){
+        out <- data.frame(Factor = c("Information on experimental unit","Width", "Length"), 
+                          Value = c("","","") ,stringsAsFactors = FALSE )
+      }
+      if(ifunit == "plot"){
+        
+        wi <- map_singleform_values(input = input$expt_plot_width, type = "text",format = "vector", label = "Factor") 
+        wunit <- map_singleform_values(input = input$expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
+        len <- map_singleform_values(input = input$expt_plot_length   , type = "text",format = "vector", label = "Factor") 
+        lunit <-  map_singleform_values(input = input$expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
+        wif<- paste(wi, wunit)
+        lenf<-  paste(len, lunit)
+        iou<- data.frame(Factor = "Information on experimental unit", Value = ifunit )
+        ow<- data.frame(Factor = "Experimental plot width", Value = wif )
+        ol<- data.frame(Factor = "Experimental plot length",Value = lenf )
+        out<- rbind(iou, ow, ol)
+        
+      }
+      if(ifunit == "field"){
+        
+        wi <- map_singleform_values(input = input$expt_field_width , type = "text",format = "vector", label = "Factor") 
+        wunit <- map_singleform_values(input = input$expt_field_width_unit, type = "combo box",format = "vector", label = "Factor")
+        len <- map_singleform_values(input = input$expt_field_length   , type = "text",format = "vector", label = "Factor") 
+        lunit <-  map_singleform_values(input = input$expt_field_length_unit, type = "combo box",format = "vector", label = "Factor")
+        wif<- paste(wi, wunit)
+        lenf<-  paste(len, lunit)
+        iou<- data.frame(Factor = "Information on experimental unit", Value = ifunit )
+        ow<- data.frame(Factor = "Experimental field width", Value = wif )
+        ol<- data.frame(Factor = "Experimental field length", Value = lenf )
+        out<- rbind(iou,ow, ol)
+      } 
+      if(ifunit == "pot"){
+        
+        di <- map_singleform_values(input = input$pot_diameter , type = "text",format = "vector", label = "Factor") 
+        dunit <- map_singleform_values(input = input$pot_diameter_unit, type = "combo box",format = "vector", label = "Factor")
+        de <- map_singleform_values(input = input$pot_depth   , type = "text",format = "vector", label = "Factor") 
+        deunit <-  map_singleform_values(input = input$pot_depth_unit, type = "combo box",format = "vector", label = "Factor")
+        dif<- paste(di, dunit)
+        def<-  paste(de, deunit)
+        iou<- data.frame(Factor = "Information on experimental unit", Value = ifunit )
+        ow<- data.frame(Factor = "Experimental pot width", Value = dif )
+        ol<- data.frame(Factor = "Experimental plot length", Value = def )
+        out<- rbind(iou, ow, ol)
+        
+      }
       
-      di <- map_singleform_values(input = input$pot_diameter , type = "text",format = "vector", label = "Factor") 
-      dunit <- map_singleform_values(input = input$pot_diameter_unit, type = "combo box",format = "vector", label = "Factor")
-      de <- map_singleform_values(input = input$pot_depth   , type = "text",format = "vector", label = "Factor") 
-      deunit <-  map_singleform_values(input = input$pot_depth_unit, type = "combo box",format = "vector", label = "Factor")
-      dif<- paste(di, dunit)
-      def<-  paste(de, deunit)
-      iou<- data.frame(Factor = "Information on experimental unit", Value = ifunit )
-      ow<- data.frame(Factor = "Experimental pot width", Value = dif )
-      ol<- data.frame(Factor = "Experimental plot length", Value = def )
-      out<- rbind(iou, ow, ol)
-      
     } 
+    else if(input$designFieldbook_agrofims=="SPRCBD"){
+    
+      ## Main ##
+      wi_main <- map_singleform_values(input = input$sprcbd_main_expt_plot_width, type = "text",format = "vector", label = "Factor") 
+      wunit_main <- map_singleform_values(input = input$sprcbd_main_expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
+      len_main <- map_singleform_values(input = input$sprcbd_main_expt_plot_length   , type = "text",format = "vector", label = "Factor") 
+      lunit_main <-  map_singleform_values(input = input$sprcbd_main_expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
+      wif_main <- paste(wi_main, wunit_main)
+      lenf_main <-  paste(len_main, lunit_main)
+      
+      iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
+      ow_main<- data.frame(Factor = "Experimental plot width", Value = wif_main )
+      ol_main<- data.frame(Factor = "Experimental plot length",Value = lenf_main )
+      
+      ## Sub plot ##
+      
+      wi_sub <- map_singleform_values(input = input$sprcbd_sub_expt_plot_width, type = "text",format = "vector", label = "Factor") 
+      wunit_sub <- map_singleform_values(input = input$sprcbd_sub_expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
+      len_sub <- map_singleform_values(input = input$sprcbd_sub_expt_plot_length   , type = "text",format = "vector", label = "Factor") 
+      lunit_sub <-  map_singleform_values(input = input$sprcbd_sub_expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
+      wif_sub <- paste(wi_sub, wunit_sub)
+      lenf_sub <-  paste(len_sub, lunit_sub)
+      
+      iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
+      ow_sub<- data.frame(Factor = "Experimental plot width", Value = wif_sub )
+      ol_sub<- data.frame(Factor = "Experimental plot length",Value = lenf_sub )
+      
+      ## Consolidation of all main, sub plot
+      out_main <- rbind(iou_main, ow_main, ol_main)
+      out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      out<- rbind(out_main, out_sub)
+      
+        
+    } 
+    else if(input$designFieldbook_agrofims=="SPSP"){
+     
+      wi_main <- map_singleform_values(input = input$spsp_main_expt_plot_width, type = "text",format = "vector", label = "Factor") 
+      wunit_main <- map_singleform_values(input = input$spsp_main_expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
+      len_main <- map_singleform_values(input = input$spsp_main_expt_plot_length   , type = "text",format = "vector", label = "Factor") 
+      lunit_main <-  map_singleform_values(input = input$spsp_main_expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
+      wif_main <- paste(wi_main, wunit_main)
+      lenf_main <-  paste(len_main, lunit_main)
+      
+      iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
+      ow_main<- data.frame(Factor = "Experimental plot width", Value = wif_main )
+      ol_main<- data.frame(Factor = "Experimental plot length",Value = lenf_main )
+      
+      ## Sub plot ##
+      
+      wi_sub <- map_singleform_values(input = input$spsp_sub_expt_plot_width, type = "text",format = "vector", label = "Factor") 
+      wunit_sub <- map_singleform_values(input = input$spsp_sub_expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
+      len_sub <- map_singleform_values(input = input$spsp_sub_expt_plot_length   , type = "text",format = "vector", label = "Factor") 
+      lunit_sub <-  map_singleform_values(input = input$spsp_sub_expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
+      wif_sub <- paste(wi_sub, wunit_sub)
+      lenf_sub <-  paste(len_sub, lunit_sub)
+      
+      iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
+      ow_sub<- data.frame(Factor = "Experimental sub plot width", Value = wif_sub )
+      ol_sub<- data.frame(Factor = "Experimental sub plot length",Value = lenf_sub )
+      
+      ## Sub-Sub Plot ##
+      
+      wi_subsub <- map_singleform_values(input = input$spsp_subsub_expt_plot_width, type = "text",format = "vector", label = "Factor") 
+      wunit_subsub <- map_singleform_values(input = input$spsp_subsub_expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
+      len_subsub <- map_singleform_values(input = input$spsp_subsub_expt_plot_length   , type = "text",format = "vector", label = "Factor") 
+      lunit_subsub <-  map_singleform_values(input = input$spsp_subsub_expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
+      wif_subsub <- paste(wi_subsub, wunit_subsub)
+      lenf_subsub <-  paste(len_subsub, lunit_subsub)
+      
+      iou_subsub<- data.frame(Factor = "Information on experimental unit", Value = "Sub-sub plot" )
+      ow_subsub<- data.frame(Factor = "Experimental sub-sub plot width", Value = wif_subsub )
+      ol_subsub<- data.frame(Factor = "Experimental sub-sub plot length",Value = lenf_subsub )
+      
+      ## Consolidation of all main, sub and sub-sub plot
+      out_main <- rbind(iou_main, ow_main, ol_main)
+      out_sub <- rbind(iou_sub, ow_sub, ol_sub)
+      out_subsub <- rbind(iou_subsub, ow_subsub, ol_subsub)
+      out <- rbind(out_main, out_sub,out_subsub)
+      
+    }
+    
     out
   })
   
-  
+  #### Integration of all the Metadata ##########################################
   globalMetadata<- function(){
 
      gtable <- rbind( exp_dt(), fa_dt(), pe(), epl(), pers_dt(),crop_dt(), infounit(),
                       #TODO:: MEJORAR
                       #fct_lvl_dt(),
                       site_dt())
-     #gtable<- data.table::rbindlist(glist,fill = TRUE)
-     #gtable <- as.data.frame(gtable,stringAsFactors=FALSE)
+
      names(gtable)[1]<- "Parameter"
      gtable
    }
   
    
-  #Fieldbook design (statistical design)
+  ### Fieldbook design (statistical design) ########################################
   fbdesign <- function(){
-    
   
-    fct_lvl <- function(){
-      #Type of design                                         
-      dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
-      tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
-      
-      path <- fbglobal::get_base_dir()
-      fp <- file.path(path, "listFactors_v7.rds")
-      factors <- as.data.frame(readRDS(fp))
-      
-      if(tf=="yes"){
-        #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
-        id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
-        #id_rand<- id_ff_rand
-        fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
-        id_type_dt <- dplyr::left_join(fg, factors) #get a table with the intersection
-        flvl <- map_level_values(input= input, isf = tf , id_type_dt= id_type_dt, id_rand = id_ff_rand, lbl= "Level")
-        ##NUEVO CODE
-        soil_flvl <- get_soil_factor_level(id_ff_rand, AllInputs()) 
-        
-        if(length(soil_flvl)>0){
-          for(i in 1:length(flvl)){
-            for( j in 1:length(soil_flvl)){
-              print(paste("yes-",j))
-              if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
-                flvl[[i]] <- soil_flvl[[j]]
-              }
-            }
-          }
-        }
-        ##END NUEVO CODE
-        
-        
-      }  
-      else if(tf=="no"){ 
-        #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
-        ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
-        id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
-        #id_rand <- id_nff_rand
-        fg<- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
-        id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
-        flvl <- map_level_values(input= input,isf = tf, id_type_dt= id_type_dt, 
-                                 id_rand = id_nff_rand, ntrt= ntrt , lbl= "Level")
-        soil_flvl <- get_soil_factor_level(id_nff_rand, AllInputs()) 
-        ### Incorporate soil fertility inpust in the table, in case it are necessary
-        
-        if(length(soil_flvl)>0){
-          for(i in 1:length(flvl)){
-            for( j in 1:length(soil_flvl)){
-              print(paste("yes-",j))
-              if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
-                flvl[[i]] <- soil_flvl[[j]]
-              }
-            }
-          }
-        }
-        
-      }
-      out<- list(fg=fg, flvl= flvl)
-      
-    }    
-    
-    fct_lvl<- fct_lvl()
-    
-    
-    
-    dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
-    #print(dsg)
-    tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
-    #print(tf)
-    fct<- paste(fct_lvl$fg$GROUP, fct_lvl$fg$FACTOR, sep = "-" )#get factor labels
-    fct <- paste(fct, 1:length(fct), sep="-f")
-    #print(fct)
-    flvl<- fct_lvl$flvl #get factor's levels
-    #print(flvl)
-    
+    design <- tolower(input$designFieldbook_agrofims) #lowercase
+    print(design)
+  
     try({
-      if(tf=="yes"){
-        
-        if(dsg!="sprcbd"){
-          nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
-          fb <- try(st4gi::cr.f(fnames = fct, flevels = flvl, design = dsg, nrep = nrep)$book)
-          if(dsg=="crd"){
-            names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT") #rename first 4 cols
-          } 
-          if(dsg=="rcbd"){
-            names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")  #rename first 5 cols
-          }
-        }
-        
-        if(dsg=="sprcbd"){
-          nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
-          fb <- try( st4gi::cr.spld(fnames = fct, flevels = flvl, nb = nrep)$book)
-          names(fb)[1:6] <- c("BLOCK" ,"PLOT","SUBPLOT","ROW","COL","TREATMENT")  #rename first 5 cols
-        }
-        # if(dsg=="strip"){
-        #   nrep <- as.numeric(input$designFieldbook_agrofims_r_y) #nrep
-        #   fb <- try( st4gi::cr.strd(fnames = fct, flevels = flvl, nb = nrep)$book)
-        #   names(fb)[1:6] <- c("BLOCK" ,"PLOT","SUBPLOT","ROW","COL","TREATMENT")  #rename first 5 cols
-        # }
-        
-        
-      }
-      if(tf=="no"){
-        
-        nrep <- as.numeric(input$designFieldbook_agrofims_r_n)  #for blocks and reps (crd and rcbd)
-        ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
-        nfactor <- length(fct) #number of factors
-        print("n factor")
-        flvl<- do.call("paste", c(flvl, sep = "-"))
-        #if(nfactor==1){
-          trt <- unlist(flvl)
-          if(dsg=="crd"){
-            fb<- try(st4gi::cr.crd(geno = trt,nrep = nrep )$book)
-            names(fb)[1:4] <- c("PLOT","ROW","COL","TREATMENT")
-          } 
-          if(dsg=="rcbd"){
-            fb<- try(st4gi::cr.rcbd(geno = trt, nb = nrep)$book)
-            names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")
-          }
-        #} 
-      }
-      fb
-    })
+    
+    if(design=="fcrd"){
+      rep <- as.integer(input$fcrd_rep)
+      flbl<- get_factors_design(allinputs = AllInputs(),  design = "fcrd")
+      flvl<- get_levels_design(allinputs = AllInputs(), design = "fcrd", format= "list")
+      fb<- fbdesign_agrofims(design=design, rep=rep,  fnames= flbl, flevels= flvl) 
+    } 
+    else if(design=="frcbd"){
+      block<- as.integer(input$frcbd_block)
+      flbl<- get_factors_design(allinputs = AllInputs(),  design = "frcbd")
+      flvl<- get_levels_design(allinputs = AllInputs(), design = "frcbd", format= "list")
+      fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl) 
+    } else if(design =="sprcbd"){
+    
+      block <- as.integer(input$sp1_block)
+      flbl<- get_factors_design(allinputs = AllInputs(),  design = "sprcbd")
+      flvl<- get_levels_design(allinputs = AllInputs(), design = "sprcbd", format= "list")
+      fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl) 
+      
+    } else if(design =="spsp"){
+      block<- as.integer(input$spsp2_block)
+      flbl<- get_factors_design(allinputs = AllInputs(),  design = "spsp")
+      flvl<- get_levels_design(allinputs = AllInputs(), design = "spsp", format= "list")
+      fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl)
+    }
+    
+    fb
+    }) #end try
   }
   
+  ### Site data #####################################################################
   site_dt <- reactive({
 
     vsitetype <- ""
@@ -14390,6 +14967,7 @@ server_design_agrofims <- function(input, output, session, values){
 
   })
   
+  ### 
   fct_lvl_dt <- function(){ #reactive({
     
     dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
@@ -14429,6 +15007,7 @@ server_design_agrofims <- function(input, output, session, values){
   #})
   }
   
+  ### Trait variables data #####################################################################
   traits_dt <- function(){
     
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
@@ -14441,13 +15020,9 @@ server_design_agrofims <- function(input, output, session, values){
                          "TraitUnit","CropMeasurementPerSeason",
                          "CropMeasurementPerPlot","TraitAlias",
                          "TraitDataType","TraitValidation","VariableId")
-        
-        #a<- traitsVals$Data
-        #a <- fg()
-        #row_select <- input$dt_rows_selected
+
         row_select <- input$tblMono_rows_selected
         row_select <- sort(row_select)
-        #aux_dt <- dplyr::filter(traitsVals$Data, Status=="Selected")
         aux_dt<- a[row_select,]
         #Remove Status column
         aux_dt$Status <- NULL
@@ -14632,6 +15207,7 @@ server_design_agrofims <- function(input, output, session, values){
     return(a)
   }
   
+  ### Fieldbook + Traits for Monocrop ##########################################################
   fbdesign_traits <- reactive({
     
     fb <- fbdesign()
@@ -14676,6 +15252,8 @@ server_design_agrofims <- function(input, output, session, values){
     fb
     
   })
+  
+  ### Fieldbook + Traits for Intercrop ##########################################################
   fbdesign_inter_traits <- reactive({
     
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Intercrop") 
@@ -14727,6 +15305,7 @@ server_design_agrofims <- function(input, output, session, values){
     }
     fb 
   })
+  
    
   pheno_inter_vars<- reactive({
     
@@ -14916,97 +15495,7 @@ server_design_agrofims <- function(input, output, session, values){
         
       }
       
-      ###OLDER PHENO INTER VAR CODE ####
-      
-      # id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
-      # circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
-      # 
-      # print(circm)
-      # 
-      # dt<-list()
-      # crop_oficial <- c("Cassava","Common bean","Maize",  "Potato",  "Rice",  "Sweetpotato",  "Wheat")
-      # #phe_row_selected<-NULL
-      # 
-      # #iterate per crop
-      # for(i in 1:length(circm)){
-      #   
-      #   #TODO: check when crop_row_selected is zero length
-      #   if(circm[i]=="Cassava"){
-      #     phe_row_selected<-input$tblInterPheCassava_rows_selected
-      #     dtPhenoInter <-dtInterPheCassava
-      #   }
-      #   if(circm[i]=="Common bean"){
-      #     print("omar")
-      #     phe_row_selected<-input$tblInterPheCommon_rows_selected
-      #     dtPhenoInter <-dtInterPheCommon
-      #   }
-      #   if(circm[i]=="Maize"){
-      #     phe_row_selected<-input$tblInterPheMaize_rows_selected
-      #     dtPhenoInter <-dtInterPheMaize
-      #   }
-      #   if(circm[i]=="Potato"){
-      #     phe_row_selected<-input$tblInterPhePotato_rows_selected
-      #     dtPhenoInter <-dtInterPhePotato
-      #   }
-      #   if(circm[i]=="Rice"){
-      #     phe_row_selected<-input$tblInterPheRice_rows_selected
-      #     dtPhenoInter <-dtInterPheRice
-      #   }
-      #   if(circm[i]=="Sweetpotato"){
-      #     phe_row_selected<-input$tblInterPheSweetpotato_rows_selected
-      #     dtPhenoInter <-dtInterPheSweetpotato
-      #   }
-      #   if(circm[i]=="Wheat"){
-      #     phe_row_selected<-input$tblInterPheWheat_rows_selected
-      #     dtPhenoInter <-dtInterPheWheat
-      #   }  
-      #   if(!is.element(circm[i],crop_oficial)){
-      #     pos<- i
-      #     
-      #     if(i==1){
-      #       tbl <- dtInterPheOther1
-      #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-      #     }else if(i==2){
-      #       tbl <- dtInterPheOther2
-      #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-      #     }else if(i==3){
-      #       tbl <- dtInterPheOther3
-      #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-      #     }else if(i==4){
-      #       tbl<- dtInterPheOther4
-      #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-      #     }else if(i==5){
-      #       tbl <- dtInterPheOther5
-      #       phe_row_selected<- input[[paste0("tblInterPheOther",i,"_rows_selected")]]
-      #     }
-      #     dtPhenoInter <- tbl
-      #     
-      #   }
-      #   
-      #   if(!is.null(phe_row_selected)){  
-      #     dt[[i]] <- intercrop_phe_vars(dtPhenoInter, phe_row_selected) 
-      #     dt[[i]]$Crop <- circm[i]
-      #     
-      #     colnames(dt[[i]]) <- c("Crop","Group","Subgroup","Measurement",
-      #                         "TraitUnit","CropMeasurementPerSeason",
-      #                         "CropMeasurementPerPlot","TraitName", "TraitAlias",
-      #                         "TraitDataType","TraitValidation","VariableId")
-      #     
-      #     
-      #     dt[[i]]$CropMeasurementPerSeason<-1
-      #     dt[[i]]$CropMeasurementPerPlot<-1
-      #   } else {
-      #     dt[[i]] <- data.frame(Status="",Crop="", Group="", Subgroup="", Measurement="",
-      #                           Measurement_2="",Measurement_3="",
-      #                           TraitUnit="", TraitAlias="", TraitDataType="",
-      #                           TraitValidation="", VariableId="",
-      #                           v1= "", v2="", v3="")
-      #   }
-      # }
-      # names(dt) <- circm
-      #a<-dt
-      ##END OLDER CODE INTERVAR 
-      
+     
     } 
   dt
     
@@ -15050,27 +15539,14 @@ server_design_agrofims <- function(input, output, session, values){
 
        withProgress(message = 'Downloading fieldbook', value = 0, {
         
-         # row_sel<- input$tblMono_rows_selected
-         # row_sel<- sort(row_sel)
-         # monito <<- dtMonocrop[row_sel,]
-         
          ai <<- AllInputs()
-         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         # x <- reactiveValuesToList(input)
-         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         x <- reactiveValuesToList(input)
+         saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
 
-        
-         # 
-         # trp <<- traits_dt()
-         #          
-         # res2<<- fbdesign_inter_traits()
-         # 
-         # ft <<- pheno_dt()
-         # 
-         # pjl <<- pheno_inter_vars()
          
         if(class(fbdesign())=="try-error"){
-           shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
+           shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: There is a missing factors or level"), styleclass = "danger")
            fname <- paste(file,"xlsx",sep=".")
            wb <- createWorkbook()
            openxlsx::addWorksheet(wb, "NoData", gridLines = TRUE)
@@ -15082,109 +15558,109 @@ server_design_agrofims <- function(input, output, session, values){
         else {
          
           ###FACTOR TABLE ###
-          fct_lvl <- function(){
-            #Type of design                                         
-            dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
-            tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
-            
-            path <- fbglobal::get_base_dir()
-            fp <- file.path(path, "listFactors_v7.rds")
-            factors <- as.data.frame(readRDS(fp))
-            
-            if(tf=="yes"){
-              #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
-              id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
-              #id_rand<- id_ff_rand
-              fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
-              id_type_dt <- dplyr::left_join(fg, factors) #get a table with the intersection
-              flvl <- map_level_values(input= input, isf = tf , id_type_dt= id_type_dt, id_rand = id_ff_rand, lbl= "Level")
-              ##NUEVO CODE
-              soil_flvl <- get_soil_factor_level(id_ff_rand, AllInputs()) 
-              
-              if(length(soil_flvl)>0){
-                for(i in 1:length(flvl)){
-                  for( j in 1:length(soil_flvl)){
-                    print(paste("yes-",j))
-                    if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
-                      flvl[[i]] <- soil_flvl[[j]]
-                    }
-                  }
-                }
-              }
-              ##END NUEVO CODE
-              
-              
-            }  
-            else if(tf=="no"){ 
-              #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
-              ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
-              id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
-              #id_rand <- id_nff_rand
-              fg<- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
-              id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
-              flvl <- map_level_values(input= input,isf = tf, id_type_dt= id_type_dt, 
-                                       id_rand = id_nff_rand, ntrt= ntrt , lbl= "Level")
-              soil_flvl <- get_soil_factor_level(id_nff_rand, AllInputs()) 
-              ### Incorporate soil fertility inpust in the table, in case it are necessary
-              
-              if(length(soil_flvl)>0){
-                for(i in 1:length(flvl)){
-                  for( j in 1:length(soil_flvl)){
-                    print(paste("yes-",j))
-                    if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
-                      flvl[[i]] <- soil_flvl[[j]]
-                    }
-                  }
-                }
-              }
-              
-            }
-            out<- list(fg=fg, flvl= flvl)
-            
-          }   
-          bl<- fct_lvl() 
-          
-          id<- bl$fg$NUM
-          value<-NULL
-          for(i in 1:length(bl$flvl)){
-            value[[i]]<- paste(bl$flvl[[i]], collapse=", ")  
-          }
-          bl$fg$value<- unlist(value)
-          
-          label_fct <-  bl$fg$NUM
-          factorcito <- bl$fg$FACTOR
-          label_level<- paste("Factor ",1:length(bl$fg$value)," Levels", sep="")
-          levelitos <- bl$fg$value
-          
-          dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
-          dsg_dt <- data.frame(Parameter=c("Experimental design label","Experimental design abbrevation"), 
-                               Value= c(dsg, experimental_design_label(dsg)[1]) ,stringsAsFactors = FALSE )
-         
-          
-          
-          # dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
-          # tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
-          # if(tf=="yes"){
-          #   nrep <- as.numeric(input$designFieldbook_agrofims_r_y)
-          #   lbl_dsg<- experimental_design_label(dsg)[1]
-          # }else{
-          #   nrep <- as.numeric(input$designFieldbook_agrofims_r_n)
-          #   lbl_dsg <- experimental_design_label(dsg)[1]
-          # }
-          # dt_dsg <- data.frame(Factor = c("Experimental design","Experimental design abbreviation", "Number of repetition or blocks"),
-          #                      Value = c(lbl_dsg, dsg, nrep))
+          # fct_lvl <- function(){
+          #   #Type of design                                         
+          #   dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD") %>% tolower()
+          #   #tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
+          #   
+          #   path <- fbglobal::get_base_dir()
+          #   fp <- file.path(path, "listFactors_v7.rds")
+          #   factors <- as.data.frame(readRDS(fp))
+          #   
+          #   if(tf=="yes"){
+          #     #nrep <-   agdesign::map_singleform_values(input$designFieldbook_agrofims_r_y, type = "combo box", default = "2" ) %>% as.numeric()
+          #     id_ff_rand <- getAddInputId(designVars$ids_FULL, "FF_", "") 
+          #     #id_rand<- id_ff_rand
+          #     fg <- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_ff_rand, lbl = "Factor")
+          #     id_type_dt <- dplyr::left_join(fg, factors) #get a table with the intersection
+          #     flvl <- map_level_values(input= input, isf = tf , id_type_dt= id_type_dt, id_rand = id_ff_rand, lbl= "Level")
+          #     ##NUEVO CODE
+          #     soil_flvl <- get_soil_factor_level(id_ff_rand, AllInputs()) 
+          #     
+          #     if(length(soil_flvl)>0){
+          #       for(i in 1:length(flvl)){
+          #         for( j in 1:length(soil_flvl)){
+          #           print(paste("yes-",j))
+          #           if(length(flvl[[i]])==1 &&  flvl[[i]] == names(soil_flvl[j]) ){
+          #             flvl[[i]] <- soil_flvl[[j]]
+          #           }
+          #         }
+          #       }
+          #     }
+          #     ##END NUEVO CODE
+          #     
+          #     
+          #   }  
+          #   else if(tf=="no"){ 
+          #     #nrep <- agdesign::map_singleform_values(input$designFieldbook_agrofims_r_n, type = "combo box", default = "2" ) %>% as.numeric() #for blocks and reps (crd and rcbd)
+          #     ntrt <- agdesign::map_singleform_values(input$designFieldbook_agrofims_t_n, type = "combo box", default = "2" ) %>% as.numeric()
+          #     id_nff_rand <- getAddInputId(designVars$ids_NFULL, "NFF_", "") 
+          #     #id_rand <- id_nff_rand
+          #     fg<- map_fgroup_values(input= input, id_chr ="sel_factor_", id_rand = id_nff_rand, lbl = "Factor") 
+          #     id_type_dt <- dplyr::left_join( fg, factors) #get a table with the intersection
+          #     flvl <- map_level_values(input= input,isf = tf, id_type_dt= id_type_dt, 
+          #                              id_rand = id_nff_rand, ntrt= ntrt , lbl= "Level")
+          #     soil_flvl <- get_soil_factor_level(id_nff_rand, AllInputs()) 
+          #     ### Incorporate soil fertility inpust in the table, in case it are necessary
+          #     
+          #     if(length(soil_flvl)>0){
+          #       for(i in 1:length(flvl)){
+          #         for( j in 1:length(soil_flvl)){
+          #           print(paste("yes-",j))
+          #           if(length(unique(flvl[[i]]))==1 &&  flvl[[i]][1] == names(soil_flvl[j]) ){
+          #             flvl[[i]] <- soil_flvl[[j]]
+          #           }
+          #         }
+          #       }
+          #     }
+          #     
+          #   }
+          #   out<- list(fg=fg, flvl= flvl)
+          #   
+          # }   
+          # bl<- fct_lvl() 
           # 
-          
-          dtf <- data.frame(Parameter=label_fct, Value=factorcito,stringsAsFactors = FALSE)
-          dtl <- data.frame(Parameter= label_level, Value= levelitos,stringsAsFactors = FALSE)
-        
-          dtot <<- rbind(dsg_dt, dtf, dtl)
-          
-          dtot <- dtot %>% arrange(Parameter)
-          
+          # id<- bl$fg$NUM
+          # value<-NULL
+          # for(i in 1:length(bl$flvl)){
+          #   value[[i]]<- paste(bl$flvl[[i]], collapse=", ")  
+          # }
+          # bl$fg$value<- unlist(value)
+          # 
+          # label_fct <-  bl$fg$NUM
+          # factorcito <- bl$fg$FACTOR
+          # label_level<- paste("Factor ",1:length(bl$fg$value)," Levels", sep="")
+          # levelitos <- bl$fg$value
+          # 
+          # dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
+          # dsg_dt <- data.frame(Parameter=c("Experimental design label","Experimental design abbrevation"), 
+          #                      Value= c(dsg, experimental_design_label(dsg)[1]) ,stringsAsFactors = FALSE )
+          # 
+          # 
+          # 
+          # # dsg <- agdesign::map_singleform_values(input$designFieldbook_agrofims, type="select",default = "CRD",format = "vector" )
+          # # tf <- agdesign::map_singleform_values(input$fullFactorialRB,type = "select", default = "Yes") %>% tolower()
+          # # if(tf=="yes"){
+          # #   nrep <- as.numeric(input$designFieldbook_agrofims_r_y)
+          # #   lbl_dsg<- experimental_design_label(dsg)[1]
+          # # }else{
+          # #   nrep <- as.numeric(input$designFieldbook_agrofims_r_n)
+          # #   lbl_dsg <- experimental_design_label(dsg)[1]
+          # # }
+          # # dt_dsg <- data.frame(Factor = c("Experimental design","Experimental design abbreviation", "Number of repetition or blocks"),
+          # #                      Value = c(lbl_dsg, dsg, nrep))
+          # # 
+          # 
+          # dtf <- data.frame(Parameter=label_fct, Value=factorcito,stringsAsFactors = FALSE)
+          # dtl <- data.frame(Parameter= label_level, Value= levelitos,stringsAsFactors = FALSE)
+          # 
+          # dtot <- rbind(dsg_dt, dtf, dtl)
+          # 
+          # dtot <- dtot %>% arrange(Parameter)
+          # 
           ############
-         #gmetadata <- globalMetadata() #metadata_dt2()
-          gmetadata <- rbind(globalMetadata(), dtot)
+          gmetadata <- globalMetadata()
+          #gmetadata <- rbind(globalMetadata(), dtot)
           
           
         fname <- paste(file,"xlsx",sep=".")
@@ -15249,14 +15725,6 @@ server_design_agrofims <- function(input, output, session, values){
              }
            }
            
-           # id_ic_rand <- getAddInputId(intercropVars$ids, "IC_", "") 
-           # circm <- map_values(input = input, id_chr="cropCommonNameInter_",id_ic_rand, format = "vector", lbl= "Select crop")
-           # for(i in 1:length(id_ic_rand)){
-           # incProgress(7/20,message = "Adding fieldbook data...")
-           # openxlsx::addWorksheet(wb, paste0("Fieldbook-",circm[i]), gridLines = TRUE)
-           # openxlsx::writeDataTable(wb, paste0("Fieldbook-",circm[i]), 
-           #                          x = fbdesign_inter_traits()[[ circm[i] ]],
-           #                          colNames = TRUE, withFilter = FALSE)
          }
          
          #Experimental conditions

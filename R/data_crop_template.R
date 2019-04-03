@@ -339,3 +339,14 @@ NULL
 #' @format data.frame
 #' @source CGIAR Big Data Platform, Bioversity, International Potato Center, CIAT,  CGIAR
 NULL
+
+#' @name dtfactordesign
+#' @title dtfactordesign
+#' @docType data
+#' @aliases dtfactordesign
+#' @description Table of factor and levels for the design tab
+#' @references This data is related to AGROFIMS crop template
+#' @usage dtfactordesign
+#' @format data.frame
+#' @source CGIAR Big Data Platform, Bioversity, International Potato Center, CIAT,  CGIAR
+NULL
