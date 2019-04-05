@@ -67,9 +67,10 @@ get_factors_design <- function(allinputs, design="fcrd",duplicate= TRUE){
   lookup <- paste0(design,"_sel_factor_")
   
   dt <- allinputs %>%  filter(!str_detect(id, "button")) %>%
-    filter(!str_detect(id, "-selectized")) %>%
-    filter(str_detect(id, lookup))
-  
+                      filter(!str_detect(id, "-selectized")) %>%
+                      filter(str_detect(id, lookup))
+  print(dt)
+          
   out<- dt$values
   if(duplicate){
     out<- paste0(out,"_f", 1:length(out))
@@ -107,18 +108,61 @@ get_levels_design <- function(allinputs, design="fcrd", format=c("list","data.fr
   out
 }
 
-# Get units from design tab ###############################################################
-# get_levels_units_design<- function(flevels, design="frcbd"){
-#   
-#   lookup<- paste0(design, "_lvl_unit")
-#   dtunits <- allinputs %>%   
-#         filter(!str_detect(id, "-selectized")) %>% 
-#         filter(str_detect(id, lookup))
-#   
-#   stringdist_left_join(lvl, units, by ="id", max_dist = 5)
-#   
-#   
-#   
-# }
+## Get units from design tab ###############################################################
+get_levels_units_design<- function(allinputs, dtlevels, design="frcbd"){
 
+  lookup<- paste0(design, "_lvl_unit")
+  dtunits <- allinputs %>% filter(!str_detect(id, "-selectized")) %>%
+              filter(str_detect(id, lookup))
+  print(dtunits)
+  
+  out <- stringdist_left_join(dtlevels, units, by ="id", max_dist = 5)
+  
+}
+
+get_levels_design2 <- function(allinputs, factors, design="fcrd", format=c("list","data.frame")){
+  
+  format<- match.arg(format)
+  
+  lookup<- paste0(design,"_lvl_")
+  dt <- allinputs %>%   dplyr::filter(!str_detect(id, "add")) %>%
+                        dplyr::filter(!str_detect(id, "button")) %>%
+                        dplyr::filter(!str_detect(id, "unit")) %>% 
+                        dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                        dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                        dplyr::filter(str_detect(id, lookup))
+  
+  out <- vector(mode="list",length = length(factors))
+  a<-NULL
+  for(i in 1:length(factors)){
+    out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup,i)))
+    out[[i]] <-  out[[i]]$values
+    #lenght equal to 1 when type form is text input or combo.
+    if(length(out[[i]])==1){
+      print("1")
+      out[[i]]<- strsplit(out[[i]],split= ", ")[[1]]
+      #Detect Others
+      if( nrow(dt %>% dplyr::filter(str_detect(id, paste0(lookup,"other_",i))))>=1)  {
+        
+        a <- allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"other_",i)))
+        a<- a$values
+        a <- strsplit(a,split= ", ")[[1]]
+        out[[i]]<- append(out[[i]], a)
+        out[[i]]<- setdiff(out[[i]],"Other") #remove other value from vector
+      }
+      #Detect Units
+      if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_",i))))>=1 ){
+        
+        u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+                          dplyr::filter(str_detect(id,  paste0(lookup, "unit_",i) ))
+        u<- u$values
+        out[[i]]<- paste0(out[[i]], u)
+      }
+    }
+  }
+  if(format=="data.frame"){
+   print("tranform to data.frame")
+  }
+  out
+}
 

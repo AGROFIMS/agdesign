@@ -4684,7 +4684,7 @@ server_design_agrofims <- function(input, output, session, values){
   insertBoxFullFactorialDuplicate <- function(factor){ #FUNCION DE DUPLICAR
     str_id <- stri_rand_strings(1, 8,  '[A-Z]')
     id <- match(paste0("FF_", factor), designVars$ids_FULL) #encuentra la posicion del factor de la lista de los IDs
-    
+    print(id)
     len <- length(designVars$ids_FULL)
     left_side <- designVars$ids_FULL[1:id]
     right_side <- NULL
@@ -5637,6 +5637,7 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Database
   factores <- agdesign::dtfactordesign   #agdesign::dtfactordesign  #readxl::read_excel("FACTOR_V9.xlsx")
+  
   #factores<- gsheet::gsheet2tbl("https://docs.google.com/spreadsheets/d/1M5KA4JTqd1zdv1p-Gu5kfsLNi8WHWAyCMvCNBDa9G_Y/edit#gid=1932177125")
   #dtf<- factores
   dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
@@ -5751,6 +5752,7 @@ server_design_agrofims <- function(input, output, session, values){
                 )
               ),
               fluidRow(id = paste0(design, "_levelSelection_aux_", index)),
+              fluidRow(id = paste0(design, "_levelSelOther_aux_", index)),
               fluidRow(id = paste0(design,"_note_aux_",index))
             )
           ),
@@ -5774,6 +5776,26 @@ server_design_agrofims <- function(input, output, session, values){
     isolate(updateLevelSelectionFAC(index, value, design = "fcrd"))
   })
   
+  observeEvent(input$levelsFCRD,{
+    vars <- unlist(strsplit(input$levelsFCRDid, "_"))
+    index <- vars[3]
+    num_levels <-  input[[input$levelsFCRDid]]
+    factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
+    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    
+    drawDateComboLevelGEN(order = index, dt = dt, design = "fcrd", 
+                          input_choice = input[[paste0("fcrd_sel_factor_", index)]], num_levels)
+    shinyjs::show(id = paste0("fcrd_numLevels_", index))
+  })
+  
+  observeEvent(input$otherFCRD,{
+    vars <- unlist(strsplit(input$otherFCRDid, "_"))
+    index <- vars[3]
+    choises <-  input[[input$otherFCRDid]]
+    
+    updateLevelSelOtherFAC(index, choises, design = "fcrd")
+  })
+  
   # FRCBD
   observeEvent(input$selectFRCBD, {
     vars <- unlist(strsplit(input$selectFRCBDid, "_"))
@@ -5783,6 +5805,26 @@ server_design_agrofims <- function(input, output, session, values){
     value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR") 
     
     isolate(updateLevelSelectionFAC(index, value, design = "frcbd"))
+  })
+  
+  observeEvent(input$levelsFRCBD,{
+    vars <- unlist(strsplit(input$levelsFRCBDid, "_"))
+    index <- vars[3]
+    num_levels <-  input[[input$levelsFRCBDid]]
+    factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
+    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    
+    drawDateComboLevelGEN(order = index, dt = dt, design = "frcbd", 
+                          input_choice = input[[paste0("frcbd_sel_factor_", index)]], num_levels)
+    shinyjs::show(id = paste0("frcbd_numLevels_", index))
+  })
+  
+  observeEvent(input$otherFRCBD,{
+    vars <- unlist(strsplit(input$otherFRCBDid, "_"))
+    index <- vars[3]
+    choises <-  input[[input$otherFRCBDid]]
+    
+    updateLevelSelOtherFAC(index, choises, design = "frcbd")
   })
   
   updateLevelSelectionFAC <- function(index, value, design) {
@@ -5795,7 +5837,11 @@ server_design_agrofims <- function(input, output, session, values){
     removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
     removeUI(selector = paste0("#", design, "_note_", index), immediate = T)
     removeUI(selector = paste0("#", design, "_levelSelection_", index), immediate = T)
-    hide(id = paste0(design, "_numLevels_", index))
+    removeUI(selector = paste0("#", design, "_fluid_levels_", index), immediate = T)
+    removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
+    shinyjs::hide(id = paste0(design, "_numLevels_", index))
+    
+    num_levels <- input[[paste0(design, "_numLevels_", index)]]
     
     if (value != "") {
       # Title
@@ -5821,18 +5867,45 @@ server_design_agrofims <- function(input, output, session, values){
       if(!is.null(type_form) && type_form == "combo box"){
         drawComboBoxLevelGEN(order = index, dt = dt, design,
                              input_choice = input[[paste0(design, "_sel_factor_", index)]])
-        hide(id = paste0(design, "_numLevels_", index))
+        shinyjs::hide(id = paste0(design, "_numLevels_", index))
         
       } else if(!is.null(type_form) && type_form == "text input") {
         drawTextInputLevelGEN(order = index, dt = dt, design, 
                               input_choice = input[[paste0(design, "_sel_factor_", index)]])
-        hide(id = paste0(design, "_numLevels_", index))
+        shinyjs::hide(id = paste0(design, "_numLevels_", index))
         
       } else if(!is.null(type_form) && type_form == "date"){
         drawDateComboLevelGEN(order = index, dt = dt, design, 
-                              input_choice = input[[paste0(design, "_sel_factor_", index)]])
-        show(id = paste0(design, "_numLevels_", index))
+                              input_choice = input[[paste0(design, "_sel_factor_", index)]], num_levels)
+        shinyjs::show(id = paste0(design, "_numLevels_", index))
       }
+    }
+  }
+  
+  updateLevelSelOtherFAC <- function(index, choises, design) {
+    if (any(choises == "Other") == T) {
+      removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
+      
+      if (any(choises != "")) {
+        # Other
+        insertUI(
+          selector = paste0("#", design, "_levelSelOther_aux_", index),
+          where = "beforeBegin",
+          ui = fluidRow(
+            id = paste0(design, "_levelSelOther_", index),
+            column(
+              12,
+              selectizeInput(
+                paste0(design,"_lvl_other_", index), label = "Insert other levels",
+                multiple = T, choices = c(),
+                options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+              )
+            )
+          )
+        )
+      }
+    } else {
+      removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
     }
   }
   
@@ -5993,6 +6066,7 @@ server_design_agrofims <- function(input, output, session, values){
                 )
               ),
               fluidRow(id = paste0(design, "_levelSelection_aux_", index)),
+              fluidRow(id = paste0(design, "_levelSelOther_aux_", index)),
               fluidRow(id = paste0(design,"_note_aux_",index))
             )
           )#,
@@ -6016,6 +6090,26 @@ server_design_agrofims <- function(input, output, session, values){
     isolate(updateLevelSelectionSP(index, value, design = "sprcbd"))
   })
   
+  observeEvent(input$levelsSPRCBD,{
+    vars <- unlist(strsplit(input$levelsSPRCBDid, "_"))
+    index <- vars[3]
+    num_levels <-  input[[input$levelsSPRCBDid]]
+    factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
+    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    
+    drawDateComboLevelGEN(order = index, dt = dt, design = "sprcbd", 
+                          input_choice = input[[paste0("sprcbd_sel_factor_", index)]], num_levels)
+    shinyjs::show(id = paste0("sprcbd_numLevels_", index))
+  })
+  
+  observeEvent(input$otherSPRCBD,{
+    vars <- unlist(strsplit(input$otherSPRCBDid, "_"))
+    index <- vars[3]
+    choises <-  input[[input$otherSPRCBDid]]
+    
+    updateLevelSelOtherSP(index, choises, design = "sprcbd")
+  })
+  
   # SPSP
   observeEvent(input$selectSPSP, {
     vars <- unlist(strsplit(input$selectSPSPid, "_"))
@@ -6027,17 +6121,41 @@ server_design_agrofims <- function(input, output, session, values){
     isolate(updateLevelSelectionSP(index, value, design = "spsp"))
   })
   
+  observeEvent(input$levelsSPSP,{
+    vars <- unlist(strsplit(input$levelsSPSPid, "_"))
+    index <- vars[3]
+    num_levels <-  input[[input$levelsSPSPid]]
+    factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
+    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    
+    drawDateComboLevelGEN(order = index, dt = dt, design = "spsp", 
+                          input_choice = input[[paste0("spsp_sel_factor_", index)]], num_levels)
+    shinyjs::show(id = paste0("spsp_numLevels_", index))
+  })
+  
+  observeEvent(input$otherSPSP,{
+    vars <- unlist(strsplit(input$otherSPSPid, "_"))
+    index <- vars[3]
+    choises <-  input[[input$otherSPSPid]]
+    
+    updateLevelSelOtherSP(index, choises, design = "spsp")
+  })
+  
   updateLevelSelectionSP <- function(index, value, design) {
     
     ###OMAR ###
-    factores <- agdesign::dtfactordesign # readxl::read_excel("FACTOR_V9.xlsx")
+    factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
     dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
     ### ######
     
     removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
     removeUI(selector = paste0("#", design, "_note_", index), immediate = T)
     removeUI(selector = paste0("#", design, "_levelSelection_", index), immediate = T)
-    hide(id = paste0(design, "_numLevels_", index))
+    removeUI(selector = paste0("#", design, "_fluid_levels_", index), immediate = T)
+    removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
+    shinyjs::hide(id = paste0(design, "_numLevels_", index))
+    
+    num_levels <- input[[paste0(design, "_numLevels_", index)]]
     
     if (value != "") {
       # Title
@@ -6063,18 +6181,45 @@ server_design_agrofims <- function(input, output, session, values){
       if(!is.null(type_form) && type_form == "combo box"){
         drawComboBoxLevelGEN(order = index, dt = dt, design,
                              input_choice = input[[paste0(design, "_sel_factor_", index)]])
-        hide(id = paste0(design, "_numLevels_", index))
+        shinyjs::hide(id = paste0(design, "_numLevels_", index))
         
       } else if(!is.null(type_form) && type_form == "text input") {
         drawTextInputLevelGEN(order = index, dt = dt, design, 
                               input_choice = input[[paste0(design, "_sel_factor_", index)]])
-        hide(id = paste0(design, "_numLevels_", index))
+        shinyjs::hide(id = paste0(design, "_numLevels_", index))
         
       } else if(!is.null(type_form) && type_form == "date"){
         drawDateComboLevelGEN(order = index, dt = dt, design, 
-                              input_choice = input[[paste0(design, "_sel_factor_", index)]])
-        show(id = paste0(design, "_numLevels_", index))
+                              input_choice = input[[paste0(design, "_sel_factor_", index)]], num_levels)
+        shinyjs::show(id = paste0(design, "_numLevels_", index))
       }
+    }
+  }
+  
+  updateLevelSelOtherSP <- function(index, choises, design) {
+    if (any(choises == "Other") == T) {
+      removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
+      
+      if (any(choises != "")) {
+        # Other
+        insertUI(
+          selector = paste0("#", design, "_levelSelOther_aux_", index),
+          where = "beforeBegin",
+          ui = fluidRow(
+            id = paste0(design, "_levelSelOther_", index),
+            column(
+              12,
+              selectizeInput(
+                paste0(design,"_lvl_other_", index), label = "Insert other levels",
+                multiple = T, choices = c(),
+                options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+              )
+            )
+          )
+        )
+      }
+    } else {
+      removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
     }
   }
   
@@ -6103,6 +6248,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     if(is.na(unit)){
       removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+      removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
       
       insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
                where = "afterEnd",
@@ -6122,6 +6268,7 @@ server_design_agrofims <- function(input, output, session, values){
     } else {
       choices_unit<- strsplit(unit,",")[[1]]
       removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+      removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
       
       insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
                where = "afterEnd",
@@ -6134,8 +6281,7 @@ server_design_agrofims <- function(input, output, session, values){
                      multiple = TRUE,
                      options = list(placeholder = "Select..."),
                      choices = choices
-                   )#,
-                   #textAreaInput(paste0(design,"_note_factor_",order), "Note")
+                   )
                  ),
                  column(
                    6,
@@ -6151,13 +6297,14 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   #Draw TextInput
-  drawTextInputLevelGEN <- function(order, dt,  design="crd", input_choice) {
+  drawTextInputLevelGEN <- function(order, dt,  design = "crd", input_choice) {
     lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
     unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT") 
     
-    removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-    
     if(is.na(unit)){
+      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+      removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
+      
       insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
                where = "afterEnd",
                ui = fluidRow(
@@ -6174,8 +6321,8 @@ server_design_agrofims <- function(input, output, session, values){
       )
     } else {
       choices_unit <- strsplit(unit,",")[[1]]
-      
       removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+      removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
       
       insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
                where = "afterEnd",
@@ -6187,8 +6334,7 @@ server_design_agrofims <- function(input, output, session, values){
                      paste0(design,"_lvl_", order), label = "Enter levels",
                      multiple = T, choices = c(),
                      options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
-                   )#,
-                   #textAreaInput(paste0(design,"_note_factor_",order), "Note")
+                   )
                  ),
                  column(
                    6,
@@ -6203,28 +6349,57 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   #Draw Date
-  drawDateComboLevelGEN <- function(order, dt,  design="crd", input_choice) {
+  drawDateComboLevelGEN <- function(order, dt,  design = "crd", input_choice, num_levels) {
     lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
-    
-    removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+    removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
     
     insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
              where = "afterEnd",
              ui = fluidRow(
-               id= paste0(design, "_levelSelection_", order),
+               id= paste0(design, "_fluid_levels_", order),
                column(
                  12,
-                 airDatepickerInput(
-                   inputId = paste0(design,"_lvl_", order),
-                   label = paste0("#1 ", lbl),
-                   dateFormat = "yyyy-mm-dd",
-                   value = Sys.Date(),
-                   placeholder = "yyyy-mm-dd",
-                   clearButton = TRUE
+                 fluidRow(
+                   id = paste0(design, "_factor_dates_", order , "_1"),
+                   column(
+                     12,
+                     airDatepickerInput(
+                       inputId = paste0(design,"_lvl_", order),
+                       label = paste0("#1 ", lbl),
+                       dateFormat = "yyyy-mm-dd",
+                       value = Sys.Date(),
+                       placeholder = "yyyy-mm-dd",
+                       clearButton = TRUE
+                     )
+                   )
                  )
                )
              )
     )
+    
+    num_levels <- as.integer(num_levels)
+    
+    if (num_levels > 1) {
+      for (i in 2:num_levels) {
+        insertUI(selector = paste0("#", design, "_factor_dates_", order, "_", i-1),
+                 where = "afterEnd",
+                 ui = fluidRow(
+                   id= paste0(design, "_factor_dates_", order, "_", i),
+                   column(
+                     12,
+                     airDatepickerInput(
+                       inputId = paste0(design,"_lvl_", order, "_", i),
+                       label = paste0("#", i, " ", lbl),
+                       dateFormat = "yyyy-mm-dd",
+                       value = Sys.Date(),
+                       placeholder = "yyyy-mm-dd",
+                       clearButton = TRUE
+                     )
+                   )
+                 )
+        )
+      }
+    }
   }
   
   ########################################## End: Design Ivan New ##################################################
@@ -14868,25 +15043,31 @@ server_design_agrofims <- function(input, output, session, values){
     if(design=="fcrd"){
       rep <- as.integer(input$fcrd_rep)
       flbl<- get_factors_design(allinputs = AllInputs(),  design = "fcrd")
-      flvl<- get_levels_design(allinputs = AllInputs(), design = "fcrd", format= "list")
+      #flvl<- get_levels_design(allinputs = AllInputs(), design = "fcrd", format= "list")
+      flvl<- get_levels_design2(allinputs = AllInputs(), factors = flbl, design="fcrd", format="list")
       fb<- fbdesign_agrofims(design=design, rep=rep,  fnames= flbl, flevels= flvl) 
     } 
     else if(design=="frcbd"){
       block<- as.integer(input$frcbd_block)
       flbl<- get_factors_design(allinputs = AllInputs(),  design = "frcbd")
-      flvl<- get_levels_design(allinputs = AllInputs(), design = "frcbd", format= "list")
-      fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl) 
+      print(flbl)
+      #flvl<- get_levels_design(allinputs = AllInputs(), design = "frcbd", format= "list")
+      flvl <- get_levels_design2(allinputs = AllInputs(), factors = flbl, design="frcbd", format="list")
+      print(flvl)
+      fb<- fbdesign_agrofims(design=design, rep=block,  fnames= flbl, flevels= flvl) 
     } else if(design =="sprcbd"){
     
       block <- as.integer(input$sp1_block)
       flbl<- get_factors_design(allinputs = AllInputs(),  design = "sprcbd")
-      flvl<- get_levels_design(allinputs = AllInputs(), design = "sprcbd", format= "list")
+      #flvl<- get_levels_design(allinputs = AllInputs(), design = "sprcbd", format= "list")
+      flvl<- get_levels_design2(allinputs = AllInputs(), factors = flbl, design="sprcbd", format="list")
       fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl) 
       
     } else if(design =="spsp"){
       block<- as.integer(input$spsp2_block)
       flbl<- get_factors_design(allinputs = AllInputs(),  design = "spsp")
-      flvl<- get_levels_design(allinputs = AllInputs(), design = "spsp", format= "list")
+      #flvl<- get_levels_design(allinputs = AllInputs(), design = "spsp", format= "list")
+      flvl<- get_levels_design2(allinputs = AllInputs(), factors = flbl, design="spsp", format="list")
       fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl)
     }
     

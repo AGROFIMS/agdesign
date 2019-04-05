@@ -296,6 +296,19 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 Shiny.onInputChange("selectFCRDid", this.id);
 })
                 '),
+    
+    tags$script('$(document).on("change", "select[id^=\'fcrd_numLevels_\']",  function(){
+                Shiny.onInputChange("levelsFCRD", Math.random());
+                Shiny.onInputChange("levelsFCRDid", this.id);
+                })
+                '),
+    
+    tags$script('$(document).on("change", "select[id^=\'fcrd_lvl_\']",  function(){
+                Shiny.onInputChange("otherFCRD", Math.random());
+                Shiny.onInputChange("otherFCRDid", this.id);
+                })
+                '),
+    
     # FRCBD
     tags$script('$(document).on("change", "select[id^=\'frcbd_sel_factor_\']",  function(){
                 Shiny.onInputChange("selectFRCBD", Math.random());
@@ -303,11 +316,23 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 })
                 '),
     
+    tags$script('$(document).on("change", "select[id^=\'frcbd_numLevels_\']",  function(){
+                Shiny.onInputChange("levelsFRCBD", Math.random());
+                Shiny.onInputChange("levelsFRCBDid", this.id);
+})
+                '),
+    
+    tags$script('$(document).on("change", "select[id^=\'frcbd_lvl_\']",  function(){
+                Shiny.onInputChange("otherFRCBD", Math.random());
+                Shiny.onInputChange("otherFRCBDid", this.id);
+})
+                '),
+    
     # FCRD: script listening when a box is to be deleted
     tags$script('$(document).on("click", "button[id^=\'fcrd_closeBox_\']",  function(){
                 Shiny.onInputChange("closeBox_button_FCRD", Math.random());
                 Shiny.onInputChange("closeBox_button_FCRDid", this.id);
-                })
+    })
                 '),
     
     # FRCBD: script listening when a box is to be deleted
@@ -325,10 +350,35 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 Shiny.onInputChange("selectSPRCBDid", this.id);
     })
                 '),
+    
+    tags$script('$(document).on("change", "select[id^=\'sprcbd_numLevels_\']",  function(){
+                Shiny.onInputChange("levelsSPRCBD", Math.random());
+                Shiny.onInputChange("levelsSPRCBDid", this.id);
+                })
+                '),
+    
+    tags$script('$(document).on("change", "select[id^=\'sprcbd_lvl_\']",  function(){
+                Shiny.onInputChange("otherSPRCBD", Math.random());
+                Shiny.onInputChange("otherSPRCBDid", this.id);
+                })
+                '),
+    
     # SPSP
     tags$script('$(document).on("change", "select[id^=\'spsp_sel_factor_\']",  function(){
                 Shiny.onInputChange("selectSPSP", Math.random());
                 Shiny.onInputChange("selectSPSPid", this.id);
+    })
+                '),
+    
+    tags$script('$(document).on("change", "select[id^=\'spsp_numLevels_\']",  function(){
+                Shiny.onInputChange("levelsSPSP", Math.random());
+                Shiny.onInputChange("levelsSPSPid", this.id);
+    })
+                '),
+    
+    tags$script('$(document).on("change", "select[id^=\'spsp_lvl_\']",  function(){
+                Shiny.onInputChange("otherSPSP", Math.random());
+                Shiny.onInputChange("otherSPSPid", this.id);
     })
                 '),
     
@@ -1416,7 +1466,7 @@ display: none;
               
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'SPRCBD'",
-                h1("SPRCBD"),
+                h1("Split Plot"),
                 fluidRow(
                   column(
                     6,
@@ -1430,7 +1480,7 @@ display: none;
               
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'SPSP'",
-                h1("SPSP"),
+                h1("Split-Split Plot"),
                 fluidRow(
                   column(
                     6,
