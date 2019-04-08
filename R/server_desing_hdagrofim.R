@@ -5640,7 +5640,7 @@ server_design_agrofims <- function(input, output, session, values){
   
   #factores<- gsheet::gsheet2tbl("https://docs.google.com/spreadsheets/d/1M5KA4JTqd1zdv1p-Gu5kfsLNi8WHWAyCMvCNBDa9G_Y/edit#gid=1932177125")
   #dtf<- factores
-  dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+  dt <- factores %>% mutate(fchoices= FACTOR) # paste(GROUP, SUBGROUP, FACTOR))
   
   ##################### Start: FCRD & FRCBD #####################
   
@@ -5781,7 +5781,7 @@ server_design_agrofims <- function(input, output, session, values){
     index <- vars[3]
     num_levels <-  input[[input$levelsFCRDid]]
     factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
-    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    dt <- factores %>% mutate(fchoices= FACTOR )#  paste(GROUP, SUBGROUP, FACTOR))
     
     drawDateComboLevelGEN(order = index, dt = dt, design = "fcrd", 
                           input_choice = input[[paste0("fcrd_sel_factor_", index)]], num_levels)
@@ -5812,7 +5812,7 @@ server_design_agrofims <- function(input, output, session, values){
     index <- vars[3]
     num_levels <-  input[[input$levelsFRCBDid]]
     factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
-    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    dt <- factores %>% mutate(fchoices= FACTOR) #  paste(GROUP, SUBGROUP, FACTOR)) # paste(GROUP, SUBGROUP, FACTOR))
     
     drawDateComboLevelGEN(order = index, dt = dt, design = "frcbd", 
                           input_choice = input[[paste0("frcbd_sel_factor_", index)]], num_levels)
@@ -5831,7 +5831,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     ###OMAR ###
     factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
-    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    dt <- factores %>% mutate(fchoices= FACTOR) # paste(GROUP, SUBGROUP, FACTOR))
     ### ######
     
     removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
@@ -6095,7 +6095,7 @@ server_design_agrofims <- function(input, output, session, values){
     index <- vars[3]
     num_levels <-  input[[input$levelsSPRCBDid]]
     factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
-    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    dt <- factores %>% mutate(fchoices= FACTOR) #paste(GROUP, SUBGROUP, FACTOR))
     
     drawDateComboLevelGEN(order = index, dt = dt, design = "sprcbd", 
                           input_choice = input[[paste0("sprcbd_sel_factor_", index)]], num_levels)
@@ -6126,7 +6126,7 @@ server_design_agrofims <- function(input, output, session, values){
     index <- vars[3]
     num_levels <-  input[[input$levelsSPSPid]]
     factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
-    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    dt <- factores %>% mutate(fchoices= FACTOR) # paste(GROUP, SUBGROUP, FACTOR))
     
     drawDateComboLevelGEN(order = index, dt = dt, design = "spsp", 
                           input_choice = input[[paste0("spsp_sel_factor_", index)]], num_levels)
@@ -6145,7 +6145,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     ###OMAR ###
     factores <- agdesign::dtfactordesign #readxl::read_excel("FACTOR_V9.xlsx")
-    dt <- factores %>% mutate(fchoices=paste(GROUP, SUBGROUP, FACTOR))
+    dt <- factores %>% mutate(fchoices= FACTOR) #paste(GROUP, SUBGROUP, FACTOR))
     ### ######
     
     removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
@@ -6241,7 +6241,7 @@ server_design_agrofims <- function(input, output, session, values){
   drawComboBoxLevelGEN <- function(order, dt, design = "fcrd", input_choice) {
     flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
     choices <- strsplit(flevel, split = ";")
-    
+    print(choices)
     names(choices) <- "Levels"
     lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
     unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT") 
@@ -6300,6 +6300,7 @@ server_design_agrofims <- function(input, output, session, values){
   drawTextInputLevelGEN <- function(order, dt,  design = "crd", input_choice) {
     lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
     unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT") 
+    print(choices)
     
     if(is.na(unit)){
       removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
@@ -15021,12 +15022,14 @@ server_design_agrofims <- function(input, output, session, values){
   
   #### Integration of all the Metadata ##########################################
   globalMetadata<- function(){
-     fldt <- get_faclevdt(design=input$designFieldbook_agrofims, allinputs=AllInputs())
-     print(fldt)
+     fl_dt <- get_faclevdt(design=input$designFieldbook_agrofims, allinputs=AllInputs())
+     vers_dt <- data.frame(Factor = "Version", Value= "test version 23")
      gtable <- rbind( exp_dt(), fa_dt(), pe(), epl(), pers_dt(),crop_dt(), infounit(),
                       #TODO:: MEJORAR
-                      fldt,
-                      site_dt())
+                      fl_dt,
+                      site_dt(),
+                      vers_dt
+                      )
 
      names(gtable)[1]<- "Parameter"
      gtable
