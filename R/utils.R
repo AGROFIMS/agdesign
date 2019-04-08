@@ -578,34 +578,6 @@ smart_colbind <- function(...){
  
 }
 
-
-
-
-# Get experimental design label (or full name) based on abrreviations
-experimental_design_label <- function(abbr_design = "RCBD"){
-  
-  abbr_design <- stringr::str_trim(abbr_design,side="both")
-  
-  if(is.na(abbr_design))      {abbr_design <- ""; out <- ""}
-  if(abbr_design == "UNDR")   {out <- "Unreplicated Design with No Randomization (UNDR)"  }
-  if(abbr_design == "RCBD")   {out <- "Randomized Complete Block Design (RCBD)"}
-  if(abbr_design == "CRD")    {out <- "Completely Randomized Design (CRD)" }
-  if(abbr_design == "ABD")    {out <- "Augmented Block Design (ABD)"}
-  if(abbr_design == "LSD")    {out <- "Latin Square Design (LSD)"}
-  #if(abbr_design == "SPCRD")  {out <- "Split Plot with Plots in CRD (SPCRD)"} #R.Eyzaguirre recommend to hide this line
-  #if(abbr_design == "SPRCBD") {out <- "Split Plot with Plots in RCBD (SPRCBD)"}  #R.Eyzaguirre recommend to hide this line
-  if(abbr_design == "SPRCBD") {out <- "Split Plot with Plots Design"} # #R.Eyzaguirre recommend to use just one split design under rcbd
-  if(abbr_design == "SPLSD")  {out <- "Split Plot with Plots in LSD (SPLSD)"}
-  if(abbr_design == "STRIP")  {out <- "Strip Plot Design (STRIP)"}
-  if(abbr_design == "F2CRD")  {out <- "Factorial Two-Way Design in CRD (F2CRD)"}
-  if(abbr_design == "F2RCBD") {out <- "Factorial Two-Way Design in RCBD (F2RCBD)"}
-  if(abbr_design == "AD")     {out <- "Alpha Design(0,1) (AD)"}
-  if(abbr_design == "WD")     {out <- "Westcott Design (AD)"}
-  
-  out
-
-}
-
 #Clean header for experiment conditions data frames
 ec_clean_header <- function(dt){
 

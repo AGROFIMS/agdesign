@@ -69,7 +69,7 @@ get_factors_design <- function(allinputs, design="fcrd",duplicate= TRUE){
   dt <- allinputs %>%  filter(!str_detect(id, "button")) %>%
                       filter(!str_detect(id, "-selectized")) %>%
                       filter(str_detect(id, lookup))
-  print(dt)
+  #print(dt)
           
   out<- dt$values
   if(duplicate){
@@ -80,47 +80,8 @@ get_factors_design <- function(allinputs, design="fcrd",duplicate= TRUE){
   out
 }
 
-## Get levels from design tab #############################################################
-get_levels_design <- function(allinputs, design="fcrd", format=c("list","data.frame")){
-  
-  format<- match.arg(format)
-  
-  lookup<- paste0(design,"_lvl_")
-  dt <- allinputs %>%  filter(!str_detect(id, "add")) %>%
-    filter(!str_detect(id, "button")) %>%
-    filter(!str_detect(id, "unit")) %>% 
-    filter(!str_detect(id, "_sel_factor_")) %>%
-    filter(!str_detect(id, "-selectized")) %>%  
-    filter(str_detect(id, lookup))
-  
-  print(dt)
-  
-  if(format=="list"){
-    flvl<- dt$values
-    out<-NULL
-    for(i in 1:length(flvl)){
-      out[[i]] <- strsplit(flvl[i],split = ", ")[[1]] %>% str_trim(side = "both")
-    }
-  }
-  if(format=="data.frame"){
-    out<- dt
-  }
-  out
-}
-
-## Get units from design tab ###############################################################
-get_levels_units_design<- function(allinputs, dtlevels, design="frcbd"){
-
-  lookup<- paste0(design, "_lvl_unit")
-  dtunits <- allinputs %>% filter(!str_detect(id, "-selectized")) %>%
-              filter(str_detect(id, lookup))
-  print(dtunits)
-  
-  out <- stringdist_left_join(dtlevels, units, by ="id", max_dist = 5)
-  
-}
-
-get_levels_design2 <- function(allinputs, factors, design="fcrd", format=c("list","data.frame")){
+## Get levels from desigin tab
+get_levels_design <- function(allinputs, factors, design="fcrd", format=c("list","data.frame")){
   
   format<- match.arg(format)
   
@@ -133,7 +94,7 @@ get_levels_design2 <- function(allinputs, factors, design="fcrd", format=c("list
                         dplyr::filter(str_detect(id, lookup))
   
   out <- vector(mode="list",length = length(factors))
-  a<-NULL
+  a<-u<-NULL
   for(i in 1:length(factors)){
     out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup,i)))
     out[[i]] <-  out[[i]]$values
@@ -156,7 +117,7 @@ get_levels_design2 <- function(allinputs, factors, design="fcrd", format=c("list
         u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
                           dplyr::filter(str_detect(id,  paste0(lookup, "unit_",i) ))
         u<- u$values
-        out[[i]]<- paste0(out[[i]], u)
+        out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
       }
     }
   }
@@ -165,4 +126,84 @@ get_levels_design2 <- function(allinputs, factors, design="fcrd", format=c("list
   }
   out
 }
+
+
+# Get experimental design label (or full name) based on abrreviations
+experimental_design_label <- function(abbr_design = "frcbd"){
+  
+  abbr_design <- stringr::str_trim(abbr_design,side="both") %>% toupper()
+  
+  if(is.na(abbr_design))      {abbr_design <- ""; out <- ""}
+  if(abbr_design == "UNDR")   {out <- "Unreplicated Design with No Randomization (UNDR)"  }
+  if(abbr_design == "RCBD")   {out <- "Randomized Complete Block Design (RCBD)"}
+  if(abbr_design == "CRD")    {out <- "Completely Randomized Design (CRD)" }
+  if(abbr_design == "ABD")    {out <- "Augmented Block Design (ABD)"}
+  if(abbr_design == "LSD")    {out <- "Latin Square Design (LSD)"}
+  #if(abbr_design == "SPCRD") {out <- "Split Plot with Plots in CRD (SPCRD)"} #R.Eyzaguirre recommend to hide this line
+  #if(abbr_design == "SPRCBD"){out <- "Split Plot with Plots in RCBD (SPRCBD)"}  #R.Eyzaguirre recommend to hide this line
+  if(abbr_design == "SPRCBD") {out <- "Split Plot with Plots Design"} # #R.Eyzaguirre recommend to use just one split design under rcbd
+  if(abbr_design == "SPSP")   {out <- "Split-Splot Plot Design"} # #R.Eyzaguirre recommend to use just one split design under rcbd
+  if(abbr_design == "SPLSD")  {out <- "Split Plot with Plots in LSD (SPLSD)"}
+  if(abbr_design == "STRIP")  {out <- "Strip Plot Design (STRIP)"}
+  if(abbr_design == "FCRD")   {out <- "Factorial with CRD"}
+  if(abbr_design == "FRCBD")  {out <- "Factorial with RCBD"}
+  if(abbr_design == "AD")     {out <- "Alpha Design(0,1) (AD)"}
+  if(abbr_design == "WD")     {out <- "Westcott Design (AD)"}
+  
+  out
+  
+}
+
+
+#Build experimental design table metadata
+get_faclevdt <- function(design, allinputs){
+  
+  output <- try({  
+  design <- tolower(design)
+  dsg <- experimental_design_label(design)
+  dsg_abbr <- design %>% toupper()
+ 
+ 
+  flbl<- get_factors_design(allinputs = allinputs,  design = design,duplicate = FALSE)
+  #Get list of labels
+  flvl <- get_levels_design(allinputs = allinputs, factors = flbl, design=design, format="list")
+  #out <- setDT(transpose(flvl))[]
+  flvl <-  lapply(flvl, function(x)paste(x,collapse=", "))
+  # Number of factors
+  nf <- length(flvl)
+  
+  ## Labels
+  flab<- paste("Factor", 1:length(flbl))
+  levlab <- paste("Factor", 1:length(flbl), "- Levels")
+  paramlab <- c(rbind(flab, levlab)) 
+  #Ensemble as a data frame of factors and levels
+  out<- data.frame()
+  for( i in 1:length(flvl)){
+    out <- rbind(out, rbind(flbl[i], flvl[[i]]) )
+  }
+  #Put as a table
+  dsg_dt<- data.frame(Factor= c("Experimental design", "Experimental design abbreviation",
+                                   "Number of factors"), 
+                      Value = c(dsg,dsg_abbr, nf),stringsAsFactors = FALSE)
+  out<- data.frame(Factor= paramlab, Value= out$V1)
+  out<-rbind(dsg_dt, out) 
+
+  out 
+  })
+  
+  if(class(output)=="try-error"){
+    out<- data.frame(Factor=NULL, Value= NULL)
+  }else{
+    out<- output
+  }
+  out
+}
+
+#t1<-get_faclevdt(design=design, allinputs=allinputs)
+# t2<-get_faclevdt(design=design, allinputs=allinputs)
+# t2<-get_faclevdt(design=design, allinputs=NULL)
+#get_faclevdt(design=design, allinputs=AllInputs())
+
+
+
 
