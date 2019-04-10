@@ -944,7 +944,7 @@ display: none;
 
           ##### Tab: Start Design #####
           shiny::tabPanel(
-            title = tagList(shiny::icon("th-list"), "Design"), value = "tabDesign",
+            title = tagList(shiny::icon("th-list"), "Design"), value = "tabDesign2",
             tags$style(HTML("
                             #lvl_hdafims1 + div> div>.item {
                             background:   #337ab7 !important;
@@ -1201,8 +1201,55 @@ display: none;
           ##### Tab: Start Design New #####
           
           shiny::tabPanel(
-            title = tagList(shiny::icon("th-list"), "Design New"), value = "tabDesign",
+            title = tagList(shiny::icon("th-list"), "Design"), value = "tabDesign",
             
+            tags$style(HTML("
+                            #lvl_hdafims1 + div> div>.item {
+                            background:   #337ab7 !important;
+                            color: white;
+                            }
+                            
+                            #lvl_hdafims1 + div> div>.selectize-dropdown-content .active {
+                            background:   #337ab7 !important;
+                            }
+                            
+                            #lvl_hdafims2 + div> div>.item {
+                            background:   #f3217a !important;
+                            color: white;
+                            }
+                            
+                            #lvl_hdafims2 + div> div>.selectize-dropdown-content .active {
+                            background:   #f3217a !important;
+                            }
+                            
+                            #lvl_hdafims3 + div> div>.item {
+                            background:   #777 !important;
+                            color: white;
+                            }
+                            
+                            #lvl_hdafims3 + div> div>.selectize-dropdown-content .active {
+                            background:   #777 !important;
+                            }
+                            
+                            #lvl_hdafims4 + div> div>.item {
+                            background:   #5cb85c !important;
+                            color: white;
+                            }
+                            
+                            #lvl_hdafims4 + div> div>.selectize-dropdown-content .active {
+                            background:   #5cb85c !important;
+                            }
+                            
+                            #lvl_hdafims5 + div> div>.item {
+                            background:   #FBBF09 !important;
+                            color: white;
+                            }
+                            
+                            #lvl_hdafims5 + div> div>.selectize-dropdown-content .active {
+                            background:   #FBBF09 !important;
+                            }"
+
+            )), 
             column(
               width = 6,
               #br(),

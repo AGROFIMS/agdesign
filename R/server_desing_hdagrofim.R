@@ -10812,7 +10812,9 @@ server_design_agrofims <- function(input, output, session, values){
   
   
   
-  
+  observe({
+    shiny::hideTab(inputId = "fbDesignNav", target = "tabDesign2")
+  })
   
   
   
