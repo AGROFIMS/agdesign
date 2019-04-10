@@ -289,112 +289,154 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     ),
     
     
-    #### nuevo codigo ivannnnnn ###############################################################
-    # FCRD 
-    tags$script('$(document).on("change", "select[id^=\'fcrd_sel_factor_\']",  function(){
-                Shiny.onInputChange("selectFCRD", Math.random());
-                Shiny.onInputChange("selectFCRDid", this.id);
-})
-                '),
+    ########### Start JS ###########
     
-    tags$script('$(document).on("change", "select[id^=\'fcrd_numLevels_\']",  function(){
-                Shiny.onInputChange("levelsFCRD", Math.random());
-                Shiny.onInputChange("levelsFCRDid", this.id);
+    # Factor GENERAL
+    tags$script('$(document).on("change", "select[id*=\'_sel_factor_\']",  function(){
+                Shiny.onInputChange("selectGEN", Math.random());
+                Shiny.onInputChange("selectGENid", this.id);
+                })
+                '),
+    # Levels GENERAL
+    tags$script('$(document).on("change", "select[id*=\'_numLevels_\']",  function(){
+                Shiny.onInputChange("levelsGEN", Math.random());
+                Shiny.onInputChange("levelsGENid", this.id);
+                })
+                '),
+    # Other de Factor GENERAL
+    tags$script('$(document).on("change", "select[id*=\'_lvl_\']",  function(){
+                Shiny.onInputChange("otherGEN", Math.random());
+                Shiny.onInputChange("otherGENid", this.id);
+                })
+                '),
+    # Duplicate GENERAL
+    tags$script('$(document).on("click", "button[id*=\'_btDuplicate_\']",  function(){
+                Shiny.onInputChange("duplicateGEN", Math.random());
+                Shiny.onInputChange("duplicateGENid", this.id);
+                })
+                '),
+    # Delete GENERAL
+    tags$script('$(document).on("click", "button[id*=\'_closeBox_\']",  function(){
+                Shiny.onInputChange("closeBox_button_GEN", Math.random());
+                Shiny.onInputChange("closeBox_button_GENid", this.id);
+                })
+                '),
+    # Other/Other GENERAL
+    tags$script('$(document).on("change", "select[id*=\'_typeInput_\']",  function(){
+                Shiny.onInputChange("otherOthGEN", Math.random());
+                Shiny.onInputChange("otherOthGENid", this.id);
                 })
                 '),
     
-    tags$script('$(document).on("change", "select[id^=\'fcrd_lvl_\']",  function(){
-                Shiny.onInputChange("otherFCRD", Math.random());
-                Shiny.onInputChange("otherFCRDid", this.id);
-                })
-                '),
+    ########### End JS ###########
     
-    # FRCBD
-    tags$script('$(document).on("change", "select[id^=\'frcbd_sel_factor_\']",  function(){
-                Shiny.onInputChange("selectFRCBD", Math.random());
-                Shiny.onInputChange("selectFRCBDid", this.id);
-                })
-                '),
     
-    tags$script('$(document).on("change", "select[id^=\'frcbd_numLevels_\']",  function(){
-                Shiny.onInputChange("levelsFRCBD", Math.random());
-                Shiny.onInputChange("levelsFRCBDid", this.id);
-})
-                '),
-    
-    tags$script('$(document).on("change", "select[id^=\'frcbd_lvl_\']",  function(){
-                Shiny.onInputChange("otherFRCBD", Math.random());
-                Shiny.onInputChange("otherFRCBDid", this.id);
-})
-                '),
-    
-    # FCRD: script listening when a box is to be deleted
-    tags$script('$(document).on("click", "button[id^=\'fcrd_closeBox_\']",  function(){
-                Shiny.onInputChange("closeBox_button_FCRD", Math.random());
-                Shiny.onInputChange("closeBox_button_FCRDid", this.id);
-    })
-                '),
-    
-    # FRCBD: script listening when a box is to be deleted
-    tags$script('$(document).on("click", "button[id^=\'frcbd_closeBox_\']",  function(){
-                Shiny.onInputChange("closeBox_button_FRCBD", Math.random());
-                Shiny.onInputChange("closeBox_button_FRCBDid", this.id);
-    })
-                '),
-    
-    ####
-    
-    # SPRCBD 
-    tags$script('$(document).on("change", "select[id^=\'sprcbd_sel_factor_\']",  function(){
-                Shiny.onInputChange("selectSPRCBD", Math.random());
-                Shiny.onInputChange("selectSPRCBDid", this.id);
-    })
-                '),
-    
-    tags$script('$(document).on("change", "select[id^=\'sprcbd_numLevels_\']",  function(){
-                Shiny.onInputChange("levelsSPRCBD", Math.random());
-                Shiny.onInputChange("levelsSPRCBDid", this.id);
-                })
-                '),
-    
-    tags$script('$(document).on("change", "select[id^=\'sprcbd_lvl_\']",  function(){
-                Shiny.onInputChange("otherSPRCBD", Math.random());
-                Shiny.onInputChange("otherSPRCBDid", this.id);
-                })
-                '),
-    
-    # SPSP
-    tags$script('$(document).on("change", "select[id^=\'spsp_sel_factor_\']",  function(){
-                Shiny.onInputChange("selectSPSP", Math.random());
-                Shiny.onInputChange("selectSPSPid", this.id);
-    })
-                '),
-    
-    tags$script('$(document).on("change", "select[id^=\'spsp_numLevels_\']",  function(){
-                Shiny.onInputChange("levelsSPSP", Math.random());
-                Shiny.onInputChange("levelsSPSPid", this.id);
-    })
-                '),
-    
-    tags$script('$(document).on("change", "select[id^=\'spsp_lvl_\']",  function(){
-                Shiny.onInputChange("otherSPSP", Math.random());
-                Shiny.onInputChange("otherSPSPid", this.id);
-    })
-                '),
-    
-    # SPRCBD: script listening when a box is to be deleted
-    tags$script('$(document).on("click", "button[id^=\'sprcbd_closeBox_\']",  function(){
-                Shiny.onInputChange("closeBox_button_SPRCBD", Math.random());
-                Shiny.onInputChange("closeBox_button_SPRCBDid", this.id);
-    })
-                '),
-    
-    # SPSP: script listening when a box is to be deleted
-    tags$script('$(document).on("click", "button[id^=\'spsp_closeBox_\']",  function(){
-                Shiny.onInputChange("closeBox_button_SPSP", Math.random());
-                Shiny.onInputChange("closeBox_button_SPSPid", this.id);
-    })
-                '),
+#     #### nuevo codigo ivannnnnn ###############################################################
+#     # FCRD 
+#     tags$script('$(document).on("change", "select[id^=\'fcrd_sel_factor_\']",  function(){
+#                 Shiny.onInputChange("selectFCRD", Math.random());
+#                 Shiny.onInputChange("selectFCRDid", this.id);
+# })
+#                 '),
+#     
+#     tags$script('$(document).on("change", "select[id^=\'fcrd_numLevels_\']",  function(){
+#                 Shiny.onInputChange("levelsFCRD", Math.random());
+#                 Shiny.onInputChange("levelsFCRDid", this.id);
+#                 })
+#                 '),
+#     
+#     tags$script('$(document).on("change", "select[id^=\'fcrd_lvl_\']",  function(){
+#                 Shiny.onInputChange("otherFCRD", Math.random());
+#                 Shiny.onInputChange("otherFCRDid", this.id);
+#                 })
+#                 '),
+#     
+#     # FRCBD
+#     tags$script('$(document).on("change", "select[id^=\'frcbd_sel_factor_\']",  function(){
+#                 Shiny.onInputChange("selectFRCBD", Math.random());
+#                 Shiny.onInputChange("selectFRCBDid", this.id);
+#                 })
+#                 '),
+#     
+#     tags$script('$(document).on("change", "select[id^=\'frcbd_numLevels_\']",  function(){
+#                 Shiny.onInputChange("levelsFRCBD", Math.random());
+#                 Shiny.onInputChange("levelsFRCBDid", this.id);
+# })
+#                 '),
+#     
+#     tags$script('$(document).on("change", "select[id^=\'frcbd_lvl_\']",  function(){
+#                 Shiny.onInputChange("otherFRCBD", Math.random());
+#                 Shiny.onInputChange("otherFRCBDid", this.id);
+# })
+#                 '),
+#     
+#     # FCRD: script listening when a box is to be deleted
+#     tags$script('$(document).on("click", "button[id^=\'fcrd_closeBox_\']",  function(){
+#                 Shiny.onInputChange("closeBox_button_FCRD", Math.random());
+#                 Shiny.onInputChange("closeBox_button_FCRDid", this.id);
+#     })
+#                 '),
+#     
+#     # FRCBD: script listening when a box is to be deleted
+#     tags$script('$(document).on("click", "button[id^=\'frcbd_closeBox_\']",  function(){
+#                 Shiny.onInputChange("closeBox_button_FRCBD", Math.random());
+#                 Shiny.onInputChange("closeBox_button_FRCBDid", this.id);
+#     })
+#                 '),
+#     
+#     ####
+#     
+#     # SPRCBD 
+#     tags$script('$(document).on("change", "select[id^=\'sprcbd_sel_factor_\']",  function(){
+#                 Shiny.onInputChange("selectSPRCBD", Math.random());
+#                 Shiny.onInputChange("selectSPRCBDid", this.id);
+#     })
+#                 '),
+#     
+#     tags$script('$(document).on("change", "select[id^=\'sprcbd_numLevels_\']",  function(){
+#                 Shiny.onInputChange("levelsSPRCBD", Math.random());
+#                 Shiny.onInputChange("levelsSPRCBDid", this.id);
+#                 })
+#                 '),
+#     
+#     tags$script('$(document).on("change", "select[id^=\'sprcbd_lvl_\']",  function(){
+#                 Shiny.onInputChange("otherSPRCBD", Math.random());
+#                 Shiny.onInputChange("otherSPRCBDid", this.id);
+#                 })
+#                 '),
+#     
+#     # SPSP
+#     tags$script('$(document).on("change", "select[id^=\'spsp_sel_factor_\']",  function(){
+#                 Shiny.onInputChange("selectSPSP", Math.random());
+#                 Shiny.onInputChange("selectSPSPid", this.id);
+#     })
+#                 '),
+#     
+#     tags$script('$(document).on("change", "select[id^=\'spsp_numLevels_\']",  function(){
+#                 Shiny.onInputChange("levelsSPSP", Math.random());
+#                 Shiny.onInputChange("levelsSPSPid", this.id);
+#     })
+#                 '),
+#     
+#     tags$script('$(document).on("change", "select[id^=\'spsp_lvl_\']",  function(){
+#                 Shiny.onInputChange("otherSPSP", Math.random());
+#                 Shiny.onInputChange("otherSPSPid", this.id);
+#     })
+#                 '),
+#     
+#     # SPRCBD: script listening when a box is to be deleted
+#     tags$script('$(document).on("click", "button[id^=\'sprcbd_closeBox_\']",  function(){
+#                 Shiny.onInputChange("closeBox_button_SPRCBD", Math.random());
+#                 Shiny.onInputChange("closeBox_button_SPRCBDid", this.id);
+#     })
+#                 '),
+#     
+#     # SPSP: script listening when a box is to be deleted
+#     tags$script('$(document).on("click", "button[id^=\'spsp_closeBox_\']",  function(){
+#                 Shiny.onInputChange("closeBox_button_SPSP", Math.random());
+#                 Shiny.onInputChange("closeBox_button_SPSPid", this.id);
+#     })
+#                 '),
     
     
     
@@ -1420,22 +1462,38 @@ display: none;
                 fluidRow(
                   column(
                     6,
-                    selectInput("crd_rep", "Repetitions", choices = 2:100, selected = 2)
+                    selectInput("crd_ntrt", "Number of treatments", choices = 2:100, selected = 2)
                   ),
                   column(
                     6,
-                    selectInput("crd_ntrt", "Number of treatments", choices = 2:100, selected = 2)
+                    selectInput("crd_rep", "Repetitions", choices = 2:100, selected = 2)
                   )
                 ),
                 fluidRow(id = "crd_boxes"),
-                actionButton("crd_add", "Add factor")
+                actionButton("crd_add", "Add factor"),
+                br(), br(),
+                column(id="col_NFF_consolid", width=4,
+                       HTML("<center>"),"Treatment",HTML("</center>"), 
+                       fluidRow(id="fr_col_NFF_cons")
+                ),
+                fluidRow(id="not_full_factor_table")
               ),
               
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'RCBD'",
-                #selectInput("crd_rep", "Block ", choices = 2:10000,selected = 2),
-                #selectInput("rcbd_ntrt", "Number of treatments", choices = 2:10000,selected = 2),
-                "RCBD"
+                h1("RCBD"),
+                fluidRow(
+                  column(
+                    6,
+                    selectInput("rcbd_ntrt", "Number of treatments", choices = 2:100, selected = 2)
+                  ),
+                  column(
+                    6,
+                    selectInput("crd_rep", "Block ", choices = 2:100, selected = 2)
+                  )
+                ),
+                fluidRow(id = "rcbd_boxes"),
+                actionButton("rcbd_add", "Add factor")
               ),
               
               conditionalPanel(
@@ -1466,7 +1524,7 @@ display: none;
               
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'SPRCBD'",
-                h1("Split Plot"),
+                h1("SPRCBD"),
                 fluidRow(
                   column(
                     6,
@@ -1480,7 +1538,7 @@ display: none;
               
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'SPSP'",
-                h1("Split-Split Plot"),
+                h1("SPSP"),
                 fluidRow(
                   column(
                     6,
@@ -1494,7 +1552,8 @@ display: none;
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'STRIP'",
                 #selectInput("strip_block","Block", choices = 2:10000,selected = 2),
-                "STRIP"
+                h1("STRIP"),
+                h2("Under construction")
               )
             )
           ),

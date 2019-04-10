@@ -61,6 +61,7 @@ fbdesign_agrofims <- function(design, rep=2, block=2, trt=2, ntrt=NULL,
 }
 
 ## Get factors from design tab ############################################################
+
 get_factors_design <- function(allinputs, design="fcrd",duplicate= TRUE){
   
   
@@ -119,6 +120,16 @@ get_levels_design <- function(allinputs, factors, design="fcrd", format=c("list"
         u<- u$values
         out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
       }
+      
+      # if(stringr::str_detect(factors[i],pattern="application rate")){ #special case for product, nutrient and oxidzed
+      #   # 95, 96 y 97 from FACTOR_V10-DRAFT
+      #   fert<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+      #                     dplyr::filter(str_detect(id,  paste0(lookup, "fert_",i) ))
+      #   fert<- fert$values
+      #   out[[i]]<- paste0(fert," ",out[[i]]) #quantity + whitespace + unit
+      #   
+      # }
+      
     }
   }
   if(format=="data.frame"){
