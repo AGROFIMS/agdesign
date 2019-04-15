@@ -214,65 +214,26 @@ design_conditional_panels_agrofims <- function(){
   )
 }
 
-
-
 #' shiny UI element for HIDAP-AGROFIMS
 #'
 #' returns a re-usable user interface element
 #'
-#' @author Raul Arias, Omar Benites, Ivan Perez
+#' @author Ivan Perez, Omar Benites
 #' @param type type of ui element; default is a tab in a shiny dashboard
 #' @param title display title
 #' @param name a reference name
 #' @export
 
-
-################## Begin Simple Modules
-
 ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phenotype_fieldbook_design" ){
   
-  ##### Tab item #####
   shinydashboard::tabItem(
     tabName = name,
-
-    fluidRow(
-      column(6, style = "margin-top: -16px; margin-bottom: 16px;", h1("Experiment description")),
-      column(6, align = "right", style = "margin-top: 11px;",
-             useShinyalert()#,
-             #actionButton("xtest", "Test"),
-             #actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
-             #actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('uisessionagrofims')"),
-             #actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
-             #actionButton("testsession", "test"),
-             #htmlOutput("lastsaved")
-             #uiOutput("saveUI")
-      )
-    ),
-
-    fluidRow(
-      column(12, verbatimTextOutput("text1"))
-    ),
-
-    #h1("Experiment description"),
-
-    # To reset panels and UI
-    shinyjs::useShinyjs(),
-    #useShinyFeedback(),
     
-    tags$head(
-      tags$script(
-        HTML("
-          var openTab = function(tabName){
-          	$('a', $('.sidebar')).each(function(){
-          		if(this.getAttribute('data-value') == tabName){
-          			this.click()
-                  };
-              });
-          }
-        ")
-      )
-    ),
-
+    shinyjs::useShinyjs(),
+    
+    ###################### START: JAVA SCRIPT ######################
+    
+    ## Generales
     # Code for showing  when other is selected in a combobox
     tags$script('$(document).on("change", "select",  function(){
                  var a = this.id + "_other";
@@ -288,9 +249,78 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 '
     ),
     
+    # ?????
+    tags$script('Shiny.addCustomMessageHandler("focus",
+                 function(a) {
+                 document.getElementById(a).focus();
+                 });
+                '
+    ),
     
-    ########### Start JS ###########
+    # ?????
+    tags$head(
+      tags$script(
+        HTML("
+          var openTab = function(tabName){
+          	$('a', $('.sidebar')).each(function(){
+          		if(this.getAttribute('data-value') == tabName){
+          			this.click()
+                  };
+              });
+          }
+        ")
+      )
+    ),
     
+    # Abre los boxes
+    tags$script('$(document).on("click", "a[id*=\'_titleId\']",  function(){
+                 Shiny.onInputChange("boxTitleClicked", Math.random());
+                 Shiny.onInputChange("boxTitleClickedId", this.id);
+                 })
+                '
+    ),
+    
+    ## Experiment conditions
+    # Deleted GENERAL
+    tags$script('$(document).on("click", "button[id^=\'exp_closeBox_\']",  function(){
+                 Shiny.onInputChange("closeBox_EXP", Math.random());
+                 Shiny.onInputChange("closeBox_EXPid", this.id);
+                 })
+                '),
+    
+    ## Personnel
+    # Deleted GENERAL
+    tags$script('$(document).on("click", "button[id^=\'per_closeBox_\']",  function(){
+                 Shiny.onInputChange("closeBox_PER", Math.random());
+                 Shiny.onInputChange("closeBox_PERid", this.id);
+                 })
+                '),
+    
+    ## Site
+    
+    ## Crop
+    # When intercrop is selected
+    tags$script('$(document).on("change", "select[id*=\'_cropCommonName_\']",  function(){
+                 Shiny.onInputChange("cropBoxInterVar", Math.random());
+                 Shiny.onInputChange("cropBoxInterVarId", this.id);
+                 })
+                '),
+    
+    # When 'other crop' name is filled --> solo para intercrop
+    tags$script('$(document).on("change", "input[id*=\'_cropCommonName_\']",  function(){
+                 Shiny.onInputChange("cropBoxInterVarOther", Math.random());
+                 Shiny.onInputChange("cropBoxInterVarOtherId", this.id);
+                 })
+                '),
+    
+    # Deleted GENERAL
+    tags$script('$(document).on("click", "button[id*=\'_closeCrop_\']",  function(){
+                Shiny.onInputChange("closeBox_CROP", Math.random());
+                Shiny.onInputChange("closeBox_CROPid", this.id);
+                })
+                '),
+    
+    ## Design
     # Factor GENERAL
     tags$script('$(document).on("change", "select[id*=\'_sel_factor_\']",  function(){
                 Shiny.onInputChange("selectGEN", Math.random());
@@ -327,6 +357,205 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 Shiny.onInputChange("otherOthGENid", this.id);
                 })
                 '),
+    
+    ###################### END: JAVA SCRIPT ######################
+    
+    ###################### START: CSS ######################
+    
+    
+    tags$style("*[id^='v2_'] {
+                transform: scale(1.8);
+                }
+                "),
+
+    tags$style("#dt_sel {
+                transform: scale(1.5);
+                }
+                "),
+    
+    tags$style("#lastsaved {
+               font-style: italic;
+               font-size: 13px;
+               font-weight: bold;
+               margin-top: 4px;
+               }"),
+    
+    tags$style("#lastsaved_i {
+               font-style: italic;
+               font-size: 13px;
+               font-weight: bold;
+               margin-top: 4px;
+               }"),
+
+    tags$style(HTML("
+                    .box.box-solid.box-warning>.box-header {
+                    color:#000;
+                    background:#f5f5f5;
+                    /*padding-top:0px*/
+                    display: none;
+                    }
+                    
+                    /**[id^='fl_box_fundingAgency_'] .box.box-solid.box-warning>.box-header {
+                    display: none;
+                    }*/ 
+                    
+                    .box.box-solid.box-warning>.box-body {
+                    color:#000;
+                    background:#f5f5f5
+                    }
+                    
+                    .box.box-solid.box-warning{
+                    border-bottom-color:#f5f5f5;
+                    border-left-color:#f5f5f5;
+                    border-right-color:#f5f5f5;
+                    border-top-color:#f5f5f5;
+                    }
+                    
+                    
+                    
+                    .box.box-solid.box-info>.box-header {
+                    color:#000;
+                    background:#f2dede;
+                    /*padding-top:0px*/
+                    }
+                    
+                    .box.box-solid.box-info>.box-body {
+                    color:#000;
+                    background:#f2dede
+                    }
+                    
+                    .box.box-solid.box-info{
+                    border-bottom-color:#f2dede;
+                    border-left-color:#f2dede;
+                    border-right-color:#f2dede;
+                    border-top-color:#f2dede;
+                    }
+                    
+                    #gh {
+                    font-size: 24px;
+                    }
+                    
+                    
+                    ")),
+    
+    
+    tags$head(
+      tags$style(HTML("
+                      .shiny-output-error-validation {
+                      color: green;
+                      font-size: 120%;
+                      font-family: Arial, Helvetica, sans-serif;
+                      }
+                      "))
+      ),
+    
+    tags$head(tags$style(
+      HTML('
+           #sidebar {
+           padding: 19px 20px 20px;
+           margin-top: 20px;
+           margin-bottom: 20px;
+           background-color: #f5f5f5;
+           border-top: 1px solid #e5e5e5;
+           }
+           .well {
+           border-radius: 0px;
+           
+           border: 0px solid #e3e3e3;
+           }'
+                            )
+      )),
+    
+    tags$style(HTML("
+                    .nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+                    color: #fff;
+                    cursor: default;
+                    background-color: #0081c2;
+                    border: 1px solid #ddd;
+                    border-bottom-color: transparent;}
+                    ")),
+    
+    tags$style("#myqr {
+               
+               width: 100px !important;
+               height: 100px !important;
+               
+               }
+               
+               #uniqueId {
+               
+               text-align:center !important;
+               
+               }
+               
+               
+               "),
+  
+    tags$style("#myqr2 {
+               width: 100px !important;
+               height: 100px !important;
+               }
+                                      
+               #uniqueId {
+               text-align:center !important;
+               }
+               "),             
+                                      
+  
+    tags$style("
+             .form-group {
+             margin-bottom: 0px;
+             }
+             "),
+    
+    ###################### END: CSS ######################
+    
+    
+    
+    fluidRow(
+      column(6, style = "margin-top: -16px; margin-bottom: 16px;", h1("Experiment description")),
+      column(6, align = "right", style = "margin-top: 11px;",
+             useShinyalert()#,
+             #actionButton("xtest", "Test"),
+             #actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
+             #actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('uisessionagrofims')"),
+             #actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
+             #actionButton("testsession", "test"),
+             #htmlOutput("lastsaved")
+             #uiOutput("saveUI")
+      )
+    ),
+
+    fluidRow(
+      column(12, verbatimTextOutput("text1"))
+    ),
+
+    #h1("Experiment description"),
+
+    # To reset panels and UI
+    
+    
+    
+
+    # # Code for showing  when other is selected in a combobox
+    # tags$script('$(document).on("change", "select",  function(){
+    #              var a = this.id + "_other";
+    #              var b = "#" + a ;
+    #              var val = this.value
+    # 
+    #              if(val == "Other") {
+    #              shinyjs.show(a)
+    #              $(b).focus();
+    #              }
+    #              else{shinyjs.hide(a)}
+    #              })
+    #             '
+    # ),
+    
+    
+    ########### Start JS ###########
+    
+    
     
     ########### End JS ###########
     
@@ -447,48 +676,48 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
 
     ### code for buttons in tab soil to calculate sum
     # tags$script('$(document).on("click", "button[id^=\'buttonSoilTab_\']",  function(){
-    tags$script('$(document).on("change", "input[id^=\'input_tabSoil_rate_\']",  function(){
-                 Shiny.onInputChange("calculateTabSoil", Math.random());
-                 Shiny.onInputChange("calculateTabSoilButtonId", this.id);
-                 })
-                '
-    ),
-    
-    tags$script('$(document).on("change", "select[id^=\'cropCommonNameInter\']",  function(){
-                 Shiny.onInputChange("cropBoxInterVar", Math.random());
-                 Shiny.onInputChange("cropBoxInterVarId", this.id);
-                 })
-                '
-    ),
-    tags$script('$(document).on("change", "input[id^=\'cropCommonNameInter\']",  function(){
-                 Shiny.onInputChange("cropBoxInterVarOther", Math.random());
-                 Shiny.onInputChange("cropBoxInterVarOtherId", this.id);
-                 })
-                '
-    ),
+    # tags$script('$(document).on("change", "input[id^=\'input_tabSoil_rate_\']",  function(){
+    #              Shiny.onInputChange("calculateTabSoil", Math.random());
+    #              Shiny.onInputChange("calculateTabSoilButtonId", this.id);
+    #              })
+    #             '
+    # ),
+    # 
+    # tags$script('$(document).on("change", "select[id^=\'cropCommonNameInter\']",  function(){
+    #              Shiny.onInputChange("cropBoxInterVar", Math.random());
+    #              Shiny.onInputChange("cropBoxInterVarId", this.id);
+    #              })
+    #             '
+    # ),
+    # tags$script('$(document).on("change", "input[id^=\'cropCommonNameInter\']",  function(){
+    #              Shiny.onInputChange("cropBoxInterVarOther", Math.random());
+    #              Shiny.onInputChange("cropBoxInterVarOtherId", this.id);
+    #              })
+    #             '
+    # ),
 
     # suma product en exp cond
-    tags$script('$(document).on("change", "input[id^=\'input_productRate_soil_table_row\']",  function(){
-                 Shiny.onInputChange("calculateTabSoil2", Math.random());
-                 Shiny.onInputChange("calculateTabSoil2ButtonId", this.id);
-                 })
-                '
-    ),
-    
-    tags$script('$(document).on("click", "a[id*=\'_titleId\']",  function(){
-                 Shiny.onInputChange("boxTitleClicked", Math.random());
-                 Shiny.onInputChange("boxTitleClickedId", this.id);
-                 })
-                '
-    ),
-
-    # suma elemt en exp cond
-    tags$script('$(document).on("change", "input[id^=\'input_elementRate_soil_table_row_\']",  function(){
-                 Shiny.onInputChange("calculateTabSoil3", Math.random());
-                 Shiny.onInputChange("calculateTabSoil3ButtonId", this.id);
-                 })
-                '
-    ),
+    # tags$script('$(document).on("change", "input[id^=\'input_productRate_soil_table_row\']",  function(){
+    #              Shiny.onInputChange("calculateTabSoil2", Math.random());
+    #              Shiny.onInputChange("calculateTabSoil2ButtonId", this.id);
+    #              })
+    #             '
+    # ),
+    # 
+    # tags$script('$(document).on("click", "a[id*=\'_titleId\']",  function(){
+    #              Shiny.onInputChange("boxTitleClicked", Math.random());
+    #              Shiny.onInputChange("boxTitleClickedId", this.id);
+    #              })
+    #             '
+    # ),
+    # 
+    # # suma elemt en exp cond
+    # tags$script('$(document).on("change", "input[id^=\'input_elementRate_soil_table_row_\']",  function(){
+    #              Shiny.onInputChange("calculateTabSoil3", Math.random());
+    #              Shiny.onInputChange("calculateTabSoil3ButtonId", this.id);
+    #              })
+    #             '
+    # ),
 
     ### code for buttons in tab soil to calculate sum in Experiment conditions
     # tags$script('$(document).on("click", "button[id^=\'buttonSoilTab_\']",  function(){
@@ -501,77 +730,72 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     # ),
 
     ## script listening when fertilizer type is changed in soil fertility in experiment conditions
-    tags$script('$(document).on("change", "select[id^=\'select_fertilizerType_soil_table_row\']",  function(){
-                 Shiny.onInputChange("soilFertility_typeFertilizer", Math.random());
-                 Shiny.onInputChange("soilFertility_typeFertilizer_id", this.id);
-                 Shiny.onInputChange("soilFertility_typeFertilizer_value", this.value);
-                 })
-                '
-    ),
-    
-    ## script listening when a box is to be deleted
-    tags$script('$(document).on("click", "button[id^=\'closeBox_\']",  function(){
-                 Shiny.onInputChange("closeBox_button", Math.random());
-                 Shiny.onInputChange("closeBox_button_id", this.id);
-                 })
-                '
-    ),
+    # tags$script('$(document).on("change", "select[id^=\'select_fertilizerType_soil_table_row\']",  function(){
+    #              Shiny.onInputChange("soilFertility_typeFertilizer", Math.random());
+    #              Shiny.onInputChange("soilFertility_typeFertilizer_id", this.id);
+    #              Shiny.onInputChange("soilFertility_typeFertilizer_value", this.value);
+    #              })
+    #             '
+    # ),
+    # 
+    # ## script listening when a box is to be deleted
+    # tags$script('$(document).on("click", "button[id^=\'closeBox_\']",  function(){
+    #              Shiny.onInputChange("closeBox_button", Math.random());
+    #              Shiny.onInputChange("closeBox_button_id", this.id);
+    #              })
+    #             '
+    # ),
+    # 
+    # ## script listening when product is changed in soil fertility in experiment conditions
+    # tags$script('$(document).on("change", "select[id^=\'select_product_soil_table_row_\']",  function(){
+    #              Shiny.onInputChange("soilFertility_product", Math.random());
+    #              Shiny.onInputChange("soilFertility_product_id", this.id);
+    #              })
+    #             '
+    # ),
 
-    ## script listening when product is changed in soil fertility in experiment conditions
-    tags$script('$(document).on("change", "select[id^=\'select_product_soil_table_row_\']",  function(){
-                 Shiny.onInputChange("soilFertility_product", Math.random());
-                 Shiny.onInputChange("soilFertility_product_id", this.id);
-                 })
-                '
-    ),
-
-    tags$script('Shiny.addCustomMessageHandler("focus",
-                 function(a) {
-                 document.getElementById(a).focus();
-                 });
-                '
-    ),
     
     
-    ## select factor in list
-    tags$script('$(document).on("change", "select[id^=\'sel_factor_\']",  function(){
-                 Shiny.onInputChange("selectFactor", Math.random());
-                 Shiny.onInputChange("selectFactorID", this.id);
-                 })
-                '
-    ),
     
-    ## duplicate factor
-    tags$script('$(document).on("click", "button[id^=\'btDuplicate_\']",  function(){
-                 Shiny.onInputChange("duplicateFactor", Math.random());
-                 Shiny.onInputChange("duplicateFactorID", this.id);
-                 })
-                '
-    ),
-    
-    ## duplicate factor
-    tags$script('$(document).on("change", "input[id^=\'numLevels_tabSoil_\']",  function(){
-                Shiny.onInputChange("levelsSoilFertility", Math.random());
-                Shiny.onInputChange("levelsSoilFertilityID", this.id);
-                })'
-  ),
+  #   ## select factor in list
+  #   tags$script('$(document).on("change", "select[id^=\'sel_factor_\']",  function(){
+  #                Shiny.onInputChange("selectFactor", Math.random());
+  #                Shiny.onInputChange("selectFactorID", this.id);
+  #                })
+  #               '
+  #   ),
+  #   
+  #   ## duplicate factor
+  #   tags$script('$(document).on("click", "button[id^=\'btDuplicate_\']",  function(){
+  #                Shiny.onInputChange("duplicateFactor", Math.random());
+  #                Shiny.onInputChange("duplicateFactorID", this.id);
+  #                })
+  #               '
+  #   ),
+  #   
+  #   ## duplicate factor
+  #   tags$script('$(document).on("change", "input[id^=\'numLevels_tabSoil_\']",  function(){
+  #               Shiny.onInputChange("levelsSoilFertility", Math.random());
+  #               Shiny.onInputChange("levelsSoilFertilityID", this.id);
+  #               })'
+  # ),
   
-  ## num level update
-  tags$script('$(document).on("change", "input[id^=\'numLevels_\']",  function(){
-                Shiny.onInputChange("levelsFF", Math.random());
-                Shiny.onInputChange("levelsFFID", this.id);
-                })'
-  ),
-  tags$script('$(document).on("change", "input[id^=\'input_factor_treatment_\']",  function(){
-                Shiny.onInputChange("changeInputSummary", Math.random());
-                Shiny.onInputChange("changeInputSummaryId", this.id);
-                })'
-  ),
-  tags$script('$(document).on("change", "select[id^=\'input_factor_treatment_\']",  function(){
-                Shiny.onInputChange("changeInputSummary", Math.random());
-                Shiny.onInputChange("changeInputSummaryId", this.id);
-                })'
-  ),
+  # ## num level update
+  # tags$script('$(document).on("change", "input[id^=\'numLevels_\']",  function(){
+  #               Shiny.onInputChange("levelsFF", Math.random());
+  #               Shiny.onInputChange("levelsFFID", this.id);
+  #               })'
+  # ),
+  # tags$script('$(document).on("change", "input[id^=\'input_factor_treatment_\']",  function(){
+  #               Shiny.onInputChange("changeInputSummary", Math.random());
+  #               Shiny.onInputChange("changeInputSummaryId", this.id);
+  #               })'
+  # ),
+  # tags$script('$(document).on("change", "select[id^=\'input_factor_treatment_\']",  function(){
+  #               Shiny.onInputChange("changeInputSummary", Math.random());
+  #               Shiny.onInputChange("changeInputSummaryId", this.id);
+  #               })'
+  # ),
   
   
   
@@ -585,154 +809,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     #
     # ")),
 
-    tags$style("*[id^='v2_'] {
-                    transform: scale(1.8);
-               }"),
-
-    tags$style("#dt_sel {
-                    transform: scale(1.5);
-               }"),
     
-    tags$style("#lastsaved {
-                    font-style: italic;
-                    font-size: 13px;
-                    font-weight: bold;
-                    margin-top: 4px;
-               }"),
-    
-    tags$style("#lastsaved_i {
-                    font-style: italic;
-                    font-size: 13px;
-                    font-weight: bold;
-                    margin-top: 4px;
-               }"),
-
-    tags$style(HTML("
-
-                              .box.box-solid.box-warning>.box-header {
-                                color:#000;
-                                background:#f5f5f5;
-                                /*padding-top:0px*/
-                                display: none;
-                              }
-
-/**[id^='fl_box_fundingAgency_'] .box.box-solid.box-warning>.box-header {
-display: none;
-}*/ 
-
-                              .box.box-solid.box-warning>.box-body {
-                                color:#000;
-                              background:#f5f5f5
-                              }
-
-                              .box.box-solid.box-warning{
-                              border-bottom-color:#f5f5f5;
-                              border-left-color:#f5f5f5;
-                              border-right-color:#f5f5f5;
-                              border-top-color:#f5f5f5;
-                              }
-
-
-
-                              .box.box-solid.box-info>.box-header {
-                                color:#000;
-                                background:#f2dede;
-                                /*padding-top:0px*/
-                              }
-
-                              .box.box-solid.box-info>.box-body {
-                                color:#000;
-                              background:#f2dede
-                              }
-
-                              .box.box-solid.box-info{
-                              border-bottom-color:#f2dede;
-                              border-left-color:#f2dede;
-                              border-right-color:#f2dede;
-                              border-top-color:#f2dede;
-                              }
-
-              #gh {
-                font-size: 24px;
-              }
-
-
-                      ")),
-
-
-                          tags$head(
-                            tags$style(HTML("
-                                            .shiny-output-error-validation {
-                                            color: green;
-                                            font-size: 120%;
-                                            font-family: Arial, Helvetica, sans-serif;
-                                            }
-                                            "))
-                            ),
-
-                          tags$head(tags$style(
-                            HTML('
-                               #sidebar {
-                                  padding: 19px 20px 20px;
-                                  margin-top: 20px;
-                                  margin-bottom: 20px;
-                                  background-color: #f5f5f5;
-                                  border-top: 1px solid #e5e5e5;
-                               }
-                              .well {
-                                  border-radius: 0px;
-
-                                  border: 0px solid #e3e3e3;
-                                 }'
-                            )
-                          )),
-
-                          tags$style(HTML("
-                            .nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
-                            color: #fff;
-                            cursor: default;
-                            background-color: #0081c2;
-                            border: 1px solid #ddd;
-                            border-bottom-color: transparent;}
-                          ")),
-    
-                          tags$style("#myqr {
-                                          
-                                              width: 100px !important;
-                                              height: 100px !important;
-                                          
-                                                }
-                                      
-                                      #uniqueId {
-                                          
-                                              text-align:center !important;
-                                          
-                                      }
-                                     
-                                     
-                                     "),
-  
-                           tags$style("#myqr2 {
-                                          
-                                              width: 100px !important;
-                                              height: 100px !important;
-                                          
-                                                }
-                                      
-                                      #uniqueId {
-                                          
-                                              text-align:center !important;
-                                          
-                                      }
-                                     
-                                     
-                                     "),
-  
-  tags$style("
-      .form-group {
-        margin-bottom: 0px;
-      }
-    "),
 
                           # fluidRow(
                           #   box()
@@ -780,16 +857,6 @@ display: none;
                   textInput(inputId = "experimentName", label = "Experiment name", value = ""),
                   textInput(inputId = "experimentProjectName", label = "Experiment project name", value = ""),
                   
-                  #shiny::dateRangeInput("fbDesign_project_time_line", "Experiment date", start = Sys.Date() - 2, end = Sys.Date() + 20, startview = "year", format = "yyyy-mm-dd"),
-                  # airDatepickerInput("fbDesign_project_time_line",
-                  #                    "Experiment date",
-                  #                    multiple = 2, clearButton = TRUE,
-                  #                    value = c(Sys.Date() + 1, Sys.Date() + 30),
-                  #                    range = T,
-                  #                    autoClose = T,
-                  #                    placeholder = "yyyy-mm-dd     to     yyyy-mm-dd",
-                  #                    separator = "     to     "),
-                  
                   fluidRow(
                     column(
                       6,
@@ -811,10 +878,8 @@ display: none;
                                  options = list(maxItems =1, placeholder = "Select one..."),
                                  choices = c("Controlled treatment trial",
                                              "Varietal trial",
-                                             #"Demonstration trial",
                                              "Germplasm screening trial")
                   ),
-                  
                   textAreaInput(inputId = "experimentObj", label = "Experiment objective", value = "")
                 ),
                 column(
@@ -831,9 +896,6 @@ display: none;
               12,
               br(),
               h2("Funding Agency"),
-              #actionButton("idtester", "test"),
-              #actionButton("btn2", "action2"),
-              #uiOutput("txt1"),
               fluidRow(id = "fr_fundingAgency_boxes"),
               actionButton("addFundingAgency", "Add a funding agency"),
               br(), br(), br()
@@ -856,7 +918,6 @@ display: none;
             column(
               12,
               br(),
-              #h2("Experiment Leads (if different from project management entity)"),
               HTML("<h2 style='display:inline;'>Experiment Leads</h2> <h4 style='display:inline;'>(if different from project management entity)</h4>"),
               fluidRow(id = "fr_experimentLeads_boxes"),
               actionButton("addExperimentLeads", "Add an experiment lead"),
@@ -878,9 +939,7 @@ display: none;
               h2("Personnel associated with the experiment"),
 
               fluidRow(
-                # column(6, selectInput("npersons", "Number of personnel", choices = 1:5)),
                 column(6, style = "margin-top: 25px;", actionButton("btLoadMyInfoPersonnel", "Load my info", icon("user")))
-                
               ),
               br(),
               fluidRow(id = "fr_personnel_boxes"),
@@ -901,10 +960,9 @@ display: none;
               width = 6,
               h2("Site information"),
               uiOutput("uiTest"),
-              #p(actionButton("refreshSiteList", "Look for sites", icon("location-arrow"))),
               p(actionButton("refreshSiteList", "Refresh all sites", icon("sync"))),
               shiny::uiOutput("fbDesign_country", inline = TRUE, width = 500),
-              shiny::uiOutput("fbDesign_countrySite", inline = TRUE, width = 500), #,#locality
+              shiny::uiOutput("fbDesign_countrySite", inline = TRUE, width = 500),
               br(),
               h2("Site surrounded by"),
               selectizeInput("fbDesign_inHighLevel", label="Higher-level landform", multiple = TRUE,
@@ -928,11 +986,7 @@ display: none;
                                          "Other"),
                              options = list(maxItems = 5, placeholder = 'Select one... ')
               ),
-              textAreaInput("inSiteDescNotes", label="Site description notes", value="")#,
-              
-              # br(),
-              # h2("Site soil classification"),
-              # h3("Under construction")
+              textAreaInput("inSiteDescNotes", label="Site description notes", value="")
             ),
 
             sidebarPanel(
@@ -941,262 +995,400 @@ display: none;
             )
           ),
           ##### Tab: End Site #####
-
-          ##### Tab: Start Design #####
-          shiny::tabPanel(
-            title = tagList(shiny::icon("th-list"), "Design"), value = "tabDesign2",
-            tags$style(HTML("
-                            #lvl_hdafims1 + div> div>.item {
-                            background:   #337ab7 !important;
-                            color: white;
-                            }
-                            
-                            #lvl_hdafims1 + div> div>.selectize-dropdown-content .active {
-                            background:   #337ab7 !important;
-                            }
-                            
-                            #lvl_hdafims2 + div> div>.item {
-                            background:   #f3217a !important;
-                            color: white;
-                            }
-                            
-                            #lvl_hdafims2 + div> div>.selectize-dropdown-content .active {
-                            background:   #f3217a !important;
-                            }
-                            
-                            #lvl_hdafims3 + div> div>.item {
-                            background:   #777 !important;
-                            color: white;
-                            }
-                            
-                            #lvl_hdafims3 + div> div>.selectize-dropdown-content .active {
-                            background:   #777 !important;
-                            }
-                            
-                            #lvl_hdafims4 + div> div>.item {
-                            background:   #5cb85c !important;
-                            color: white;
-                            }
-                            
-                            #lvl_hdafims4 + div> div>.selectize-dropdown-content .active {
-                            background:   #5cb85c !important;
-                            }
-                            
-                            #lvl_hdafims5 + div> div>.item {
-                            background:   #FBBF09 !important;
-                            color: white;
-                            }
-                            
-                            #lvl_hdafims5 + div> div>.selectize-dropdown-content .active {
-                            background:   #FBBF09 !important;
-                            }"
-
-            )),
+          
+          ##### Tab: Start Crop #####
+          tabPanel(
+            title = tagList(shiny::icon("pagelines"), "Crop"), value="tabCrop",
+            
+            column(
+              12,
+              fluidRow(
+                column(
+                  6,
+                  h2("Fieldbook details"),
+                  uiOutput("fieldbookIdUI")
+                ),
+                
+                column(
+                  6, 
+                  align = "right",
+                  br(),
+                  imageOutput("myqr2")
+                )
+              )
+            ),
             
             column(
               width = 6,
-              #br(),
-              h2("Design information"),
-              # shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'RCBD', multiple = FALSE,
-              #                    c("Choose one" = "", design_choices_agrofims)
-              # ),
-              br()
-              # conditionalPanel("input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD'",
-              #                  h2("Information on experimental unit"),
-              #                  selectizeInput("info_experiment_unit", "Information on experimental unit", multiple = T,
-              #                                 options = list(maxItems =1, placeholder="Select one..."),
-              #                                 choices = c("plot",
-              #                                             "field",
-              #                                             "pot")
-              #                  ),
-              #                  
-              #                  conditionalPanel("input.info_experiment_unit == 'plot'",
-              #                                   fluidRow(
-              #                                     column(width = 3, textInput("expt_plot_length", label="Length", value="")),
-              #                                     column(
-              #                                       width = 3,
-              #                                       selectizeInput("expt_plot_length_unit", label="Unit", multiple = TRUE,
-              #                                                      options = list(maxItems =1, placeholder ="Select one..."),
-              #                                                      choices = c("m",
-              #                                                                  "ft")
-              #                                       )
-              #                                     ),
-              #                                     column(width = 3, textInput("expt_plot_width", label="Width", value="")),
-              #                                     column(
-              #                                       width = 3,
-              #                                       selectizeInput("expt_plot_width_unit", label="Unit", multiple = TRUE,
-              #                                                      options = list(maxItems =1, placeholder ="Select one..."),
-              #                                                      choices = c("m",
-              #                                                                  "ft")
-              #                                       )
-              #                                     )
-              #                                   )
-              #                  ),
-              #                  
-              #                  conditionalPanel("input.info_experiment_unit == 'field'",
-              #                                   fluidRow(
-              #                                     column(width = 3, textInput("expt_field_length", label="Length", value="")),
-              #                                     column(
-              #                                       width = 3,
-              #                                       selectizeInput("expt_field_length_unit", label="Unit", multiple = TRUE,
-              #                                                      options = list(maxItems =1, placeholder ="Select one..."),
-              #                                                      choices = c("m",
-              #                                                                  "km",
-              #                                                                  "ft",
-              #                                                                  "mi")
-              #                                       )
-              #                                     ),
-              #                                     column(width = 3, textInput("expt_field_width", label="Width", value="")),
-              #                                     column(
-              #                                       width = 3,
-              #                                       selectizeInput("expt_field_width_unit", label="Unit", multiple = TRUE,
-              #                                                      options = list(maxItems =1, placeholder ="Select one..."),
-              #                                                      choices = c("m",
-              #                                                                  "km",
-              #                                                                  "ft",
-              #                                                                  "mi")
-              #                                       )
-              #                                     )
-              #                                   )
-              #                  ),
-              #                  
-              #                  conditionalPanel("input.info_experiment_unit == 'pot'",
-              #                                   fluidRow(
-              #                                     column(width = 3, textInput("pot_diameter", label="Diameter", value="")),
-              #                                     column(
-              #                                       width = 3,
-              #                                       selectizeInput("pot_diameter_unit", label="Unit", multiple = TRUE,
-              #                                                      options = list(maxItems =1, placeholder ="Select one..."),
-              #                                                      choices = c("cm",
-              #                                                                  "in")
-              #                                       )
-              #                                     ),
-              #                                     
-              #                                     column(width = 3, textInput("pot_depth", label="Depth", value="")),
-              #                                     column(
-              #                                       width = 3,
-              #                                       selectizeInput("pot_depth_unit", label="Unit", multiple = TRUE,
-              #                                                      options = list(maxItems =1, placeholder ="Select one..."),
-              #                                                      choices = c("cm",
-              #                                                                  "in")
-              #                                       )
-              #                                     )
-              #                                   )
-              #                  )
-              # ),
-              # 
-              # #br(),
-              # conditionalPanel("input.designFieldbook_agrofims == 'SPRCBD'",
-              #                  h2("Information on experimental unit"),
-              #                  # selectizeInput("info_experiment_unit", "Information on experimental unit", multiple = T,
-              #                  #                options = list(maxItems =1, placeholder="Select one..."),
-              #                  #                choices = c("plot")#,
-              #                  #                            # "field",
-              #                  #                            # "pot")
-              #                  # ),
-              #                  fluidRow(
-              #                    column(
-              #                      width = 12, 
-              #                      h4("Information on main plot")
-              #                    )
-              #                  ),
-              #                  fluidRow(
-              #                    column(width = 3, textInput("expt_plot_length", label="Length", value="")),
-              #                    column(
-              #                      width = 3,
-              #                      selectizeInput("expt_plot_length_unit", label="Unit", multiple = TRUE,
-              #                                     options = list(maxItems =1, placeholder ="Select one..."),
-              #                                     choices = c("m",
-              #                                                 "ft")
-              #                      )
-              #                    ),
-              #                    column(width = 3, textInput("expt_plot_width", label="Width", value="")),
-              #                    column(
-              #                      width = 3,
-              #                      selectizeInput("expt_plot_width_unit", label="Unit", multiple = TRUE,
-              #                                     options = list(maxItems =1, placeholder ="Select one..."),
-              #                                     choices = c("m",
-              #                                                 "ft")
-              #                      )
-              #                    )
-              #                  ),
-              #                  
-              #                  fluidRow(
-              #                    column(
-              #                      width = 12, 
-              #                      h4("Information on sub plot")
-              #                    )
-              #                  ),
-              #                  fluidRow(
-              #                    column(width = 3, textInput("expt_plot_length", label="Length", value="")),
-              #                    column(
-              #                      width = 3,
-              #                      selectizeInput("expt_plot_length_unit", label="Unit", multiple = TRUE,
-              #                                     options = list(maxItems =1, placeholder ="Select one..."),
-              #                                     choices = c("m",
-              #                                                 "ft")
-              #                      )
-              #                    ),
-              #                    column(width = 3, textInput("expt_plot_width", label="Width", value="")),
-              #                    column(
-              #                      width = 3,
-              #                      selectizeInput("expt_plot_width_unit", label="Unit", multiple = TRUE,
-              #                                     options = list(maxItems =1, placeholder ="Select one..."),
-              #                                     choices = c("m",
-              #                                                 "ft")
-              #                      )
-              #                    )
-              #                  )
-              #                  
-              # )
-              
-              
-              #,
-              
-              # br(),
-              # h2("Design information"),
-              # shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'CRD', multiple = FALSE,
-              #                    c("Choose one" = "", design_choices_agrofims)
-              # )
+              h2("Description of crops sown"),
+              shiny::selectInput("croppingType", "Cropping type",
+                                 choices = c("Monocrop",
+                                             "Intercrop",
+                                             "Relay crop",
+                                             "Rotation"), selected = "Monocrop"
+              )
             ),
             
             column(
-              12,
+              width = 12,
+              conditionalPanel("input.croppingType == 'Monocrop'",
+                               fluidRow(
+                                 column(
+                                   width = 12,
+                                   br(),
+                                   h2("Crop information"),
+                                   fluidRow(
+                                     column(
+                                       width = 6,
+                                       selectizeInput("cropCommonNameMono", "Crop common name", multiple = TRUE,
+                                                      options = list(maxItems =1, placeholder = "Select one..."),
+                                                      choices = c("Cassava",
+                                                                  "Common bean",
+                                                                  "Maize",
+                                                                  "Potato",
+                                                                  "Rice",
+                                                                  "Sweetpotato",
+                                                                  "Wheat",
+                                                                  "Other")
+                                       ),
+                                       
+                                       hidden(textInput("cropCommonNameMono_other", ""))
+                                     ),
+                                     
+                                     column(
+                                       width = 6,
+                                       selectizeInput(inputId = "cultivarNameMono", label = "Variety name(s)", choices = c(), multiple = T,
+                                                      options = list('create' = TRUE)
+                                       )
+                                     )
+                                   )
+                                 )
+                               )
+              ),
+              
+              conditionalPanel("input.croppingType == 'Intercrop'",
+                               h2("Crop information"),
+                               fluidRow(id="fr_intercrop_boxes"),
+                               actionButton("addIntercrop", "Add crop"),
+                               br(),br(),
+                               h2("Intercrop arrangement"),
+                               fluidRow(
+                                 column(
+                                   width = 6,
+                                   selectizeInput("fr_intercrop_arrangement", "", multiple = TRUE,
+                                                  options = list(maxItems =1, placeholder="Select one..."),
+                                                  choices = c("Mixed intercropping",
+                                                              "Row intercropping")
+                                   )
+                                 )
+                               ),
+                               fluidRow(
+                                 column(12,
+                                        h2("Intercrop row geometry"),
+                                        fluidRow(id="fr_intercrop_geometry_boxes")
+                                 )
+                               )
+              ),
+              
+              conditionalPanel("input.croppingType == 'Relay crop'",
+                               h2("Crop information"),
+                               fluidRow(id="fr_relaycrop_boxes"),
+                               actionButton("addRelaycrop", "Add crop"),
+                               br(),br()
+              ),
+              
+              conditionalPanel("input.croppingType == 'Rotation'",
+                               h2("Crop information"),
+                               fluidRow(id="fr_rotationcrop_boxes"),
+                               actionButton("addRotationcrop", "Add crop"),
+                               br(),br()
+              ),
+              
               br(),
-              h2("Treatment description"),
-              # HTML("<center>"),
-              h3( shinyWidgets::radioGroupButtons(inputId = "fullFactorialRB", label = "Is this a full factorial design?", choices=c("Yes", "No"), status= "primary", size= "lg", checkIcon = list(yes = icon("ok", lib = "glyphicon"))))
-              # HTML("</center>")
-            ),
-            
-            column(
-              12,
-              tabsetPanel(
-                id= "treatmentSetPanel",
-                shiny::tabPanel(
-                  "Factors",
-                  value = "tabTreatmentFactors",
-                  br(),
-                  br(),
-                  column(
-                    width = 12,
-                    conditionalPanel("input.designFieldbook_agrofims == 'SPRCBD'",
-                                     h3("Main and sub plot factors (1st factor applies to main plot; 2nd factor to sub plot)")
-                    ),
-                    fluidRow(id = "fluid_treatment_description"),
-                    
-                    fluidRow(id="fluid_factor_input")
-                  )
+              h2("Previous crop or fallow"),
+              fluidRow(
+                column(
+                  width = 6,
+                  selectizeInput("prevCropName", "", multiple = TRUE,
+                                 options = list(maxItems =1, placeholder="Select one..."),
+                                 choices = c("Cassava",
+                                             "Common bean",
+                                             "Maize",
+                                             "Potato",
+                                             "Rice",
+                                             "Sweetpotato",
+                                             "Wheat",
+                                             "Fallow",
+                                             "Pasture",
+                                             "Other")
+                  ),
+                  hidden(textInput("prevCropName_other", ""))
                 )
               )
             ),
             
             sidebarPanel(
               id="sidebar", width = 12,
-              actionButton("btnNextAgro", "Next", class = "btn-primary",style="color: #fff;" , href="#top")
+              actionButton("btnDesign", "Next", class = "btn-primary",style="color: #fff;", href="#top")
             )
-            ),
-          ##### Tab: End Design #####
+          ),
+          ##### Tab: End Crop #####
+
+          # ##### Tab: Start Design #####
+          # shiny::tabPanel(
+          #   title = tagList(shiny::icon("th-list"), "Design"), value = "tabDesign2",
+          #   tags$style(HTML("
+          #                   #lvl_hdafims1 + div> div>.item {
+          #                   background:   #337ab7 !important;
+          #                   color: white;
+          #                   }
+          #                   
+          #                   #lvl_hdafims1 + div> div>.selectize-dropdown-content .active {
+          #                   background:   #337ab7 !important;
+          #                   }
+          #                   
+          #                   #lvl_hdafims2 + div> div>.item {
+          #                   background:   #f3217a !important;
+          #                   color: white;
+          #                   }
+          #                   
+          #                   #lvl_hdafims2 + div> div>.selectize-dropdown-content .active {
+          #                   background:   #f3217a !important;
+          #                   }
+          #                   
+          #                   #lvl_hdafims3 + div> div>.item {
+          #                   background:   #777 !important;
+          #                   color: white;
+          #                   }
+          #                   
+          #                   #lvl_hdafims3 + div> div>.selectize-dropdown-content .active {
+          #                   background:   #777 !important;
+          #                   }
+          #                   
+          #                   #lvl_hdafims4 + div> div>.item {
+          #                   background:   #5cb85c !important;
+          #                   color: white;
+          #                   }
+          #                   
+          #                   #lvl_hdafims4 + div> div>.selectize-dropdown-content .active {
+          #                   background:   #5cb85c !important;
+          #                   }
+          #                   
+          #                   #lvl_hdafims5 + div> div>.item {
+          #                   background:   #FBBF09 !important;
+          #                   color: white;
+          #                   }
+          #                   
+          #                   #lvl_hdafims5 + div> div>.selectize-dropdown-content .active {
+          #                   background:   #FBBF09 !important;
+          #                   }"
+          # 
+          #   )),
+          #   
+          #   column(
+          #     width = 6,
+          #     #br(),
+          #     h2("Design information"),
+          #     # shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'RCBD', multiple = FALSE,
+          #     #                    c("Choose one" = "", design_choices_agrofims)
+          #     # ),
+          #     br()
+          #     # conditionalPanel("input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD'",
+          #     #                  h2("Information on experimental unit"),
+          #     #                  selectizeInput("info_experiment_unit", "Information on experimental unit", multiple = T,
+          #     #                                 options = list(maxItems =1, placeholder="Select one..."),
+          #     #                                 choices = c("plot",
+          #     #                                             "field",
+          #     #                                             "pot")
+          #     #                  ),
+          #     #                  
+          #     #                  conditionalPanel("input.info_experiment_unit == 'plot'",
+          #     #                                   fluidRow(
+          #     #                                     column(width = 3, textInput("expt_plot_length", label="Length", value="")),
+          #     #                                     column(
+          #     #                                       width = 3,
+          #     #                                       selectizeInput("expt_plot_length_unit", label="Unit", multiple = TRUE,
+          #     #                                                      options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                                      choices = c("m",
+          #     #                                                                  "ft")
+          #     #                                       )
+          #     #                                     ),
+          #     #                                     column(width = 3, textInput("expt_plot_width", label="Width", value="")),
+          #     #                                     column(
+          #     #                                       width = 3,
+          #     #                                       selectizeInput("expt_plot_width_unit", label="Unit", multiple = TRUE,
+          #     #                                                      options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                                      choices = c("m",
+          #     #                                                                  "ft")
+          #     #                                       )
+          #     #                                     )
+          #     #                                   )
+          #     #                  ),
+          #     #                  
+          #     #                  conditionalPanel("input.info_experiment_unit == 'field'",
+          #     #                                   fluidRow(
+          #     #                                     column(width = 3, textInput("expt_field_length", label="Length", value="")),
+          #     #                                     column(
+          #     #                                       width = 3,
+          #     #                                       selectizeInput("expt_field_length_unit", label="Unit", multiple = TRUE,
+          #     #                                                      options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                                      choices = c("m",
+          #     #                                                                  "km",
+          #     #                                                                  "ft",
+          #     #                                                                  "mi")
+          #     #                                       )
+          #     #                                     ),
+          #     #                                     column(width = 3, textInput("expt_field_width", label="Width", value="")),
+          #     #                                     column(
+          #     #                                       width = 3,
+          #     #                                       selectizeInput("expt_field_width_unit", label="Unit", multiple = TRUE,
+          #     #                                                      options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                                      choices = c("m",
+          #     #                                                                  "km",
+          #     #                                                                  "ft",
+          #     #                                                                  "mi")
+          #     #                                       )
+          #     #                                     )
+          #     #                                   )
+          #     #                  ),
+          #     #                  
+          #     #                  conditionalPanel("input.info_experiment_unit == 'pot'",
+          #     #                                   fluidRow(
+          #     #                                     column(width = 3, textInput("pot_diameter", label="Diameter", value="")),
+          #     #                                     column(
+          #     #                                       width = 3,
+          #     #                                       selectizeInput("pot_diameter_unit", label="Unit", multiple = TRUE,
+          #     #                                                      options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                                      choices = c("cm",
+          #     #                                                                  "in")
+          #     #                                       )
+          #     #                                     ),
+          #     #                                     
+          #     #                                     column(width = 3, textInput("pot_depth", label="Depth", value="")),
+          #     #                                     column(
+          #     #                                       width = 3,
+          #     #                                       selectizeInput("pot_depth_unit", label="Unit", multiple = TRUE,
+          #     #                                                      options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                                      choices = c("cm",
+          #     #                                                                  "in")
+          #     #                                       )
+          #     #                                     )
+          #     #                                   )
+          #     #                  )
+          #     # ),
+          #     # 
+          #     # #br(),
+          #     # conditionalPanel("input.designFieldbook_agrofims == 'SPRCBD'",
+          #     #                  h2("Information on experimental unit"),
+          #     #                  # selectizeInput("info_experiment_unit", "Information on experimental unit", multiple = T,
+          #     #                  #                options = list(maxItems =1, placeholder="Select one..."),
+          #     #                  #                choices = c("plot")#,
+          #     #                  #                            # "field",
+          #     #                  #                            # "pot")
+          #     #                  # ),
+          #     #                  fluidRow(
+          #     #                    column(
+          #     #                      width = 12, 
+          #     #                      h4("Information on main plot")
+          #     #                    )
+          #     #                  ),
+          #     #                  fluidRow(
+          #     #                    column(width = 3, textInput("expt_plot_length", label="Length", value="")),
+          #     #                    column(
+          #     #                      width = 3,
+          #     #                      selectizeInput("expt_plot_length_unit", label="Unit", multiple = TRUE,
+          #     #                                     options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                     choices = c("m",
+          #     #                                                 "ft")
+          #     #                      )
+          #     #                    ),
+          #     #                    column(width = 3, textInput("expt_plot_width", label="Width", value="")),
+          #     #                    column(
+          #     #                      width = 3,
+          #     #                      selectizeInput("expt_plot_width_unit", label="Unit", multiple = TRUE,
+          #     #                                     options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                     choices = c("m",
+          #     #                                                 "ft")
+          #     #                      )
+          #     #                    )
+          #     #                  ),
+          #     #                  
+          #     #                  fluidRow(
+          #     #                    column(
+          #     #                      width = 12, 
+          #     #                      h4("Information on sub plot")
+          #     #                    )
+          #     #                  ),
+          #     #                  fluidRow(
+          #     #                    column(width = 3, textInput("expt_plot_length", label="Length", value="")),
+          #     #                    column(
+          #     #                      width = 3,
+          #     #                      selectizeInput("expt_plot_length_unit", label="Unit", multiple = TRUE,
+          #     #                                     options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                     choices = c("m",
+          #     #                                                 "ft")
+          #     #                      )
+          #     #                    ),
+          #     #                    column(width = 3, textInput("expt_plot_width", label="Width", value="")),
+          #     #                    column(
+          #     #                      width = 3,
+          #     #                      selectizeInput("expt_plot_width_unit", label="Unit", multiple = TRUE,
+          #     #                                     options = list(maxItems =1, placeholder ="Select one..."),
+          #     #                                     choices = c("m",
+          #     #                                                 "ft")
+          #     #                      )
+          #     #                    )
+          #     #                  )
+          #     #                  
+          #     # )
+          #     
+          #     
+          #     #,
+          #     
+          #     # br(),
+          #     # h2("Design information"),
+          #     # shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'CRD', multiple = FALSE,
+          #     #                    c("Choose one" = "", design_choices_agrofims)
+          #     # )
+          #   ),
+          #   
+          #   column(
+          #     12,
+          #     br(),
+          #     h2("Treatment description"),
+          #     # HTML("<center>"),
+          #     h3( shinyWidgets::radioGroupButtons(inputId = "fullFactorialRB", label = "Is this a full factorial design?", choices=c("Yes", "No"), status= "primary", size= "lg", checkIcon = list(yes = icon("ok", lib = "glyphicon"))))
+          #     # HTML("</center>")
+          #   ),
+          #   
+          #   column(
+          #     12,
+          #     tabsetPanel(
+          #       id= "treatmentSetPanel",
+          #       shiny::tabPanel(
+          #         "Factors",
+          #         value = "tabTreatmentFactors",
+          #         br(),
+          #         br(),
+          #         column(
+          #           width = 12,
+          #           conditionalPanel("input.designFieldbook_agrofims == 'SPRCBD'",
+          #                            h3("Main and sub plot factors (1st factor applies to main plot; 2nd factor to sub plot)")
+          #           ),
+          #           fluidRow(id = "fluid_treatment_description"),
+          #           
+          #           fluidRow(id="fluid_factor_input")
+          #         )
+          #       )
+          #     )
+          #   ),
+          #   
+          #   sidebarPanel(
+          #     id="sidebar", width = 12,
+          #     actionButton("btnNextAgro", "Next", class = "btn-primary",style="color: #fff;" , href="#top")
+          #   )
+          #   ),
+          # ##### Tab: End Design #####
           
           ##### Tab: Start Design New #####
           
@@ -1578,8 +1770,8 @@ display: none;
                     selectInput("sp1_block", "Block", choices = 2:100, selected = 2)
                   )
                 ),
-                fluidRow(id = "sprcbd_boxes"),
                 fluidRow(id = "sprcbd_boxes")#,
+                #fluidRow(id = "sprcbd_boxes")#,
                 #actionButton("sprcbd_add", "Add factor")
               ),
               
@@ -1608,194 +1800,7 @@ display: none;
           ##### Tab: End Design New #####
           
           
-          ##### Tab: Start Crop #####
-          tabPanel(
-            title = tagList(shiny::icon("pagelines"), "Crop"), value="tabCrop",
-            
-            column(
-              12,
-              fluidRow(
-                column(
-                  6,
-                  h2("Fieldbook details"),
-                  uiOutput("fieldbookIdUI")
-                  #textInput(inputId = "experimentName", label = "Experiment name", value = ""),
-                  #textInput(inputId = "experimentProjectName", label = "Experiment project name", value = "")
-                ),
-                
-                column(
-                  6, 
-                  align = "right",
-                  br(),
-                  imageOutput("myqr2")#,
-                  #uiOutput("IdUI")
-                )
-              )
-            ),
-            
-            column(
-              width = 6,
-              h2("Description of crops sown"),
-              shiny::selectInput("croppingType", "Cropping type",
-                                 choices = c("Monocrop",
-                                             "Intercrop",
-                                             "Relay crop",
-                                             "Rotation")#,
-                                 #selected = "Intercrop"
-              )
-            ),
-
-            column(
-              width = 12,
-              conditionalPanel("input.croppingType == 'Monocrop'",
-                               fluidRow(
-                                 column(
-                                   width = 12,
-                                   br(),
-                                   h2("Crop information"),
-                                   fluidRow(
-                                     column(
-                                       width = 6,
-                                       selectizeInput("cropCommonNameMono", "Crop common name", multiple = TRUE,
-                                                      options = list(maxItems =1, placeholder="Select one..."),
-                                                      choices = c("Cassava",
-                                                                  "Common bean",
-                                                                  "Maize",
-                                                                  "Potato",
-                                                                  "Rice",
-                                                                  "Sweetpotato",
-                                                                  "Wheat",
-                                                                  "Other")
-                                       ),
-
-                                       hidden(textInput("cropCommonNameMono_other", ""))
-                                     ),
-
-                                     column(
-                                       width = 6,
-                                       selectizeInput(inputId = "cultivarNameMono", label = "Variety name(s)", choices = c(), multiple = T,
-                                                      options = list('create' = TRUE)
-                                       )
-                                     )
-                                   )
-                                 )
-                               )
-              ),
-
-              conditionalPanel("input.croppingType == 'Intercrop'",
-                     # fluidRow(
-                     #   
-                     # ),
-                     h2("Crop information"),
-                     fluidRow(id="fr_intercrop_boxes"),
-                     actionButton("addIntercrop", "Add crop"),
-                     br(),br(),
-                     h2("Intercrop arrangement"),
-                     fluidRow(
-                       column(
-                         width = 6,
-                         selectizeInput("fr_intercrop_arrangement", "", multiple = TRUE,
-                                        options = list(maxItems =1, placeholder="Select one..."),
-                                        choices = c("Mixed intercropping",
-                                                    "Row intercropping")
-                         )
-                       )
-                     ),
-                     fluidRow(
-                       column(12,
-                              h2("Intercrop row geometry"),
-                              fluidRow(id="fr_intercrop_geometry_boxes")
-                       )
-                     )
-              ),
-              
-              conditionalPanel("input.croppingType == 'Relay crop'",
-                               # fluidRow(
-                               #   
-                               # ),
-                               h2("Crop information"),
-                               #h3("Under construction"),
-                               
-                               fluidRow(id="fr_relaycrop_boxes"),
-                               actionButton("addRelaycrop", "Add crop"),
-                               br(),br()
-                               #h2("relaycrop arrangement"),
-                               #fluidRow(
-                              #   column(
-                              #     width = 6,
-                              #     selectizeInput("fr_relaycrop_arrangement", "", multiple = TRUE,
-                              #                    options = list(maxItems =1, placeholder="Select one..."),
-                              #                    choices = c("Mixed relaycropping",
-                              #                                "Row relaycropping")
-                              #     )
-                              #   )
-                              # ),
-                              # fluidRow(
-                              #   column(12,
-                              #          h2("relaycrop row geometry"),
-                              #          fluidRow(id="fr_relaycrop_geometry_boxes")
-                              #   )
-                              # )
-              ),
-              
-              conditionalPanel("input.croppingType == 'Rotation'",
-                               # fluidRow(
-                               #   
-                               # ),
-                               h2("Crop information"),
-                               #h3("Under construction"),
-                               fluidRow(id="fr_rotationcrop_boxes"),
-                               actionButton("addRotationcrop", "Add crop"),
-                               br(),br()#,
-                               # h2("Intercrop arrangement"),
-                               # fluidRow(
-                               #   column(
-                               #     width = 6,
-                               #     selectizeInput("fr_intercrop_arrangement", "", multiple = TRUE,
-                               #                    options = list(maxItems =1, placeholder="Select one..."),
-                               #                    choices = c("Mixed intercropping",
-                               #                                "Row intercropping")
-                               #     )
-                               #   )
-                               # ),
-                               # fluidRow(
-                               #   column(12,
-                               #          h2("Intercrop row geometry"),
-                               #          fluidRow(id="fr_intercrop_geometry_boxes")
-                               #   )
-                               # )
-              ),
-
-              br(),
-              h2("Previous crop or fallow"),
-              fluidRow(
-                column(
-                  width = 6,
-                  selectizeInput("prevCropName", "", multiple = TRUE,
-                                 options = list(maxItems =1, placeholder="Select one..."),
-                                 choices = c("Cassava",
-                                             "Common bean",
-                                             "Maize",
-                                             "Potato",
-                                             "Rice",
-                                             "Sweetpotato",
-                                             "Wheat",
-                                             "Fallow",
-                                             "Pasture",
-                                             "Other")
-                  ),
-
-                  hidden(textInput("prevCropName_other", ""))
-                )
-              )
-            ),
-
-            sidebarPanel(
-              id="sidebar", width = 12,
-              actionButton("btnDesign", "Next", class = "btn-primary",style="color: #fff;", href="#top")
-            )
-          ),
-          ##### Tab: End Crop #####
+          
 
  
 

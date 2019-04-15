@@ -61,18 +61,34 @@ fbdesign_agrofims <- function(design, rep=2, block=2, trt=2, ntrt=NULL,
 }
 
 ## Get factors from design tab ############################################################
+get_factors_design <- function(allinputs, index=NULL, design="fcrd",duplicate= TRUE){
+  
 
-get_factors_design <- function(allinputs, design="fcrd",duplicate= TRUE){
-  
-  
+  #Look up patterns for factors
   lookup <- paste0(design,"_sel_factor_")
   
+  #Filter information to find out factors
   dt <- allinputs %>%  filter(!str_detect(id, "button")) %>%
-                      filter(!str_detect(id, "-selectized")) %>%
-                      filter(str_detect(id, lookup))
-  #print(dt)
-          
+                        filter(!str_detect(id, "-selectized")) %>%
+                        filter(!str_detect(id, "other")) %>%
+                        filter(str_detect(id, lookup))
+  if(!is.null(index)){
+    #Arrange by order
+    dt <- arrange_by_pattern(dt, pattern = index)
+  }
+  
+  
+  #Other factor 
   out<- dt$values
+  
+  #Replace other factor by the ones that users type in
+  for(i in 1:length(out)){
+    if(out[i]=="Other"){
+      of <- allinputs %>%  filter(str_detect(id, paste0(lookup,"other_",i)))
+      out[i]<- of$values
+    }
+  }
+  
   if(duplicate){
     out<- paste0(out,"_f", 1:length(out))
     out <- stringr::str_replace_all(out,pattern = "[[:space:]]",replacement = "_")
@@ -81,8 +97,9 @@ get_factors_design <- function(allinputs, design="fcrd",duplicate= TRUE){
   out
 }
 
+
 ## Get levels from desigin tab
-get_levels_design <- function(allinputs, factors, design="fcrd", format=c("list","data.frame")){
+get_levels_design <- function(allinputs, index, factors, design="fcrd", format=c("list","data.frame")){
   
   format<- match.arg(format)
   
@@ -94,29 +111,32 @@ get_levels_design <- function(allinputs, factors, design="fcrd", format=c("list"
                         dplyr::filter(!str_detect(id, "-selectized")) %>%  
                         dplyr::filter(str_detect(id, lookup))
   
+  #Arrange by order
+  dt <- arrange_by_pattern(dt, pattern = index)
+  
   out <- vector(mode="list",length = length(factors))
   a<-u<-NULL
   for(i in 1:length(factors)){
-    out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup,i)))
+    out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i] )))
     out[[i]] <-  out[[i]]$values
     #lenght equal to 1 when type form is text input or combo.
     if(length(out[[i]])==1){
       print("1")
       out[[i]]<- strsplit(out[[i]],split= ", ")[[1]]
       #Detect Others
-      if( nrow(dt %>% dplyr::filter(str_detect(id, paste0(lookup,"other_",i))))>=1)  {
+      if( nrow(dt %>% dplyr::filter(str_detect(id, paste0(lookup,"other_", index[i] ))))>=1)  {
         
-        a <- allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"other_",i)))
+        a <- allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"other_",index[i])))
         a<- a$values
         a <- strsplit(a,split= ", ")[[1]]
         out[[i]]<- append(out[[i]], a)
         out[[i]]<- setdiff(out[[i]],"Other") #remove other value from vector
       }
       #Detect Units
-      if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_",i))))>=1 ){
+      if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i] ))))>=1 ){
         
         u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
-                          dplyr::filter(str_detect(id,  paste0(lookup, "unit_",i) ))
+                          dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i] ) ))
         u<- u$values
         out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
       }
@@ -139,7 +159,7 @@ get_levels_design <- function(allinputs, factors, design="fcrd", format=c("list"
 }
 
 
-# Get experimental design label (or full name) based on abrreviations
+## Get experimental design label (or full name) based on abrreviations
 experimental_design_label <- function(abbr_design = "frcbd"){
   
   abbr_design <- stringr::str_trim(abbr_design,side="both") %>% toupper()
@@ -166,18 +186,23 @@ experimental_design_label <- function(abbr_design = "frcbd"){
 }
 
 
-#Build experimental design table metadata
+## Build experimental design table metadata
 get_faclevdt <- function(design, allinputs){
   
   output <- try({  
   design <- tolower(design)
   dsg <- experimental_design_label(design)
   dsg_abbr <- design %>% toupper()
- 
- 
-  flbl<- get_factors_design(allinputs = allinputs,  design = design,duplicate = FALSE)
+
+  #Get IDS from design inputs
+  IdDesignInputs <- getFactorIds(design)
+  #Get index from Design's IDs
+  index <- get_index_design(IdDesignInputs, design)
+  
+  
+  flbl<- get_factors_design(allinputs = allinputs, index, design = design,duplicate = FALSE)
   #Get list of labels
-  flvl <- get_levels_design(allinputs = allinputs, factors = flbl, design=design, format="list")
+  flvl <- get_levels_design(allinputs = allinputs, index, factors = flbl, design=design, format="list")
   #out <- setDT(transpose(flvl))[]
   flvl <-  lapply(flvl, function(x)paste(x,collapse=", "))
   # Number of factors
@@ -210,11 +235,12 @@ get_faclevdt <- function(design, allinputs){
   out
 }
 
-#t1<-get_faclevdt(design=design, allinputs=allinputs)
-# t2<-get_faclevdt(design=design, allinputs=allinputs)
-# t2<-get_faclevdt(design=design, allinputs=NULL)
-#get_faclevdt(design=design, allinputs=AllInputs())
 
-
+## Get index from ID (provided by the statistical design prefix)
+get_index_design<- function(id, design){
+  
+ out<- str_replace_all(id, paste0(design,"_"),"")
+ 
+}
 
 

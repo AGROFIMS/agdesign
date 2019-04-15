@@ -211,10 +211,10 @@ map_values <- function(input, id_chr="", id_rand,
         funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("leadNameOther_", i)]],
                                                    input_other = "",
                                                    type = "select", format="vector")
-      }else if(id_chr== "cropCommonNameInter_"){
-         if(!is.null(input[[paste0("cropCommonNameInter_", i)]])){
-           if(input[[paste0("cropCommonNameInter_", i)]]=="Other"){
-             funAgenVals[[i]] <-input[[paste0("cropCommonNameInter_", i,"_other")]]
+      }else if(id_chr== "int_cropCommonName_"){
+         if(!is.null(input[[paste0("int_cropCommonName_", i)]])){
+           if(input[[paste0("int_cropCommonName_", i)]]=="Other"){
+             funAgenVals[[i]] <-input[[paste0("int_cropCommonName_", i,"_other")]]
            }
         }   
      } else { # Otherwise, user select : "Others"

@@ -32,3 +32,21 @@ test_that("test for adding levels with units", {
   n<-length(out)
   expect_equal(n, 4)
 })  
+
+
+
+test_that("test 'Other'Factor in Design Tab", {
+  
+  fname <- rprojroot::find_testthat_root_file("userInput", "table_ids-other-factor.rds")
+  allinputs<- readRDS(fname)
+  
+  factors <- get_factors_design(allinputs, "frcbd", TRUE)
+  flvl <- get_levels_design(allinputs, factors, design="frcbd", format="list")
+  
+  nf<-length(factors)
+  expect_equal(nf, 3)
+  nl<-length(flvl)
+  expect_equal(nl, 3)
+  
+  
+})

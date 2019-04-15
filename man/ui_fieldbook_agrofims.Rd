@@ -18,5 +18,5 @@ ui_fieldbook_agrofims(type = "tab", title = "Design Fieldbook",
 returns a re-usable user interface element
 }
 \author{
-Raul Arias, Omar Benites, Ivan Perez
+Ivan Perez, Omar Benites
 }
