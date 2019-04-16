@@ -141,15 +141,19 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd", format=c
         out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
       }
       
-      # if(stringr::str_detect(factors[i],pattern="application rate")){ #special case for product, nutrient and oxidzed
-      #   # 95, 96 y 97 from FACTOR_V10-DRAFT
-      #   fert<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
-      #                     dplyr::filter(str_detect(id,  paste0(lookup, "fert_",i) ))
-      #   fert<- fert$values
-      #   out[[i]]<- paste0(fert," ",out[[i]]) #quantity + whitespace + unit
-      #   
-      # }
-      
+      #print(factors[i])
+      #We place underscore in `pattern` because factors include underscore
+      if(stringr::str_detect(factors[i],pattern="_application_rate")){ #special case for product, nutrient and oxidzed
+        # 95, 96 y 97 from FACTOR_V10-DRAFT
+       
+        print("application rate")
+        fert<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+          dplyr::filter(str_detect(id,  paste0(lookup, "fert_",index[i]) ))
+        fert<- fert$values
+        out[[i]]<- paste0(fert," ",out[[i]]) #quantity + whitespace + unit
+        
+      }
+
     }
   }
   if(format=="data.frame"){

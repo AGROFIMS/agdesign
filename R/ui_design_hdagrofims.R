@@ -1445,13 +1445,13 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
             column(
               width = 6,
               #br(),
-              h2("Design information"),
-              shiny::selectInput("designFieldbook_agrofims", "Select experimental design", selected = 'FRCBD', multiple = FALSE,
+              h2("Experimental design"),
+              shiny::selectInput("designFieldbook_agrofims", "       ", selected = 'FRCBD', multiple = FALSE,
                                  c("Choose one" = "", design_choices_agrofims)
               ),
               
               conditionalPanel("input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD' || input.designFieldbook_agrofims == 'FCRD' || input.designFieldbook_agrofims == 'FRCBD'",
-                               h2("Information on experimental unit"),
+                               h2("Experimental unit"),
                                selectizeInput("info_experiment_unit", "Information on experimental unit", multiple = T,
                                               options = list(maxItems =1, placeholder="Select one..."),
                                               choices = c("plot",

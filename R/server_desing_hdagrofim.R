@@ -826,6 +826,7 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Funcion GENERAL que inserta el UI dependiendo del tipo de cultivo
   insertBoxcrop <- function(index, typeCrop){
+    
     if (typeCrop == "int") {
       intercropVars$ids <- c(intercropVars$ids, paste0("int_", index))
       intercropVars$num <- intercropVars$num + 1
@@ -845,6 +846,8 @@ server_design_agrofims <- function(input, output, session, values){
         ui = getUiIntercropGeometryCol(index)
       )
     } else if (typeCrop == "rel") {
+      relaycropVars$ids <- c(relaycropVars$ids, paste0("rel_", index))
+      
       insertUI(
         selector = "#fr_relaycrop_boxes",
         where = "beforeBegin",
@@ -852,6 +855,8 @@ server_design_agrofims <- function(input, output, session, values){
       )
       relaycropVars$num <- relaycropVars$num + 1
     } else if (typeCrop == "rot") {
+      
+      rotationcropVars$ids <- c(rotationcropVars$ids, paste0("rot_", index))
       insertUI(
         selector = "#fr_rotationcrop_boxes",
         where = "beforeBegin",
@@ -1516,12 +1521,12 @@ server_design_agrofims <- function(input, output, session, values){
       }
       
       # inputs para: Relay crop
-      id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+      id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
       
       if (!is.null(input$croppingType) && !is.na(input$croppingType) && input$croppingType == "Intercrop") {
         for (i in 1:length(id_re_rand)) {
-          b1[i] <- paste0("cropCommonNameRelay_", id_re_rand[i])
-          b2[i] <- paste0("cropCommonNameRelay_", id_re_rand[i], "_other", i)
+          b1[i] <- paste0("rel_cropCommonName_", id_re_rand[i])
+          b2[i] <- paste0("rel_cropCommonName_", id_re_rand[i], "_other", i)
           b3[i] <- paste0("cropVarietyName_", id_re_rand[i])
           
           b4[i] <- "selectizeInput"
@@ -3877,7 +3882,7 @@ server_design_agrofims <- function(input, output, session, values){
   #     mselector2 = paste0("#relaycrop_rows_crop_", var[3])
   #     relaycropVars$num <- relaycropVars$num - 1
   #     aux <- relaycropVars$ids
-  #     relaycropVars$ids <- aux[! aux %in% paste0("RC_",var[3])]
+  #     relaycropVars$ids <- aux[! aux %in% paste0("rel_",var[3])]
   #     arr_keys <- relaycropVars$ids
   #     len <- length(arr_keys)
   #     last <-unlist(strsplit(relaycropVars$ids[relaycropVars$num],"_"))
@@ -4195,7 +4200,7 @@ server_design_agrofims <- function(input, output, session, values){
   ## function to insert relaycrop box
   # insertBoxRelaycrop <- function(index){
   #   str_id <- stri_rand_strings(1, 8,  '[A-Z]')
-  #   relaycropVars$ids <- c(relaycropVars$ids, paste0("RC_", str_id))
+  #   relaycropVars$ids <- c(relaycropVars$ids, paste0("rel_", str_id))
   #   
   #   relaycropVars$num <- relaycropVars$num + 1
   #   prev <-unlist(strsplit(relaycropVars$ids[relaycropVars$num -1],"_"))
@@ -4238,7 +4243,7 @@ server_design_agrofims <- function(input, output, session, values){
   #              fluidRow(
   #                column(
   #                  width = 6,
-  #                  selectizeInput(paste0("cropCommonNameRelay_", str_id), label="First crop common name", selected=NULL, multiple = T , options = list(maxItems =1, placeholder ="Select crop"),
+  #                  selectizeInput(paste0("rel_cropCommonName_", str_id), label="First crop common name", selected=NULL, multiple = T , options = list(maxItems =1, placeholder ="Select crop"),
   #                                 choices = c("Cassava",
   #                                             "Common bean",
   #                                             "Maize",
@@ -4248,7 +4253,7 @@ server_design_agrofims <- function(input, output, session, values){
   #                                             "Wheat",
   #                                             "Other")
   #                  ),
-  #                  hidden(textInput(paste0("cropCommonNameRelay_", str_id, "_other"), "", value = ""))
+  #                  hidden(textInput(paste0("rel_cropCommonName_", str_id, "_other"), "", value = ""))
   #                ),
   #                column(
   #                  width = 6,
@@ -4281,7 +4286,7 @@ server_design_agrofims <- function(input, output, session, values){
   #                fluidRow(
   #                  column(
   #                    width = 6,
-  #                    selectizeInput(paste0("cropCommonNameRelay_", str_id), label="Relay crop common name", selected=NULL, multiple = T , options = list(maxItems =1, placeholder ="Select crop"),
+  #                    selectizeInput(paste0("rel_cropCommonName_", str_id), label="Relay crop common name", selected=NULL, multiple = T , options = list(maxItems =1, placeholder ="Select crop"),
   #                                   choices = c("Cassava",
   #                                               "Common bean",
   #                                               "Maize",
@@ -4291,7 +4296,7 @@ server_design_agrofims <- function(input, output, session, values){
   #                                               "Wheat",
   #                                               "Other")
   #                    ),
-  #                    hidden(textInput(paste0("cropCommonNameRelay_", str_id, "_other"), "", value = ""))
+  #                    hidden(textInput(paste0("rel_cropCommonName_", str_id, "_other"), "", value = ""))
   #                  ),
   #                  column(
   #                    width = 6,
@@ -4428,7 +4433,7 @@ server_design_agrofims <- function(input, output, session, values){
   ## when relaycrop is selected
   
   # observeEvent(input$cropBoxRelayVar, {
-  #   crop_order <- gsub('cropCommonNameRelay_', '', input$cropBoxRelayVarId)
+  #   crop_order <- gsub('rel_cropCommonName_', '', input$cropBoxRelayVarId)
   #   value <- input[[input$cropBoxRelayVarId]]
   #   xtitle <- "Crop"
   #   if(is.null(value)){
@@ -11558,10 +11563,10 @@ server_design_agrofims <- function(input, output, session, values){
     if (input$croppingType == "Relay crop") {
       rtrel <- c()
       
-      id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+      id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
       
       for (i in 1:length(id_re_rand)) {
-        rtrel[i] <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[i])]])
+        rtrel[i] <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[i])]])
       }
       
       ar <- br <- c()
@@ -12488,10 +12493,10 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Other 1: ===================================================
   frelayMOt1 <- eventReactive(input$doRelay, {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     
-    crop_id <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[1])]])
-    oth <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[1], "_other")]])
+    crop_id <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[1])]])
+    oth <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[1], "_other")]])
     
     if (nrow(dtRelayOther1) >= 1) {
       
@@ -12510,10 +12515,10 @@ server_design_agrofims <- function(input, output, session, values){
   }, ignoreNULL = FALSE)
   
   frel1 <- function() {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     #print("entraivan")
     # Cambiar el parametro numerico [?] para cada other
-    o <- paste0("cropCommonNameRelay_", id_re_rand[1], "_other")
+    o <- paste0("rel_cropCommonName_", id_re_rand[1], "_other")
     oth <- as.character(input[[o]])
     
     aux <- dplyr::filter(dfmea, Crop == "Other")
@@ -12553,10 +12558,10 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Other 2: ===================================================
   frelayMOt2 <- eventReactive(input$doRelay, {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     
-    crop_id <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[2])]])
-    oth <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[2], "_other")]])
+    crop_id <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[2])]])
+    oth <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[2], "_other")]])
     
     if (nrow(dtRelayOther2) >= 1) {
       
@@ -12575,10 +12580,10 @@ server_design_agrofims <- function(input, output, session, values){
   }, ignoreNULL = FALSE)
   
   frel2 <- function() {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     #print("entraivan")
     # Cambiar el parametro numerico [?] para cada other
-    o <- paste0("cropCommonNameRelay_", id_re_rand[2], "_other")
+    o <- paste0("rel_cropCommonName_", id_re_rand[2], "_other")
     oth <- as.character(input[[o]])
     
     aux <- dplyr::filter(dfmea, Crop == "Other")
@@ -12618,10 +12623,10 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Other 3: ===================================================
   frelayMOt3 <- eventReactive(input$doRelay, {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     
-    crop_id <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[3])]])
-    oth <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[3], "_other")]])
+    crop_id <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[3])]])
+    oth <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[3], "_other")]])
     
     if (nrow(dtRelayOther3) >= 1) {
       
@@ -12640,10 +12645,10 @@ server_design_agrofims <- function(input, output, session, values){
   }, ignoreNULL = FALSE)
   
   frel3 <- function() {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     #print("entraivan")
     # Cambiar el parametro numerico [?] para cada other
-    o <- paste0("cropCommonNameRelay_", id_re_rand[3], "_other")
+    o <- paste0("rel_cropCommonName_", id_re_rand[3], "_other")
     oth <- as.character(input[[o]])
     
     aux <- dplyr::filter(dfmea, Crop == "Other")
@@ -12683,10 +12688,10 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Other 4: ===================================================
   frelayMOt4 <- eventReactive(input$doRelay, {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     
-    crop_id <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[4])]])
-    oth <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[4], "_other")]])
+    crop_id <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[4])]])
+    oth <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[4], "_other")]])
     
     if (nrow(dtRelayOther4) >= 1) {
       
@@ -12705,10 +12710,10 @@ server_design_agrofims <- function(input, output, session, values){
   }, ignoreNULL = FALSE)
   
   frel4 <- function() {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     #print("entraivan")
     # Cambiar el parametro numerico [?] para cada other
-    o <- paste0("cropCommonNameRelay_", id_re_rand[4], "_other")
+    o <- paste0("rel_cropCommonName_", id_re_rand[4], "_other")
     oth <- as.character(input[[o]])
     
     aux <- dplyr::filter(dfmea, Crop == "Other")
@@ -12748,10 +12753,10 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Other 5: ===================================================
   frelayMOt5 <- eventReactive(input$doRelay, {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     
-    crop_id <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[5])]])
-    oth <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[5], "_other")]])
+    crop_id <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[5])]])
+    oth <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[5], "_other")]])
     
     if (nrow(dtRelayOther5) >= 1) {
       
@@ -12770,10 +12775,10 @@ server_design_agrofims <- function(input, output, session, values){
   }, ignoreNULL = FALSE)
   
   frel5 <- function() {
-    id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+    id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
     #print("entraivan")
     # Cambiar el parametro numerico [?] para cada other
-    o <- paste0("cropCommonNameRelay_", id_re_rand[5], "_other")
+    o <- paste0("rel_cropCommonName_", id_re_rand[5], "_other")
     oth <- as.character(input[[o]])
     
     aux <- dplyr::filter(dfmea, Crop == "Other")
@@ -12934,10 +12939,10 @@ server_design_agrofims <- function(input, output, session, values){
     if (input$croppingType == "Relay crop") {
       rtRelPhe <- c()
       
-      id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+      id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
       
       for (i in 1:length(id_re_rand)) {
-        rtRelPhe[i] <- as.character(input[[paste0("cropCommonNameRelay_", id_re_rand[i])]])
+        rtRelPhe[i] <- as.character(input[[paste0("rel_cropCommonName_", id_re_rand[i])]])
       }
       
       aarel <- bbrel <- c()
@@ -14141,15 +14146,15 @@ server_design_agrofims <- function(input, output, session, values){
   
   insertTabRelayCrop <- function(index, mtarget, ptarget){
     
-    xtitle <- input[[paste0("cropCommonNameRelay_", index)]]
+    xtitle <- input[[paste0("rel_cropCommonName_", index)]]
     
     mcrop <- xtitle
     if(is.null(mcrop)) mcrop <- "Crop"
     
     if(!is.null(xtitle)){
-      if(xtitle == "Other"  && input[[paste0("cropCommonNameRelay_", index, "_other")]] != "")  
-        xtitle <- input[[paste0("cropCommonNameRelay_", index, "_other")]]
-      else xtitle <- input[[paste0("cropCommonNameRelay_", index)]]
+      if(xtitle == "Other"  && input[[paste0("rel_cropCommonName_", index, "_other")]] != "")  
+        xtitle <- input[[paste0("rel_cropCommonName_", index, "_other")]]
+      else xtitle <- input[[paste0("rel_cropCommonName_", index)]]
     }
     else {
       xtitle= "Crop"
@@ -16198,8 +16203,8 @@ server_design_agrofims <- function(input, output, session, values){
         }
 
         if(ct=="Relay crop"){
-            id_rc_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
-            circm <- map_values(input = input, id_chr="cropCommonNameRelay_",id_rc_rand, format = "vector", lbl= "Select crop")
+            id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
+            circm <- map_values(input = input, id_chr="rel_cropCommonName_",id_rc_rand, format = "vector", lbl= "Select crop")
         }
       
       if(ct=="Intercrop"){
@@ -16276,8 +16281,8 @@ server_design_agrofims <- function(input, output, session, values){
       
       if(ct=="Relay crop"){
 
-        id_rc_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
-        circm <- map_values(input = input, id_chr="cropCommonNameRelay_",id_rc_rand, format = "vector", lbl= "Select crop")     
+        id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
+        circm <- map_values(input = input, id_chr="rel_cropCommonName_",id_rc_rand, format = "vector", lbl= "Select crop")     
         #crop_oficial <- c("Cassava","Common bean","Maize",  "Potato",  "Rice",  "Sweetpotato",  "Wheat")
         crop_oficial <- c("Cassava","Common bean","Maize",  "Potato",  "Rice",  "Sweetpotato",  "Wheat")
         
@@ -16554,7 +16559,7 @@ server_design_agrofims <- function(input, output, session, values){
     if(ct=="Relay crop"){
       
       id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
-      circm <- map_values(input, id_chr="rel_cropCommonNameRelay_", id_re_rand, format = "data.frame", lbl= "Select crop")
+      circm <- map_values(input, id_chr="rel_cropCommonName_", id_re_rand, format = "data.frame", lbl= "Select crop")
       cirvar <- map_values(input, id_chr="rel_cropVarietyName_", id_re_rand,format = "data.frame", lbl= "Crop variety(s)")
       #ciarre<- map_singleform_values(input = input$fr_intercrop_arrangement, 
       #                               type="combo box",format = "data.frame", label= "Intercrop arragement")
@@ -16964,8 +16969,8 @@ server_design_agrofims <- function(input, output, session, values){
       }
       
       else if(ct=="Relay crop"){
-        id_re_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
-        circm <- map_values(input = input, id_chr="cropCommonNameRelay_",id_re_rand, format = "vector", lbl= "Select crop")
+        id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
+        circm <- map_values(input = input, id_chr="rel_cropCommonName_",id_re_rand, format = "vector", lbl= "Select crop")
         
         dt<-list()
         crop_oficial <- c("Cassava","Common bean","Maize",  "Potato",  "Rice",  "Sweetpotato",  "Wheat")
@@ -17103,7 +17108,7 @@ server_design_agrofims <- function(input, output, session, values){
       circm <- map_values(input = input, id_chr="int_cropCommonName_",id_ic_rand, format = "vector", lbl= "Select crop")
     }
     if(ct=="Relay crop"){
-      id_rc_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
+      id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
       circm <- map_values(input = input, id_chr="int_cropCommonName_",id_rc_rand, format = "vector", lbl= "Select crop")
       
     }
@@ -17161,8 +17166,8 @@ server_design_agrofims <- function(input, output, session, values){
       }
       
       if(ct=="Relay crop"){
-        id_rc_rand <- getAddInputId(relaycropVars$ids, "RC_", "") 
-        circm <- map_values(input = input, id_chr="cropCommonNameRelay_",id_rc_rand, format = "vector", lbl= "Select crop")
+        id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "") 
+        circm <- map_values(input = input, id_chr="rel_cropCommonName_",id_rc_rand, format = "vector", lbl= "Select crop")
       }
       
       print(circm)
@@ -17360,6 +17365,10 @@ server_design_agrofims <- function(input, output, session, values){
        if(flag){
 
        fb  <- fbdesign_traits()# fb_agrofims_traits()
+       if(is.element("PLOT",names(fb))){fb$PLOT <- as.factor(fb$PLOT)}
+       if(is.element("SUBPLOT",names(fb))){fb$SUBPLOT <- as.factor(fb$SUBPLOT)}
+       if(is.element("SUB-SUB-PLOT",names(fb))){fb$`SUB-SUB-PLOT` <- as.factor(fb$`SUB-SUB-PLOT`)}
+       
        output$fbDesign_table_agrofims <- rhandsontable::renderRHandsontable({
          rhandsontable::rhandsontable(fb , readOnly = T)})
        }
@@ -17457,8 +17466,8 @@ server_design_agrofims <- function(input, output, session, values){
            }
          if(ct=="Relay crop"){
              
-             id_rc_rand <- getAddInputId(relaycropVars$ids, "RC_", "") 
-             circm <- map_values(input = input, id_chr="cropCommonNameRelay_", id_rc_rand, format = "vector", lbl= "Select crop")
+             id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "") 
+             circm <- map_values(input = input, id_chr="rel_cropCommonName_", id_rc_rand, format = "vector", lbl= "Select crop")
              for(i in 1:length(id_rc_rand)){
                incProgress(7/20,message = "Adding fieldbook data...")
                openxlsx::addWorksheet(wb, paste0("Fieldbook-",circm[i]), gridLines = TRUE)
@@ -17592,8 +17601,8 @@ server_design_agrofims <- function(input, output, session, values){
            }
            # 
            # if(ct=="Relay crop"){
-           #   id_rand <- getAddInputId(relaycropVars$ids, "RC_", "")
-           #   circm <- map_values(input = input, id_chr="cropCommonNameRelay_",id_rand, format = "vector", lbl= "Select crop")
+           #   id_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
+           #   circm <- map_values(input = input, id_chr="rel_cropCommonName_",id_rand, format = "vector", lbl= "Select crop")
            # }
            
            #hrv<<- dt_harvest()
@@ -17659,9 +17668,9 @@ server_design_agrofims <- function(input, output, session, values){
              
              print("ENTRO A RELAY CROPl")
              
-             id_rc_rand <- getAddInputId(relaycropVars$ids, "RC_", "") 
+             id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "") 
              print(id_rc_rand)
-             crccm <- map_values(input = input, id_chr="cropCommonNameRelay_",id_rc_rand, format = "vector", lbl= "Select crop")
+             crccm <- map_values(input = input, id_chr="rel_cropCommonName_",id_rc_rand, format = "vector", lbl= "Select crop")
              print(crccm)
              for(i in 1:length(id_rc_rand)){
                

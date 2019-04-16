@@ -211,13 +211,19 @@ map_values <- function(input, id_chr="", id_rand,
         funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("leadNameOther_", i)]],
                                                    input_other = "",
                                                    type = "select", format="vector")
-      }else if(id_chr== "int_cropCommonName_"){
+      } else if(id_chr== "int_cropCommonName_"){
          if(!is.null(input[[paste0("int_cropCommonName_", i)]])){
            if(input[[paste0("int_cropCommonName_", i)]]=="Other"){
              funAgenVals[[i]] <-input[[paste0("int_cropCommonName_", i,"_other")]]
            }
         }   
-     } else { # Otherwise, user select : "Others"
+      } else if(id_chr== "rel_cropCommonName_"){
+        if(!is.null(input[[paste0("rel_cropCommonName_", i)]])){
+          if(input[[paste0("rel_cropCommonName_", i)]]=="Other"){
+            funAgenVals[[i]] <-input[[paste0("rel_cropCommonName_", i,"_other")]]
+          }
+        }   
+      } else { # Otherwise, user select : "Others"
         funAgenVals[[i]] <- input[[paste0(id_chr, i, "_other")]]  
           if(is.null(funAgenVals[[i]])){ #special cases 1 :  #in case we have another NULL value
             funAgenVals[[i]] <-  ""   
