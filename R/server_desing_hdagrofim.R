@@ -16746,31 +16746,31 @@ server_design_agrofims <- function(input, output, session, values){
     if(design=="fcrd"){
       rep <- as.integer(input$fcrd_rep)
       flbl<- get_factors_design(allinputs = AllInputs(), index, design = "fcrd")
-      #flvl<- get_levels_design(allinputs = AllInputs(), design = "fcrd", format= "list")
-      flvl<- get_levels_design(allinputs = AllInputs(), index, factors = flbl, design="fcrd", format="list")
+      flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dtfactordesign,
+                               index, factors = flbl, design="fcrd", format="list")
       fb<- fbdesign_agrofims(design=design, rep=rep,  fnames= flbl, flevels= flvl) 
     } 
     else if(design=="frcbd"){
       block<- as.integer(input$frcbd_block)
       flbl<- get_factors_design(allinputs = AllInputs(),index,  design = "frcbd")
       print(flbl)
-      #flvl<- get_levels_design(allinputs = AllInputs(), design = "frcbd", format= "list")
-      flvl <- get_levels_design(allinputs = AllInputs(),index, factors = flbl, design="frcbd", format="list")
+      flvl <- get_levels_design(allinputs = AllInputs(),data_dictionary=dtfactordesign, 
+                                index, factors = flbl, design="frcbd", format="list")
       print(flvl)
       fb<- fbdesign_agrofims(design=design, rep=block,  fnames= flbl, flevels= flvl) 
     } else if(design =="sprcbd"){
     
       block <- as.integer(input$sp1_block)
       flbl<- get_factors_design(allinputs = AllInputs(), index, design = "sprcbd")
-      #flvl<- get_levels_design(allinputs = AllInputs(), design = "sprcbd", format= "list")
-      flvl<- get_levels_design(allinputs = AllInputs(), index, factors = flbl, design="sprcbd", format="list")
+      flvl<- get_levels_design(allinputs = AllInputs(),data_dictionary=dtfactordesign,
+                               index, factors = flbl, design="sprcbd", format="list")
       fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl) 
       
     } else if(design =="spsp"){
       block<- as.integer(input$spsp2_block)
       flbl<- get_factors_design(allinputs = AllInputs(), index, design = "spsp")
-      #flvl<- get_levels_design(allinputs = AllInputs(), design = "spsp", format= "list")
-      flvl<- get_levels_design(allinputs = AllInputs(), index, factors = flbl, design="spsp", format="list")
+      flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dtfactordesign,
+                               index, factors = flbl, design="spsp", format="list")
       fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl)
     }
     
@@ -17392,7 +17392,7 @@ server_design_agrofims <- function(input, output, session, values){
          saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
          x <- reactiveValuesToList(input)
          saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         #dd<<- getFactorIds("frcbd")
+         dd<<- getFactorIds("frcbd")
          #palis <<- getAddInputId(experimentVars$ids_FA, "FA_", "")
          print("------------")
          print(fa_dt())

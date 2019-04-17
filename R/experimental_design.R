@@ -84,14 +84,14 @@ get_factors_design <- function(allinputs, index=NULL, design="fcrd",duplicate= T
   #Replace other factor by the ones that users type in
   for(i in 1:length(out)){
     if(out[i]=="Other"){
-      of <- allinputs %>%  filter(str_detect(id, paste0(lookup,"other_",i)))
+      of <- allinputs %>%  filter(str_detect(id, paste0(lookup,"other_",index[i])))
       out[i]<- of$values
     }
   }
   
   if(duplicate){
     out<- paste0(out,"_f", 1:length(out))
-    out <- stringr::str_replace_all(out,pattern = "[[:space:]]",replacement = "_")
+    out <- stringr::str_replace_all(out,pattern = "[[:space:]]",replacement = " ")
   }
   
   out
@@ -99,9 +99,15 @@ get_factors_design <- function(allinputs, index=NULL, design="fcrd",duplicate= T
 
 
 ## Get levels from desigin tab
-get_levels_design <- function(allinputs, index, factors, design="fcrd", format=c("list","data.frame")){
+get_levels_design <- function(allinputs, index, factors, design="fcrd", 
+                              data_dictionary=NULL,
+                              format=c("list","data.frame")){
   
   format<- match.arg(format)
+  
+  factors <- stringr::str_replace_all(string = factors,pattern = "_f[:digit:]",replacement = "")
+  factors <- stringr::str_replace_all(string = factors,pattern = "_",replacement = " ")
+  print(factors)
   
   lookup<- paste0(design,"_lvl_")
   dt <- allinputs %>%   dplyr::filter(!str_detect(id, "add")) %>%
@@ -116,52 +122,109 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd", format=c
   
   out <- vector(mode="list",length = length(factors))
   a<-u<-NULL
+  
   for(i in 1:length(factors)){
+    
     out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i] )))
-    out[[i]] <-  out[[i]]$values
-    #lenght equal to 1 when type form is text input or combo.
-    if(length(out[[i]])==1){
-      print("1")
-      out[[i]]<- strsplit(out[[i]],split= ", ")[[1]]
-      #Detect Others
-      if( nrow(dt %>% dplyr::filter(str_detect(id, paste0(lookup,"other_", index[i] ))))>=1)  {
+    #out[[i]] <-  out[[i]]$values
+    
+    temp<- data_dictionary %>% filter(FACTOR==factors[i]) 
+    print(temp)
+    
+    if(nrow(temp)>0){
+      print("--1--")
+          #When lenght(out) is equal to 1 ---> form is text input or combo.
+          form<- data_dictionary %>% filter(FACTOR==factors[i]) %>% dplyr::select(FORM)
+          form<- form$FORM   
+          
+          print("entro1")
+          print(form)
+          if(form=="date"){
+            print("entro2")
+            out[[i]] <- out[[i]] %>%  dplyr::filter(str_detect(id,  "date" ))
+            out[[i]] <-  out[[i]]$values
+            
+          } else { 
+            
+            #if(length(out[[i]])==1){
+            out[[i]] <- out[[i]] %>%  dplyr::filter(!str_detect(id,  "date" ))
+            out[[i]] <-  out[[i]]$values
+            #print("1")
+            out[[i]]<- strsplit(out[[i]],split= ", ")[[1]]
+            
+            #Detect Others
+            if( nrow(dt %>% dplyr::filter(str_detect(id, paste0(lookup,"other_", index[i] ))))>=1)  {
+              
+              a <- allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"other_",index[i])))
+              a<- a$values
+              a <- strsplit(a,split= ", ")[[1]]
+              out[[i]]<- append(out[[i]], a)
+              out[[i]]<- setdiff(out[[i]],"Other") #remove other value from vector
+            }
+            
+            #Detect Units
+            if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i] ))))>=1 ){
+              
+              u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+                dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i] ) ))
+              u<- u$values
+              out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
+            }
+            
+            #We place underscore in `pattern` because factors include underscore
+            if(stringr::str_detect(factors[i],pattern="_application_rate")){ #special case for product, nutrient and oxidzed
+              # 95, 96 y 97 from FACTOR_V10-DRAFT
+              
+              print("application rate")
+              fert<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+                dplyr::filter(str_detect(id,  paste0(lookup, "fert_",index[i]) ))
+              fert<- fert$values
+              out[[i]]<- paste0(fert," ",out[[i]]) #quantity + whitespace + unit
+              
+            }
+            
+          }
+      
+    } 
+    else {
+      print("--2--")
+      othFacType <- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                                  dplyr::filter(str_detect(id, paste0(design,"_typeInput_",index[i])))  
+      othFacType <- othFacType$values
+      
+      if(othFacType=="date"){
+        out[[i]] <- out[[i]] %>%  dplyr::filter(str_detect(id,  "date" ))
+        out[[i]] <-  out[[i]]$values
+      }else{
+        out[[i]] <- out[[i]] %>%  dplyr::filter(!str_detect(id,  "date" )) 
+        out[[i]]<- strsplit(out[[i]]$values,split= ", ")[[1]]
         
-        a <- allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"other_",index[i])))
-        a<- a$values
-        a <- strsplit(a,split= ", ")[[1]]
-        out[[i]]<- append(out[[i]], a)
-        out[[i]]<- setdiff(out[[i]],"Other") #remove other value from vector
-      }
-      #Detect Units
-      if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i] ))))>=1 ){
+        #Detect Units
+        if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i] ))))>=1 ){
+          
+          u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+            dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i] ) ))
+          u<- u$values
+          out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
+        }
         
-        u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
-                          dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i] ) ))
-        u<- u$values
-        out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
       }
       
-      #print(factors[i])
-      #We place underscore in `pattern` because factors include underscore
-      if(stringr::str_detect(factors[i],pattern="_application_rate")){ #special case for product, nutrient and oxidzed
-        # 95, 96 y 97 from FACTOR_V10-DRAFT
-       
-        print("application rate")
-        fert<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
-          dplyr::filter(str_detect(id,  paste0(lookup, "fert_",index[i]) ))
-        fert<- fert$values
-        out[[i]]<- paste0(fert," ",out[[i]]) #quantity + whitespace + unit
-        
-      }
-
+      #out[[i]] <-  out[[i]]$values
+      
+      #out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i] )))
+      #
+      
+      
+      
     }
   }
   if(format=="data.frame"){
-   print("tranform to data.frame")
+    print("tranform to data.frame")
   }
   out
-}
 
+}
 
 ## Get experimental design label (or full name) based on abrreviations
 experimental_design_label <- function(abbr_design = "frcbd"){
@@ -206,7 +269,8 @@ get_faclevdt <- function(design, allinputs){
   
   flbl<- get_factors_design(allinputs = allinputs, index, design = design,duplicate = FALSE)
   #Get list of labels
-  flvl <- get_levels_design(allinputs = allinputs, index, factors = flbl, design=design, format="list")
+  flvl <- get_levels_design(allinputs = allinputs, data_dictionary= dtfactordesign,
+                            index, factors = flbl, design=design, format="list")
   #out <- setDT(transpose(flvl))[]
   flvl <-  lapply(flvl, function(x)paste(x,collapse=", "))
   # Number of factors

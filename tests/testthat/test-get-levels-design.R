@@ -15,7 +15,8 @@ allinputs<- readRDS(fname)
 #allinputs<- readRDS("tests/testthat/userInput/table_ids.rds")
 flbl<- get_factors_design(allinputs, "frcbd",duplicate = FALSE)
 design <- "frcbd"
-out<- get_levels_design2(allinputs = dt, factors = flbl, design = "frcbd", format= "list")
+out<- get_levels_design(allinputs = dt,data_dictionary=dtfactordesign,
+                        factors = flbl, design = "frcbd", format= "list")
 #test
 n<-length(out)
 expect_equal(n, 2)
@@ -28,7 +29,8 @@ test_that("test for adding levels with units", {
   allinputs<- readRDS(fname)
   design <- "frcbd"
   flbl<- get_factors_design(allinputs, "frcbd")
-  out<- get_levels_design2(allinputs = allinputs, factors = flbl, design = "frcbd", format= "list")
+  out<- get_levels_design(allinputs = allinputs, data_dictionary=dtfactordesign,
+                          factors = flbl, design = "frcbd", format= "list")
   n<-length(out)
   expect_equal(n, 4)
 })  
@@ -41,7 +43,8 @@ test_that("test 'Other'Factor in Design Tab", {
   allinputs<- readRDS(fname)
   
   factors <- get_factors_design(allinputs, "frcbd", TRUE)
-  flvl <- get_levels_design(allinputs, factors, design="frcbd", format="list")
+  flvl <- get_levels_design(allinputs, data_dictionary=dtfactordesign, 
+                            factors, design="frcbd", format="list")
   
   nf<-length(factors)
   expect_equal(nf, 3)
