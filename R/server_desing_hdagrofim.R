@@ -1113,6 +1113,1831 @@ server_design_agrofims <- function(input, output, session, values){
   
   ############################### End: Tab Crop (New) ###############################
   
+  ##################################################################################################
+  ############################### START SERVER: MANAGEMENT PRACTICES ###############################
+  
+  ###################### START: GENERAL ######################
+  
+  nutTabs = list("Residue management" = "tabResidue",
+                 "Seedbed preparation" = "tabSeedbed",
+                 "Soil fertility" = "tabSoil",
+                 "Planting and transplanting" = "tabPlanting",
+                 "Mulch management" ="tabMulching",
+                 "Irrigation" = "tabIrrigation",
+                 "Weeding" = "tabWeeding",
+                 "Harvest" = "tabHarvest")
+  
+  observe({
+    hideTab("nutrienTabPanels", "tabResidue")
+    hideTab("nutrienTabPanels", "tabSeedbed")
+    hideTab("nutrienTabPanels", "tabSoil")
+    hideTab("nutrienTabPanels", "tabPlanting")
+    hideTab("nutrienTabPanels", "tabMulching")
+    hideTab("nutrienTabPanels", "tabIrrigation")
+    hideTab("nutrienTabPanels", "tabWeeding")
+    hideTab("nutrienTabPanels", "tabHarvest")
+    
+    if(!is.null(input$selectAgroFeature)){
+      l <- input$selectAgroFeature
+      
+      for (i in l) {
+        showTab("nutrienTabPanels", nutTabs[[i]])
+      }
+    }
+  })
+  
+  ###################### END: GENERAL ######################
+  
+  ###################### START: RESIDUE MANAGEMENT ######################
+  
+  ## Residue management
+  # residue_start_date 
+  output$res_start_date <- renderUI({
+    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+      airDatepickerInput("rmgt_residue_start_date",
+                         "Start date",
+                         clearButton = T,
+                         autoClose = T,
+                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                         placeholder = "yyyy-mm-dd",
+                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                         
+      )
+    } else {
+      airDatepickerInput("rmgt_residue_start_date",
+                         "Start date",
+                         clearButton = T,
+                         autoClose = T,
+                         placeholder = "yyyy-mm-dd"
+      )
+    }
+  })
+  
+  ###################### END: RESIDUE MANAGEMENT ######################
+  
+  ###################### START: LAND LEVELLING ######################
+  
+  ## land preparation
+  # landLeveling_start_date 
+  output$landLev_start_date <- renderUI({
+    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+      airDatepickerInput("landLeveling_start_date",
+                         "Start date",
+                         clearButton = T,
+                         autoClose = T,
+                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                         placeholder = "yyyy-mm-dd",
+                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                         
+      )
+    } else {
+      airDatepickerInput("landLeveling_start_date",
+                         "Start date",
+                         clearButton = T,
+                         autoClose = T,
+                         placeholder = "yyyy-mm-dd"
+      )
+    }
+  })
+  
+  # puddling_start_date 
+  output$pud_start_date <- renderUI({
+    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+      airDatepickerInput("puddling_start_date",
+                         "Start date",
+                         clearButton = T,
+                         autoClose = T,
+                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                         placeholder = "yyyy-mm-dd",
+                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                         
+      )
+    } else {
+      airDatepickerInput("puddling_start_date",
+                         "Start date",
+                         clearButton = T,
+                         autoClose = T,
+                         placeholder = "yyyy-mm-dd"
+      )
+    }
+  })
+  
+  # tillage_start_date 
+  output$till_start_date <- renderUI({
+    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+      airDatepickerInput("tillage_start_date",
+                         "Start date",
+                         clearButton = T,
+                         autoClose = T,
+                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                         placeholder = "yyyy-mm-dd",
+                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                         
+      )
+    } else {
+      airDatepickerInput("tillage_start_date",
+                         "Start date",
+                         clearButton = T,
+                         autoClose = T,
+                         placeholder = "yyyy-mm-dd"
+      )
+    }
+  })
+  
+  ###################### END: LAND LEVELLING ######################
+  
+  ###################### START: PLANTING & TRANSPLANTING ######################
+  
+  # Oculta por defecto los tabs de inicio de Int, Rel & Rot
+  observe({
+    shiny::hideTab(inputId = "tabpanelPTint", target = "pt_int_default")
+    shiny::hideTab(inputId = "tabpanelPTrel", target = "pt_rel_default")
+    shiny::hideTab(inputId = "tabpanelPTrot", target = "pt_rot_default")
+  })
+  
+  # Inserta los tabs en Exp Cond dependiendo del tipo de cultivo
+  observeEvent(input$PTBoxInterVar, {
+    vars <- unlist(strsplit(input$PTBoxInterVarid, "_"))
+    cropType <- vars[1]
+    index <- vars[3]
+    
+    vals <- getValuesCrop(cropType)
+    insertTabsPT(vals, cropType)
+  })
+  
+  # Funcion que extrae lista de nombres que ira en los tabs de exp cond
+  getValuesCrop <- function(cropType) {
+    if (cropType == "int") { ids <- intercropVars$ids }
+    else if (cropType == "rel") { ids <- relaycropVars$ids }
+    else if (cropType == "rot") { ids <- rotationcropVars$ids }
+    
+    newids <- inputid <- c()
+    
+    for (i in 1:length(ids)) {
+      vars <- unlist(strsplit(ids[i], "_"))
+      newids[i] <- vars[2]
+    }
+    
+    for (i in 1:length(newids)) {
+      inputid[i] <- paste0(cropType, "_cropCommonName_", newids[i])
+    }
+    
+    df <- data.frame(id = c(inputid), values = "", stringsAsFactors = F)
+    val <- AllInputs() %>% dplyr::filter(id %in% df$id)
+    val <- c(val$values)
+    
+    for (i in 1:length(val)) {
+      if (val[i] != "") {
+        val[i] <- paste0(cropType, "_pt_", i)
+      }
+    }
+    
+    val <- val[val != ""]
+    val
+  }
+  
+  expconPTinter <- reactiveValues()
+  expconPTinter$var <- c()
+  
+  # Funcion que inserta los tabs dependiendo del tipo de cultivo
+  insertTabsPT <- function(vals, cropType) {
+    if (length(vals) != 0) {
+      xx <- expconPTinter$var[!expconPTinter$var%in%vals]
+      vals <- vals[!vals %in% unique(expconPTinter$var)]
+      expconPTinter$var <- c(expconPTinter$var, vals)
+      
+      if (!is.null(xx)) {
+        for (i in 1:length(xx)) {
+          removeTab(inputId = paste0("tabpanelPT", cropType), target = xx[i])
+          expconPTinter$var <- expconPTinter$var[!expconPTinter$var %in% xx]
+        }
+      }
+      
+      if (length(vals) >= 1) {
+        for (i in 1:length(vals)) {
+          insertTab(
+            inputId = paste0("tabpanelPT", cropType),
+            tabPanel(
+              vals[i],
+              br(),
+              fluidRow(id = paste0(vals[i], "_fr_plantingTransplating")),
+              #actionButton(paste0(vals[i], "_pt_add"), "Add Planting & Transplanting"),
+              insertRow_PT(crop = vals[i], 1)
+            ),
+            target = paste0("pt_", cropType, "_default"),
+            position = "before",
+            select = T
+          )
+        }
+      }
+    }
+  }
+  
+  ## Planting & Transplanting: Asigna variables reactivas
+  # monocrop
+  expconPTmonocrop <- reactiveValues()
+  expconPTmonocrop$num <- 0
+  expconPTmonocrop$DEFAULT <- 1
+  
+  # inter PT crop 1
+  expconIntPTcrop1 <- reactiveValues()
+  expconIntPTcrop1$num <- 0
+  expconIntPTcrop1$DEFAULT <- 1
+  # inter PT crop 2
+  expconIntPTcrop2 <- reactiveValues()
+  expconIntPTcrop2$num <- 0
+  expconIntPTcrop2$DEFAULT <- 1
+  # inter PT crop 3
+  expconIntPTcrop3 <- reactiveValues()
+  expconIntPTcrop3$num <- 0
+  expconIntPTcrop3$DEFAULT <- 1
+  # inter PT crop 4
+  expconIntPTcrop4 <- reactiveValues()
+  expconIntPTcrop4$num <- 0
+  expconIntPTcrop4$DEFAULT <- 1
+  # inter PT crop 5
+  expconIntPTcrop5 <- reactiveValues()
+  expconIntPTcrop5$num <- 0
+  expconIntPTcrop5$DEFAULT <- 1
+  # relay PT crop 1
+  expconRelPTcrop1 <- reactiveValues()
+  expconRelPTcrop1$num <- 0
+  expconRelPTcrop1$DEFAULT <- 1
+  # relay PT crop 2
+  expconRelPTcrop2 <- reactiveValues()
+  expconRelPTcrop2$num <- 0
+  expconRelPTcrop2$DEFAULT <- 1
+  # relay PT crop 3
+  expconRelPTcrop3 <- reactiveValues()
+  expconRelPTcrop3$num <- 0
+  expconRelPTcrop3$DEFAULT <- 1
+  # relay PT crop 4
+  expconRelPTcrop4 <- reactiveValues()
+  expconRelPTcrop4$num <- 0
+  expconRelPTcrop4$DEFAULT <- 1
+  # relay PT crop 5
+  expconRelPTcrop5 <- reactiveValues()
+  expconRelPTcrop5$num <- 0
+  expconRelPTcrop5$DEFAULT <- 1
+  
+  # Planting & Transplanting: Inserta por defecto un row en monocrop
+  observe({
+    if (!is.null(input$selectAgroFeature)) {
+      # monocrop
+      if (expconPTmonocrop$num == 0) {
+        defaultPTmonocrop <- expconPTmonocrop$DEFAULT
+        
+        for (i in 1:defaultPTmonocrop) {
+          insertRow_PT(crop = "monocrop", i)
+        }
+      }
+    }
+  })
+  
+  # Planting & Transplanting: Agrega un row al hacer clic en el boton "Add Planting & Transplanting"
+  observeEvent(input$PTBoxVar, {
+    vars <- unlist(strsplit(input$PTBoxVarid, "_"))
+    crop <- paste0(vars[1], "_", vars[2], "_", vars[3])
+    
+    if (expconPTmonocrop$num >= 1 && crop != "monocrop") { insertRow_PT(crop = "monocrop", expconPTmonocrop$num + 1) }
+    if (expconIntPTcrop1$num >= 1 && crop == "int_pt_1") { insertRow_PT(crop = "int_pt_1", expconIntPTcrop1$num + 1) }
+    if (expconIntPTcrop2$num >= 1 && crop == "int_pt_2") { insertRow_PT(crop = "int_pt_2", expconIntPTcrop2$num + 1) }
+    if (expconIntPTcrop3$num >= 1 && crop == "int_pt_3") { insertRow_PT(crop = "int_pt_3", expconIntPTcrop3$num + 1) }
+    if (expconIntPTcrop4$num >= 1 && crop == "int_pt_4") { insertRow_PT(crop = "int_pt_4", expconIntPTcrop4$num + 1) }
+    if (expconIntPTcrop5$num >= 1 && crop == "int_pt_5") { insertRow_PT(crop = "int_pt_5", expconIntPTcrop5$num + 1) }
+    if (expconRelPTcrop1$num >= 1 && crop == "rel_pt_1") { insertRow_PT(crop = "rel_pt_1", expconRelPTcrop1$num + 1) }
+    if (expconRelPTcrop2$num >= 1 && crop == "rel_pt_2") { insertRow_PT(crop = "rel_pt_2", expconRelPTcrop2$num + 1) }
+    if (expconRelPTcrop3$num >= 1 && crop == "rel_pt_3") { insertRow_PT(crop = "rel_pt_3", expconRelPTcrop3$num + 1) }
+    if (expconRelPTcrop4$num >= 1 && crop == "rel_pt_4") { insertRow_PT(crop = "rel_pt_4", expconRelPTcrop4$num + 1) }
+    if (expconRelPTcrop5$num >= 1 && crop == "rel_pt_5") { insertRow_PT(crop = "rel_pt_5", expconRelPTcrop5$num + 1) }
+  })
+  
+  insertRow_PT <- function(crop, index) {
+    # monocrop
+    if (crop == "monocrop") {
+      insertUI(
+        selector = "#monocrop_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconPTmonocrop$num <- expconPTmonocrop$num + 1
+    }
+    # inter PT crop 1
+    if (crop == "int_pt_1") {
+      insertUI(
+        selector = "#int_pt_1_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconIntPTcrop1$num <- expconIntPTcrop1$num + 1
+    }
+    # inter PT crop 2
+    if (crop == "int_pt_2") {
+      insertUI(
+        selector = "#int_pt_2_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconIntPTcrop2$num <- expconIntPTcrop2$num + 1
+    }
+    # inter PT crop 3
+    if (crop == "int_pt_3") {
+      insertUI(
+        selector = "#int_pt_3_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconIntPTcrop3$num <- expconIntPTcrop3$num + 1
+    }
+    # inter PT crop 4
+    if (crop == "int_pt_4") {
+      insertUI(
+        selector = "#int_pt_4_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconIntPTcrop4$num <- expconIntPTcrop4$num + 1
+    }
+    # inter PT crop 5
+    if (crop == "int_pt_5") {
+      insertUI(
+        selector = "#int_pt_5_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconIntPTcrop5$num <- expconIntPTcrop5$num + 1
+    }
+    # relay PT crop 1
+    if (crop == "rel_pt_1") {
+      insertUI(
+        selector = "#rel_pt_1_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconRelPTcrop1$num <- expconRelPTcrop1$num + 1
+    }
+    # relay PT crop 2
+    if (crop == "rel_pt_2") {
+      insertUI(
+        selector = "#rel_pt_2_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconRelPTcrop2$num <- expconRelPTcrop2$num + 1
+    }
+    # relay PT crop 3
+    if (crop == "rel_pt_3") {
+      insertUI(
+        selector = "#rel_pt_3_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconRelPTcrop3$num <- expconRelPTcrop3$num + 1
+    }
+    # relay PT crop 4
+    if (crop == "rel_pt_4") {
+      insertUI(
+        selector = "#rel_pt_4_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconRelPTcrop4$num <- expconRelPTcrop4$num + 1
+    }
+    # relay PT crop 5
+    if (crop == "rel_pt_5") {
+      insertUI(
+        selector = "#rel_pt_5_fr_plantingTransplating",
+        where = "beforeBegin",
+        ui = getPTUI_GEN(crop, index)
+      )
+      expconRelPTcrop5$num <- expconRelPTcrop5$num + 1
+    }
+  }
+  
+  getPTUI_GEN <- function(crop, index) {
+    fluidRow(
+      id = paste0(crop, "_fr_plantingTrasplanting_", index),
+      box(
+        id = paste0(crop, "_plantingTransplanting_boxid_", index),
+        title = actionLink(paste0(crop, "_plantingTransplanting_titleId_", index), "Planting & Transplanting details:"),
+        status = "primary", solidHeader = TRUE,
+        width = 12, collapsible = TRUE,  collapsed = FALSE,
+        fluidRow(
+          box(
+            id = paste0(crop, "_direct_seeding_boxid_", index),
+            title = checkboxInput(paste0(crop, "_directSeeding_checkbox_", index), actionLink(paste0(crop, "_direct_seeding_titleId_", index), "Direct seeding"), F),
+            status = "primary",
+            solidHeader = TRUE,
+            width = 12, collapsible = TRUE,  collapsed = TRUE,
+            fluidRow(
+              column(
+                6,
+                fluidRow(
+                  column(
+                    6,
+                    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                      airDatepickerInput(paste0(crop, "_ptdi_planting_start_date_", index),
+                                         "Start date",
+                                         clearButton = T,
+                                         autoClose = T,
+                                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                                         placeholder = "yyyy-mm-dd",
+                                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                      )
+                    } else {
+                      airDatepickerInput(paste0(crop, "_ptdi_planting_start_date_", index),
+                                         "Start date",
+                                         clearButton = T,
+                                         autoClose = T,
+                                         placeholder = "yyyy-mm-dd"
+                      )
+                    }
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                6,
+                fluidRow(
+                  box(
+                    title = "Planting, transplanting method", solidHeader = TRUE, status = "warning", width=12,
+                    fluidRow(
+                      column(12, h4("Planting, transplanting method", style="font-weight: 800;color: #555;"))
+                    ),
+                    selectizeInput(
+                      paste0(crop, "_ptdi_seeding_environment_", index), label = "Seeding environment", 
+                      multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                      choices = c("Flat seed bed",
+                                  "Hill",
+                                  "Ridge", 
+                                  "Other")
+                    ),
+                    hidden(textInput(paste0(crop, "_ptdi_seeding_environment_", index, "_other"), "", value="")),
+                    selectizeInput(
+                      paste0(crop, "_ptdi_seeding_technique_", index), label = "Seeding technique", 
+                      multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                      choices = c("Broadcasting",
+                                  "Line sowing",
+                                  "Dibbling")
+                    ),
+                    hidden(textInput(paste0(crop, "_ptdi_seeding_technique_", index,"_other"), "", value="")),
+                    textInput(paste0(crop, "_ptdi_seed_treatment_", index), value="", label = "Seed treatment")
+                  )
+                ),
+                fluidRow(
+                  box(
+                    title = "Implement", solidHeader = TRUE, status = "warning", width = 12,
+                    fluidRow(
+                      column(12, h4("Implement", style="font-weight: 800;color: #555;"))
+                    ),
+                    selectizeInput(
+                      paste0(crop, "_ptdi_seeding_implement_type_", index), label = "Type", 
+                      multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                      choices = c("Bucket broadcaster",
+                                  "Dibbling stick",
+                                  "Drum seeder",
+                                  "Jab planter",
+                                  "Seed drill",
+                                  "Other")
+                    ),
+                    hidden(textInput(paste0(crop, "_ptdi_seeding_implement_type_", index, "_other"), "", value="")),
+                    selectizeInput(
+                      paste0(crop, "_ptdi_seeding_traction_", index), label = "Traction", 
+                      multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                      choices = c("Animal",
+                                  "Manual",
+                                  "2 wheel tractor",
+                                  "4 wheel tractor",
+                                  "Other")
+                    ),
+                    hidden(textInput(paste0(crop, "_ptdi_seeding_traction_", index, "_other"), "", value=""))
+                  )
+                )
+              ),
+              column(
+                6,
+                fluidRow(
+                  box(
+                    title = "Seeding density", solidHeader = TRUE, status = "warning", width = 12,
+                    fluidRow(
+                      column(12, h4("Seeding density", style="font-weight: 800;color: #555;"))
+                    ),
+                    fluidRow(
+                      column(6, numericInput(paste0(crop, "_ptdi_distance_rows_", index),  label = "Distance between rows", min = 0, max = 100, step = 0.1,value = NULL)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptdi_distance_rows_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("cm",
+                                      "ft",
+                                      "in",
+                                      "m"),
+                          selected = "cm"
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(6, numericInput(paste0(crop, "_ptdi_seeding_rate_", index),  label = "Seeding rate", min = 0, max = 100, step = 1, value = NULL)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptdi_seeding_rate_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("kg/ha",
+                                      "lb/ac",
+                                      "plants/pot"),
+                          selected = "kg/ha"
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(6, numericInput(paste0(crop, "_ptdi_distance_plants_", index),  label = "Distance between plants", min = 0, max = 100, step = 0.1, value = NULL)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptdi_distance_plants_unit_",index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("cm",
+                                      "ft",
+                                      "in",
+                                      "m"),
+                          selected = "cm"
+                        )
+                      )
+                    ),
+                    numericInput(paste0(crop, "_ptdi_seeding_density_number_rows_", index),  label = "Number of rows", min = 0, max = 100, step = 1, value = NULL),
+                    fluidRow(
+                      column(6, numericInput(paste0(crop, "_ptdi_seeding_plant_density_", index),  label = "Plant density", min = 0, max = 100, step = 0.1, value = NULL)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptdi_seeding_plant_density_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("plants/hill",
+                                      "plants/m2",
+                                      "plants/pot",
+                                      "plants/row"),
+                          selected = "plants/m2"
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(6, numericInput(paste0(crop, "_ptdi_seeding_distance_bunds_", index),  label = "Distance between bunds", min = 0, max = 100, step = 0.1, value = NULL)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptdi_seeding_distance_bunds_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("cm",
+                                      "m",
+                                      "in",
+                                      "ft"),
+                          selected = "cm"
+                        )
+                      )
+                    ),
+                    textAreaInput(paste0(crop, "_ptdi_direct_seeding_notes_", index), label="Notes", value="")
+                  )
+                )
+              )
+            )
+          )
+        ),
+        fluidRow(
+          box(
+            id = paste0(crop, "_transplanting_boxid_", index),
+            title = checkboxInput(paste0(crop, "_transplanting_checkbox_", index), actionLink(paste0(crop, "_transplanting_titleId_", index), "Transplanting"), F),
+            status = "primary", solidHeader = TRUE,
+            width = 12, collapsible = TRUE, collapsed = TRUE,
+            fluidRow(
+              column(
+                6,
+                fluidRow(
+                  column(
+                    6,
+                    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                      airDatepickerInput(
+                        paste0(crop, "_ptta_transplanting_start_date_", index),
+                        "Start date",
+                        clearButton = T,
+                        autoClose = T,
+                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                        placeholder = "yyyy-mm-dd",
+                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                      )
+                    } else {
+                      airDatepickerInput(
+                        paste0(crop, "_ptta_transplanting_start_date_", index),
+                        "Start date",
+                        clearButton = T,
+                        autoClose = T,
+                        placeholder = "yyyy-mm-dd"
+                      )
+                    }
+                  ),
+                  column(
+                    6,
+                    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                      airDatepickerInput(
+                        paste0(crop, "_ptta_transplanting_end_date_", index),
+                        "End date",
+                        clearButton = T,
+                        autoClose = T,
+                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                        placeholder = "yyyy-mm-dd",
+                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                      )
+                    } else {
+                      airDatepickerInput(
+                        paste0(crop, "_ptta_transplanting_end_date_", index),
+                        "End date",
+                        clearButton = T,
+                        autoClose = T,
+                        placeholder = "yyyy-mm-dd"
+                      )
+                    }
+                  )
+                ),
+                numericInput(paste0(crop, "_ptta_age_seedling_", index), value="", label = "Age of seedling (days)", min=0, max=100, step=1),
+                selectizeInput(
+                  paste0(crop, "_ptta_transplanting_environment_", index), label = "Seedling environment", 
+                  multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                  choices =c("Flat seed bed",
+                             "Hill",
+                             "Ridge",
+                             "Other")
+                ),
+                hidden(textInput(paste0(crop, "_ptta_transplanting_environment_", index, "_other"), "", value="")),
+                selectizeInput(
+                  paste0(crop, "_ptta_transplanting_technique_", index), label = "Technique", 
+                  multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                  choices = c("Manual",
+                              "Mechanical",
+                              "Other")
+                ),
+                hidden(textInput(paste0(crop, "_ptta_transplanting_technique_", index, "_other"), "", value="")),
+                textInput(paste0(crop, "_ptta_transplanting_treatment_", index), value="", label = "Seed treatment"),
+                selectizeInput(
+                  paste0(crop, "_ptta_trans_traction_", index), label = "Traction", 
+                  multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                  choices = c("Animal",
+                              "Traction",
+                              "2 wheel tractor",
+                              "4 wheel tractor",
+                              "Other")
+                ),
+                hidden(textInput(paste0(crop, "_ptta_trans_traction_", index,"_other"), "", value=""))
+              ),
+              column(
+                6,
+                fluidRow(
+                  box(
+                    title = "Transplanting density", solidHeader = TRUE, status = "warning", width = 12,
+                    fluidRow(
+                      column(12, h4("Transplanting density", style="font-weight: 800;color: #555;"))
+                    ),
+                    fluidRow(
+                      column(6, numericInput(paste0(crop, "_ptta_trans_distance_rows_", index),  label = "Distance between rows", value="", min = 0, max = 100, step = 0.1)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptta_trans_distance_rows_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("cm",
+                                      "ft",
+                                      "in",
+                                      "m"),
+                          selected = "cm"
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(6, numericInput(paste0(crop, "_ptta_trans_seeding_density_", index),  label = "Seedling density", value = "", min = 0, max = 100, step = 1)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptta_trans_seeding_density_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("plants/hill",
+                                      "plants/m2",
+                                      "plants/pot",
+                                      "plants/row"),
+                          selected = "plants/m2"
+                        )
+                      )
+                    ),
+                    numericInput(paste0(crop, "_ptta_trans_num_rows_", index), "Number of rows", value ="", min = 0, max = 100, step = 1),
+                    fluidRow(
+                      column(6, numericInput(paste0(crop, "_ptta_trans_distance_plants_", index),  label = "Distance between plants", value = "", min = 0, max = 100, step = 0.1)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptta_trans_distance_plants_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), selected="m", 
+                          choices = c("m")
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(6, numericInput(paste0(crop, "_ptta_trans_distance_bunds_", index),  label = "Distance between bunds", min = 0, max = 100, step = 0.1, value = NULL)), 
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptta_trans_distance_bunds_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("cm",
+                                      "m",
+                                      "in",
+                                      "ft"),
+                          selected = "cm"
+                        )
+                      )
+                    ),
+                    textAreaInput(paste0(crop, "_ptta_transplanting_density_notes_", index), label="Notes", value="")
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  }
+  
+  ###################### END: PLANTING & TRANSPLANTING ######################
+  
+  ###################### START: MULCH MANAGEMENT ######################
+  
+  ## Mulching and Residue
+  # mulch_start_date 
+  output$mul_start_date <- renderUI({
+    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+      airDatepickerInput("mumd_mulch_start_date",
+                         "Start date",
+                         clearButton = T,
+                         autoClose = T,
+                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                         placeholder = "yyyy-mm-dd",
+                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                         
+      )
+    } else {
+      airDatepickerInput("mumd_mulch_start_date",
+                         "Mulching start date",
+                         clearButton = T,
+                         autoClose = T,
+                         placeholder = "yyyy-mm-dd"
+      )
+    }
+  })
+  
+  # mulch_end_date
+  output$mul_end_date <- renderUI({
+    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+      airDatepickerInput("mulch_end_date",
+                         "Mulching end date",
+                         clearButton = T,
+                         autoClose = T,
+                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                         placeholder = "yyyy-mm-dd",
+                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                         
+      )
+    } else {
+      airDatepickerInput("mulch_end_date",
+                         "Mulching end date",
+                         clearButton = T,
+                         autoClose = T,
+                         placeholder = "yyyy-mm-dd"
+      )
+    }
+  })
+  
+  # mulch_remove_start_date 
+  output$mulre_start_date <- renderUI({
+    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+      airDatepickerInput("mumd_mulch_remove_start_date",
+                         "Mulch removal start date",
+                         clearButton = T,
+                         autoClose = T,
+                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                         placeholder = "yyyy-mm-dd",
+                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                         
+      )
+    } else {
+      airDatepickerInput("mumd_mulch_remove_start_date",
+                         "Mulch removal start date",
+                         clearButton = T,
+                         autoClose = T,
+                         placeholder = "yyyy-mm-dd"
+      )
+    }
+  })
+  
+  # mulch_remove_end_date
+  output$mulre_end_date <- renderUI({
+    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+      airDatepickerInput("mumd_mulch_remove_end_date",
+                         "Mulch removal end date",
+                         clearButton = T,
+                         autoClose = T,
+                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                         placeholder = "yyyy-mm-dd",
+                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                         
+      )
+    } else {
+      airDatepickerInput("mumd_mulch_remove_end_date",
+                         "Mulch removal end date",
+                         clearButton = T,
+                         autoClose = T,
+                         placeholder = "yyyy-mm-dd"
+      )
+    }
+  })
+  
+  ###################### END: MULCH MANAGEMENT ######################
+  
+  ###################### START: IRRIGATION ######################
+  
+  ## Irrigation: Asigna variables reactivas
+  # monocrop
+  expconIRRImonocrop <- reactiveValues()
+  expconIRRImonocrop$num <- 0
+  expconIRRImonocrop$DEFAULT <- 1
+  expconIRRImonocrop$ids <- c()
+  
+  # Irrigation: Inserta por defecto un row en monocrop
+  observe({
+    if (!is.null(input$selectAgroFeature)) {
+      # monocrop
+      if (expconIRRImonocrop$num == 0) {
+        defaultIRRImonocrop <- expconIRRImonocrop$DEFAULT
+        
+        for (i in 1:defaultIRRImonocrop) {
+          insertRow_IRRI(crop = "monocrop", i)
+        }
+      }
+    }
+  })
+  
+  # Irrigation: Agrega un row al hacer clic en el boton "Add irrigation"
+  observeEvent(input$IRRIBoxVar, {
+    vars <- unlist(strsplit(input$IRRIBoxVarid, "_"))
+    crop <- vars[1]
+    
+    if (expconIRRImonocrop$num >= 1 && crop == "monocrop") { insertRow_IRRI(crop = "monocrop", expconIRRImonocrop$num + 1) }
+  })
+  
+  insertRow_IRRI <- function(crop, index) {
+    # monocrop
+    if (crop == "monocrop") {
+      expconIRRImonocrop$ids <- c(expconIRRImonocrop$ids, paste0("mono_irri_", index))
+      
+      insertUI(
+        selector = "#monocrop_fr_irrigation",
+        where = "beforeBegin",
+        ui = getIRRIUI_GEN(crop, index)
+      )
+      expconIRRImonocrop$num <- expconIRRImonocrop$num + 1
+    }
+  }
+  
+  getIRRIUI_GEN <- function(crop, index) {
+    #expCondsVars$ids_irri <- c(expCondsVars$ids_irri, paste0("ECIR_", str_id))
+    
+    fluidRow(
+      id = paste0(crop, "_fr_irrigation_box_", index),
+      box(
+        column(
+          12, offset = 0, 
+          column(
+            6, style='padding:0px; text-align:left;',
+            h4("Irrigation details", style="font-weight: 800;color: #555;")
+          ),
+          column(6, style='padding:0px; text-align:right; ',  actionButton(paste0(crop, "_closeBox_ECIRRI_", index), "", icon("close")))
+          
+        ),
+        br(),
+        width = 12, solidHeader = TRUE, status = "warning",
+        column(
+          6,
+          fluidRow(
+            column(
+              6,
+              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                airDatepickerInput(
+                  paste0(crop, "_irid_irrigationevent_start_date_", index),
+                  "Start date",
+                  clearButton = T,
+                  autoClose = T,
+                  #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                  placeholder = "yyyy-mm-dd",
+                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                  maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                )
+              } else {
+                airDatepickerInput(
+                  paste0(crop, "_irid_irrigationevent_start_date_", index),
+                  "Start date",
+                  clearButton = T,
+                  autoClose = T,
+                  placeholder = "yyyy-mm-dd"                           
+                )
+              }
+            ),
+            column(
+              6,
+              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                airDatepickerInput(
+                  paste0(crop, "_irid_irrigationevent_end_date_", index),
+                  "End date",
+                  clearButton = T,
+                  autoClose = T,
+                  #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                  placeholder = "yyyy-mm-dd",
+                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                  maxDate = as.Date(input$fbDesign_project_end_date) + 1                 
+                )
+              } else {
+                airDatepickerInput(
+                  paste0(crop, "_irid_irrigationevent_end_date_", index),
+                  "End date",
+                  clearButton = T,
+                  autoClose = T,
+                  placeholder = "yyyy-mm-dd"
+                )
+              }
+            )
+          ),
+          selectizeInput(
+            paste0(crop, "_irid_irrigation_technique_", index), label = "Irrigation technique", 
+            multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+            choices = c("Sprinkler irrigation",
+                        "Localized",
+                        "Surface",
+                        #"Sub-irrigation",
+                        "Other")
+          ),
+          hidden(textInput(paste0(crop, "_irid_irrigation_technique_", index, "_other"), "")),
+          conditionalPanel(
+            paste0("input.", crop, "_irid_irrigation_technique_", index, "== 'Surface'"),
+            selectizeInput(
+              paste0(crop, "_irid_surface_irrigation_technique_", index), label = "Surface irrigation technique", 
+              multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+              choices = c("Basin irrigation",
+                          "Border irrigation",
+                          "Continuous flood",
+                          "Furrow irrigation",
+                          "Uncontrolled flooding",
+                          "Other")
+            ),
+            hidden(textInput(paste0(crop, "_irid_surface_irrigation_technique_", index, "_other"), ""))
+          ),
+          conditionalPanel(
+            paste0("input.", crop, "_irid_irrigation_technique_", index, "== 'Localized'"),
+            selectizeInput(
+              paste0(crop, "_irid_localized_irrigation_technique", index), label = "Localized irrigation technique", 
+              multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+              choices = c("Bubbler irrigation",
+                          "Drip irrigation",
+                          "Mist irrigation",
+                          "Pitcher irrigation",
+                          "Subsurface drip irrigation",
+                          "Subsurface textile irrigation",
+                          "Other")
+            ),
+            hidden(textInput(paste0(crop, "_irid_localized_irrigation_technique", index, "_other"), ""))
+          ),
+          conditionalPanel(
+            paste0("input.", crop, "_irid_irrigation_technique_", index, "== 'Sprinkler irrigation'"),
+            selectizeInput(
+              paste0(crop, "_irid_irrigation_using_sprinkler_systems_", index), label = "Sprinkler irrigation system", 
+              multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+              choices = c("Center pivot irrigation",
+                          "Irrigation by lateral move",
+                          "Irrigation by side move",
+                          "Other")
+            ),
+            hidden(textInput(paste0(crop, "_irid_irrigation_using_sprinkler_systems_", index, "_other"), ""))
+          ),
+          selectizeInput(
+            paste0(crop, "_irid_irrigation_source_", index), label = "Irrigation source", 
+            multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+            choices = c("Drainage",
+                        "Groundwater",
+                        "Lake",
+                        "Reservoir",
+                        "River",
+                        "Spring",
+                        "Other")
+          ),
+          hidden(textInput(paste0(crop, "_irrigation_source_", index,  "_other"), ""))
+        ),
+        column(
+          6,
+          fluidRow(
+            column(6, numericInput(paste0(crop, "_irid_irrigation_source_distance_", index), label = "Irrigation source distance", value = "", min = 0, step = 0.1)),
+            column(
+              6,
+              selectizeInput(
+                paste0(crop, "_irid_irrigation_source_distance_", index, "unit"), "Unit", 
+                multiple = T, options = list(maxItems = 1, placeholder="Select one..."),
+                choices = c("ft", "km", "m", "mi"),
+                selected = "m"
+              )
+            )
+          ),
+          fluidRow(
+            column(6, numericInput(paste0(crop, "_irid_irrigation_amount_", index), label = "Irrigation amount", value = "", min = 0, step = 0.1)),
+            column(
+              6,
+              selectizeInput(
+                paste0(crop, "_irid_irrigation_amount_", index, "unit"), "Unit", 
+                multiple=T, options=list(maxItems=1, placeholder="Select one..."),
+                choices = c("in", "mm"),#, "cm", "m", "in", "ft", "ml", "L", "gal", "cu m", "cu in", "cu ft")
+                selected = "mm"
+              )
+            )
+          ),
+          textAreaInput(paste0(crop, "_irid_irrigation_notes_", index), label = "Notes", value = "")
+        )
+      )
+    )
+  }
+  
+  # Irrigation: Funcion GENERAL que activa "Close"
+  observeEvent(input$closeBox_ECIRRI_GEN, {
+    vars <- unlist(strsplit(input$closeBox_ECIRRI_GENid, "_"))
+    crop <- vars[1]
+    index <- vars[4]
+    
+    if (length(expconIRRImonocrop$ids) > 1) {
+      removeUI(
+        selector = paste0("#", crop, "_fr_irrigation_box_", index),
+        immediate = T
+      )
+      expconIRRImonocrop$ids <- expconIRRImonocrop$ids[!expconIRRImonocrop$ids %in% paste0("mono_irri_", index)]
+    }
+  })
+  
+  ###################### END: IRRIGATION ######################
+  
+  ###################### START: WEEDING ######################
+  
+  ## Weeding: Asigna variables reactivas
+  # monocrop
+  expconWEEmonocrop <- reactiveValues()
+  expconWEEmonocrop$num <- 0
+  expconWEEmonocrop$DEFAULT <- 1
+  expconWEEmonocrop$ids <- c()
+  
+  # Weeding: Inserta por defecto un row en monocrop
+  observe({
+    if (!is.null(input$selectAgroFeature)) {
+      # monocrop
+      if (expconWEEmonocrop$num == 0) {
+        defaultWEEmonocrop <- expconWEEmonocrop$DEFAULT
+        
+        for (i in 1:defaultWEEmonocrop) {
+          insertRow_WEE(crop = "monocrop", i)
+        }
+      }
+    }
+  })
+  
+  # Weeding: Agrega un row al hacer clic en el boton "Add irrigation"
+  observeEvent(input$WEEBoxVar, {
+    vars <- unlist(strsplit(input$WEEBoxVarid, "_"))
+    crop <- vars[1]
+    
+    if (expconWEEmonocrop$num >= 1 && crop == "monocrop") { insertRow_WEE(crop = "monocrop", expconWEEmonocrop$num + 1) }
+  })
+  
+  insertRow_WEE <- function(crop, index) {
+    # monocrop
+    if (crop == "monocrop") {
+      expconWEEmonocrop$ids <- c(expconWEEmonocrop$ids, paste0("mono_wee_", index))
+      
+      insertUI(
+        selector = "#monocrop_fr_weeding",
+        where = "beforeBegin",
+        ui = getWEEUI_GEN(crop, index)
+      )
+      expconWEEmonocrop$num <- expconWEEmonocrop$num + 1
+    }
+  }
+  
+  getWEEUI_GEN <- function(crop, index) {
+    #expCondsVars$ids_irri <- c(expCondsVars$ids_irri, paste0("ECIR_", str_id))
+    
+    fluidRow(
+      id = paste0(crop, "_fr_weeding_box_", index),
+      box(
+        column(
+          12, offset = 0, 
+          column(
+            6, style='padding:0px; text-align:left;',
+            h4("Weeding details", style="font-weight: 800;color: #555;")
+          ),
+          column(
+            6, 
+            style='padding:0px; text-align:right;', actionButton(paste0(crop, "_closeBox_ECWEE_", index), "", icon("close"))
+          )
+        ),
+        width = 12, solidHeader = TRUE, status = "warning",
+        column(
+          6,
+          fluidRow(
+            column(
+              6, 
+              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                airDatepickerInput(
+                  paste0(crop, "_wewd_weeding_start_date_", index),
+                  "Start date",
+                  clearButton = T,
+                  autoClose = T,
+                  #value = startDate,
+                  placeholder = "yyyy-mm-dd",
+                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                  maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                )
+              } else {
+                airDatepickerInput(
+                  paste0(crop, "_wewd_weeding_start_date_", index),
+                  "Start date",
+                  clearButton = T,
+                  #value = startDate,
+                  autoClose = T,
+                  placeholder = "yyyy-mm-dd"                           
+                )
+              }
+            )
+          ),
+          selectizeInput(
+            paste0(crop, "_wewd_weeding_technique_", index), "Technique", multiple = TRUE, 
+            options = list(maxItems =1, placeholder ="Select one..."),
+            choices = c("Chemical",
+                        "Manual",
+                        "Mechanized")
+          ),
+          textAreaInput(paste0(crop, "_wewd_weeding_notes_", index), "Notes")
+        ),
+        column(
+          6,
+          fluidRow(
+            column(12, h4("Implement", style="font-weight: 800;color: #555;"))
+          ),
+          selectizeInput(
+            paste0(crop, "_wewd_weeding_type_",index ), "Type", multiple = TRUE,
+            options = list(maxItems =1, placeholder ="Select one..."),
+            choices = c("Cultivator",
+                        "Manual",
+                        "Sprayer",
+                        "Weed cutter/puller",
+                        "Other")
+          ),
+          hidden(textInput(paste0(crop, "_wewd_weeding_type_",index, "_other" ), "")),
+          selectizeInput(
+            paste0(crop, "_wewd_weeding_traction_", index), "Traction",multiple = TRUE,
+            options = list(maxItems =1, placeholder ="Select one..."),
+            choices = c("Animal",
+                        "Manual",
+                        "2 wheel tractor",
+                        "4 wheel tractor",
+                        "Other")
+          ),
+          hidden(textInput(paste0(crop, "_wewd_weeding_traction_",index, "_other" ), ""))
+        )
+      )
+    )
+  }
+  
+  # Weeding: Funcion GENERAL que activa "Close"
+  observeEvent(input$closeBox_ECWEE_GEN, {
+    vars <- unlist(strsplit(input$closeBox_ECWEE_GENid, "_"))
+    crop <- vars[1]
+    index <- vars[4]
+    
+    if (length(expconWEEmonocrop$ids) > 1) {
+      removeUI(
+        selector = paste0("#", crop, "_fr_weeding_box_", index),
+        immediate = T
+      )
+      expconWEEmonocrop$ids <- expconWEEmonocrop$ids[!expconWEEmonocrop$ids %in% paste0("mono_wee_", index)]
+    }
+  })
+  
+  ###################### END: WEEDING ######################
+  
+  ###################### START: HARVEST ######################
+  
+  # Oculta por defecto los tabs de inicio de Int, Rel & Rot
+  observe({
+    shiny::hideTab(inputId = "tabpanelHARVint", target = "harv_int_default")
+    shiny::hideTab(inputId = "tabpanelHARVrel", target = "harv_rel_default")
+    shiny::hideTab(inputId = "tabpanelHARVrot", target = "harv_rot_default")
+  })
+  
+  # Inserta los tabs en Exp Cond dependiendo del tipo de cultivo
+  observeEvent(input$HARVBoxInterVar, {
+    vars <- unlist(strsplit(input$HARVBoxInterVarid, "_"))
+    cropType <- vars[1]
+    index <- vars[3]
+    
+    vals <- getValuesCropHARV(cropType)
+    insertTabsHARV(vals, cropType)
+  })
+  
+  # Funcion que extrae lista de nombres que ira en los tabs de exp cond
+  getValuesCropHARV <- function(cropType) {
+    if (cropType == "int") { ids <- intercropVars$ids }
+    else if (cropType == "rel") { ids <- relaycropVars$ids }
+    else if (cropType == "rot") { ids <- rotationcropVars$ids }
+    
+    newids <- inputid <- c()
+    
+    for (i in 1:length(ids)) {
+      vars <- unlist(strsplit(ids[i], "_"))
+      newids[i] <- vars[2]
+    }
+    
+    for (i in 1:length(newids)) {
+      inputid[i] <- paste0(cropType, "_cropCommonName_", newids[i])
+    }
+    
+    df <- data.frame(id = c(inputid), values = "", stringsAsFactors = F)
+    val <- AllInputs() %>% dplyr::filter(id %in% df$id)
+    val <- c(val$values)
+    
+    for (i in 1:length(val)) {
+      if (val[i] != "") {
+        val[i] <- paste0(cropType, "_harv_", i)
+      }
+    }
+    
+    val <- val[val != ""]
+    val
+  }
+  
+  expconHARVinter <- reactiveValues()
+  expconHARVinter$var <- c()
+  
+  # Funcion que inserta los tabs dependiendo del tipo de cultivo
+  insertTabsHARV <- function(vals, cropType) {
+    if (length(vals) != 0) {
+      xx <- expconHARVinter$var[!expconHARVinter$var%in%vals]
+      vals <- vals[!vals %in% unique(expconHARVinter$var)]
+      expconHARVinter$var <- c(expconHARVinter$var, vals)
+      
+      if (!is.null(xx)) {
+        for (i in 1:length(xx)) {
+          removeTab(inputId = paste0("tabpanelHARV", cropType), target = xx[i])
+          expconHARVinter$var <- expconHARVinter$var[!expconHARVinter$var %in% xx]
+        }
+      }
+      
+      if (length(vals) >= 1) {
+        for (i in 1:length(vals)) {
+          insertTab(
+            inputId = paste0("tabpanelHARV", cropType),
+            tabPanel(
+              vals[i],
+              br(),
+              fluidRow(id = paste0(vals[i], "_fr_harvest")),
+              actionButton(paste0(vals[i], "_harv_add"), "Add harvest"),
+              insertRow_HARV(crop = vals[i], 1)
+            ),
+            target = paste0("harv_", cropType, "_default"),
+            position = "before",
+            select = T
+          )
+        }
+      }
+    }
+  }
+  
+  ## Harvest: Asigna variables reactivas
+  # monocrop
+  expconHARVmonocrop <- reactiveValues()
+  expconHARVmonocrop$num <- 0
+  expconHARVmonocrop$DEFAULT <- 1
+  expconHARVmonocrop$ids <- c()
+  # inter HARV crop 1
+  expconIntHARVcrop1 <- reactiveValues()
+  expconIntHARVcrop1$num <- 0
+  expconIntHARVcrop1$DEFAULT <- 1
+  expconIntHARVcrop1$ids <- c()
+  # inter HARV crop 2
+  expconIntHARVcrop2 <- reactiveValues()
+  expconIntHARVcrop2$num <- 0
+  expconIntHARVcrop2$DEFAULT <- 1
+  expconIntHARVcrop2$ids <- c()
+  # inter HARV crop 3
+  expconIntHARVcrop3 <- reactiveValues()
+  expconIntHARVcrop3$num <- 0
+  expconIntHARVcrop3$DEFAULT <- 1
+  expconIntHARVcrop3$ids <- c()
+  # inter HARV crop 4
+  expconIntHARVcrop4 <- reactiveValues()
+  expconIntHARVcrop4$num <- 0
+  expconIntHARVcrop4$DEFAULT <- 1
+  expconIntHARVcrop4$ids <- c()
+  # inter HARV crop 5
+  expconIntHARVcrop5 <- reactiveValues()
+  expconIntHARVcrop5$num <- 0
+  expconIntHARVcrop5$DEFAULT <- 1
+  expconIntHARVcrop5$ids <- c()
+  # relay HARV crop 1
+  expconRelHARVcrop1 <- reactiveValues()
+  expconRelHARVcrop1$num <- 0
+  expconRelHARVcrop1$DEFAULT <- 1
+  expconRelHARVcrop1$ids <- c()
+  # relay HARV crop 2
+  expconRelHARVcrop2 <- reactiveValues()
+  expconRelHARVcrop2$num <- 0
+  expconRelHARVcrop2$DEFAULT <- 1
+  expconRelHARVcrop2$ids <- c()
+  # relay HARV crop 3
+  expconRelHARVcrop3 <- reactiveValues()
+  expconRelHARVcrop3$num <- 0
+  expconRelHARVcrop3$DEFAULT <- 1
+  expconRelHARVcrop3$ids <- c()
+  # relay HARV crop 4
+  expconRelHARVcrop4 <- reactiveValues()
+  expconRelHARVcrop4$num <- 0
+  expconRelHARVcrop4$DEFAULT <- 1
+  expconRelHARVcrop4$ids <- c()
+  # relay HARV crop 5
+  expconRelHARVcrop5 <- reactiveValues()
+  expconRelHARVcrop5$num <- 0
+  expconRelHARVcrop5$DEFAULT <- 1
+  expconRelHARVcrop5$ids <- c()
+  
+  # Harvest: Inserta por defecto un row en monocrop
+  observe({
+    if (!is.null(input$selectAgroFeature)) {
+      # monocrop
+      if (expconHARVmonocrop$num == 0) {
+        defaultHARVmonocrop <- expconHARVmonocrop$DEFAULT
+        
+        for (i in 1:defaultHARVmonocrop) {
+          insertRow_HARV(crop = "monocrop", i)
+        }
+      }
+    }
+  })
+  
+  # Harvest: Agrega un row al hacer clic en el boton "Add harvest"
+  observeEvent(input$HARVBoxVar, {
+    vars <- unlist(strsplit(input$HARVBoxVarid, "_"))
+    crop <- paste0(vars[1], "_", vars[2], "_", vars[3])
+    
+    if (expconHARVmonocrop$num >= 1 && crop != "monocrop") { insertRow_HARV(crop = "monocrop", expconHARVmonocrop$num + 1) }
+    if (expconIntHARVcrop1$num >= 1 && crop == "int_harv_1") { insertRow_HARV(crop = "int_harv_1", expconIntHARVcrop1$num + 1) }
+    if (expconIntHARVcrop2$num >= 1 && crop == "int_harv_2") { insertRow_HARV(crop = "int_harv_2", expconIntHARVcrop2$num + 1) }
+    if (expconIntHARVcrop3$num >= 1 && crop == "int_harv_3") { insertRow_HARV(crop = "int_harv_3", expconIntHARVcrop3$num + 1) }
+    if (expconIntHARVcrop4$num >= 1 && crop == "int_harv_4") { insertRow_HARV(crop = "int_harv_4", expconIntHARVcrop4$num + 1) }
+    if (expconIntHARVcrop5$num >= 1 && crop == "int_harv_5") { insertRow_HARV(crop = "int_harv_5", expconIntHARVcrop5$num + 1) }
+    if (expconRelHARVcrop1$num >= 1 && crop == "rel_harv_1") { insertRow_HARV(crop = "rel_harv_1", expconRelHARVcrop1$num + 1) }
+    if (expconRelHARVcrop2$num >= 1 && crop == "rel_harv_2") { insertRow_HARV(crop = "rel_harv_2", expconRelHARVcrop2$num + 1) }
+    if (expconRelHARVcrop3$num >= 1 && crop == "rel_harv_3") { insertRow_HARV(crop = "rel_harv_3", expconRelHARVcrop3$num + 1) }
+    if (expconRelHARVcrop4$num >= 1 && crop == "rel_harv_4") { insertRow_HARV(crop = "rel_harv_4", expconRelHARVcrop4$num + 1) }
+    if (expconRelHARVcrop5$num >= 1 && crop == "rel_harv_5") { insertRow_HARV(crop = "rel_harv_5", expconRelHARVcrop5$num + 1) }
+  })
+  
+  insertRow_HARV <- function(crop, index) {
+    # monocrop
+    if (crop == "monocrop") {
+      expconHARVmonocrop$ids <- c(expconHARVmonocrop$ids, paste0("mono_harv_", index))
+      
+      insertUI(
+        selector = "#monocrop_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconHARVmonocrop$num <- expconHARVmonocrop$num + 1
+    }
+    # inter HARV crop 1
+    if (crop == "int_harv_1") {
+      expconIntHARVcrop1$ids <- c(expconIntHARVcrop1$ids, paste0("int_harv_1_", index))
+      
+      insertUI(
+        selector = "#int_harv_1_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconIntHARVcrop1$num <- expconIntHARVcrop1$num + 1
+    }
+    # inter HARV crop 2
+    if (crop == "int_harv_2") {
+      expconIntHARVcrop2$ids <- c(expconIntHARVcrop2$ids, paste0("int_harv_2_", index))
+      
+      insertUI(
+        selector = "#int_harv_2_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconIntHARVcrop2$num <- expconIntHARVcrop2$num + 1
+    }
+    # inter HARV crop 3
+    if (crop == "int_harv_3") {
+      expconIntHARVcrop3$ids <- c(expconIntHARVcrop3$ids, paste0("int_harv_3_", index))
+      
+      insertUI(
+        selector = "#int_harv_3_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconIntHARVcrop3$num <- expconIntHARVcrop3$num + 1
+    }
+    # inter HARV crop 4
+    if (crop == "int_harv_4") {
+      expconIntHARVcrop4$ids <- c(expconIntHARVcrop4$ids, paste0("int_harv_4_", index))
+      
+      insertUI(
+        selector = "#int_harv_4_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconIntHARVcrop4$num <- expconIntHARVcrop4$num + 1
+    }
+    # inter HARV crop 5
+    if (crop == "int_harv_5") {
+      expconIntHARVcrop5$ids <- c(expconIntHARVcrop5$ids, paste0("int_harv_5_", index))
+      
+      insertUI(
+        selector = "#int_harv_5_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconIntHARVcrop5$num <- expconIntHARVcrop5$num + 1
+    }
+    # relay HARV crop 1
+    if (crop == "rel_harv_1") {
+      expconRelHARVcrop1$ids <- c(expconRelHARVcrop1$ids, paste0("rel_harv_1_", index))
+      
+      insertUI(
+        selector = "#rel_harv_1_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconRelHARVcrop1$num <- expconRelHARVcrop1$num + 1
+    }
+    # relay HARV crop 2
+    if (crop == "rel_harv_2") {
+      expconRelHARVcrop2$ids <- c(expconRelHARVcrop2$ids, paste0("rel_harv_2_", index))
+      
+      insertUI(
+        selector = "#rel_harv_2_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconRelHARVcrop2$num <- expconRelHARVcrop2$num + 1
+    }
+    # relay HARV crop 3
+    if (crop == "rel_harv_3") {
+      expconRelHARVcrop3$ids <- c(expconRelHARVcrop3$ids, paste0("rel_harv_3_", index))
+      
+      insertUI(
+        selector = "#rel_harv_3_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconRelHARVcrop3$num <- expconRelHARVcrop3$num + 1
+    }
+    # relay HARV crop 4
+    if (crop == "rel_harv_4") {
+      expconRelHARVcrop4$ids <- c(expconRelHARVcrop4$ids, paste0("rel_harv_4_", index))
+      
+      insertUI(
+        selector = "#rel_harv_4_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconRelHARVcrop4$num <- expconRelHARVcrop4$num + 1
+    }
+    # relay HARV crop 5
+    if (crop == "rel_harv_5") {
+      expconRelHARVcrop5$ids <- c(expconRelHARVcrop5$ids, paste0("rel_harv_5_", index))
+      
+      insertUI(
+        selector = "#rel_harv_5_fr_harvest",
+        where = "beforeBegin",
+        ui = getHARVUI_GEN(crop, index)
+      )
+      expconRelHARVcrop5$num <- expconRelHARVcrop5$num + 1
+    }
+  }
+  
+  getHARVUI_GEN <- function(crop, index) {
+    fluidRow(
+      id = paste0(crop, "_fr_harvest_", index),
+      box(
+        column(
+          12, offset = 0, 
+          column(
+            6, style='padding:0px; text-align:left;',
+            h4("Harvest details", style="font-weight: 800;color: #555;")
+          ),
+          column(
+            6,
+            style='padding:0px; text-align:right;', actionButton(paste0(crop, "_closeBox_ECHARV_", index), "", icon("close"))
+          )
+        ),
+        width = 12, status = "warning", solidHeader = TRUE,
+        column(
+          6,
+          fluidRow(
+            column(
+              6,
+              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                airDatepickerInput(
+                  paste0(crop, "_hahd_harvest_start_date_", index),
+                  "Start date",
+                  clearButton = T,
+                  autoClose = T,
+                  #value = as.Date(input$fbDesign_project_start_date) + 1,
+                  placeholder = "yyyy-mm-dd",
+                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                  maxDate = as.Date(input$fbDesign_project_end_date) + 1                           
+                )
+              } else {
+                airDatepickerInput(
+                  paste0(crop, "_hahd_harvest_start_date_", index),
+                  "Start date",
+                  clearButton = T,
+                  autoClose = T,
+                  placeholder = "yyyy-mm-dd"
+                )
+              }
+            ),
+            column(
+              6,
+              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                airDatepickerInput(
+                  paste0(crop, "_hahd_harvest_end_date_", index),
+                  "End date",
+                  clearButton = T,
+                  autoClose = T,
+                  #value = as.Date(input$fbDesign_project_start_date) + 1,
+                  placeholder = "yyyy-mm-dd",
+                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                  maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                )
+              } else {
+                airDatepickerInput(
+                  paste0(crop, "_hahd_harvest_end_date_", index),
+                  "End date",
+                  clearButton = T,
+                  autoClose = T,
+                  placeholder = "yyyy-mm-dd"                           
+                )
+              }
+            )
+          ),
+          fluidRow(
+            column(
+              6,
+              selectizeInput(
+                paste0(crop, "_hahd_harvest_method_", index), label = "Harvest method", 
+                multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                choices = c("Baling", "Cutting", "Mowing", "Haymaking", "Picking", "Threshing", "Trussing", "Windrowing","Winnowing","Other")
+              )
+            )
+          ),
+          hidden(textInput(paste0(crop, "_hahd_harvest_method_", index,"_other"), "")),
+          selectizeInput(
+            paste0(crop, "_hahd_crop_component_harvested_", index), label = "Crop component harvested", 
+            multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), 
+            choices = c("Canopy", "Aboveground biomass","Leaves","Stems","Seed","Pod", "Grain", "Tuber","Roots (excluding storage roots)", "Storage roots", "Other")
+          ),
+          hidden(textInput(paste0(crop, "_hahd_crop_component_harvested_",index,"_other"), "")),
+          selectizeInput(
+            paste0(crop, "_hahd_crop_harvestable_area_", index), label = "Harvestable area", 
+            multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+            choices = c("m2 units", "Individual plants","Rows","Entire plot","Other")
+          ),
+          conditionalPanel(
+            paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'm2 units'"),
+            textInput(paste0("hahd_crop_component_harvested_m2_",index), "Number of m2 units harvested")
+          ),
+          conditionalPanel(
+            paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'Individual plants'"),
+            textInput(paste0("hahd_crop_component_harvested_ip_",index), "Number of plants harvested")
+          ),
+          conditionalPanel(
+            paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'Rows'"),
+            fluidRow(
+              column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_num_",index), "Number of rows harvested"))
+            ),
+            fluidRow(
+              column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_len_",index), "Length of rows harvested")),
+              column(
+                6,
+                selectizeInput(
+                  paste0(crop, "_hahd_crop_component_harvested_lenunit_",index),  label ="Unit", multiple = TRUE, 
+                  options = list(maxItems =11, placeholder ="Select one..."), 
+                  choices = c("cm", "m", "in","ft"), selected = "cm"
+                )
+              )
+            ),
+            fluidRow(
+              column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_width_",index), "Width within rows harvested")),
+              column(
+                6,
+                selectizeInput(
+                  paste0(crop, "_hahd_crop_component_harvested_widthunit_",index),  label ="Unit", multiple = TRUE, 
+                  options = list(maxItems =11, placeholder ="Select one..."), 
+                  choices = c("cm", "m", "in","ft"), selected = "cm"
+                )
+              )
+            ),
+            fluidRow(
+              column(6, numericInput(paste0(crop, "_hahd_space_rows_harvested_", index), "Space between rows harvested", value = "", min = 0, step = 0.1)),
+              column(
+                6,
+                selectizeInput(
+                  paste0(crop, "_hahd_crop_component_harvested_spaceunit_",index),  label ="Unit", multiple = TRUE, 
+                  options = list(maxItems =11, placeholder ="Select one..."), 
+                  choices = c("cm", "m", "in","ft"), selected = "cm"
+                )
+              )
+            )
+          ),
+          conditionalPanel(
+            paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'Entire plot'"),
+            fluidRow(
+              column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_entire_",index), "Plot area harvested")),
+              column(
+                6, 
+                selectizeInput(
+                  paste0(crop, "_hahd_crop_component_harvested_entireunit_",index),  label ="Unit", multiple = TRUE, 
+                  options = list(maxItems =11, placeholder ="Select one..."), 
+                  choices = c("m2", "ha", "ft2","ac"), selected = "ha"
+                )
+              )
+            )
+          ),
+          hidden(textInput(paste0(crop, "_hahd_crop_harvestable_area_", index,"_other"), "")),
+          fluidRow(
+            column(6, numericInput(paste0(crop, "_hahd_amount_harvested_", index), "Amount harvested", value = "", min = 0, step = 0.1)),
+            column(
+              6,
+              selectizeInput(
+                paste0(crop, "_hahd_amount_harvested_unit_", index), label="Unit", multiple = TRUE, 
+                options = list(maxItems =1, placeholder ="Select one..."), 
+                choices=c("g", "kg", "lb", "t"), selected = "g"
+              )
+            )
+          ),
+          fluidRow(
+            column(6, numericInput(paste0(crop, "_hahd_harvest_cut_height_", index), "Harvest cut height", value = "", min = 0, step = 0.1)),
+            column(
+              6,
+              selectizeInput(
+                paste0(crop, "_hahd_harvest_cut_height_unit_", index), label="Unit", multiple = TRUE, 
+                options = list(maxItems =1, placeholder ="Select one..."), 
+                choices=c("cm", "ft", "in", "m"), selected = "cm"
+              )
+            )
+          ),
+          textAreaInput(inputId = paste0(crop, "_hahd_harvest_notes_", index), label = "Notes", value = "")
+        ),
+        column(
+          6,
+          fluidRow(
+            column(12, h4("Implement", style="font-weight: 800;color: #555;"))
+          ),     
+          selectizeInput(
+            paste0(crop, "_hahd_harvest_implement_", index), label = "Type", multiple = TRUE, 
+            options = list(maxItems =1, placeholder ="Select one..."), 
+            choices = c("Baler",
+                        "Chopper",
+                        "Combine",
+                        "Digger",
+                        "Mower",
+                        "Reaper",
+                        "Roller",
+                        "Sickle",
+                        "Other")
+          ),
+          hidden(textInput(paste0(crop, "_hahd_harvest_implement_", index, "_other"), "")),
+          selectizeInput(
+            paste0(crop, "_hahd_harvest_traction_" , index), label = "Traction", multiple = TRUE, 
+            options = list(maxItems =1, placeholder ="Select one..."), 
+            choices = c("Animal",
+                        "Manual",
+                        "2 wheel tractor",
+                        "4 wheel tractor",
+                        "Other")
+          ),
+          hidden(textInput(paste0(crop, "_hahd_harvest_traction_",index,"_other"), ""))     
+        )
+      )
+    )
+  }
+  
+  # Harvest: Funcion GENERAL que activa "Close"
+  observeEvent(input$closeBox_ECHARV_GEN, {
+    vars <- unlist(strsplit(input$closeBox_ECHARV_GENid, "_"))
+    typeCrop <- vars[1]
+    
+    if (typeCrop == "monocrop") {
+      crop <- vars[1]
+      index <- vars[4]
+    } else {
+      crop <- paste0(vars[1], "_", vars[2], "_", vars[3])
+      index <- vars[6]
+    }
+    
+    if (crop == "monocrop") {
+      if (length(expconHARVmonocrop$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconHARVmonocrop$ids <- expconHARVmonocrop$ids[!expconHARVmonocrop$ids %in% paste0("mono_harv_", index)]
+      }
+    }
+    if (crop == "int_harv_1") {
+      if (length(expconIntHARVcrop1$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconIntHARVcrop1$ids <- expconIntHARVcrop1$ids[!expconIntHARVcrop1$ids %in% paste0("int_harv_1_", index)]
+      }
+    }
+    if (crop == "int_harv_2") {
+      if (length(expconIntHARVcrop2$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconIntHARVcrop2$ids <- expconIntHARVcrop2$ids[!expconIntHARVcrop2$ids %in% paste0("int_harv_2_", index)]
+      }
+    }
+    if (crop == "int_harv_3") {
+      if (length(expconIntHARVcrop3$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconIntHARVcrop3$ids <- expconIntHARVcrop3$ids[!expconIntHARVcrop3$ids %in% paste0("int_harv_3_", index)]
+      }
+    }
+    if (crop == "int_harv_4") {
+      if (length(expconIntHARVcrop4$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconIntHARVcrop4$ids <- expconIntHARVcrop4$ids[!expconIntHARVcrop4$ids %in% paste0("int_harv_4_", index)]
+      }
+    }
+    if (crop == "int_harv_5") {
+      if (length(expconIntHARVcrop5$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconIntHARVcrop5$ids <- expconIntHARVcrop5$ids[!expconIntHARVcrop5$ids %in% paste0("int_harv_5_", index)]
+      }
+    }
+    if (crop == "rel_harv_1") {
+      if (length(expconRelHARVcrop1$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconRelHARVcrop1$ids <- expconRelHARVcrop1$ids[!expconRelHARVcrop1$ids %in% paste0("rel_harv_1_", index)]
+      }
+    }
+    if (crop == "rel_harv_2") {
+      if (length(expconRelHARVcrop2$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconRelHARVcrop2$ids <- expconRelHARVcrop2$ids[!expconRelHARVcrop2$ids %in% paste0("rel_harv_2_", index)]
+      }
+    }
+    if (crop == "rel_harv_3") {
+      if (length(expconRelHARVcrop3$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconRelHARVcrop3$ids <- expconRelHARVcrop3$ids[!expconRelHARVcrop3$ids %in% paste0("rel_harv_3_", index)]
+      }
+    }
+    if (crop == "rel_harv_4") {
+      if (length(expconRelHARVcrop4$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconRelHARVcrop4$ids <- expconRelHARVcrop4$ids[!expconRelHARVcrop4$ids %in% paste0("rel_harv_4_", index)]
+      }
+    }
+    if (crop == "rel_harv_5") {
+      if (length(expconRelHARVcrop5$ids) > 1) {
+        removeUI(selector = paste0("#", crop, "_fr_harvest_", index), immediate = T)
+        expconRelHARVcrop5$ids <- expconRelHARVcrop5$ids[!expconRelHARVcrop5$ids %in% paste0("rel_harv_5_", index)]
+      }
+    }
+  })
+  
+  ###################### END: HARVEST ######################
+  
+  ############################### END SERVER: MANAGEMENT PRACTICES ###############################
+  ################################################################################################
+  
   
   
   
@@ -3222,283 +5047,283 @@ server_design_agrofims <- function(input, output, session, values){
   #   }
   # })
   
-  ## land preparation
-  # landLeveling_start_date 
-  output$landLev_start_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("landLeveling_start_date",
-                         "Start date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("landLeveling_start_date",
-                         "Start date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
+  # ## land preparation
+  # # landLeveling_start_date 
+  # output$landLev_start_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("landLeveling_start_date",
+  #                        "Start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("landLeveling_start_date",
+  #                        "Start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
   
-  # landLeveling_end_date
-  output$landLev_end_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("landLeveling_end_date",
-                         "End date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("landLeveling_end_date",
-                         "End date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
+  # # landLeveling_end_date
+  # output$landLev_end_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("landLeveling_end_date",
+  #                        "End date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("landLeveling_end_date",
+  #                        "End date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
   
-  # puddling_start_date 
-  output$pud_start_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("puddling_start_date",
-                         "Start date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("puddling_start_date",
-                         "Start date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
+  # # puddling_start_date 
+  # output$pud_start_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("puddling_start_date",
+  #                        "Start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("puddling_start_date",
+  #                        "Start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
   
-  # puddling_end_date
-  output$pud_end_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("puddling_end_date",
-                         "End date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("puddling_end_date",
-                         "End date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
+  # # puddling_end_date
+  # output$pud_end_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("puddling_end_date",
+  #                        "End date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("puddling_end_date",
+  #                        "End date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
   
-  # tillage_start_date 
-  output$till_start_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("tillage_start_date",
-                         "Start date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("tillage_start_date",
-                         "Start date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
+  # # tillage_start_date 
+  # output$till_start_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("tillage_start_date",
+  #                        "Start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("tillage_start_date",
+  #                        "Start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
   
-  # tillage_end_date
-  output$till_end_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("tillage_end_date",
-                         "End date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("tillage_end_date",
-                         "End date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
-  
-  ## Mulching and Residue
-  # mulch_start_date 
-  output$mul_start_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("mumd_mulch_start_date",
-                         "Start date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("mumd_mulch_start_date",
-                         "Mulching start date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
-  
-  # mulch_end_date
-  output$mul_end_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("mulch_end_date",
-                         "Mulching end date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("mulch_end_date",
-                         "Mulching end date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
-  
-  # mulch_remove_start_date 
-  output$mulre_start_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("mumd_mulch_remove_start_date",
-                         "Mulch removal start date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("mumd_mulch_remove_start_date",
-                         "Mulch removal start date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
-  
-  # mulch_remove_end_date
-  output$mulre_end_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("mumd_mulch_remove_end_date",
-                         "Mulch removal end date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("mumd_mulch_remove_end_date",
-                         "Mulch removal end date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
-  
-  # residue_start_date 
-  output$res_start_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("rmgt_residue_start_date",
-                         "Start date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("rmgt_residue_start_date",
-                         "Start date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
-  
-  # residure_end_date
-  output$res_end_date <- renderUI({
-    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-      airDatepickerInput("residure_end_date",
-                         "End date",
-                         clearButton = T,
-                         autoClose = T,
-                         #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                         placeholder = "yyyy-mm-dd",
-                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                         
-      )
-    } else {
-      airDatepickerInput("residure_end_date",
-                         "End date",
-                         clearButton = T,
-                         autoClose = T,
-                         placeholder = "yyyy-mm-dd"
-      )
-    }
-  })
+  # # tillage_end_date
+  # output$till_end_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("tillage_end_date",
+  #                        "End date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("tillage_end_date",
+  #                        "End date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
+  # 
+  # ## Mulching and Residue
+  # # mulch_start_date 
+  # output$mul_start_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("mumd_mulch_start_date",
+  #                        "Start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("mumd_mulch_start_date",
+  #                        "Mulching start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
+  # 
+  # # mulch_end_date
+  # output$mul_end_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("mulch_end_date",
+  #                        "Mulching end date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("mulch_end_date",
+  #                        "Mulching end date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
+  # 
+  # # mulch_remove_start_date 
+  # output$mulre_start_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("mumd_mulch_remove_start_date",
+  #                        "Mulch removal start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("mumd_mulch_remove_start_date",
+  #                        "Mulch removal start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
+  # 
+  # # mulch_remove_end_date
+  # output$mulre_end_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("mumd_mulch_remove_end_date",
+  #                        "Mulch removal end date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("mumd_mulch_remove_end_date",
+  #                        "Mulch removal end date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
+  # 
+  # # residue_start_date 
+  # output$res_start_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("rmgt_residue_start_date",
+  #                        "Start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("rmgt_residue_start_date",
+  #                        "Start date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
+  # 
+  # # residure_end_date
+  # output$res_end_date <- renderUI({
+  #   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #     airDatepickerInput("residure_end_date",
+  #                        "End date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                        placeholder = "yyyy-mm-dd",
+  #                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                        
+  #     )
+  #   } else {
+  #     airDatepickerInput("residure_end_date",
+  #                        "End date",
+  #                        clearButton = T,
+  #                        autoClose = T,
+  #                        placeholder = "yyyy-mm-dd"
+  #     )
+  #   }
+  # })
   
   ## Planting and Transplanting
   # planting_start_date 
@@ -8225,2986 +10050,2986 @@ server_design_agrofims <- function(input, output, session, values){
   #### end factors ####################################################################################
 
   ################# tabs en field operations ######################################################
-  nutTabs = list (#"Crop" = "tabCrop",
-                  "Harvest" = "tabHarvest",
-                  "Irrigation" = "tabIrrigation",
-                  "Seedbed preparation" = "tabSeedbed",
-                  "Mulch management" ="tabMulching",
-                  "Residue management" ="tabResidue",
-                  "Planting and transplanting" ="tabPlanting",
-                  "Soil fertility" = "tabNutrient",
-                  "Weeding" = "tabWeeding"
-                  #"Biofertilizer" = "tabBiofertilizer",
-                  #"Pest observation and control" = "tabPestNDisease" ,
-                  )
-  observe({
-    # hideTab("nutrienTabPanels", "tabCrop")
-    hideTab("nutrienTabPanels", "tabHarvest")
-    hideTab("nutrienTabPanels", "tabIrrigation")
-    hideTab("nutrienTabPanels", "tabSeedbed")
-    hideTab("nutrienTabPanels", "tabMulching")
-    hideTab("nutrienTabPanels", "tabPlanting")
-    hideTab("nutrienTabPanels", "tabNutrient")
-    hideTab("nutrienTabPanels", "tabWeeding")
-    hideTab("nutrienTabPanels", "tabResidue")
-    #hideTab("nutrienTabPanels", "tabBiofertilizer")
-    #hideTab("nutrienTabPanels", "tabPestNDisease")
-
-
-    if(!is.null(input$selectAgroFeature)){
-      l <- input$selectAgroFeature
-      n <- length(input$selectAgroFeature)
-
-      for (mtab in l) {
-        showTab("nutrienTabPanels", nutTabs[[mtab]])
-
-      }
-
-    }
-  })
+  # nutTabs = list (#"Crop" = "tabCrop",
+  #                 "Harvest" = "tabHarvest",
+  #                 "Irrigation" = "tabIrrigation",
+  #                 "Seedbed preparation" = "tabSeedbed",
+  #                 "Mulch management" ="tabMulching",
+  #                 "Residue management" ="tabResidue",
+  #                 "Planting and transplanting" ="tabPlanting",
+  #                 "Soil fertility" = "tabNutrient",
+  #                 "Weeding" = "tabWeeding"
+  #                 #"Biofertilizer" = "tabBiofertilizer",
+  #                 #"Pest observation and control" = "tabPestNDisease" ,
+  #                 )
+  # observe({
+  #   # hideTab("nutrienTabPanels", "tabCrop")
+  #   hideTab("nutrienTabPanels", "tabHarvest")
+  #   hideTab("nutrienTabPanels", "tabIrrigation")
+  #   hideTab("nutrienTabPanels", "tabSeedbed")
+  #   hideTab("nutrienTabPanels", "tabMulching")
+  #   hideTab("nutrienTabPanels", "tabPlanting")
+  #   hideTab("nutrienTabPanels", "tabNutrient")
+  #   hideTab("nutrienTabPanels", "tabWeeding")
+  #   hideTab("nutrienTabPanels", "tabResidue")
+  #   #hideTab("nutrienTabPanels", "tabBiofertilizer")
+  #   #hideTab("nutrienTabPanels", "tabPestNDisease")
+  # 
+  # 
+  #   if(!is.null(input$selectAgroFeature)){
+  #     l <- input$selectAgroFeature
+  #     n <- length(input$selectAgroFeature)
+  # 
+  #     for (mtab in l) {
+  #       showTab("nutrienTabPanels", nutTabs[[mtab]])
+  # 
+  #     }
+  # 
+  #   }
+  # })
 
   ################# fin de tabs en field operations ################################
 
 
 
 
-  ###########  biofertilizer ####################################################
-
-  ## valor pra guardar cuantos boxes hay actualmente dibujados
-  bioferVar <- reactiveValues()
-  bioferVar$nApps <-1
-
-
-  observeEvent(input$numApplicationsBiofert, {
-    num <- input$numApplicationsBiofert
-      if(is.numeric(num) &&  num>0){
-          if(bioferVar$nApps == 1 && num  == 1 ){
-
-            insertUI(selector ="#bio_description",
-                     where = "afterEnd",
-                     ui = drawBoxBiofertilizer(1))
-          }
-          else if(bioferVar$nApps == 0 && num  == 1 ){
-
-            insertUI(selector ="#bio_description",
-                     where = "afterEnd",
-                     ui = drawBoxBiofertilizer(1))
-          }
-          else if(bioferVar$nApps > num){
-            removeBoxesBiofert(num+1, bioferVar$nApps)
-            bioferVar$nApps <- num
-          }
-          else if(bioferVar$nApps < num){
-            start <- bioferVar$nApps + 1
-            for (i in start:num ) {
-                insertUI(selector = paste0("#box_bio_", i-1),
-                         where = "afterEnd",
-                         ui = drawBoxBiofertilizer(i)
-                )
-            }
-            bioferVar$nApps <- num
-          }
-
-    }
-    else{
-      removeBoxesBiofert(1, bioferVar$nApps)
-      bioferVar$nApps <- 0
-
-    }
-
-  })
-
-
-  removeBoxesBiofert <- function(begin, end){
-    for(i in begin:end){
-      removeUI(
-        selector = paste0("#box_bio_", i),
-        immediate = T
-      )
-    }
-
-  }
-
-
-
-  drawBoxBiofertilizer <- function(order){
-  fluidRow(id= paste0("box_bio_", order),
-    box( title = paste0("Application", order),
-        width = 12,
-        solidHeader = TRUE, status = "warning",
-        column(width = 6,
-
-
-               fluidRow(
-                 column(width = 6,
-                        dateInput(paste0("biofertilizer_landLeveling_start_date_", order), label ="Start date", format = "yyyy-mm-dd")
-                 ),
-                 column(width = 6,
-                        dateInput(paste0("biofertilizer_landLeveling_end_date",  order), label ="End date", format = "yyyy-mm-dd")
-                 )
-               ),
-               selectizeInput(paste0("biofertilizer_rhizobium_inoculum_strain_", order), label = "Rhizobium inoculum strain", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                c("Rhizobium japonicum",
-                                  "Rhizobium leguminosarum",
-                                  "Rhizobium loti",
-                                  "Rhizobium meliloti",
-                                  "Rhizobium spp.",
-                                  "Rhizobium trifolii",
-                                  "Other")
-               ),
-
-               conditionalPanel(paste0("input.biofertilizer_rhizobium_inoculum_strain_", order,  " == 'Other'"),
-                                textInput(paste0("rhizobium_name_", order),"",value="")),
-               fluidRow(
-                 column(width = 6,
-                        textInput(paste0("biofertilizer_quantity_applied_", order), value = "", label="Biofertilizer quantity applied")
-                 ),
-                 column(width = 6, #IMPLEMENTAR EN EXCEl
-                        selectizeInput(paste0("biofertilizer_quantity_applied_unit_", order), label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("g/m2", "kg/ha", "lb/ac"))
-                 )
-
-               )
-
-
-      ),
-      column(width = 6,
-
-        selectizeInput(paste0("biofertilizer_inoculation_method_", order), label = "Inoculation method", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                         c("Seed coating (Seed application of inoculum)",
-                           "Directly to the soil",
-                           "Other")
-        ),
-        conditionalPanel(paste0("input.biofertilizer_inoculation_method_", order, " == 'Other'"),
-                         textInput(paste0("inoculation_method_name_", order),"",value="")),
-
-        selectizeInput(paste0("biofertilizer_product_formulation_", order), label = "Product formulation", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                         c("Soil application with granules/pellets",
-                           "Soil application with slurry of liquid culture")
-        ),
-        textInput(paste0("biofertilizer_days_sowing_after_rhizobium_inocculation_", order), value="", label = "Days to sowing after Rhizobium inoculation")
-      )
-    ))
-
-
-  }
-
-  ############ end biofertilizer ###############################################
-
-
-
-
-
-  ###########  Pest and Disease ################################################
-  ## valor pra guardar cuantos boxes hay actualmente dibujados
-  pestVar <- reactiveValues()
-  pestVar$nApps <-1
-
-
-  observeEvent(input$numApplicationsPestDisease, {
-    num <- input$numApplicationsPestDisease
-    if(is.numeric(num) &&  num>0){
-      if(pestVar$nApps == 1 && num  == 1 ){
-
-        insertUI(selector ="#pestNDisease_fluid",
-                 where = "afterEnd",
-                 ui = drawBoxPest(1))
-      }
-      else if(pestVar$nApps == 0 && num  == 1 ){
-
-        insertUI(selector ="#pestNDisease_fluid",
-                 where = "afterEnd",
-                 ui = drawBoxPest(1))
-      }
-      else if(pestVar$nApps > num){
-        removeBoxesPest(num+1, pestVar$nApps)
-        pestVar$nApps <- num
-      }
-      else if(pestVar$nApps < num){
-        start <- pestVar$nApps + 1
-        for (i in start:num ) {
-          insertUI(selector = paste0("#box_pest_", i-1),
-                   where = "afterEnd",
-                   ui = drawBoxPest(i)
-          )
-        }
-        pestVar$nApps <- num
-      }
-
-    }
-    else{
-      removeBoxesPest(1, pestVar$nApps)
-      pestVar$nApps <- 0
-
-    }
-
-  })
-
-
-  removeBoxesPest <- function(begin, end){
-    for(i in begin:end){
-      removeUI(
-        selector = paste0("#box_pest_", i),
-        immediate = T
-      )
-    }
-
-  }
-
-
-  drawBoxPest <- function(order){
-    fluidRow(id= paste0("box_pest_", order),
-             box( title = paste0("Application", order),
-                  width = 12,
-                  solidHeader = TRUE, status = "warning",
-                  column(width = 6,
-
-                                  fluidRow(
-                                    column(width = 6,
-                                           dateInput(paste0("pestcontrol_start_date_",order), label ="Start date", format = "yyyy-mm-dd")
-                                    ),
-                                    column(width = 6,
-                                           dateInput(paste0("pestcontrol_end_date_",order), label ="End date", format = "yyyy-mm-dd")
-                                    )
-                                  ),
-                                  selectizeInput(paste0("pest_control_technique_",order), label = "Pest control technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                   c("Biological pest control",
-                                                     "Chemical pest control",
-                                                     "Mechanical pest control")
-                                  ),
-                                  textInput(paste0("pest_name_form_",order), "Pest name/formulation")
-
-                                  # fileInput("myFile", "Pesticide box or bottle picture", accept = c('image/png', 'image/jpeg')),
-                                  # textInput("pest_control_applications_totnumber", value="", label = "Pest control applications total number"),
-                                  # textInput("pest_control_details", value="", label = "Pest control details (e.g. name of parasitoid etc), treatment evaluation"),
-                                  # selectizeInput("chemical_pest_control_equipment", label = "Chemical pest control equipment", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                  #               c("Aerial applicator",
-                                  #                 "Airblast sprayer",
-                                  #                 "Backpack sprayer",
-                                  #                 "Boom sprayer",
-                                  #                 "Duster",
-                                  #                 "Electrostatic sprayer",
-                                  #                 "Fogger",
-                                  #                 "Hand sprayer",
-                                  #                 "Injection sprayer",
-                                  #                 "Mist blower",
-                                  #                 "Recirculating sprayer",
-                                  #                 "Seed treater",
-                                  #                 "Tree injector",
-                                  #                 "Wiper")
-                                  # )
-                           # column(width = 6,
-                           #        br(),
-                           #        fluidRow(
-                           #        box(
-                           #          title = "Pesticide Implement", solidHeader = TRUE, status = "warning", width=12,
-                           #          textInput("pesticide_implement_make", value="", label = "Implement make"),
-                           #          textInput("pesticide_implement_model", value="", label = "Implement model"),
-                           #          selectizeInput("pesticide_animal_traction", label = "Animal Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                           #                        c("Buffalo",
-                           #                          "Camel",
-                           #                          "Donkey",
-                           #                          "Elephant",
-                           #                          "Horse",
-                           #                          "Mule",
-                           #                          "Ox / Bullock / Steer",
-                           #                          "Other"
-                           #                        )
-                           #          ),
-                           #          textInput("pesticide_humanPowered", value="", label = "Human powered"),
-                           #          selectizeInput("pesticide_motorized_traction", label = "Motorized Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                           #                        c("2 wheel tractor",
-                           #                          "4 wheel tractor",
-                           #                          "Other"
-                           #                        )
-                           #          )
-                           #        ))
-                           # )
-
-
-             ),
-             column(width = 6,
-                    textInput(paste0("pesticide_application_depth_",order), value="", label = "Pesticide application depth, if applied to soil"),
-                    fluidRow(
-                      column(width = 6,
-                             textInput(paste0("pesticide_amount_",order), value = "", label="Pesticide amount")
-                      ),
-                      column(width = 6,#IMPLEMENTAR EN EXCEL
-                             selectizeInput(paste0("pesticide_amount_unit_",order), label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("kg/m2", "kg/ha", "t/ha"))
-                      )
-                    ),
-                    selectizeInput(paste0("pesticide_control_equip",order), "Pest control equipment", multiple =T, options=list(maxItems=1, placeholder ="Select one..."),
-                                   choices = c("Aerial applicator",
-                                               "Airblast sprayer",
-                                               "Backpack sprayer",
-                                               "Boom sprayer",
-                                               "Duster",
-                                               "Electrostatic sprayer",
-                                               "Fogger",
-                                               "Hand sprayer",
-                                               "Injection sprayer",
-                                               "Injection sprayer",
-                                               "Mist blower",
-                                               "Recirculating sprayer" )
-                              )
-                  )
-             ))
-
-
-  }
-
-  ############# end Pest and Disease ###########################################
+  # ###########  biofertilizer ####################################################
+  # 
+  # ## valor pra guardar cuantos boxes hay actualmente dibujados
+  # bioferVar <- reactiveValues()
+  # bioferVar$nApps <-1
+  # 
+  # 
+  # observeEvent(input$numApplicationsBiofert, {
+  #   num <- input$numApplicationsBiofert
+  #     if(is.numeric(num) &&  num>0){
+  #         if(bioferVar$nApps == 1 && num  == 1 ){
+  # 
+  #           insertUI(selector ="#bio_description",
+  #                    where = "afterEnd",
+  #                    ui = drawBoxBiofertilizer(1))
+  #         }
+  #         else if(bioferVar$nApps == 0 && num  == 1 ){
+  # 
+  #           insertUI(selector ="#bio_description",
+  #                    where = "afterEnd",
+  #                    ui = drawBoxBiofertilizer(1))
+  #         }
+  #         else if(bioferVar$nApps > num){
+  #           removeBoxesBiofert(num+1, bioferVar$nApps)
+  #           bioferVar$nApps <- num
+  #         }
+  #         else if(bioferVar$nApps < num){
+  #           start <- bioferVar$nApps + 1
+  #           for (i in start:num ) {
+  #               insertUI(selector = paste0("#box_bio_", i-1),
+  #                        where = "afterEnd",
+  #                        ui = drawBoxBiofertilizer(i)
+  #               )
+  #           }
+  #           bioferVar$nApps <- num
+  #         }
+  # 
+  #   }
+  #   else{
+  #     removeBoxesBiofert(1, bioferVar$nApps)
+  #     bioferVar$nApps <- 0
+  # 
+  #   }
+  # 
+  # })
+  # 
+  # 
+  # removeBoxesBiofert <- function(begin, end){
+  #   for(i in begin:end){
+  #     removeUI(
+  #       selector = paste0("#box_bio_", i),
+  #       immediate = T
+  #     )
+  #   }
+  # 
+  # }
+  # 
+  # 
+  # 
+  # drawBoxBiofertilizer <- function(order){
+  # fluidRow(id= paste0("box_bio_", order),
+  #   box( title = paste0("Application", order),
+  #       width = 12,
+  #       solidHeader = TRUE, status = "warning",
+  #       column(width = 6,
+  # 
+  # 
+  #              fluidRow(
+  #                column(width = 6,
+  #                       dateInput(paste0("biofertilizer_landLeveling_start_date_", order), label ="Start date", format = "yyyy-mm-dd")
+  #                ),
+  #                column(width = 6,
+  #                       dateInput(paste0("biofertilizer_landLeveling_end_date",  order), label ="End date", format = "yyyy-mm-dd")
+  #                )
+  #              ),
+  #              selectizeInput(paste0("biofertilizer_rhizobium_inoculum_strain_", order), label = "Rhizobium inoculum strain", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                               c("Rhizobium japonicum",
+  #                                 "Rhizobium leguminosarum",
+  #                                 "Rhizobium loti",
+  #                                 "Rhizobium meliloti",
+  #                                 "Rhizobium spp.",
+  #                                 "Rhizobium trifolii",
+  #                                 "Other")
+  #              ),
+  # 
+  #              conditionalPanel(paste0("input.biofertilizer_rhizobium_inoculum_strain_", order,  " == 'Other'"),
+  #                               textInput(paste0("rhizobium_name_", order),"",value="")),
+  #              fluidRow(
+  #                column(width = 6,
+  #                       textInput(paste0("biofertilizer_quantity_applied_", order), value = "", label="Biofertilizer quantity applied")
+  #                ),
+  #                column(width = 6, #IMPLEMENTAR EN EXCEl
+  #                       selectizeInput(paste0("biofertilizer_quantity_applied_unit_", order), label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("g/m2", "kg/ha", "lb/ac"))
+  #                )
+  # 
+  #              )
+  # 
+  # 
+  #     ),
+  #     column(width = 6,
+  # 
+  #       selectizeInput(paste0("biofertilizer_inoculation_method_", order), label = "Inoculation method", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                        c("Seed coating (Seed application of inoculum)",
+  #                          "Directly to the soil",
+  #                          "Other")
+  #       ),
+  #       conditionalPanel(paste0("input.biofertilizer_inoculation_method_", order, " == 'Other'"),
+  #                        textInput(paste0("inoculation_method_name_", order),"",value="")),
+  # 
+  #       selectizeInput(paste0("biofertilizer_product_formulation_", order), label = "Product formulation", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                        c("Soil application with granules/pellets",
+  #                          "Soil application with slurry of liquid culture")
+  #       ),
+  #       textInput(paste0("biofertilizer_days_sowing_after_rhizobium_inocculation_", order), value="", label = "Days to sowing after Rhizobium inoculation")
+  #     )
+  #   ))
+  # 
+  # 
+  # }
+  # 
+  # ############ end biofertilizer ###############################################
+  # 
+  # 
+  # 
+  # 
+  # 
+  # ###########  Pest and Disease ################################################
+  # ## valor pra guardar cuantos boxes hay actualmente dibujados
+  # pestVar <- reactiveValues()
+  # pestVar$nApps <-1
+  # 
+  # 
+  # observeEvent(input$numApplicationsPestDisease, {
+  #   num <- input$numApplicationsPestDisease
+  #   if(is.numeric(num) &&  num>0){
+  #     if(pestVar$nApps == 1 && num  == 1 ){
+  # 
+  #       insertUI(selector ="#pestNDisease_fluid",
+  #                where = "afterEnd",
+  #                ui = drawBoxPest(1))
+  #     }
+  #     else if(pestVar$nApps == 0 && num  == 1 ){
+  # 
+  #       insertUI(selector ="#pestNDisease_fluid",
+  #                where = "afterEnd",
+  #                ui = drawBoxPest(1))
+  #     }
+  #     else if(pestVar$nApps > num){
+  #       removeBoxesPest(num+1, pestVar$nApps)
+  #       pestVar$nApps <- num
+  #     }
+  #     else if(pestVar$nApps < num){
+  #       start <- pestVar$nApps + 1
+  #       for (i in start:num ) {
+  #         insertUI(selector = paste0("#box_pest_", i-1),
+  #                  where = "afterEnd",
+  #                  ui = drawBoxPest(i)
+  #         )
+  #       }
+  #       pestVar$nApps <- num
+  #     }
+  # 
+  #   }
+  #   else{
+  #     removeBoxesPest(1, pestVar$nApps)
+  #     pestVar$nApps <- 0
+  # 
+  #   }
+  # 
+  # })
+  # 
+  # 
+  # removeBoxesPest <- function(begin, end){
+  #   for(i in begin:end){
+  #     removeUI(
+  #       selector = paste0("#box_pest_", i),
+  #       immediate = T
+  #     )
+  #   }
+  # 
+  # }
+  # 
+  # 
+  # drawBoxPest <- function(order){
+  #   fluidRow(id= paste0("box_pest_", order),
+  #            box( title = paste0("Application", order),
+  #                 width = 12,
+  #                 solidHeader = TRUE, status = "warning",
+  #                 column(width = 6,
+  # 
+  #                                 fluidRow(
+  #                                   column(width = 6,
+  #                                          dateInput(paste0("pestcontrol_start_date_",order), label ="Start date", format = "yyyy-mm-dd")
+  #                                   ),
+  #                                   column(width = 6,
+  #                                          dateInput(paste0("pestcontrol_end_date_",order), label ="End date", format = "yyyy-mm-dd")
+  #                                   )
+  #                                 ),
+  #                                 selectizeInput(paste0("pest_control_technique_",order), label = "Pest control technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                  c("Biological pest control",
+  #                                                    "Chemical pest control",
+  #                                                    "Mechanical pest control")
+  #                                 ),
+  #                                 textInput(paste0("pest_name_form_",order), "Pest name/formulation")
+  # 
+  #                                 # fileInput("myFile", "Pesticide box or bottle picture", accept = c('image/png', 'image/jpeg')),
+  #                                 # textInput("pest_control_applications_totnumber", value="", label = "Pest control applications total number"),
+  #                                 # textInput("pest_control_details", value="", label = "Pest control details (e.g. name of parasitoid etc), treatment evaluation"),
+  #                                 # selectizeInput("chemical_pest_control_equipment", label = "Chemical pest control equipment", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                 #               c("Aerial applicator",
+  #                                 #                 "Airblast sprayer",
+  #                                 #                 "Backpack sprayer",
+  #                                 #                 "Boom sprayer",
+  #                                 #                 "Duster",
+  #                                 #                 "Electrostatic sprayer",
+  #                                 #                 "Fogger",
+  #                                 #                 "Hand sprayer",
+  #                                 #                 "Injection sprayer",
+  #                                 #                 "Mist blower",
+  #                                 #                 "Recirculating sprayer",
+  #                                 #                 "Seed treater",
+  #                                 #                 "Tree injector",
+  #                                 #                 "Wiper")
+  #                                 # )
+  #                          # column(width = 6,
+  #                          #        br(),
+  #                          #        fluidRow(
+  #                          #        box(
+  #                          #          title = "Pesticide Implement", solidHeader = TRUE, status = "warning", width=12,
+  #                          #          textInput("pesticide_implement_make", value="", label = "Implement make"),
+  #                          #          textInput("pesticide_implement_model", value="", label = "Implement model"),
+  #                          #          selectizeInput("pesticide_animal_traction", label = "Animal Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                          #                        c("Buffalo",
+  #                          #                          "Camel",
+  #                          #                          "Donkey",
+  #                          #                          "Elephant",
+  #                          #                          "Horse",
+  #                          #                          "Mule",
+  #                          #                          "Ox / Bullock / Steer",
+  #                          #                          "Other"
+  #                          #                        )
+  #                          #          ),
+  #                          #          textInput("pesticide_humanPowered", value="", label = "Human powered"),
+  #                          #          selectizeInput("pesticide_motorized_traction", label = "Motorized Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                          #                        c("2 wheel tractor",
+  #                          #                          "4 wheel tractor",
+  #                          #                          "Other"
+  #                          #                        )
+  #                          #          )
+  #                          #        ))
+  #                          # )
+  # 
+  # 
+  #            ),
+  #            column(width = 6,
+  #                   textInput(paste0("pesticide_application_depth_",order), value="", label = "Pesticide application depth, if applied to soil"),
+  #                   fluidRow(
+  #                     column(width = 6,
+  #                            textInput(paste0("pesticide_amount_",order), value = "", label="Pesticide amount")
+  #                     ),
+  #                     column(width = 6,#IMPLEMENTAR EN EXCEL
+  #                            selectizeInput(paste0("pesticide_amount_unit_",order), label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("kg/m2", "kg/ha", "t/ha"))
+  #                     )
+  #                   ),
+  #                   selectizeInput(paste0("pesticide_control_equip",order), "Pest control equipment", multiple =T, options=list(maxItems=1, placeholder ="Select one..."),
+  #                                  choices = c("Aerial applicator",
+  #                                              "Airblast sprayer",
+  #                                              "Backpack sprayer",
+  #                                              "Boom sprayer",
+  #                                              "Duster",
+  #                                              "Electrostatic sprayer",
+  #                                              "Fogger",
+  #                                              "Hand sprayer",
+  #                                              "Injection sprayer",
+  #                                              "Injection sprayer",
+  #                                              "Mist blower",
+  #                                              "Recirculating sprayer" )
+  #                             )
+  #                 )
+  #            ))
+  # 
+  # 
+  # }
+  # 
+  # ############# end Pest and Disease ###########################################
 
 
   
-  observeEvent(input$closeBox_button, {
-    var <- unlist(strsplit(input$closeBox_button_id,"_"))
-    arr_keys <- c()
-    len <- 0 
-    
-    mselector <- "XXXXXXXXXX"
-   
-    
-    if(var[2] == "ECWE" && expCondsVars$num_weed > expCondsVars$DEFAULT_weed){
-      mselector = paste0("#box_weeding_", var[3])
-      expCondsVars$num_weed <- expCondsVars$num_weed - 1
-      aux <- expCondsVars$ids_weed
-      expCondsVars$ids_weed <- aux[! aux %in% paste0("ECWE_",var[3])]
-    }
-    
-    if(var[2] == "ECIR" && expCondsVars$num_irri > expCondsVars$DEFAULT_irri){
-      mselector = paste0("#fr_irrigation_box_", var[3])
-      expCondsVars$num_irri <- expCondsVars$num_irri - 1
-      aux <- expCondsVars$ids_irri
-      expCondsVars$ids_irri <- aux[! aux %in% paste0("ECIR_",var[3])]
-    }
-    
-    if(var[2] == "HARV" && expCondsVars$num_harvest > expCondsVars$DEFAULT_harvest){
-      mselector = paste0("#fr_harvestbox_", var[3])
-      expCondsVars$num_harvest <- expCondsVars$num_harvest - 1
-      aux <- expCondsVars$ids_harvest
-      expCondsVars$ids_harvest <- aux[! aux %in% var[3]]
-      arr_keys <- expCondsVars$num_harvest
-      len <- length(arr_keys)
-    }
-    
-    
-    removeUI(
-      selector = mselector, 
-      immediate = T
-    )
-    
-   
-    
-  })
+  # observeEvent(input$closeBox_button, {
+  #   var <- unlist(strsplit(input$closeBox_button_id,"_"))
+  #   arr_keys <- c()
+  #   len <- 0 
+  #   
+  #   mselector <- "XXXXXXXXXX"
+  #  
+  #   
+  #   if(var[2] == "ECWE" && expCondsVars$num_weed > expCondsVars$DEFAULT_weed){
+  #     mselector = paste0("#box_weeding_", var[3])
+  #     expCondsVars$num_weed <- expCondsVars$num_weed - 1
+  #     aux <- expCondsVars$ids_weed
+  #     expCondsVars$ids_weed <- aux[! aux %in% paste0("ECWE_",var[3])]
+  #   }
+  #   
+  #   if(var[2] == "ECIR" && expCondsVars$num_irri > expCondsVars$DEFAULT_irri){
+  #     mselector = paste0("#fr_irrigation_box_", var[3])
+  #     expCondsVars$num_irri <- expCondsVars$num_irri - 1
+  #     aux <- expCondsVars$ids_irri
+  #     expCondsVars$ids_irri <- aux[! aux %in% paste0("ECIR_",var[3])]
+  #   }
+  #   
+  #   if(var[2] == "HARV" && expCondsVars$num_harvest > expCondsVars$DEFAULT_harvest){
+  #     mselector = paste0("#fr_harvestbox_", var[3])
+  #     expCondsVars$num_harvest <- expCondsVars$num_harvest - 1
+  #     aux <- expCondsVars$ids_harvest
+  #     expCondsVars$ids_harvest <- aux[! aux %in% var[3]]
+  #     arr_keys <- expCondsVars$num_harvest
+  #     len <- length(arr_keys)
+  #   }
+  #   
+  #   
+  #   removeUI(
+  #     selector = mselector, 
+  #     immediate = T
+  #   )
+  #   
+  #  
+  #   
+  # })
 
   ###########  irrigation ##########################################
   ## valor pra guardar cuantos boxes hay actualmente dibujados
   
-  expCondsVars  <- reactiveValues()
-  
-  
-  expCondsVars$num_irri <- 0
-  expCondsVars$DEFAULT_irri <- 1
-  expCondsVars$ids_irri <- c()
-  
-  observeEvent(input$addIrrigation,{
-    defaultBoxes = expCondsVars$DEFAULT_irri
-    if(expCondsVars$num_irri >= 1){
-      insertBoxIrrigation(expCondsVars$num_irri + 1)
-    }
-  })
-  
-  insertBoxIrrigation <- function(index){
-    insertUI(
-      selector = "#fr_irrigation_boxes",
-      where = "beforeBegin",
-      ui = getUiIrrigation(index)
-    )
-    expCondsVars$num_irri <- expCondsVars$num_irri + 1
-  }
-  
-  getUiIrrigation <- function(index){
-    str_id <- stri_rand_strings(1, 8,  '[A-Z]')
-    expCondsVars$ids_irri <- c(expCondsVars$ids_irri, paste0("ECIR_", str_id))
-    
-    fluidRow(
-      id= paste0("fr_irrigation_box_", str_id),
-          box(
-               column(12, offset = 0, 
-                      column(6,style='padding:0px; text-align:left;',  #HTML("<b><h4>Irrigation</h4></b>"),
-                             h4("Irrigation", style="font-weight: 800;color: #555;")
-                      ),
-                      column(6, 
-                             style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_ECIR_", str_id), "", icon("close"))
-                      )
-                      
-               ),
-               br(),
-               width = 12, solidHeader = TRUE, status = "warning",
-             column(width = 6,
-                    fluidRow(
-                      column(width = 6,
-                             #dateInput(paste0("irrigationevent_start_date_", order), label ="Start date", value = NA, format = "yyyy-mm-dd")
-                             #airDatepickerInput(paste0("irrigationevent_start_date_", order), "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                             # irrigationevent_start_date_
-                             if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                               airDatepickerInput(paste0("irid_irrigationevent_start_date_", str_id),
-                                                  "Start date",
-                                                  clearButton = T,
-                                                  autoClose = T,
-                                                  #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                                                  placeholder = "yyyy-mm-dd",
-                                                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                  maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                  
-                               )
-                             } else {
-                               airDatepickerInput(paste0("irid_irrigationevent_start_date_", str_id),
-                                                  "Start date",
-                                                  clearButton = T,
-                                                  autoClose = T,
-                                                  placeholder = "yyyy-mm-dd"
-                               )
-                             }
-                             
-                      ),
-                      column(width = 6,
-                             #dateInput(paste0("irrigationevent_end_date_", order), label = "End date", value = NA, format = "yyyy-mm-dd")
-                             #airDatepickerInput(paste0("irrigationevent_end_date_", order), "End date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                             if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                               airDatepickerInput(paste0("irid_irrigationevent_end_date_", str_id),
-                                                  "End date",
-                                                  clearButton = T,
-                                                  autoClose = T,
-                                                  #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                                                  placeholder = "yyyy-mm-dd",
-                                                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                  maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                  
-                               )
-                             } else {
-                               airDatepickerInput(paste0("irid_irrigationevent_end_date_", str_id),
-                                                  "End date",
-                                                  clearButton = T,
-                                                  autoClose = T,
-                                                  placeholder = "yyyy-mm-dd"
-                               )
-                             }
-                      )
-                    ),
-                    selectizeInput(paste0("irid_irrigation_technique_", str_id), label = "Irrigation technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                     c("Sprinkler irrigation",
-                                       "Localized",
-                                       "Surface",
-                                       #"Sub-irrigation",
-                                       "Other")
-                    ),
-                    hidden(textInput(paste0("irid_irrigation_technique_", str_id, "_other"), "")),
-                    conditionalPanel(paste0("input.irid_irrigation_technique_", str_id, "== 'Surface'"),
-                                     selectizeInput(paste0("irid_surface_irrigation_technique_", str_id), label = "Surface irrigation technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                      c("Basin irrigation",
-                                                        "Border irrigation",
-                                                        "Continuous flood",
-                                                        "Furrow irrigation",
-                                                        "Uncontrolled flooding",
-                                                        "Other")
-                                     ),
-                                     hidden(textInput(paste0("irid_surface_irrigation_technique_", str_id, "_other"), ""))
-                    ),
-                    conditionalPanel(paste0("input.irid_irrigation_technique_", str_id, "== 'Localized'"),
-                                     
-                                     selectizeInput(paste0("irid_localized_irrigation_technique", str_id), label = "Localized irrigation technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                      c("Bubbler irrigation",
-                                                        "Drip irrigation",
-                                                        "Mist irrigation",
-                                                        "Pitcher irrigation",
-                                                        "Subsurface drip irrigation",
-                                                        "Subsurface textile irrigation",
-                                                        "Other")
-                                     ),
-                                     hidden(textInput(paste0("irid_localized_irrigation_technique", str_id, "_other"), ""))
-                    ),
-                    conditionalPanel(paste0("input.irid_irrigation_technique_", str_id, "== 'Sprinkler irrigation'"),
-                                     
-                                     selectizeInput(paste0("irid_irrigation_using_sprinkler_systems_", str_id), label = "Sprinkler irrigation system", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                      c("Center pivot irrigation",
-                                                        "Irrigation by lateral move",
-                                                        "Irrigation by side move",
-                                                        "Other")
-                                     ),
-                                     hidden(textInput(paste0("irid_irrigation_using_sprinkler_systems_", str_id, "_other"), ""))
-                    ),
-                    
-                    
-                    #Sacar myFile upload
-                    # fileInput(paste0("myFile", "Irrigation system picture_", order), accept = c('image/png', 'image/jpeg')),
-                    # textInput(paste0("irrigation_water_source_", order), value="", label = "Water source"),
-                    selectizeInput(paste0("irid_irrigation_source_", str_id), label = "Irrigation source", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                     c("Drainage",
-                                       "Groundwater",
-                                       "Lake",
-                                       "Reservoir",
-                                       "River",
-                                       "Spring",
-                                       "Other")
-                    ),
-                    hidden(textInput(paste0("irrigation_source_", str_id,  "_other"), ""))#,
-             ),
-             column(width = 6,
-                    fluidRow(
-                      column(width = 6,
-                             #textInput(paste0("irrigation_source_distance_", order), value="", label = "Irrigation source distance")
-                             numericInput(paste0("irid_irrigation_source_distance_", str_id), label = "Irrigation source distance", value = "", min = 0, step = 0.1)
-                      ),
-                      column(width = 6,
-                             selectizeInput(paste0("irid_irrigation_source_distance_", str_id, "unit"), "Unit", multiple=T, options=list(maxItems=1, placeholder="Select one..."),
-                                            choices = c("ft", "km", "m", "mi"),
-                                            selected = "m"
-                             )
-                      )
-                    ),
-                    fluidRow(
-                      column(width = 6,
-                             #textInput(paste0("irrigation_amount_", order), value="", label = "Irrigation amount")
-                             numericInput(paste0("irid_irrigation_amount_", str_id), label = "Irrigation amount", value = "", min = 0, step = 0.1)
-                      ),
-                      column(width = 6,
-                             selectizeInput(paste0("irid_irrigation_amount_", str_id, "unit"), "Unit", multiple=T, options=list(maxItems=1, placeholder="Select one..."),
-                                            choices = c("in", "mm"),#, "cm", "m", "in", "ft", "ml", "L", "gal", "cu m", "cu in", "cu ft")
-                                            selected = "mm"
-                             )
-                      )
-                    ),
-                    textAreaInput(paste0("irid_irrigation_notes_", str_id), label = "Notes", value = "")
-             )
-        )
-    )
-    
-  }
-  
-  observe({
-    if(expCondsVars$num_irri == 0){
-      default <- expCondsVars$DEFAULT_irri
-      for(i in 1:default){
-        insertBoxIrrigation(i)
-      }
-    }
-  })
+  # expCondsVars  <- reactiveValues()
+  # 
+  # 
+  # expCondsVars$num_irri <- 0
+  # expCondsVars$DEFAULT_irri <- 1
+  # expCondsVars$ids_irri <- c()
+  # 
+  # observeEvent(input$addIrrigation,{
+  #   defaultBoxes = expCondsVars$DEFAULT_irri
+  #   if(expCondsVars$num_irri >= 1){
+  #     insertBoxIrrigation(expCondsVars$num_irri + 1)
+  #   }
+  # })
+  # 
+  # insertBoxIrrigation <- function(index){
+  #   insertUI(
+  #     selector = "#fr_irrigation_boxes",
+  #     where = "beforeBegin",
+  #     ui = getUiIrrigation(index)
+  #   )
+  #   expCondsVars$num_irri <- expCondsVars$num_irri + 1
+  # }
+  # 
+  # getUiIrrigation <- function(index){
+  #   str_id <- stri_rand_strings(1, 8,  '[A-Z]')
+  #   expCondsVars$ids_irri <- c(expCondsVars$ids_irri, paste0("ECIR_", str_id))
+  #   
+  #   fluidRow(
+  #     id= paste0("fr_irrigation_box_", str_id),
+  #         box(
+  #              column(12, offset = 0, 
+  #                     column(6,style='padding:0px; text-align:left;',  #HTML("<b><h4>Irrigation</h4></b>"),
+  #                            h4("Irrigation", style="font-weight: 800;color: #555;")
+  #                     ),
+  #                     column(6, 
+  #                            style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_ECIR_", str_id), "", icon("close"))
+  #                     )
+  #                     
+  #              ),
+  #              br(),
+  #              width = 12, solidHeader = TRUE, status = "warning",
+  #            column(width = 6,
+  #                   fluidRow(
+  #                     column(width = 6,
+  #                            #dateInput(paste0("irrigationevent_start_date_", order), label ="Start date", value = NA, format = "yyyy-mm-dd")
+  #                            #airDatepickerInput(paste0("irrigationevent_start_date_", order), "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                            # irrigationevent_start_date_
+  #                            if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                              airDatepickerInput(paste0("irid_irrigationevent_start_date_", str_id),
+  #                                                 "Start date",
+  #                                                 clearButton = T,
+  #                                                 autoClose = T,
+  #                                                 #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                                                 placeholder = "yyyy-mm-dd",
+  #                                                 minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                 maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                                 
+  #                              )
+  #                            } else {
+  #                              airDatepickerInput(paste0("irid_irrigationevent_start_date_", str_id),
+  #                                                 "Start date",
+  #                                                 clearButton = T,
+  #                                                 autoClose = T,
+  #                                                 placeholder = "yyyy-mm-dd"
+  #                              )
+  #                            }
+  #                            
+  #                     ),
+  #                     column(width = 6,
+  #                            #dateInput(paste0("irrigationevent_end_date_", order), label = "End date", value = NA, format = "yyyy-mm-dd")
+  #                            #airDatepickerInput(paste0("irrigationevent_end_date_", order), "End date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                            if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                              airDatepickerInput(paste0("irid_irrigationevent_end_date_", str_id),
+  #                                                 "End date",
+  #                                                 clearButton = T,
+  #                                                 autoClose = T,
+  #                                                 #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                                                 placeholder = "yyyy-mm-dd",
+  #                                                 minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                 maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                                 
+  #                              )
+  #                            } else {
+  #                              airDatepickerInput(paste0("irid_irrigationevent_end_date_", str_id),
+  #                                                 "End date",
+  #                                                 clearButton = T,
+  #                                                 autoClose = T,
+  #                                                 placeholder = "yyyy-mm-dd"
+  #                              )
+  #                            }
+  #                     )
+  #                   ),
+  #                   selectizeInput(paste0("irid_irrigation_technique_", str_id), label = "Irrigation technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                    c("Sprinkler irrigation",
+  #                                      "Localized",
+  #                                      "Surface",
+  #                                      #"Sub-irrigation",
+  #                                      "Other")
+  #                   ),
+  #                   hidden(textInput(paste0("irid_irrigation_technique_", str_id, "_other"), "")),
+  #                   conditionalPanel(paste0("input.irid_irrigation_technique_", str_id, "== 'Surface'"),
+  #                                    selectizeInput(paste0("irid_surface_irrigation_technique_", str_id), label = "Surface irrigation technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                     c("Basin irrigation",
+  #                                                       "Border irrigation",
+  #                                                       "Continuous flood",
+  #                                                       "Furrow irrigation",
+  #                                                       "Uncontrolled flooding",
+  #                                                       "Other")
+  #                                    ),
+  #                                    hidden(textInput(paste0("irid_surface_irrigation_technique_", str_id, "_other"), ""))
+  #                   ),
+  #                   conditionalPanel(paste0("input.irid_irrigation_technique_", str_id, "== 'Localized'"),
+  #                                    
+  #                                    selectizeInput(paste0("irid_localized_irrigation_technique", str_id), label = "Localized irrigation technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                     c("Bubbler irrigation",
+  #                                                       "Drip irrigation",
+  #                                                       "Mist irrigation",
+  #                                                       "Pitcher irrigation",
+  #                                                       "Subsurface drip irrigation",
+  #                                                       "Subsurface textile irrigation",
+  #                                                       "Other")
+  #                                    ),
+  #                                    hidden(textInput(paste0("irid_localized_irrigation_technique", str_id, "_other"), ""))
+  #                   ),
+  #                   conditionalPanel(paste0("input.irid_irrigation_technique_", str_id, "== 'Sprinkler irrigation'"),
+  #                                    
+  #                                    selectizeInput(paste0("irid_irrigation_using_sprinkler_systems_", str_id), label = "Sprinkler irrigation system", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                     c("Center pivot irrigation",
+  #                                                       "Irrigation by lateral move",
+  #                                                       "Irrigation by side move",
+  #                                                       "Other")
+  #                                    ),
+  #                                    hidden(textInput(paste0("irid_irrigation_using_sprinkler_systems_", str_id, "_other"), ""))
+  #                   ),
+  #                   
+  #                   
+  #                   #Sacar myFile upload
+  #                   # fileInput(paste0("myFile", "Irrigation system picture_", order), accept = c('image/png', 'image/jpeg')),
+  #                   # textInput(paste0("irrigation_water_source_", order), value="", label = "Water source"),
+  #                   selectizeInput(paste0("irid_irrigation_source_", str_id), label = "Irrigation source", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                    c("Drainage",
+  #                                      "Groundwater",
+  #                                      "Lake",
+  #                                      "Reservoir",
+  #                                      "River",
+  #                                      "Spring",
+  #                                      "Other")
+  #                   ),
+  #                   hidden(textInput(paste0("irrigation_source_", str_id,  "_other"), ""))#,
+  #            ),
+  #            column(width = 6,
+  #                   fluidRow(
+  #                     column(width = 6,
+  #                            #textInput(paste0("irrigation_source_distance_", order), value="", label = "Irrigation source distance")
+  #                            numericInput(paste0("irid_irrigation_source_distance_", str_id), label = "Irrigation source distance", value = "", min = 0, step = 0.1)
+  #                     ),
+  #                     column(width = 6,
+  #                            selectizeInput(paste0("irid_irrigation_source_distance_", str_id, "unit"), "Unit", multiple=T, options=list(maxItems=1, placeholder="Select one..."),
+  #                                           choices = c("ft", "km", "m", "mi"),
+  #                                           selected = "m"
+  #                            )
+  #                     )
+  #                   ),
+  #                   fluidRow(
+  #                     column(width = 6,
+  #                            #textInput(paste0("irrigation_amount_", order), value="", label = "Irrigation amount")
+  #                            numericInput(paste0("irid_irrigation_amount_", str_id), label = "Irrigation amount", value = "", min = 0, step = 0.1)
+  #                     ),
+  #                     column(width = 6,
+  #                            selectizeInput(paste0("irid_irrigation_amount_", str_id, "unit"), "Unit", multiple=T, options=list(maxItems=1, placeholder="Select one..."),
+  #                                           choices = c("in", "mm"),#, "cm", "m", "in", "ft", "ml", "L", "gal", "cu m", "cu in", "cu ft")
+  #                                           selected = "mm"
+  #                            )
+  #                     )
+  #                   ),
+  #                   textAreaInput(paste0("irid_irrigation_notes_", str_id), label = "Notes", value = "")
+  #            )
+  #       )
+  #   )
+  #   
+  # }
+  # 
+  # observe({
+  #   if(expCondsVars$num_irri == 0){
+  #     default <- expCondsVars$DEFAULT_irri
+  #     for(i in 1:default){
+  #       insertBoxIrrigation(i)
+  #     }
+  #   }
+  # })
   
 
   ####################################################################
   
   
-  ########### weeding ##############################################
-  
-  expCondsVars$num_weed <- 0
-  expCondsVars$DEFAULT_weed <- 1
-  expCondsVars$ids_weed <- c()
-  
-  
-  observeEvent(input$addWeeding,{
-    defaultBoxes = expCondsVars$DEFAULT_weed
-    if(expCondsVars$num_weed >= 1){
-      insertBoxWeeding(expCondsVars$num_weed + 1)
-    }
-  })
-  
-  insertBoxWeeding <- function(index){
-    insertUI(
-      selector = "#fr_weeding_boxes",
-      where = "beforeBegin",
-      ui = getUiWeeding(index)
-    )
-    expCondsVars$num_weed <- expCondsVars$num_weed + 1
-  }
-  
-  getUiWeeding <- function(index){
-    str_id <- stri_rand_strings(1, 8,  '[A-Z]')
-    expCondsVars$ids_weed <- c(expCondsVars$ids_weed, paste0("ECWE_", str_id))
-    
-    startDate <- NULL
-    mtechnique <- NULL
-    mnotes <- NULL
-    mtype <- NULL
-    mtraction <- NULL
-    
-    if(length(expCondsVars$ids_weed) > 1){
-      vars <- unlist(strsplit(expCondsVars$ids_weed[1],"_"))
-      startDate <- input[[paste0("wewd_weeding_start_date_", vars[2])]]
-      mtechnique <- input[[paste0("wewd_weeding_technique_", vars[2])]]
-      mnotes <- input[[paste0("wewd_weeding_notes_", vars[2])]]
-      mtype <- input[[paste0("wewd_weeding_type_", vars[2])]]
-      mtraction <- input[[paste0("wewd_weeding_traction_", vars[2])]]
-      
-      if(!is.null(startDate)) startDate <- startDate +1
-      
-    }
-    
-    fluidRow(
-      id= paste0("box_weeding_", str_id),
-      box(
-                          
-            column(12, offset = 0, 
-                   column(6,style='padding:0px; text-align:left;', # HTML("<b><h4>Weeding</h4></b>")
-                          h4("Weeding", style="font-weight: 800;color: #555;")
-                   ),
-                   column(6, 
-                          style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_ECWE_", str_id), "", icon("close"))
-                   )
-                   
-            ),
-           width = 12,
-           solidHeader = TRUE, status = "warning",
-           column(width = 6,
-                  h4(HTML(" ")),
-                  fluidRow(
-                    column(6, 
-                           #dateInput(paste0("weeding_start_date_", index), "Start date", format = "yyyy-mm-dd")
-                           #airDatepickerInput(paste0("weeding_start_date_", index), "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                           
-                           if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                             airDatepickerInput(paste0("wewd_weeding_start_date_", str_id),
-                                                "Start date",
-                                                clearButton = T,
-                                                autoClose = T,
-                                                value = startDate,
-                                                placeholder = "yyyy-mm-dd",
-                                                minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                
-                             )
-                           } else {
-                             airDatepickerInput(paste0("wewd_weeding_start_date_", str_id),
-                                                "Start date",
-                                                clearButton = T,
-                                                value = startDate,
-                                                autoClose = T,
-                                                placeholder = "yyyy-mm-dd"
-                             )
-                           }
-                    )
-                  ),
-                  
-                  #selectInput(paste0("weeding_technique_", index), "Technique", c("Chemical", "Manual", "Mechanized"))
-                  selectizeInput(paste0("wewd_weeding_technique_", str_id), "Technique", multiple = TRUE, selected = mtechnique, options = list(maxItems =1, placeholder ="Select one..."),
-                                 choices =  c(
-                                   "Chemical",
-                                   "Manual",
-                                   "Mechanized")
-                  ), 
-                  textAreaInput(paste0("wewd_weeding_notes_", str_id), "Notes", value = mnotes)
-           ),
-           column(6,
-                  #h4("Implement"),
-                  fluidRow(
-                    column(12,
-                           h4("Implement", style="font-weight: 800;color: #555;")
-                    )
-                  ),
-                  selectizeInput(paste0("wewd_weeding_type_",str_id ), "Type", multiple = TRUE,selected = mtype, options = list(maxItems =1, placeholder ="Select one..."),
-                                 choices =  c(
-                                   "Cultivator",
-                                   "Manual",
-                                   "Sprayer",
-                                   "Weed cutter/puller",
-                                   "Other")
-                  ),
-                  hidden(textInput(paste0("wewd_weeding_type_",str_id, "_other" ), "")
-                         
-                  ),
-                  selectizeInput(paste0("wewd_weeding_traction_", str_id), "Traction",multiple = TRUE,selected=mtraction, options = list(maxItems =1, placeholder ="Select one..."),
-                                 choices= c(
-                                   "Animal",
-                                   "Manual",
-                                   "2 wheel tractor",
-                                   "4 wheel tractor",
-                                   "Other")
-                  ),
-                  hidden(textInput(paste0("wewd_weeding_traction_",str_id, "_other" ), ""))
-           )
-      )
-    )
-    
-  }
-  
-  observe({
-    if(expCondsVars$num_weed == 0){
-      default <- expCondsVars$DEFAULT_weed
-      for(i in 1:default){
-        insertBoxWeeding(i)
-      }
-    }
-  })
-  
-  
-  #################### end weeding #############################################
-
-  ########## soil fertility ##################################################
-
-  soilFertilityVar <- reactiveValues()
-  soilFertilityVar$nApps <- 0
-  soilFertilityVar$products <- c()
-  soilFertilityVar$productsOther <- 0
-
-
-  soilFertility_types <- list()
-  soilFertility_types[["Biofertilizer"]] <- c('Arbuscular mycorrhizal fungi',
-                                              'Rhizobium japonicum',
-                                              'Rhizobium leguminosarum',
-                                              'Rhizobium loti',
-                                              'Rhizobium meliloti',
-                                              'Rhizobium spp.',
-                                              'Rhizobium trifolii',
-                                              'Other')
-  soilFertility_types[["Green manure"]] <- c('Lablab',
-                                             'Mucuna',
-                                             'Sesbania sp.',
-                                             'Vigna sp.',
-                                             'Other')
-  soilFertility_types[["Inorganic"]] <- c('Ammonium nitrate',
-                                          'Ammonium nitrate sulfate',
-                                          'Ammonium polyphosphate',
-                                          'Ammonium sulfate',
-                                          'Anhydrous ammonia',
-                                          'Aqua ammonia',
-                                          'Calcitic limestone',
-                                          'Calcium ammonium nitrate ',
-                                          'Calcium hydroxide',
-                                          'Calcium nitrate',
-                                          'Diammonium phosphate',
-                                          'Dolomitic limestone',
-                                          'Liquid phosphoric acid',
-                                          'Monoammonium phosphate',
-                                          'NPK fertilizers',
-                                          'Potassium chloride',
-                                          'Potassium nitrate',
-                                          'Potassium sulfate',
-                                          'Rock phosphate',
-                                          'Single super phosphate',
-                                          'Triple super phosphate',
-                                          'Urea',
-                                          'Urea ammonium nitrate solution',
-                                          'Urea super granules',
-                                          'Other')
-  soilFertility_types[["Lime"]] <- c('Calcitic limestone',
-                                     'Crushed limestone',
-                                     'Dolomitic limestone',
-                                     'Other')
-  soilFertility_types[["Organic"]] <- c('Alfalfa Meal',
-                                        'Bagasse',
-                                        'Biochar',
-                                        'Biochar',
-                                        'Chicken litter (Poultry manure)',
-                                        'Compost',
-                                        'Farmyard manure ',
-                                        'Fish fertilizer',
-                                        'Guano',
-                                        'Liquid manure',
-                                        'Oil cake',
-                                        'Treated sewage sludge',
-                                        'Vermicompost',
-                                        'Other')
-
-  observeEvent(input$soilFertility_typeFertilizer, {
-
-    type_id <- isolate(input$soilFertility_typeFertilizer_id)
-    type_value <- isolate(input$soilFertility_typeFertilizer_value)
-
-    product_id <- gsub("fertilizerType", "product", type_id)
-
-    if(type_value != ""){
-      updateSelectizeInput(session, product_id, choices = soilFertility_types[[type_value]])
-    }
-    else{
-      updateSelectizeInput(session, product_id, choices = c(""))
-
-    }
-
-
-  })
-
-  observeEvent(input$soil_fertilizer_num_apps, {
-
-    num <- input$soil_fertilizer_num_apps
-
-    if(!is.numeric(num) || num < 1) return()
-
-
-    if(soilFertilityVar$nApps < num){
-      start <- soilFertilityVar$nApps +1
-      for (i in start:num){
-        insertUI(selector ="#fr_fertilizer_application",
-                 where = "beforeBegin",
-                 ui = drawRowSoilFertility(i))
-      }
-
-    }
-
-    else if(soilFertilityVar$nApps > num){
-      removeRowSoilFertility(num + 1, soilFertilityVar$nApps)
-    }
-
-    soilFertilityVar$nApps <- num
-
-  })
-
-  drawRowSoilFertility <- function(index){
-    fluidRow(id= paste0("row_soilFertility_", index),
-          column(12,
-             column(1, style="padding:3px; text-align:center;  width: 5.33333333%;", br(), h4(index)),
-             column(10, style="padding:0px; width: 93.33333333%;",
-                    column(6, style="padding:0px;",
-                           column(3, style="padding:5px;",
-                                  selectizeInput(paste0("select_fertilizerType_soil_table_row_", index), "",multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
-                                                 choices= c(
-                                                   "Biofertilizer",
-                                                   "Green manure",
-                                                   "Inorganic",
-                                                   "Lime",
-                                                   "Organic")
-                                  )
-                            ),
-                           column(3, style="padding:5px;",
-                                  selectizeInput(paste0("select_product_soil_table_row_", index), "",multiple = TRUE, options = list(placeholder ="Select one..."),
-                                                 choices= c()
-                                  ),
-                                  hidden(textInput(paste0("select_product_soil_table_row_",index, "_other" ), ""))
-
-                           ),
-                           column(2, style="padding:5px;",
-                                  #numericInput(paste0("input_productRate_soil_table_row", index), "", min=1, max=100, value=NULL, step=1)
-                                  textInput(paste0("input_productRate_soil_table_row", index), "")
-                                  ),
-                           column(4, style="padding:5px;",
-                                  selectizeInput(paste0("select_element_soil_table_row_", index), "",multiple = TRUE, options = list( placeholder ="Sel..."),
-                                                 # choices= c(
-                                                 #   "B",
-                                                 #   "Ca",
-                                                 #   "Cu",
-                                                 #   "Fe",
-                                                 #   "K",
-                                                 #   "Mn",
-                                                 #   "Mo",
-                                                 #   "N",
-                                                 #   "P",
-                                                 #   "S",
-                                                 #   "Zn",
-                                                 #   "Other")
-                                                 choices = c("Nitrogen",
-                                                             "Phosphorus",
-                                                             "Potassium",
-                                                             "Boron",
-                                                             "Calcium",
-                                                             "Copper",
-                                                             "Iron",
-                                                             "Manganese",
-                                                             "Molybdenum",
-                                                             "Sulfur",
-                                                             "Zinc",
-                                                             "Other"
-                                                 )
-                                  ),
-                                  hidden(textInput(paste0("select_element_soil_table_row_",index, "_other" ), ""))
-                           )
-                    ),
-                    column(6,style="padding:0px;",
-                           column(2, style="padding:5px;",
-                                  #numericInput(paste0("input_elementRate_soil_table_row_", index), "", min=1, max=100, value=NULL, step=1)
-                                  textInput(paste0("input_elementRate_soil_table_row_", index), "")
-                                  ),
-                           # column(3, style="padding:5px;",
-                           #        selectizeInput(paste0("select_implement_soil_table_row_", index), "", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
-                           #                       choices= c(
-                           #                         "Backpack sprayer (airblast sprayer)",
-                           #                         "Boom sprayer",
-                           #                         "Broadcast spreader",
-                           #                         "Hand sprayer",
-                           #                         "Manual application",
-                           #                         "Manure spreader",
-                           #                         "Slurry injector",
-                           #                         "Other"
-                           #                       )
-                           #        ),
-                           #        hidden(textInput(paste0("select_implement_soil_table_row_",index, "_other" ), ""))
-                           # ),
-                           column(3, style="padding:5px;",
-                                  #dateInput(paste0("input_startdate_soil_table_row_", index), "", format = "yyyy-mm-dd")
-                                  #airDatepickerInput(paste0("input_startdate_soil_table_row_", index), "", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                                  
-                                  
-                                  if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                                    airDatepickerInput(paste0("input_startdate_soil_table_row_", index),
-                                                       " ",
-                                                       clearButton = T,
-                                                       autoClose = T,
-                                                       #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                                                       placeholder = "yyyy-mm-dd",
-                                                       minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                       maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                       
-                                    )
-                                  } else {
-                                    airDatepickerInput(paste0("input_startdate_soil_table_row_", index),
-                                                       " ",
-                                                       clearButton = T,
-                                                       autoClose = T,
-                                                       placeholder = "yyyy-mm-dd"
-                                    )
-                                  }
-                                  
-                           ),
-                           # column(3, style="padding:5px",
-                           #        selectizeInput(paste0("select_traction_soil_table_row_", index), "", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
-                           #                       choices= c(
-                           #                         "Animal",
-                           #                         "Manual",
-                           #                         "2 wheel tractor",
-                           #                         "4 wheel tractor",
-                           #                         "Other"
-                           #                       )
-                           #        ),
-                           #        hidden(textInput(paste0("select_traction_soil_table_row_",index, "_other" ), ""))
-                           # ),
-                           column(3, style="padding:5px",
-                                  #dateInput(paste0("input_enddate_soil_table_row_", index), "", format = "yyyy-mm-dd")
-                                  #airDatepickerInput(paste0("input_enddate_soil_table_row_", index), "", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                                  
-                                  
-                                  if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                                    airDatepickerInput(paste0("input_enddate_soil_table_row_", index),
-                                                       " ",
-                                                       clearButton = T,
-                                                       autoClose = T,
-                                                       #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                                                       placeholder = "yyyy-mm-dd",
-                                                       minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                       maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                       
-                                    )
-                                  } else {
-                                    airDatepickerInput(paste0("input_enddate_soil_table_row_", index),
-                                                       " ",
-                                                       clearButton = T,
-                                                       autoClose = T,
-                                                       placeholder = "yyyy-mm-dd"
-                                    )
-                                  }
-                                  
-                           ),
-                           column(4, style="padding:5px;",
-                                  selectizeInput(paste0("select_techinque_soil_table_row_", index), "", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
-                                                 choices= c(
-                                                   "Band application on surface",
-                                                   "Band application beneath surface",
-                                                   "Broadcast incorparated",
-                                                   "Broadcast surface",
-                                                   "Contact placement with seed",
-                                                   "Deep placement",
-                                                   "Fertigation",
-                                                   "Foliar application",
-                                                   "Injection",
-                                                   "Localized application (using mechanical or hand device)",
-                                                   "Seed coating",
-                                                   "Side dressing",
-                                                   "Sub-soil placement (injection)",
-                                                   "Other"
-                                                 )
-                                  ),
-                                  hidden(textInput(paste0("select_techinque_soil_table_row_",index, "_other" ), ""))
-                           )
-                    )
-             ),
-             column(1,  style="float: initial; margin-left: 5.5%;padding:3px;",
-                    textAreaInput(paste0("textArea_soil_table_row_", index), "",placeholder ="Notes", width = "350px")
-             )
-        )
-
-    )
-
-  }
-
-
-  removeRowSoilFertility <- function(begin, end){
-    for(i in begin:end){
-      removeUI(
-        selector =paste0("#row_soilFertility_", i),
-        immediate = T
-      )
-    }
-
-  }
-
-  observeEvent(input$addproducts_soil,{
-    num_others <- soilFertilityVar$productsOther + 1
-
-    if(num_others > 6) return()
-
-    insertUI(
-      selector= "#fr_fertilizer_application_nutrient_title",
-      where = "beforeBegin",
-      ui =  column(1, id= paste0("col_input_soilProduct_other_", num_others, "_title" ), style = "padding:10px;",
-                   textInput(paste0("input_soilProduct_other_", num_others ), "", placeholder = "Other (%)")
-                   # fluidRow(id = paste0("fr_aux_soil_other_", num_others))
-            )
-    )
-
-    insertUI(
-      selector= "#fr_fertilizer_application_nutrient",
-      where = "beforeBegin",
-      ui =  column(1, id= paste0("col_input_soilProduct_other_", num_others ), style = "padding:10px;",
-                   # textInput(paste0("input_soilProduct_other_", num_others ), "", placeholder = "Other (%)"),
-                   fluidRow(id = paste0("fr_aux_soil_other_", num_others))
-      )
-    )
-
-    soilFertilityVar$productsOther <- num_others
-    len <- length(soilFertilityVar$products)
-    if(len < 1) return()
-
-    products <- soilFertilityVar$products
-
-    for(i in 1:len){
-
-      mid <- paste0("input_soil_nutrient_product_other_", num_others, "_", gsub("\\.", "", gsub(" ", "_", products[i])))
-      selector <- paste0("#fr_input_soil_nutrient_product_other_", num_others ,"_", gsub("\\.", "",gsub(" ", "_", products[i-1])))
-
-
-      if(i ==1) selector <- paste0("#fr_aux_soil_other_", num_others)
-
-      insertUI(
-        selector = selector,
-        where = "afterEnd",
-        ui = fluidRow( id = paste0("fr_", mid), column(12,
-                                                       numericInput(mid, "", min=0, max=100, value=NULL)
-        ))
-      )
-    }
-
-
-
-  })
-
-  observeEvent(input$delproducts_soil, {
-    n_others <- soilFertilityVar$productsOther
-    if(n_others  < 1) return()
-    removeUI(
-      selector =  paste0("#col_input_soilProduct_other_", n_others),
-      immediate = T
-    )
-    removeUI(
-      selector =  paste0("#col_input_soilProduct_other_", n_others, "_title"),
-      immediate = T
-    )
-
-    soilFertilityVar$productsOther <- n_others - 1
-
-
-  })
-
-  observeEvent(input$soilFertility_product, {
-    napps <- input$soil_fertilizer_num_apps
-    default_products<- c("N", "P", "K")
-
-    n_others <- soilFertilityVar$productsOther
-    if(n_others>0){
-      for( i in 1:n_others){
-        default_products <- c(default_products, paste0("other_", i))
-      }
-    }
-
-    newList <- c()
-
-    for(i in 1:napps){
-      newList <- c(newList, input[[paste0("select_product_soil_table_row_", i)]] )
-    }
-
-    newList <- sort(unique(newList))
-    currList <- soilFertilityVar$products
-
-    items_deleted <- currList[!(currList %in% newList)]
-    items_added <- newList[!(newList %in% currList)]
-
-
-    if(length(items_deleted) > 0){
-      for(item in items_deleted){
-        removeUI(
-          selector = paste0("#fr_input_soil_nutrient_product_", gsub("\\.", "",gsub(" ", "_", item))),
-          immediate = T
-        )
-
-        for(i in default_products){
-          removeUI(
-            selector = paste0("#fr_input_soil_nutrient_product_", i, "_", gsub("\\.", "",gsub(" ", "_", item))),
-            immediate = T
-          )
-        }
-
-      }
-    }
-
-    if( length(items_added)> 0){
-      for(item in items_added){
-        index <- match(item, newList)
-        id_selector_name = "#fr_aux_soil_fertProduct"
-        id_selector_prod = "#fr_aux_soil_XXXX"
-
-
-        if(index > 1){
-          b_item <- newList[index-1]
-          id_selector_name <- paste0("#fr_input_soil_nutrient_product_", gsub("\\.", "",gsub(" ", "_", b_item)))
-          id_selector_prod <- paste0("#fr_input_soil_nutrient_product_XXXX_", gsub("\\.", "",gsub(" ", "_", b_item)))
-        }
-
-        mid <- paste0("input_soil_nutrient_product_", gsub("\\.", "", gsub(" ", "_", item)))
-        insertUI(
-          selector = id_selector_name,
-          where = "afterEnd",
-          ui = fluidRow( id = paste0("fr_", mid),column(12,
-                         disabled(textInput(mid, "", value=item)
-                ))
-          )
-        )
-
-        for(i in default_products){
-          mid <- paste0("input_soil_nutrient_product_", i, "_", gsub("\\.", "", gsub(" ", "_", item)))
-          insertUI(
-            selector = gsub("XXXX", i,id_selector_prod ),
-            where = "afterEnd",
-            ui = fluidRow( id = paste0("fr_", mid), column(12,
-              numericInput(mid, "", min=0, max=100, value=NULL)
-              ))
-          )
-        }
-
-
-      }
-    }
-
-    soilFertilityVar$products <- newList
-
-  })
-
-
-  # fr_fertilizer_application_nutrient
-
-
-
-  ######## end soil fertility ###############################################
-
-
-  ###########  nutrients ######################################################
-  ## valor pra guardar cuantos boxes hay actualmente dibujados
-  nutVar <- reactiveValues()
-  nutVar$types <- list()
-
-  observe( {
-    if(is.null(input$appfTypeFertilizer) ){
-      removeUI(
-        selector = paste0("#Organic_fertilizer_box"),
-        immediate = T
-      )
-      removeUI(
-        selector = paste0("#Inorganic_fertilizer_box"),
-        immediate = T
-      )
-      removeUI(
-        selector = paste0("#Green_manure_fertilizer_box"),
-        immediate = T
-      )
-      nutVar$types <- list()
-    }
-    else{
-      l <- input$appfTypeFertilizer
-        for (typ in l) {
-          vtype = gsub(" ", "_", typ)
-          if (!(vtype %in% nutVar$types)){
-            insertUI(selector ="#fert123",
-                     where = "beforeBegin",
-                     ui = drawTypeFertBox(vtype))
-          }
-        }
-      for (xvar in nutVar$types){
-        vtype = gsub("_", " ", xvar)
-        if (!(vtype %in% l)){
-          removeUI(
-            selector = paste0("#", gsub(" ","_", vtype), "_fertilizer_box"),
-            immediate = T
-          )
-        }
-      }
-      nutVar$types <- gsub(" ", "_",l)
-
-    }
-
-  })
-
-  drawTypeFertBox <- function(type){
-    fluidRow(id = paste0(type, "_fertilizer_box"),
-          box(title = gsub("_", " ", type),
-                      width = 12,
-                      solidHeader = TRUE, status = "primary", collapsible = T, collapsed = T,
-              fluidRow(id = paste0(type, "_fertilizer_box_in"),
-                column(width = 6,
-                       numericInput(paste0("numApplications_", type), label  = "Number of applications", value = 1, min = 1, max = 5)
-
-                )
-            )
-      )
-    )
-
-  }
-
-  nutVar$nAppsOrg <- 1
-  observeEvent(input$numApplications_Organic, {
-    num <- input$numApplications_Organic
-    if(is.numeric(num) &&  num>0){
-      if(nutVar$nAppsOrg == 1 && num  == 1 ){
-
-        insertUI(selector ="#Organic_fertilizer_box_in",
-                 where = "afterEnd",
-                 ui = drawBoxNutrients(1, "Organic"))
-      }
-      else if(nutVar$nAppsOrg == 0 && num  == 1 ){
-
-        insertUI(selector ="#Organic_fertilizer_box_in",
-                 where = "afterEnd",
-                 ui = drawBoxNutrients(1, "Organic"))
-      }
-      else if(nutVar$nAppsOrg > num){
-        removeBoxesNutrients(num+1, nutVar$nAppsOrg, "Organic")
-        nutVar$nAppsOrg <- num
-      }
-      else if(nutVar$nAppsOrg < num){
-        start <- nutVar$nAppsOrg + 1
-        for (i in start:num ) {
-          insertUI(selector = paste0("#box_nut_Organic_", i-1),
-                   where = "afterEnd",
-                   ui = drawBoxNutrients(i, "Organic")
-          )
-        }
-        nutVar$nAppsOrg <- num
-      }
-
-    }
-    else{
-      removeBoxesNutrients(1, nutVar$nAppsOrg, "Organic")
-      nutVar$nAppsOrg <- 0
-    }
-
-  })
-
-
-  nutVar$nAppsInorg <- 1
-  observeEvent(input$numApplications_Inorganic, {
-    num <- input$numApplications_Inorganic
-    if(is.numeric(num) &&  num>0){
-      if(nutVar$nAppsInorg == 1 && num  == 1 ){
-
-        insertUI(selector ="#Inorganic_fertilizer_box_in",
-                 where = "afterEnd",
-                 ui = drawBoxNutrients(1, "Inorganic"))
-      }
-      else if(nutVar$nAppsInorg == 0 && num  == 1 ){
-
-        insertUI(selector ="#Inorganic_fertilizer_box_in",
-                 where = "afterEnd",
-                 ui = drawBoxNutrients(1, "Inorganic"))
-      }
-      else if(nutVar$nAppsInorg > num){
-        removeBoxesNutrients(num+1, nutVar$nAppsInorg, "Inorganic")
-        nutVar$nAppsInorg <- num
-      }
-      else if(nutVar$nAppsInorg < num){
-        start <- nutVar$nAppsInorg + 1
-        for (i in start:num ) {
-          insertUI(selector = paste0("#box_nut_Inorganic_", i-1),
-                   where = "afterEnd",
-                   ui = drawBoxNutrients(i, "Inorganic")
-          )
-        }
-        nutVar$nAppsInorg <- num
-      }
-
-    }
-    else{
-      removeBoxesNutrients(1, nutVar$nAppsInorg, "Inorganic")
-      nutVar$nAppsInorg <- 0
-    }
-
-  })
-
-  nutVar$nAppsGreenManure <- 1
-  observeEvent(input$numApplications_Green_manure, {
-    num <- input$numApplications_Green_manure
-    if(is.numeric(num) &&  num>0){
-      if(nutVar$nAppsGreenManure == 1 && num  == 1 ){
-
-        insertUI(selector ="#Green_manure_fertilizer_box_in",
-                 where = "afterEnd",
-                 ui = drawBoxNutrients(1, "Green_manure"))
-      }
-      else if(nutVar$nAppsGreenManure == 0 && num  == 1 ){
-
-        insertUI(selector ="#Green_manure_fertilizer_box_in",
-                 where = "afterEnd",
-                 ui = drawBoxNutrients(1, "Green_manure"))
-      }
-      else if(nutVar$nAppsGreenManure > num){
-        removeBoxesNutrients(num+1, nutVar$nAppsGreenManure, "Green_manure")
-        irrigVar$nAppsGreenManure <- num
-      }
-      else if(nutVar$nAppsGreenManure < num){
-        start <- nutVar$nAppsGreenManure + 1
-        for (i in start:num ) {
-          insertUI(selector = paste0("#box_nut_Green_manure_", i-1),
-                   where = "afterEnd",
-                   ui = drawBoxNutrients(i, "Green_manure")
-          )
-        }
-        nutVar$nAppsGreenManure <- num
-      }
-
-    }
-    else{
-      removeBoxesNutrients(1, nutVar$nAppsGreenManure, "Green_manure")
-      nutVar$nAppsGreenManure <- 0
-    }
-
-  })
-
-
-  removeBoxesNutrients <- function(begin, end, type){
-    for(i in begin:end){
-      removeUI(
-        selector = paste0("#box_nut_", type, "_", i),
-        immediate = T
-      )
-    }
-
-  }
-
-  drawBoxNutrients <- function(order, type){
-    fluidRow(id= paste0("box_nut_", type, "_", order),
-             box( title = paste0("Application", order),
-                  width = 12,
-                  solidHeader = TRUE, status = "warning",
-                  fluidRow(
-                    column(width = 6,
-                          fluidRow(
-                            column(width = 6,
-                                   dateInput(paste0("nutrient_start_date_", type, "_", order), label ="Start date", format = "yyyy-mm-dd")
-                            ),
-                            column(width = 6,
-                                   dateInput(paste0("nutrient_end_date_", type, "_", order), label ="End date", format = "yyyy-mm-dd")
-                            )
-                          ),
-                          fluidRow(
-                            column(width = 6,
-                                   textInput(paste0("nutrient_app_rate_", type, "_", order),  label = "Total application rate for the season", value="")
-                            ),
-                            column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                   selectizeInput(paste0("nutrient_app_rate_unit", type, "_", order), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                    c("g/sq m",
-                                                      "kg/ha",
-                                                      "lb/ac")
-                                   )
-                            )
-                          )
-                          #textInput(inputId= paste0("nutrient_app_rate_", type, "_", order), label="Total application rate for the season")
-
-                    ),
-                    column(width = 6,
-                           fluidRow(
-                              column(width = 6,
-                                     textInput(inputId=paste0("nutrient_recommended_rate_", type, "_", order), label="Total recommended rate")
-                              ),
-
-                              column(width = 6,
-                                     selectizeInput(paste0("nutrient_recommended_rate_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder="Select one..."), label= "Unit",
-                                                    c("g/sq m",
-                                                      "kg/ha",
-                                                      "lb/ac")
-                                      )
-                              )
-                            ),
-                           textInput(paste0("perc_recomm_rate_", type, "_", order), "Percentage of recommended rate applied")
-                    )
-                  ),
-                  h2(paste0("Fertilizer amount applied: ",gsub("_", " ", type))),
-
-                  fluidRow(
-
-                    column(width = 2,
-                           fluidRow(
-                             column(width = 5, br(),
-                                           div(style="text-align:right", h4("Name"))),
-                             column(width = 5,
-                                    br(),
-                                    div(style="text-align:center", h4("# of app"))
-                              ),
-                             column(width = 2,
-                                    br(),
-                                    div(style="text-align:center", h4("#")) )
-                           )
-                    ),
-                    column(width = 1,
-                           br(),
-                           div(style="text-align:center", h4("Start date"))
-                    ),
-                    column(width = 1,
-                           br(),
-                           div(style="text-align:center", h4("End date"))
-                    ),
-
-                    column(width = 2,
-
-                           column( width= 7,
-                                   br(),
-                            div(style="text-align:center", h4("Type"))
-                           ),
-                           column(width = 5,
-                                  br(),
-                                  div(style="text-align:center", h4("Type (Unit)"))
-                            )
-                    ),
-                    column(width=3,
-                           fluidRow(
-                             column(width = 6,
-                                    br(),
-                                    div(style="text-align:center", h4("Technique"))
-                             ),
-                             column(width = 6,
-                                    br(),
-                                    div(style="text-align:center", h4("Implement"))
-                             )
-                           )
-                    ),
-
-                     column(width = 1,
-                           br(),
-                           div(style="text-align:center", h4("Rate"))
-                     ),
-                     column(width = 1,
-                            br(),
-                            div(style="text-align:center", h4("Rate (unit)"))
-                     ),
-                     column(width = 1,
-                            br(),
-                            div(style="text-align:center", h4("Nutrient Content"))
-                     )
-
-                  ),
-                  fluidRow(
-                    column(width = 2,
-                           fluidRow(
-                             column(width = 5,
-                                    br(),
-                                           div(style="text-align:right", "Nitrogen")
-                              ),
-                             column(width = 5,
-                                    selectInput(paste0("nutrientApplied_nit_numApps1_", type, "_", order),"",c(1,2,3))
-
-                              ),
-                             column(width = 2,
-                                    br(),
-                                    div(style="text-align:center", h4("1"))
-                              )
-                           )
-                      ),
-                    column(width = 1,
-                           dateInput(paste0("fert_nit_start_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                    ),
-
-                    column(width = 1,
-                           dateInput(paste0("fert_nit_end_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                    ),
-
-
-                    column(width = 2,
-                           if(type == "Green_manure"){
-                             textInput(paste0("fert_nit_type1_", type, "_", order), "")
-
-                           }
-                           else if(type == "Inorganic"){
-                             fluidRow(
-                             column(width = 7,
-                               selectizeInput(paste0("fert_nit_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                 'Ammonium nitrate',
-                                 'Ammonium nitrate sulfate',
-                                 'Ammonium polyphosphate',
-                                 'Ammonium sulfate',
-                                 'Anhydrous ammonia',
-                                 'Aqua ammonia',
-                                 'Calcitic limestone',
-                                 'Calcium ammonium nitrate solution',
-                                 'Calcium hydroxide',
-                                 'Calcium nitrate',
-                                 'Diammonium phosphate',
-                                 'Dolomitic limestone',
-                                 'Liquid phosphoric acid',
-                                 'Monoammonium phosphate',
-                                 'Potassium chloride',
-                                 'Potassium nitrate',
-                                 'Potassium sulfate',
-                                 'Rock phosphate',
-                                 'Single super phosphate',
-                                 'Triple super phosphate',
-                                 'Urea',
-                                 'Urea ammonium nitrate solution',
-                                 'Urea super granules',
-                                 'NPK fertilizers',
-                                 'Other')
-                               )
-                             ),
-                               column(width = 5,
-                                      selectizeInput(paste0("fert_nit_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                     c("g/sq m","kg/ha","lb/ac"))
-
-                               ),
-
-                                  column(width=12,
-                                  hidden(textInput(paste0("fert_nit_type1_", type, "_", order, "_other"), ""))
-                                  )
-
-                             )
-
-                           }
-                           else{
-                             fluidRow(
-                               column(width = 7,
-                                 selectizeInput(paste0("fert_nit_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                   "Alfalfa Meal",
-                                   "Bagasse",
-                                   "Biochar",
-                                   "Chicken litter (Poultry manure)",
-                                   "Compost",
-                                   "Farmyard manure",
-                                   "Guano",
-                                   "Liquid manure",
-                                   "Oil cake",
-                                   "Treated sewage sludge",
-                                   "Vermicompost",
-                                   "Fish fertilizer",
-                                   "Other"
-                                   )
-                                 )
-                               ),
-                               column(width = 5,
-                                      selectizeInput(paste0("fert_nit_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                     c("g/sq m","kg/ha","lb/ac"))
-                               ),
-                               # conditionalPanel(paste0("input.fert_nit_type1_", type, "_", order, " == 'Other'"),
-                               #                  column(width=12,
-                               #                  textInput(paste0("fert_nit_type1_other_", type, "_", order), "")
-                               #                  )
-                               # )
-                               column(width=12,
-                                      hidden(textInput(paste0("fert_nit_type1_", type, "_", order, "_other"), ""))
-                               )
-
-                             )
-                            }
-                    ),
-                    column(width = 3,
-                      fluidRow(
-                        column(width = 6,
-                             selectizeInput(paste0("fertilizer_nit_application_technique1_", type, "_", order), "", multiple = T,
-                                            options = list(maxItems = 1, placeholder ="Select one"),
-                                            choices = c(
-                                                        "Band application on surface",
-                                                        "Band application incorporated (Band application beneath surface)",
-                                                        "Broadcast surface",
-                                                        "Broadcast incorporated",
-                                                        "Contact placement (seed placement)",
-                                                        "Deep placement",
-                                                        "Fertigation",
-                                                        "Foliar application",
-                                                        "Injection",
-                                                        "Placed with seed (seed placement)",
-                                                        "Side dressing",
-                                                        "Sub-soil placement (injection)",
-                                                        "Localized application (using mechanical or hand device)",
-                                                        "Other")
-                             ),
-                             conditionalPanel(paste0("input.fertilizer_nit_application_technique1_", type, "_", order, " == 'Other'"),
-                                              textInput(paste0("fertilizer_nit_application_technique1_other_", type, "_", order), "")
-                             )
-                        ),
-                        column(width = 6,
-                             selectizeInput(paste0("fertilizer_nit_implement1_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                            choices = c("Backpack sprayer (airblast sprayer)",
-                                                        "Boom sprayer",
-                                                        "Broadcast spreader",
-                                                        "Hand sprayer",
-                                                        "Manure spreader",
-                                                        "Slurry injector",
-                                                        "Manual application",
-                                                        "Other")
-                             ),
-                             conditionalPanel(paste0("input.fertilizer_nit_implement1_", type, "_", order, " == 'Other'"),
-                                              textInput(paste0("fertilizer_nit_implement1_other_", type, "_", order), "")
-                             )
-                        )
-                      )
-                    ),
-                   column(width = 1,
-                          textInput(paste0("fert_nit_amountApplied1_", type, "_", order),"")
-                   ),
-                   column(width = 1,
-                          selectizeInput(paste0("fert_nit_amountAppliedScale1_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                         c("g/sq m","kg/ha","lb/ac"))
-                   ),
-                   column(width = 1,
-                          textInput(paste0("fert_nit_nutrientContent1_", type, "_", order),"")
-                   )
-
-                  ),
-                  conditionalPanel(paste0("input.nutrientApplied_nit_numApps1_", type, "_", order,  " == 2 |
-                                   input.nutrientApplied_nit_numApps1_", type, "_", order, " == 3 "),
-                                          fluidRow(
-                                            column(width = 2,
-                                                   fluidRow(
-                                                     column(width = 5,
-                                                            br(),
-                                                            div(style="text-align:right", "")
-                                                     ),
-                                                     column(width = 5,
-                                                            br(),
-                                                            div(style="text-align:right", "")
-
-                                                     ),
-                                                     column(width = 2,
-                                                            br(),
-                                                            div(style="text-align:center", h4("2"))
-                                                     )
-                                                   )
-                                            ),
-                                            column(width = 1,
-                                                   dateInput(paste0("fert_nit_start_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                            ),
-
-                                            column(width = 1,
-                                                   dateInput(paste0("fert_nit_end_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                            ),
-
-
-                                            column(width = 2,
-                                                   if(type == "Green_manure"){
-                                                     textInput(paste0("fert_nit_type2_", type, "_", order), "")
-                                                   }
-                                                   else if(type == "Inorganic"){
-                                                     fluidRow(
-                                                       column(width = 7,
-
-                                                       selectizeInput(paste0("fert_nit_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                         'Ammonium nitrate',
-                                                         'Ammonium nitrate sulfate',
-                                                         'Ammonium polyphosphate',
-                                                         'Ammonium sulfate',
-                                                         'Anhydrous ammonia',
-                                                         'Aqua ammonia',
-                                                         'Calcitic limestone',
-                                                         'Calcium ammonium nitrate solution',
-                                                         'Calcium hydroxide',
-                                                         'Calcium nitrate',
-                                                         'Diammonium phosphate',
-                                                         'Dolomitic limestone',
-                                                         'Liquid phosphoric acid',
-                                                         'Monoammonium phosphate',
-                                                         'Potassium chloride',
-                                                         'Potassium nitrate',
-                                                         'Potassium sulfate',
-                                                         'Rock phosphate',
-                                                         'Single super phosphate',
-                                                         'Triple super phosphate',
-                                                         'Urea',
-                                                         'Urea ammonium nitrate solution',
-                                                         'Urea super granules',
-                                                         'NPK fertilizers',
-                                                         "Other")
-                                                       )
-                                                        ),
-                                                        column(width = 5,
-                                                               selectizeInput(paste0("fert_nit_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                              c("g/sq m","kg/ha","lb/ac"))
-
-                                                        ),
-                                                       conditionalPanel(paste0("input.fert_nit_type2_", type, "_", order, " == 'Other'"),
-                                                                        column(width=12,
-                                                                        textInput(paste0("fert_nit_type2_other_", type, "_", order), "")
-                                                                        )
-                                                       )
-
-                                                      )
-                                                   }
-                                                   else{
-                                                     fluidRow(
-                                                       column(width = 7,
-
-                                                         selectizeInput(paste0("fert_nit_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                           "Alfalfa Meal",
-                                                           "Bagasse",
-                                                           "Biochar",
-                                                           "Chicken litter (Poultry manure)",
-                                                           "Compost",
-                                                           "Farmyard manure",
-                                                           "Guano",
-                                                           "Liquid manure",
-                                                           "Oil cake",
-                                                           "Treated sewage sludge",
-                                                           "Vermicompost",
-                                                           "Fish fertilizer",
-                                                           "Other")
-                                                         )
-                                                       ),
-                                                       column(width = 5,
-                                                              selectizeInput(paste0("fert_nit_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                             c("g/sq m","kg/ha","lb/ac"))
-
-                                                       ),
-                                                       conditionalPanel(paste0("input.fert_nit_type2_", type, "_", order, " == 'Other'"),
-                                                                        column(width=12,
-                                                                        textInput(paste0("fert_nit_type2_other_", type, "_", order), "")
-                                                                        )
-                                                       )
-
-                                                     )
-
-
-
-                                                     }
-                                            ),
-                                            column(width =3,
-                                              fluidRow(
-                                                column(width = 6,
-                                                       selectizeInput(paste0("fertilizer_nit_application_technique2_", type, "_", order), "", multiple = T,
-                                                                      options = list(maxItems = 1, placeholder ="Select one"),
-                                                                      choices = c(
-                                                                        "Band application on surface",
-                                                                        "Band application incorporated (Band application beneath surface)",
-                                                                        "Broadcast surface",
-                                                                        "Broadcast incorporated",
-                                                                        "Contact placement (seed placement)",
-                                                                        "Deep placement",
-                                                                        "Fertigation",
-                                                                        "Foliar application",
-                                                                        "Injection",
-                                                                        "Placed with seed (seed placement)",
-                                                                        "Side dressing",
-                                                                        "Sub-soil placement (injection)",
-                                                                        "Localized application (using mechanical or hand device)",
-                                                                        "Other")
-                                                       ),
-                                                       conditionalPanel(paste0("input.fertilizer_nit_application_technique2_", type, "_", order, " == 'Other'"),
-                                                                        textInput(paste0("fertilizer_nit_application_technique2_other_", type, "_", order), "")
-                                                       )
-                                                ),
-                                                column(width = 6,
-                                                       selectizeInput(paste0("fertilizer_nit_implement2_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                                       choices = c("Backpack sprayer (airblast sprayer)",
-                                                                                            "Boom sprayer",
-                                                                                            "Broadcast spreader",
-                                                                                            "Hand sprayer",
-                                                                                            "Manure spreader",
-                                                                                            "Slurry injector",
-                                                                                            "Manual application",
-                                                                                            "Other")
-                                                       ),
-                                                       conditionalPanel(paste0("input.fertilizer_nit_implement2_", type, "_", order, " == 'Other'"),
-                                                                        textInput(paste0("fertilizer_nit_implement2_other_", type, "_", order), "")
-                                                       )
-                                                )
-                                              )
-                                            ),
-                                           column(width = 1,
-                                                  textInput(paste0("fert_nit_amountApplied2_", type, "_", order),"")
-                                           ),
-                                           column(width = 1,
-                                                  selectizeInput(paste0("fert_nit_amountAppliedScale2_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                 c("kg/m2","kg/ha","t/ha"))
-                                           ),
-                                           column(width = 1,
-                                                  textInput(paste0("fert_nit_nutrientContent2_", type, "_", order),"")
-                                           )
-                                          )
-
-                  ),
-
-
-                  conditionalPanel(paste0("input.nutrientApplied_nit_numApps1_" , type, "_", order, " == 3 "),
-                                   fluidRow(
-                                     column(width = 2,
-                                            fluidRow(
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-                                              ),
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-
-                                              ),
-                                              column(width = 2,
-                                                     br(),
-                                                     div(style="text-align:center", h4("3"))
-                                              )
-                                            )
-                                     ),
-                                     column(width = 1,
-                                            dateInput(paste0("fert_nit_start_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-
-                                     column(width = 1,
-                                            dateInput(paste0("fert_nit_end_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-
-                                     column(width = 2,
-                                            if(type == "Green_manure"){
-                                              textInput(paste0("fert_nit_type3_", type, "_", order), "")
-                                            }
-                                            else if(type == "Inorganic"){
-                                              fluidRow(
-                                                column(width = 7,
-
-                                              selectizeInput(paste0("fert_nit_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                'Ammonium nitrate',
-                                                'Ammonium nitrate sulfate',
-                                                'Ammonium polyphosphate',
-                                                'Ammonium sulfate',
-                                                'Anhydrous ammonia',
-                                                'Aqua ammonia',
-                                                'Calcitic limestone',
-                                                'Calcium ammonium nitrate solution',
-                                                'Calcium hydroxide',
-                                                'Calcium nitrate',
-                                                'Diammonium phosphate',
-                                                'Dolomitic limestone',
-                                                'Liquid phosphoric acid',
-                                                'Monoammonium phosphate',
-                                                'Potassium chloride',
-                                                'Potassium nitrate',
-                                                'Potassium sulfate',
-                                                'Rock phosphate',
-                                                'Single super phosphate',
-                                                'Triple super phosphate',
-                                                'Urea',
-                                                'Urea ammonium nitrate solution',
-                                                'Urea super granules',
-                                                'NPK fertilizers',
-                                                "Other")
-                                              )
-                                                ),
-                                              column(width = 5,
-                                                     selectizeInput(paste0("fert_nit_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                    c("g/sq m","kg/ha","lb/ac"))
-
-                                              ),
-                                              conditionalPanel(paste0("input.fert_nit_type3_", type, "_", order, " == 'Other'"),
-                                                               column(width=12,
-                                                               textInput(paste0("fert_nit_type3_other_", type, "_", order), "")
-                                                               )
-                                              )
-
-                                              )
-
-                                            }
-                                            else{
-                                              fluidRow(
-                                                column(width = 7,
-
-                                                  selectizeInput(paste0("fert_nit_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                    "Alfalfa Meal",
-                                                    "Bagasse",
-                                                    "Biochar",
-                                                    "Chicken litter (Poultry manure)",
-                                                    "Compost",
-                                                    "Farmyard manure",
-                                                    "Guano",
-                                                    "Liquid manure",
-                                                    "Oil cake",
-                                                    "Treated sewage sludge",
-                                                    "Vermicompost",
-                                                    "Fish fertilizer",
-                                                    "Other")
-                                                  )
-                                                ),
-                                                column(width = 5,
-                                                       selectizeInput(paste0("fert_nit_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                      c("g/sq m","kg/ha","lb/ac"))
-                                                ),
-                                                conditionalPanel(paste0("input.fert_nit_type3_", type, "_", order, " == 'Other'"),
-                                                                 column(width=12,
-                                                                 textInput(paste0("fert_nit_type3_other_", type, "_", order), "")
-                                                                 )
-                                                )
-
-                                              )
-
-
-                                              }
-                                     ),
-                                     column(width=3,
-                                        fluidRow(
-                                         column(width = 6,
-                                                selectizeInput(paste0("fertilizer_nit_application_technique3_", type, "_", order),label = "", multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                                 choices = c(
-                                                                   "Band application on surface",
-                                                                   "Band application incorporated (Band application beneath surface)",
-                                                                   "Broadcast surface",
-                                                                   "Broadcast incorporated",
-                                                                   "Contact placement (seed placement)",
-                                                                   "Deep placement",
-                                                                   "Fertigation",
-                                                                   "Foliar application",
-                                                                   "Injection",
-                                                                   "Placed with seed (seed placement)",
-                                                                   "Side dressing",
-                                                                   "Sub-soil placement (injection)",
-                                                                   "Localized application (using mechanical or hand device)",
-                                                                   "Other")
-                                                ),
-                                                conditionalPanel(paste0("input.fertilizer_nit_application_technique3_", type, "_", order, " == 'Other'"),
-                                                                 textInput(paste0("fertilizer_nit_application_technique3_other_", type, "_", order), "")
-                                                )
-                                         ),
-                                         column(width = 6,
-                                                selectizeInput(paste0("fertilizer_nit_implement3_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                               choices = c("Backpack sprayer (airblast sprayer)",
-                                                                           "Boom sprayer",
-                                                                           "Broadcast spreader",
-                                                                           "Hand sprayer",
-                                                                           "Manure spreader",
-                                                                           "Slurry injector",
-                                                                           "Manual application",
-                                                                           "Other")
-                                                ),
-                                                conditionalPanel(paste0("input.fertilizer_nit_implement3_", type, "_", order, " == 'Other'"),
-                                                                 textInput(paste0("fertilizer_nit_implement3_other_", type, "_", order), "")
-                                                )
-                                         )
-                                        )
-                                     ),
-
-                                    column(width = 1,
-                                           textInput(paste0("fert_nit_amountApplied3_", type, "_", order),"")
-                                    ),
-                                    column(width = 1,
-                                           selectizeInput(paste0("fert_nit_amountAppliedScale3_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                          c("kg/m2","kg/ha","t/ha"))
-                                    ),
-                                    column(width = 1,
-                                           textInput(paste0("fert_nit_nutrientContent3_", type, "_", order),"")
-                                    )
-                                   )
-
-
-                  ),#end conditional2
-
-                  fluidRow(
-                    column(width = 2,
-                           fluidRow(
-                             column(width = 5,
-                                    br(),
-                                    div(style="text-align:right", "Phosphorus")
-                             ),
-                             column(width = 5,
-                                    selectInput(paste0("nutrientApplied_phos_numApps1_", type, "_", order),"",c(1,2,3))
-
-                             ),
-                             column(width = 2,
-                                    br(),
-                                    div(style="text-align:center", h4("1"))
-                             )
-                           )
-                    ),
-                    column(width = 1,
-                           dateInput(paste0("fert_phos_start_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                    ),
-
-                    column(width = 1,
-                           dateInput(paste0("fert_phos_end_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                    ),
-
-
-                    column(width = 2,
-                           if(type == "Green_manure"){
-                             textInput(paste0("fert_phos_type1_", type, "_", order), "")
-                           }
-                           else if(type == "Inorganic"){
-                             fluidRow(
-                               column(width = 7,
-
-                             selectizeInput(paste0("fert_phos_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                               'Ammonium nitrate',
-                               'Ammonium nitrate sulfate',
-                               'Ammonium polyphosphate',
-                               'Ammonium sulfate',
-                               'Anhydrous ammonia',
-                               'Aqua ammonia',
-                               'Calcitic limestone',
-                               'Calcium ammonium nitrate solution',
-                               'Calcium hydroxide',
-                               'Calcium nitrate',
-                               'Diammonium phosphate',
-                               'Dolomitic limestone',
-                               'Liquid phosphoric acid',
-                               'Monoammonium phosphate',
-                               'Potassium chloride',
-                               'Potassium nitrate',
-                               'Potassium sulfate',
-                               'Rock phosphate',
-                               'Single super phosphate',
-                               'Triple super phosphate',
-                               'Urea',
-                               'Urea ammonium nitrate solution',
-                               'Urea super granules',
-                               'NPK fertilizers',
-                               "Other")
-                             )
-                               ),
-                             column(width = 5,
-                                    selectizeInput(paste0("fert_phos_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                   c("g/sq m","kg/ha","lb/ac"))
-
-                             ),
-                             conditionalPanel(paste0("input.fert_phos_type1_", type, "_", order, " == 'Other'"),
-                                              column(width=12,
-                                              textInput(paste0("fert_phos_type1_other_", type, "_", order), "")
-                                              )
-                             )
-
-                             )
-
-                           }
-                           else{
-                             fluidRow(
-                               column(width = 7,
-                                 selectizeInput(paste0("fert_phos_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                   "Alfalfa Meal",
-                                   "Bagasse",
-                                   "Biochar",
-                                   "Chicken litter (Poultry manure)",
-                                   "Compost",
-                                   "Farmyard manure",
-                                   "Guano",
-                                   "Liquid manure",
-                                   "Oil cake",
-                                   "Treated sewage sludge",
-                                   "Vermicompost",
-                                   "Fish fertilizer",
-                                   "Other")
-                                 )
-                                ),
-                                column(width = 5,
-                                       selectizeInput(paste0("fert_phos_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                      c("g/sq m","kg/ha","lb/ac"))
-                                ),
-                               conditionalPanel(paste0("input.fert_phos_type1_", type, "_", order, " == 'Other'"),
-                                                column(width=12,
-                                                textInput(paste0("fert_phos_type1_other_", type, "_", order), "")
-                                                )
-                               )
-
-                              )
-                             }
-                    ),
-                    column(width=3 ,
-                      fluidRow(
-                        column(width = 6,
-                               selectizeInput(paste0("fertilizer_phos_application_technique1_", type, "_", order), "", multiple = T,
-                                              options = list(maxItems = 1, placeholder ="Select one"),
-                                              choices = c(
-                                                "Band application on surface",
-                                                "Band application incorporated (Band application beneath surface)",
-                                                "Broadcast surface",
-                                                "Broadcast incorporated",
-                                                "Contact placement (seed placement)",
-                                                "Deep placement",
-                                                "Fertigation",
-                                                "Foliar application",
-                                                "Injection",
-                                                "Placed with seed (seed placement)",
-                                                "Side dressing",
-                                                "Sub-soil placement (injection)",
-                                                "Localized application (using mechanical or hand device)",
-                                                "Other")
-                               ),
-                               conditionalPanel(paste0("input.fertilizer_phos_application_technique1_", type, "_", order, " == 'Other'"),
-                                                textInput(paste0("fertilizer_phos_application_technique1_other_", type, "_", order), "")
-                               )
-                        ),
-                        column(width = 6,
-                               selectizeInput(paste0("fertilizer_phos_implement1_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                              choices = c("Backpack sprayer (airblast sprayer)",
-                                                          "Boom sprayer",
-                                                          "Broadcast spreader",
-                                                          "Hand sprayer",
-                                                          "Manure spreader",
-                                                          "Slurry injector",
-                                                          "Manual application",
-                                                          "Other")
-                               ),
-                               conditionalPanel(paste0("input.fertilizer_phos_implement1_", type, "_", order, " == 'Other'"),
-                                                textInput(paste0("fertilizer_phos_implement1_other_", type, "_", order), "")
-                               )
-                        )
-                      )
-                    ),
-                   column(width = 1,
-                          textInput(paste0("fert_phos_amountApplied1_", type, "_", order),"")
-                   ),
-                   column(width = 1,
-                          selectizeInput(paste0("fert_phos_amountAppliedScale1_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                         c("kg/m2","kg/ha","t/ha"))
-                   ),
-                   column(width = 1,
-                          textInput(paste0("fert_phos_nutrientContent1_", type, "_", order),"")
-                   )
-                  ),
-
-                  conditionalPanel(paste0("input.nutrientApplied_phos_numApps1_", type, "_", order,  " == 2 |
-                                          input.nutrientApplied_phos_numApps1_", type, "_", order, " == 3 "),
-                                   fluidRow(
-                                     column(width = 2,
-                                            fluidRow(
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-                                              ),
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-
-                                              ),
-                                              column(width = 2,
-                                                     br(),
-                                                     div(style="text-align:center", h4("2"))
-                                              )
-                                            )
-                                     ),
-
-                                     column(width = 1,
-                                            dateInput(paste0("fert_phos_start_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-
-                                     column(width = 1,
-                                            dateInput(paste0("fert_phos_end_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-                                     column(width = 2,
-                                            if(type == "Green_manure"){
-                                              textInput(paste0("fert_phos_type2_", type, "_", order), "")
-                                            }
-                                            else if(type == "Inorganic"){
-                                              fluidRow(
-                                                column(width = 7,
-
-                                              selectizeInput(paste0("fert_phos_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                'Ammonium nitrate',
-                                                'Ammonium nitrate sulfate',
-                                                'Ammonium polyphosphate',
-                                                'Ammonium sulfate',
-                                                'Anhydrous ammonia',
-                                                'Aqua ammonia',
-                                                'Calcitic limestone',
-                                                'Calcium ammonium nitrate solution',
-                                                'Calcium hydroxide',
-                                                'Calcium nitrate',
-                                                'Diammonium phosphate',
-                                                'Dolomitic limestone',
-                                                'Liquid phosphoric acid',
-                                                'Monoammonium phosphate',
-                                                'Potassium chloride',
-                                                'Potassium nitrate',
-                                                'Potassium sulfate',
-                                                'Rock phosphate',
-                                                'Single super phosphate',
-                                                'Triple super phosphate',
-                                                'Urea',
-                                                'Urea ammonium nitrate solution',
-                                                'Urea super granules',
-                                                'NPK fertilizers',
-                                                "Other")
-                                              )
-                                                ),
-                                              column(width = 5,
-                                                     selectizeInput(paste0("fert_phos_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                    c("g/sq m","kg/ha","lb/ac"))
-                                              ),
-                                              conditionalPanel(paste0("input.fert_phos_type2_", type, "_", order, " == 'Other'"),
-                                                               column(width=12,
-                                                               textInput(paste0("fert_phos_type2_other_", type, "_", order), "")
-                                                               )
-                                              )
-                                            )
-
-                                            }
-                                            else{
-                                              fluidRow(
-                                                column(width = 7,
-
-                                            selectizeInput(paste0("fert_phos_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                  "Alfalfa Meal",
-                                                  "Bagasse",
-                                                  "Biochar",
-                                                  "Chicken litter (Poultry manure)",
-                                                  "Compost",
-                                                  "Farmyard manure",
-                                                  "Guano",
-                                                  "Liquid manure",
-                                                  "Oil cake",
-                                                  "Treated sewage sludge",
-                                                  "Vermicompost",
-                                                  "Fish fertilizer",
-                                                  "Other")
-                                                )
-                                                ),
-                                            column(width = 5,
-                                                   selectizeInput(paste0("fert_phos_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                  c("g/sq m","kg/ha","lb/ac"))
-                                            ),
-                                            conditionalPanel(paste0("input.fert_phos_type2_", type, "_", order, " == 'Other'"),
-                                                             column(width=12,
-                                                             textInput(paste0("fert_phos_type2_other_", type, "_", order), "")
-                                                             )
-                                            )
-
-                                              )
-
-                                              }
-                                     ),
-                                     column(width=3 ,
-                                        fluidRow(
-                                           column(width =6,
-                                                  selectizeInput(paste0("fertilizer_phos_application_technique2_", type, "_", order), "", multiple = T,
-                                                                 options = list(maxItems = 1, placeholder ="Select one"),
-                                                                 choices = c(
-                                                                   "Band application on surface",
-                                                                   "Band application incorporated (Band application beneath surface)",
-                                                                   "Broadcast surface",
-                                                                   "Broadcast incorporated",
-                                                                   "Contact placement (seed placement)",
-                                                                   "Deep placement",
-                                                                   "Fertigation",
-                                                                   "Foliar application",
-                                                                   "Injection",
-                                                                   "Placed with seed (seed placement)",
-                                                                   "Side dressing",
-                                                                   "Sub-soil placement (injection)",
-                                                                   "Localized application (using mechanical or hand device)",
-                                                                   "Other")
-                                                  ),
-                                                  conditionalPanel(paste0("input.fertilizer_phos_application_technique2_", type, "_", order, " == 'Other'"),
-                                                                   column(width=12,
-                                                                   textInput(paste0("fertilizer_phos_application_technique2_other_", type, "_", order), "")
-                                                                   )
-                                                  )
-                                         ),
-                                         column(width = 6,
-                                                selectizeInput(paste0("fertilizer_phos_implement2_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                               choices = c("Backpack sprayer (airblast sprayer)",
-                                                                           "Boom sprayer",
-                                                                           "Broadcast spreader",
-                                                                           "Hand sprayer",
-                                                                           "Manure spreader",
-                                                                           "Slurry injector",
-                                                                           "Manual application",
-                                                                           "Other")
-                                                ),
-                                                conditionalPanel(paste0("input.fertilizer_phos_implement2_", type, "_", order, " == 'Other'"),
-                                                                   textInput(paste0("fertilizer_phos_implement2_other_", type, "_", order), "")
-                                                )
-                                         )
-                                        )
-                                     ),
-                                    column(width = 1,
-                                           textInput(paste0("fert_phos_amountApplied2_", type, "_", order),"")
-                                    ),
-                                    column(width = 1,
-                                           selectizeInput(paste0("fert_phos_amountAppliedScale2_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                          c("kg/m2","kg/ha","t/ha"))
-                                    ),
-                                    column(width = 1,
-                                           textInput(paste0("fert_phos_nutrientContent2_", type, "_", order),"")
-                                    )
-
-                              )
-
-                  ),
-
-
-                  conditionalPanel(paste0("input.nutrientApplied_phos_numApps1_" , type, "_", order, " == 3 "),
-                                   fluidRow(
-                                     column(width = 2,
-                                            fluidRow(
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-                                              ),
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-
-                                              ),
-                                              column(width = 2,
-                                                     br(),
-                                                     div(style="text-align:center", h4("3"))
-                                              )
-                                            )
-                                     ),
-                                     column(width = 1,
-                                            dateInput(paste0("fert_phos_start_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-
-                                     column(width = 1,
-                                            dateInput(paste0("fert_phos_end_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-
-
-                                     column(width = 2,
-                                            if(type == "Green_manure"){
-                                              textInput(paste0("fert_phos_type3_", type, "_", order), "")
-                                            }
-                                            else if(type == "Inorganic"){
-                                              fluidRow(
-                                                column(width = 7,
-
-
-                                              selectizeInput(paste0("fert_phos_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                'Ammonium nitrate',
-                                                'Ammonium nitrate sulfate',
-                                                'Ammonium polyphosphate',
-                                                'Ammonium sulfate',
-                                                'Anhydrous ammonia',
-                                                'Aqua ammonia',
-                                                'Calcitic limestone',
-                                                'Calcium ammonium nitrate solution',
-                                                'Calcium hydroxide',
-                                                'Calcium nitrate',
-                                                'Diammonium phosphate',
-                                                'Dolomitic limestone',
-                                                'Liquid phosphoric acid',
-                                                'Monoammonium phosphate',
-                                                'Potassium chloride',
-                                                'Potassium nitrate',
-                                                'Potassium sulfate',
-                                                'Rock phosphate',
-                                                'Single super phosphate',
-                                                'Triple super phosphate',
-                                                'Urea',
-                                                'Urea ammonium nitrate solution',
-                                                'Urea super granules',
-                                                'NPK fertilizers',
-                                                "Other")
-                                              )
-                                                ),
-                                              column(width = 5,
-                                                     selectizeInput(paste0("fert_phos_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                    c("g/sq m","kg/ha","lb/ac"))
-
-                                              ),
-                                              conditionalPanel(paste0("input.fert_phos_type3_", type, "_", order, " == 'Other'"),
-                                                               column(width=12,
-                                                               textInput(paste0("fert_phos_type3_other_", type, "_", order), "")
-                                                               )
-                                              )
-
-                                              )
-
-                                            }
-                                            else{
-                                              fluidRow(
-                                                column(width = 7,
-
-                                                selectizeInput(paste0("fert_phos_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                  "Alfalfa Meal",
-                                                  "Bagasse",
-                                                  "Biochar",
-                                                  "Chicken litter (Poultry manure)",
-                                                  "Compost",
-                                                  "Farmyard manure",
-                                                  "Guano",
-                                                  "Liquid manure",
-                                                  "Oil cake",
-                                                  "Treated sewage sludge",
-                                                  "Vermicompost",
-                                                  "Fish fertilizer",
-                                                  "Other")
-                                                )
-                                                ),
-                                                column(width = 5,
-                                                       selectizeInput(paste0("fert_phos_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                      c("g/sq m","kg/ha","lb/ac"))
-                                                ),
-                                                conditionalPanel(paste0("input.fert_phos_type3_", type, "_", order, " == 'Other'"),
-                                                                 column(width=12,
-                                                                 textInput(paste0("fert_phos_type3_other_", type, "_", order), "")
-                                                                 )
-                                                )
-
-                                              )
-
-                                            }
-                                     ),
-                                     column(width=3 ,
-                                      fluidRow(
-                                         column(width = 6,
-                                                selectizeInput(paste0("fertilizer_phos_application_technique3_", type, "_", order),label = "", multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                               choices = c(
-                                                                 "Band application on surface",
-                                                                 "Band application incorporated (Band application beneath surface)",
-                                                                 "Broadcast surface",
-                                                                 "Broadcast incorporated",
-                                                                 "Contact placement (seed placement)",
-                                                                 "Deep placement",
-                                                                 "Fertigation",
-                                                                 "Foliar application",
-                                                                 "Injection",
-                                                                 "Placed with seed (seed placement)",
-                                                                 "Side dressing",
-                                                                 "Sub-soil placement (injection)",
-                                                                 "Localized application (using mechanical or hand device)",
-                                                                 "Other")
-                                                ),
-                                                conditionalPanel(paste0("input.fertilizer_phos_application_technique3_", type, "_", order, " == 'Other'"),
-                                                                 textInput(paste0("fertilizer_phos_application_technique3_other_", type, "_", order), "")
-                                                )
-                                         ),
-                                         column(width = 6,
-                                                selectizeInput(paste0("fertilizer_phos_implement3_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                               choices = c("Backpack sprayer (airblast sprayer)",
-                                                                           "Boom sprayer",
-                                                                           "Broadcast spreader",
-                                                                           "Hand sprayer",
-                                                                           "Manure spreader",
-                                                                           "Slurry injector",
-                                                                           "Manual application",
-                                                                           "Other")
-                                                ),
-                                                conditionalPanel(paste0("input.fertilizer_phos_implement3_", type, "_", order, " == 'Other'"),
-                                                                 textInput(paste0("fertilizer_phos_implement3_other_", type, "_", order), "")
-                                                )
-                                         )
-                                      )
-                                     ),
-                                    column(width = 1,
-                                           textInput(paste0("fert_phos_amountApplied3_", type, "_", order),"")
-                                    ),
-                                    column(width = 1,
-                                           selectizeInput(paste0("fert_phos_amountAppliedScale3_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                          c("kg/m2","kg/ha","t/ha"))
-                                    ),
-                                    column(width = 1,
-                                           textInput(paste0("fert_phos_nutrientContent3_", type, "_", order),"")
-                                    )
-
-                                )
-
-
-                  ),#end conditional2
-
-
-                  fluidRow(
-                    column(width = 2,
-                           fluidRow(
-                             column(width = 5,
-                                    br(),
-                                    div(style="text-align:right", "Potassium")
-                             ),
-                             column(width = 5,
-                                    selectInput(paste0("nutrientApplied_potas_numApps1_", type, "_", order),"",c(1,2,3))
-
-                             ),
-                             column(width = 2,
-                                    br(),
-                                    div(style="text-align:center", h4("1"))
-                             )
-                           )
-                    ),
-                    column(width = 1,
-                           dateInput(paste0("fert_potas_start_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                    ),
-
-                    column(width = 1,
-                           dateInput(paste0("fert_potas_end_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                    ),
-
-                    column(width = 2,
-                           if(type == "Green_manure"){
-                             textInput(paste0("fert_potas_type1_", type, "_", order), "")
-                           }
-                           else if(type == "Inorganic"){
-                             fluidRow(
-                               column(width = 7,
-
-                             selectizeInput(paste0("fert_potas_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                               'Ammonium nitrate',
-                               'Ammonium nitrate sulfate',
-                               'Ammonium polyphosphate',
-                               'Ammonium sulfate',
-                               'Anhydrous ammonia',
-                               'Aqua ammonia',
-                               'Calcitic limestone',
-                               'Calcium ammonium nitrate solution',
-                               'Calcium hydroxide',
-                               'Calcium nitrate',
-                               'Diammonium phosphate',
-                               'Dolomitic limestone',
-                               'Liquid phosphoric acid',
-                               'Monoammonium phosphate',
-                               'Potassium chloride',
-                               'Potassium nitrate',
-                               'Potassium sulfate',
-                               'Rock phosphate',
-                               'Single super phosphate',
-                               'Triple super phosphate',
-                               'Urea',
-                               'Urea ammonium nitrate solution',
-                               'Urea super granules',
-                               'NPK fertilizers',
-                               "Other")
-                             )
-                               ),
-                             column(width = 5,
-                                    selectizeInput(paste0("fert_potas_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                   c("g/sq m","kg/ha","lb/ac"))
-                             ),
-                             conditionalPanel(paste0("input.fert_potas_type1_", type, "_", order, " == 'Other'"),
-                                              column(width=12,
-                                              textInput(paste0("fert_potas_type1_other_", type, "_", order), "")
-                                              )
-                             )
-
-                             )
-
-                           }
-                           else{
-                             fluidRow(
-                               column(width = 7,
-
-                               selectizeInput(paste0("fert_potas_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                 "Alfalfa Meal",
-                                 "Bagasse",
-                                 "Biochar",
-                                 "Chicken litter (Poultry manure)",
-                                 "Compost",
-                                 "Farmyard manure",
-                                 "Guano",
-                                 "Liquid manure",
-                                 "Oil cake",
-                                 "Treated sewage sludge",
-                                 "Vermicompost",
-                                 "Fish fertilizer",
-                                 "Other")
-                               )
-                               ),
-                               column(width = 5,
-                                      selectizeInput(paste0("fert_potas_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                     c("g/sq m","kg/ha","lb/ac"))
-                               ),
-                               conditionalPanel(paste0("input.fert_potas_type1_", type, "_", order, " == 'Other'"),
-                                                column(width=12,
-                                                       textInput(paste0("fert_potas_type1_other_", type, "_", order), "")
-                                                )
-                               )
-
-                             )
-
-                             }
-                    ),
-                    column(width=3 ,
-                      fluidRow(
-                          column(width = 6,
-                                 selectizeInput(paste0("fertilizer_potas_application_technique1_", type, "_", order), "", multiple = T,
-                                                options = list(maxItems = 1, placeholder ="Select one"),
-                                                choices = c(
-                                                  "Band application on surface",
-                                                  "Band application incorporated (Band application beneath surface)",
-                                                  "Broadcast surface",
-                                                  "Broadcast incorporated",
-                                                  "Contact placement (seed placement)",
-                                                  "Deep placement",
-                                                  "Fertigation",
-                                                  "Foliar application",
-                                                  "Injection",
-                                                  "Placed with seed (seed placement)",
-                                                  "Side dressing",
-                                                  "Sub-soil placement (injection)",
-                                                  "Localized application (using mechanical or hand device)",
-                                                  "Other")
-                                 ),
-                                 conditionalPanel(paste0("input.fertilizer_potas_application_technique1_", type, "_", order, " == 'Other'"),
-                                                  textInput(paste0("fertilizer_potas_application_technique1_other_", type, "_", order), "")
-                                 )
-                          ),
-                          column(width = 6,
-                                 selectizeInput(paste0("fertilizer_potas_implement1_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                choices = c("Backpack sprayer (airblast sprayer)",
-                                                            "Boom sprayer",
-                                                            "Broadcast spreader",
-                                                            "Hand sprayer",
-                                                            "Manure spreader",
-                                                            "Slurry injector",
-                                                            "Manual application",
-                                                            "Other")
-                                 ),
-                                 conditionalPanel(paste0("input.fertilizer_potas_implement1_", type, "_", order, " == 'Other'"),
-                                                  textInput(paste0("fertilizer_potas_implement1__other_", type, "_", order), "")
-                                 )
-
-                          )
-                        )
-                    ),
-
-                   column(width = 1,
-                          textInput(paste0("fert_potas_amountApplied1_", type, "_", order),"")
-                   ),
-                   column(width = 1,
-                          selectizeInput(paste0("fert_potas_amountAppliedScale1_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                         c("kg/m2","kg/ha","t/ha"))
-                   ),
-                   column(width = 1,
-                          textInput(paste0("fert_potas_nutrientContent1_", type, "_", order),"")
-                   )
-                  ),
-
-                  conditionalPanel(paste0("input.nutrientApplied_potas_numApps1_", type, "_", order,  " == 2 |
-                                          input.nutrientApplied_potas_numApps1_", type, "_", order, " == 3 "),
-                                   fluidRow(
-                                     column(width = 2,
-                                            fluidRow(
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-                                              ),
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-
-                                              ),
-                                              column(width = 2,
-                                                     br(),
-                                                     div(style="text-align:center", h4("2"))
-                                              )
-                                            )
-                                     ),
-                                     column(width = 1,
-                                            dateInput(paste0("fert_potas_start_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-
-                                     column(width = 1,
-                                            dateInput(paste0("fert_potas_end_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-
-                                     column(width = 2,
-                                            if(type == "Green_manure"){
-                                              textInput(paste0("fert_potas_type2_", type, "_", order), "")
-                                            }
-                                            else if(type == "Inorganic"){
-                                              fluidRow(
-                                                column(width = 7,
-
-                                              selectizeInput(paste0("fert_potas_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                'Ammonium nitrate',
-                                                'Ammonium nitrate sulfate',
-                                                'Ammonium polyphosphate',
-                                                'Ammonium sulfate',
-                                                'Anhydrous ammonia',
-                                                'Aqua ammonia',
-                                                'Calcitic limestone',
-                                                'Calcium ammonium nitrate solution',
-                                                'Calcium hydroxide',
-                                                'Calcium nitrate',
-                                                'Diammonium phosphate',
-                                                'Dolomitic limestone',
-                                                'Liquid phosphoric acid',
-                                                'Monoammonium phosphate',
-                                                'Potassium chloride',
-                                                'Potassium nitrate',
-                                                'Potassium sulfate',
-                                                'Rock phosphate',
-                                                'Single super phosphate',
-                                                'Triple super phosphate',
-                                                'Urea',
-                                                'Urea ammonium nitrate solution',
-                                                'Urea super granules',
-                                                'NPK fertilizers',
-                                                "Other")
-                                              )
-                                                ),
-                                              column(width = 5,
-                                                     selectizeInput(paste0("fert_potas_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                    c("g/sq m","kg/ha","lb/ac"))
-                                              ),
-                                              conditionalPanel(paste0("input.fert_potas_type2_", type, "_", order, " == 'Other'"),
-                                                               column(width=12,
-                                                                      textInput(paste0("fert_potas_type2_other_", type, "_", order), "")
-                                                               )
-                                              )
-
-                                              )
-                                            }
-                                            else{
-                                              fluidRow(
-                                                column(width = 7,
-
-                                                  selectizeInput(paste0("fert_potas_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                    "Alfalfa Meal",
-                                                    "Bagasse",
-                                                    "Biochar",
-                                                    "Chicken litter (Poultry manure)",
-                                                    "Compost",
-                                                    "Farmyard manure",
-                                                    "Guano",
-                                                    "Liquid manure",
-                                                    "Oil cake",
-                                                    "Treated sewage sludge",
-                                                    "Vermicompost",
-                                                    "Fish fertilizer",
-                                                    "Other")
-                                                  )
-                                                ),
-                                                column(width = 5,
-                                                       selectizeInput(paste0("fert_potas_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                      c("g/sq m","kg/ha","lb/ac"))
-
-                                                ),
-                                                conditionalPanel(paste0("input.fert_potas_type2_", type, "_", order, " == 'Other'"),
-                                                                 column(width=12,
-                                                                        textInput(paste0("fert_potas_type2_other_", type, "_", order), "")
-                                                                 )
-                                                )
-
-                                              )
-                                              }
-                                     ),
-                                     column(width=3 ,
-                                      fluidRow(
-                                         column(width = 6,
-                                                selectizeInput(paste0("fertilizer_potas_application_technique2_", type, "_", order), "", multiple = T,
-                                                               options = list(maxItems = 1, placeholder ="Select one"),
-                                                               choices = c(
-                                                                 "Band application on surface",
-                                                                 "Band application incorporated (Band application beneath surface)",
-                                                                 "Broadcast surface",
-                                                                 "Broadcast incorporated",
-                                                                 "Contact placement (seed placement)",
-                                                                 "Deep placement",
-                                                                 "Fertigation",
-                                                                 "Foliar application",
-                                                                 "Injection",
-                                                                 "Placed with seed (seed placement)",
-                                                                 "Side dressing",
-                                                                 "Sub-soil placement (injection)",
-                                                                 "Localized application (using mechanical or hand device)",
-                                                                 "Other")
-                                                ),
-                                                conditionalPanel(paste0("input.fertilizer_potas_application_technique2_", type, "_", order, " == 'Other'"),
-                                                                 textInput(paste0("fertilizer_potas_application_technique2_other_", type, "_", order), "")
-                                                )
-                                         ),
-                                         column(width = 6,
-                                                selectizeInput(paste0("fertilizer_potas_implement2_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                               choices = c("Backpack sprayer (airblast sprayer)",
-                                                                           "Boom sprayer",
-                                                                           "Broadcast spreader",
-                                                                           "Hand sprayer",
-                                                                           "Manure spreader",
-                                                                           "Slurry injector",
-                                                                           "Manual application",
-                                                                           "Other")
-                                                ),
-                                                conditionalPanel(paste0("input.fertilizer_potas_implement2_", type, "_", order, " == 'Other'"),
-                                                                 textInput(paste0("fertilizer_potas_implement2__other_", type, "_", order), "")
-                                                )
-                                         )
-                                      )
-                                     ),
-                                    column(width = 1,
-                                           textInput(paste0("fert_potas_amountApplied2_", type, "_", order),"")
-                                    ),
-                                    column(width = 1,
-                                           selectizeInput(paste0("fert_potas_amountAppliedScale2_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                          c("kg/m2","kg/ha","t/ha"))
-                                    ),
-                                    column(width = 1,
-                                           textInput(paste0("fert_potas_nutrientContent2_", type, "_", order),"")
-                                    )
-                                   )
-
-                  ),
-
-
-                  conditionalPanel(paste0("input.nutrientApplied_potas_numApps1_" , type, "_", order, " == 3 "),
-                                   fluidRow(
-                                     column(width = 2,
-                                            fluidRow(
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-                                              ),
-                                              column(width = 5,
-                                                     br(),
-                                                     div(style="text-align:right", "")
-
-                                              ),
-                                              column(width = 2,
-                                                     br(),
-                                                     div(style="text-align:center", h4("3"))
-                                              )
-                                            )
-                                     ),
-                                     column(width = 1,
-                                            dateInput(paste0("fert_potas_start_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-
-                                     column(width = 1,
-                                            dateInput(paste0("fert_potas_end_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
-                                     ),
-
-                                     column(width = 2,
-                                            if(type == "Green_manure"){
-                                              textInput(paste0("fert_potas_type3_", type, "_", order), "")
-                                            }
-                                            else if(type == "Inorganic"){
-                                              fluidRow(
-                                                column(width = 7,
-
-                                              selectizeInput(paste0("fert_potas_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                'Ammonium nitrate',
-                                                'Ammonium nitrate sulfate',
-                                                'Ammonium polyphosphate',
-                                                'Ammonium sulfate',
-                                                'Anhydrous ammonia',
-                                                'Aqua ammonia',
-                                                'Calcitic limestone',
-                                                'Calcium ammonium nitrate solution',
-                                                'Calcium hydroxide',
-                                                'Calcium nitrate',
-                                                'Diammonium phosphate',
-                                                'Dolomitic limestone',
-                                                'Liquid phosphoric acid',
-                                                'Monoammonium phosphate',
-                                                'Potassium chloride',
-                                                'Potassium nitrate',
-                                                'Potassium sulfate',
-                                                'Rock phosphate',
-                                                'Single super phosphate',
-                                                'Triple super phosphate',
-                                                'Urea',
-                                                'Urea ammonium nitrate solution',
-                                                'Urea super granules',
-                                                'NPK fertilizers',
-                                                "Other")
-                                              )
-                                                ),
-                                              column(width = 5,
-                                                     selectizeInput(paste0("fert_potas_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                    c("g/sq m","kg/ha","lb/ac"))
-                                              ),
-                                              conditionalPanel(paste0("input.fert_potas_type3_", type, "_", order, " == 'Other'"),
-                                                               column(width=12,
-                                                                      textInput(paste0("fert_potas_type3_other_", type, "_", order), "")
-                                                               )
-                                              )
-                                            )
-
-                                            }
-                                            else{
-                                              fluidRow(
-                                                column(width = 7,
-
-                                                  selectizeInput(paste0("fert_potas_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
-                                                    "Alfalfa Meal",
-                                                    "Bagasse",
-                                                    "Biochar",
-                                                    "Chicken litter (Poultry manure)",
-                                                    "Compost",
-                                                    "Farmyard manure",
-                                                    "Guano",
-                                                    "Liquid manure",
-                                                    "Oil cake",
-                                                    "Treated sewage sludge",
-                                                    "Vermicompost",
-                                                    "Fish fertilizer",
-                                                    "Other")
-                                                  )
-                                                ),
-                                                column(width = 5,
-                                                       selectizeInput(paste0("fert_potas_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                                      c("g/sq m","kg/ha","lb/ac"))
-                                                ),
-                                                conditionalPanel(paste0("input.fert_potas_type3_", type, "_", order, " == 'Other'"),
-                                                                 column(width=12,
-                                                                        textInput(paste0("fert_potas_type3_other_", type, "_", order), "")
-                                                                 )
-                                                )
-
-                                              )
-                                            }
-                                     ),
-                                     column(width=3 ,
-                                      fluidRow(
-                                         column(width = 6,
-                                                selectizeInput(paste0("fertilizer_potas_application_technique3_", type, "_", order),label = "", multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                               choices = c(
-                                                                 "Band application on surface",
-                                                                 "Band application incorporated (Band application beneath surface)",
-                                                                 "Broadcast surface",
-                                                                 "Broadcast incorporated",
-                                                                 "Contact placement (seed placement)",
-                                                                 "Deep placement",
-                                                                 "Fertigation",
-                                                                 "Foliar application",
-                                                                 "Injection",
-                                                                 "Placed with seed (seed placement)",
-                                                                 "Side dressing",
-                                                                 "Sub-soil placement (injection)",
-                                                                 "Localized application (using mechanical or hand device)",
-                                                                 "Other")
-                                                ),
-                                                conditionalPanel(paste0("input.fertilizer_potas_application_technique3_", type, "_", order, " == 'Other'"),
-                                                                 textInput(paste0("fertilizer_potas_application_technique3_other_", type, "_", order), "")
-                                                )
-                                         ),
-                                         column(width = 6,
-                                                selectizeInput(paste0("fertilizer_potas_implement3_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
-                                                               choices = c("Backpack sprayer (airblast sprayer)",
-                                                                           "Boom sprayer",
-                                                                           "Broadcast spreader",
-                                                                           "Hand sprayer",
-                                                                           "Manure spreader",
-                                                                           "Slurry injector",
-                                                                           "Manual application",
-                                                                           "Other")
-                                                ),
-                                                conditionalPanel(paste0("input.fertilizer_potas_implement3_", type, "_", order, " == 'Other'"),
-                                                                 textInput(paste0("fertilizer_potas_implement3_other_", type, "_", order), "")
-                                                )
-                                         )
-                                      )
-                                     ),
-                                     column(width = 1,
-                                            textInput(paste0("fert_potas_amountApplied3_", type, "_", order),"")
-                                     ),
-                                     column(width = 1,
-                                            selectizeInput(paste0("fert_potas_amountAppliedScale3_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
-                                                           c("kg/m2","kg/ha","t/ha"))
-                                     ),
-                                     column(width = 1,
-                                            textInput(paste0("fert_potas_nutrientContent3_", type, "_", order),"")
-                                     )
-
-                              )
-
-
-                  )#end conditional2
-
-             ))
-
-
-  }
-
-  ###################### end nutrients #####################################
+  # ########### weeding ##############################################
+  # 
+  # expCondsVars$num_weed <- 0
+  # expCondsVars$DEFAULT_weed <- 1
+  # expCondsVars$ids_weed <- c()
+  # 
+  # 
+  # observeEvent(input$addWeeding,{
+  #   defaultBoxes = expCondsVars$DEFAULT_weed
+  #   if(expCondsVars$num_weed >= 1){
+  #     insertBoxWeeding(expCondsVars$num_weed + 1)
+  #   }
+  # })
+  # 
+  # insertBoxWeeding <- function(index){
+  #   insertUI(
+  #     selector = "#fr_weeding_boxes",
+  #     where = "beforeBegin",
+  #     ui = getUiWeeding(index)
+  #   )
+  #   expCondsVars$num_weed <- expCondsVars$num_weed + 1
+  # }
+  # 
+  # getUiWeeding <- function(index){
+  #   str_id <- stri_rand_strings(1, 8,  '[A-Z]')
+  #   expCondsVars$ids_weed <- c(expCondsVars$ids_weed, paste0("ECWE_", str_id))
+  #   
+  #   startDate <- NULL
+  #   mtechnique <- NULL
+  #   mnotes <- NULL
+  #   mtype <- NULL
+  #   mtraction <- NULL
+  #   
+  #   if(length(expCondsVars$ids_weed) > 1){
+  #     vars <- unlist(strsplit(expCondsVars$ids_weed[1],"_"))
+  #     startDate <- input[[paste0("wewd_weeding_start_date_", vars[2])]]
+  #     mtechnique <- input[[paste0("wewd_weeding_technique_", vars[2])]]
+  #     mnotes <- input[[paste0("wewd_weeding_notes_", vars[2])]]
+  #     mtype <- input[[paste0("wewd_weeding_type_", vars[2])]]
+  #     mtraction <- input[[paste0("wewd_weeding_traction_", vars[2])]]
+  #     
+  #     if(!is.null(startDate)) startDate <- startDate +1
+  #     
+  #   }
+  #   
+  #   fluidRow(
+  #     id= paste0("box_weeding_", str_id),
+  #     box(
+  #                         
+  #           column(12, offset = 0, 
+  #                  column(6,style='padding:0px; text-align:left;', # HTML("<b><h4>Weeding</h4></b>")
+  #                         h4("Weeding", style="font-weight: 800;color: #555;")
+  #                  ),
+  #                  column(6, 
+  #                         style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_ECWE_", str_id), "", icon("close"))
+  #                  )
+  #                  
+  #           ),
+  #          width = 12,
+  #          solidHeader = TRUE, status = "warning",
+  #          column(width = 6,
+  #                 h4(HTML(" ")),
+  #                 fluidRow(
+  #                   column(6, 
+  #                          #dateInput(paste0("weeding_start_date_", index), "Start date", format = "yyyy-mm-dd")
+  #                          #airDatepickerInput(paste0("weeding_start_date_", index), "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                          
+  #                          if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                            airDatepickerInput(paste0("wewd_weeding_start_date_", str_id),
+  #                                               "Start date",
+  #                                               clearButton = T,
+  #                                               autoClose = T,
+  #                                               value = startDate,
+  #                                               placeholder = "yyyy-mm-dd",
+  #                                               minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                               maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                               
+  #                            )
+  #                          } else {
+  #                            airDatepickerInput(paste0("wewd_weeding_start_date_", str_id),
+  #                                               "Start date",
+  #                                               clearButton = T,
+  #                                               value = startDate,
+  #                                               autoClose = T,
+  #                                               placeholder = "yyyy-mm-dd"
+  #                            )
+  #                          }
+  #                   )
+  #                 ),
+  #                 
+  #                 #selectInput(paste0("weeding_technique_", index), "Technique", c("Chemical", "Manual", "Mechanized"))
+  #                 selectizeInput(paste0("wewd_weeding_technique_", str_id), "Technique", multiple = TRUE, selected = mtechnique, options = list(maxItems =1, placeholder ="Select one..."),
+  #                                choices =  c(
+  #                                  "Chemical",
+  #                                  "Manual",
+  #                                  "Mechanized")
+  #                 ), 
+  #                 textAreaInput(paste0("wewd_weeding_notes_", str_id), "Notes", value = mnotes)
+  #          ),
+  #          column(6,
+  #                 #h4("Implement"),
+  #                 fluidRow(
+  #                   column(12,
+  #                          h4("Implement", style="font-weight: 800;color: #555;")
+  #                   )
+  #                 ),
+  #                 selectizeInput(paste0("wewd_weeding_type_",str_id ), "Type", multiple = TRUE,selected = mtype, options = list(maxItems =1, placeholder ="Select one..."),
+  #                                choices =  c(
+  #                                  "Cultivator",
+  #                                  "Manual",
+  #                                  "Sprayer",
+  #                                  "Weed cutter/puller",
+  #                                  "Other")
+  #                 ),
+  #                 hidden(textInput(paste0("wewd_weeding_type_",str_id, "_other" ), "")
+  #                        
+  #                 ),
+  #                 selectizeInput(paste0("wewd_weeding_traction_", str_id), "Traction",multiple = TRUE,selected=mtraction, options = list(maxItems =1, placeholder ="Select one..."),
+  #                                choices= c(
+  #                                  "Animal",
+  #                                  "Manual",
+  #                                  "2 wheel tractor",
+  #                                  "4 wheel tractor",
+  #                                  "Other")
+  #                 ),
+  #                 hidden(textInput(paste0("wewd_weeding_traction_",str_id, "_other" ), ""))
+  #          )
+  #     )
+  #   )
+  #   
+  # }
+  # 
+  # observe({
+  #   if(expCondsVars$num_weed == 0){
+  #     default <- expCondsVars$DEFAULT_weed
+  #     for(i in 1:default){
+  #       insertBoxWeeding(i)
+  #     }
+  #   }
+  # })
+  # 
+  # 
+  # #################### end weeding #############################################
+
+  # ########## soil fertility ##################################################
+  # 
+  # soilFertilityVar <- reactiveValues()
+  # soilFertilityVar$nApps <- 0
+  # soilFertilityVar$products <- c()
+  # soilFertilityVar$productsOther <- 0
+  # 
+  # 
+  # soilFertility_types <- list()
+  # soilFertility_types[["Biofertilizer"]] <- c('Arbuscular mycorrhizal fungi',
+  #                                             'Rhizobium japonicum',
+  #                                             'Rhizobium leguminosarum',
+  #                                             'Rhizobium loti',
+  #                                             'Rhizobium meliloti',
+  #                                             'Rhizobium spp.',
+  #                                             'Rhizobium trifolii',
+  #                                             'Other')
+  # soilFertility_types[["Green manure"]] <- c('Lablab',
+  #                                            'Mucuna',
+  #                                            'Sesbania sp.',
+  #                                            'Vigna sp.',
+  #                                            'Other')
+  # soilFertility_types[["Inorganic"]] <- c('Ammonium nitrate',
+  #                                         'Ammonium nitrate sulfate',
+  #                                         'Ammonium polyphosphate',
+  #                                         'Ammonium sulfate',
+  #                                         'Anhydrous ammonia',
+  #                                         'Aqua ammonia',
+  #                                         'Calcitic limestone',
+  #                                         'Calcium ammonium nitrate ',
+  #                                         'Calcium hydroxide',
+  #                                         'Calcium nitrate',
+  #                                         'Diammonium phosphate',
+  #                                         'Dolomitic limestone',
+  #                                         'Liquid phosphoric acid',
+  #                                         'Monoammonium phosphate',
+  #                                         'NPK fertilizers',
+  #                                         'Potassium chloride',
+  #                                         'Potassium nitrate',
+  #                                         'Potassium sulfate',
+  #                                         'Rock phosphate',
+  #                                         'Single super phosphate',
+  #                                         'Triple super phosphate',
+  #                                         'Urea',
+  #                                         'Urea ammonium nitrate solution',
+  #                                         'Urea super granules',
+  #                                         'Other')
+  # soilFertility_types[["Lime"]] <- c('Calcitic limestone',
+  #                                    'Crushed limestone',
+  #                                    'Dolomitic limestone',
+  #                                    'Other')
+  # soilFertility_types[["Organic"]] <- c('Alfalfa Meal',
+  #                                       'Bagasse',
+  #                                       'Biochar',
+  #                                       'Biochar',
+  #                                       'Chicken litter (Poultry manure)',
+  #                                       'Compost',
+  #                                       'Farmyard manure ',
+  #                                       'Fish fertilizer',
+  #                                       'Guano',
+  #                                       'Liquid manure',
+  #                                       'Oil cake',
+  #                                       'Treated sewage sludge',
+  #                                       'Vermicompost',
+  #                                       'Other')
+  # 
+  # observeEvent(input$soilFertility_typeFertilizer, {
+  # 
+  #   type_id <- isolate(input$soilFertility_typeFertilizer_id)
+  #   type_value <- isolate(input$soilFertility_typeFertilizer_value)
+  # 
+  #   product_id <- gsub("fertilizerType", "product", type_id)
+  # 
+  #   if(type_value != ""){
+  #     updateSelectizeInput(session, product_id, choices = soilFertility_types[[type_value]])
+  #   }
+  #   else{
+  #     updateSelectizeInput(session, product_id, choices = c(""))
+  # 
+  #   }
+  # 
+  # 
+  # })
+  # 
+  # observeEvent(input$soil_fertilizer_num_apps, {
+  # 
+  #   num <- input$soil_fertilizer_num_apps
+  # 
+  #   if(!is.numeric(num) || num < 1) return()
+  # 
+  # 
+  #   if(soilFertilityVar$nApps < num){
+  #     start <- soilFertilityVar$nApps +1
+  #     for (i in start:num){
+  #       insertUI(selector ="#fr_fertilizer_application",
+  #                where = "beforeBegin",
+  #                ui = drawRowSoilFertility(i))
+  #     }
+  # 
+  #   }
+  # 
+  #   else if(soilFertilityVar$nApps > num){
+  #     removeRowSoilFertility(num + 1, soilFertilityVar$nApps)
+  #   }
+  # 
+  #   soilFertilityVar$nApps <- num
+  # 
+  # })
+  # 
+  # drawRowSoilFertility <- function(index){
+  #   fluidRow(id= paste0("row_soilFertility_", index),
+  #         column(12,
+  #            column(1, style="padding:3px; text-align:center;  width: 5.33333333%;", br(), h4(index)),
+  #            column(10, style="padding:0px; width: 93.33333333%;",
+  #                   column(6, style="padding:0px;",
+  #                          column(3, style="padding:5px;",
+  #                                 selectizeInput(paste0("select_fertilizerType_soil_table_row_", index), "",multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
+  #                                                choices= c(
+  #                                                  "Biofertilizer",
+  #                                                  "Green manure",
+  #                                                  "Inorganic",
+  #                                                  "Lime",
+  #                                                  "Organic")
+  #                                 )
+  #                           ),
+  #                          column(3, style="padding:5px;",
+  #                                 selectizeInput(paste0("select_product_soil_table_row_", index), "",multiple = TRUE, options = list(placeholder ="Select one..."),
+  #                                                choices= c()
+  #                                 ),
+  #                                 hidden(textInput(paste0("select_product_soil_table_row_",index, "_other" ), ""))
+  # 
+  #                          ),
+  #                          column(2, style="padding:5px;",
+  #                                 #numericInput(paste0("input_productRate_soil_table_row", index), "", min=1, max=100, value=NULL, step=1)
+  #                                 textInput(paste0("input_productRate_soil_table_row", index), "")
+  #                                 ),
+  #                          column(4, style="padding:5px;",
+  #                                 selectizeInput(paste0("select_element_soil_table_row_", index), "",multiple = TRUE, options = list( placeholder ="Sel..."),
+  #                                                # choices= c(
+  #                                                #   "B",
+  #                                                #   "Ca",
+  #                                                #   "Cu",
+  #                                                #   "Fe",
+  #                                                #   "K",
+  #                                                #   "Mn",
+  #                                                #   "Mo",
+  #                                                #   "N",
+  #                                                #   "P",
+  #                                                #   "S",
+  #                                                #   "Zn",
+  #                                                #   "Other")
+  #                                                choices = c("Nitrogen",
+  #                                                            "Phosphorus",
+  #                                                            "Potassium",
+  #                                                            "Boron",
+  #                                                            "Calcium",
+  #                                                            "Copper",
+  #                                                            "Iron",
+  #                                                            "Manganese",
+  #                                                            "Molybdenum",
+  #                                                            "Sulfur",
+  #                                                            "Zinc",
+  #                                                            "Other"
+  #                                                )
+  #                                 ),
+  #                                 hidden(textInput(paste0("select_element_soil_table_row_",index, "_other" ), ""))
+  #                          )
+  #                   ),
+  #                   column(6,style="padding:0px;",
+  #                          column(2, style="padding:5px;",
+  #                                 #numericInput(paste0("input_elementRate_soil_table_row_", index), "", min=1, max=100, value=NULL, step=1)
+  #                                 textInput(paste0("input_elementRate_soil_table_row_", index), "")
+  #                                 ),
+  #                          # column(3, style="padding:5px;",
+  #                          #        selectizeInput(paste0("select_implement_soil_table_row_", index), "", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
+  #                          #                       choices= c(
+  #                          #                         "Backpack sprayer (airblast sprayer)",
+  #                          #                         "Boom sprayer",
+  #                          #                         "Broadcast spreader",
+  #                          #                         "Hand sprayer",
+  #                          #                         "Manual application",
+  #                          #                         "Manure spreader",
+  #                          #                         "Slurry injector",
+  #                          #                         "Other"
+  #                          #                       )
+  #                          #        ),
+  #                          #        hidden(textInput(paste0("select_implement_soil_table_row_",index, "_other" ), ""))
+  #                          # ),
+  #                          column(3, style="padding:5px;",
+  #                                 #dateInput(paste0("input_startdate_soil_table_row_", index), "", format = "yyyy-mm-dd")
+  #                                 #airDatepickerInput(paste0("input_startdate_soil_table_row_", index), "", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                                 
+  #                                 
+  #                                 if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                                   airDatepickerInput(paste0("input_startdate_soil_table_row_", index),
+  #                                                      " ",
+  #                                                      clearButton = T,
+  #                                                      autoClose = T,
+  #                                                      #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                                                      placeholder = "yyyy-mm-dd",
+  #                                                      minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                      maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                                      
+  #                                   )
+  #                                 } else {
+  #                                   airDatepickerInput(paste0("input_startdate_soil_table_row_", index),
+  #                                                      " ",
+  #                                                      clearButton = T,
+  #                                                      autoClose = T,
+  #                                                      placeholder = "yyyy-mm-dd"
+  #                                   )
+  #                                 }
+  #                                 
+  #                          ),
+  #                          # column(3, style="padding:5px",
+  #                          #        selectizeInput(paste0("select_traction_soil_table_row_", index), "", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
+  #                          #                       choices= c(
+  #                          #                         "Animal",
+  #                          #                         "Manual",
+  #                          #                         "2 wheel tractor",
+  #                          #                         "4 wheel tractor",
+  #                          #                         "Other"
+  #                          #                       )
+  #                          #        ),
+  #                          #        hidden(textInput(paste0("select_traction_soil_table_row_",index, "_other" ), ""))
+  #                          # ),
+  #                          column(3, style="padding:5px",
+  #                                 #dateInput(paste0("input_enddate_soil_table_row_", index), "", format = "yyyy-mm-dd")
+  #                                 #airDatepickerInput(paste0("input_enddate_soil_table_row_", index), "", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                                 
+  #                                 
+  #                                 if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                                   airDatepickerInput(paste0("input_enddate_soil_table_row_", index),
+  #                                                      " ",
+  #                                                      clearButton = T,
+  #                                                      autoClose = T,
+  #                                                      #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                                                      placeholder = "yyyy-mm-dd",
+  #                                                      minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                      maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                                      
+  #                                   )
+  #                                 } else {
+  #                                   airDatepickerInput(paste0("input_enddate_soil_table_row_", index),
+  #                                                      " ",
+  #                                                      clearButton = T,
+  #                                                      autoClose = T,
+  #                                                      placeholder = "yyyy-mm-dd"
+  #                                   )
+  #                                 }
+  #                                 
+  #                          ),
+  #                          column(4, style="padding:5px;",
+  #                                 selectizeInput(paste0("select_techinque_soil_table_row_", index), "", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."),
+  #                                                choices= c(
+  #                                                  "Band application on surface",
+  #                                                  "Band application beneath surface",
+  #                                                  "Broadcast incorparated",
+  #                                                  "Broadcast surface",
+  #                                                  "Contact placement with seed",
+  #                                                  "Deep placement",
+  #                                                  "Fertigation",
+  #                                                  "Foliar application",
+  #                                                  "Injection",
+  #                                                  "Localized application (using mechanical or hand device)",
+  #                                                  "Seed coating",
+  #                                                  "Side dressing",
+  #                                                  "Sub-soil placement (injection)",
+  #                                                  "Other"
+  #                                                )
+  #                                 ),
+  #                                 hidden(textInput(paste0("select_techinque_soil_table_row_",index, "_other" ), ""))
+  #                          )
+  #                   )
+  #            ),
+  #            column(1,  style="float: initial; margin-left: 5.5%;padding:3px;",
+  #                   textAreaInput(paste0("textArea_soil_table_row_", index), "",placeholder ="Notes", width = "350px")
+  #            )
+  #       )
+  # 
+  #   )
+  # 
+  # }
+  # 
+  # 
+  # removeRowSoilFertility <- function(begin, end){
+  #   for(i in begin:end){
+  #     removeUI(
+  #       selector =paste0("#row_soilFertility_", i),
+  #       immediate = T
+  #     )
+  #   }
+  # 
+  # }
+  # 
+  # observeEvent(input$addproducts_soil,{
+  #   num_others <- soilFertilityVar$productsOther + 1
+  # 
+  #   if(num_others > 6) return()
+  # 
+  #   insertUI(
+  #     selector= "#fr_fertilizer_application_nutrient_title",
+  #     where = "beforeBegin",
+  #     ui =  column(1, id= paste0("col_input_soilProduct_other_", num_others, "_title" ), style = "padding:10px;",
+  #                  textInput(paste0("input_soilProduct_other_", num_others ), "", placeholder = "Other (%)")
+  #                  # fluidRow(id = paste0("fr_aux_soil_other_", num_others))
+  #           )
+  #   )
+  # 
+  #   insertUI(
+  #     selector= "#fr_fertilizer_application_nutrient",
+  #     where = "beforeBegin",
+  #     ui =  column(1, id= paste0("col_input_soilProduct_other_", num_others ), style = "padding:10px;",
+  #                  # textInput(paste0("input_soilProduct_other_", num_others ), "", placeholder = "Other (%)"),
+  #                  fluidRow(id = paste0("fr_aux_soil_other_", num_others))
+  #     )
+  #   )
+  # 
+  #   soilFertilityVar$productsOther <- num_others
+  #   len <- length(soilFertilityVar$products)
+  #   if(len < 1) return()
+  # 
+  #   products <- soilFertilityVar$products
+  # 
+  #   for(i in 1:len){
+  # 
+  #     mid <- paste0("input_soil_nutrient_product_other_", num_others, "_", gsub("\\.", "", gsub(" ", "_", products[i])))
+  #     selector <- paste0("#fr_input_soil_nutrient_product_other_", num_others ,"_", gsub("\\.", "",gsub(" ", "_", products[i-1])))
+  # 
+  # 
+  #     if(i ==1) selector <- paste0("#fr_aux_soil_other_", num_others)
+  # 
+  #     insertUI(
+  #       selector = selector,
+  #       where = "afterEnd",
+  #       ui = fluidRow( id = paste0("fr_", mid), column(12,
+  #                                                      numericInput(mid, "", min=0, max=100, value=NULL)
+  #       ))
+  #     )
+  #   }
+  # 
+  # 
+  # 
+  # })
+  # 
+  # observeEvent(input$delproducts_soil, {
+  #   n_others <- soilFertilityVar$productsOther
+  #   if(n_others  < 1) return()
+  #   removeUI(
+  #     selector =  paste0("#col_input_soilProduct_other_", n_others),
+  #     immediate = T
+  #   )
+  #   removeUI(
+  #     selector =  paste0("#col_input_soilProduct_other_", n_others, "_title"),
+  #     immediate = T
+  #   )
+  # 
+  #   soilFertilityVar$productsOther <- n_others - 1
+  # 
+  # 
+  # })
+  # 
+  # observeEvent(input$soilFertility_product, {
+  #   napps <- input$soil_fertilizer_num_apps
+  #   default_products<- c("N", "P", "K")
+  # 
+  #   n_others <- soilFertilityVar$productsOther
+  #   if(n_others>0){
+  #     for( i in 1:n_others){
+  #       default_products <- c(default_products, paste0("other_", i))
+  #     }
+  #   }
+  # 
+  #   newList <- c()
+  # 
+  #   for(i in 1:napps){
+  #     newList <- c(newList, input[[paste0("select_product_soil_table_row_", i)]] )
+  #   }
+  # 
+  #   newList <- sort(unique(newList))
+  #   currList <- soilFertilityVar$products
+  # 
+  #   items_deleted <- currList[!(currList %in% newList)]
+  #   items_added <- newList[!(newList %in% currList)]
+  # 
+  # 
+  #   if(length(items_deleted) > 0){
+  #     for(item in items_deleted){
+  #       removeUI(
+  #         selector = paste0("#fr_input_soil_nutrient_product_", gsub("\\.", "",gsub(" ", "_", item))),
+  #         immediate = T
+  #       )
+  # 
+  #       for(i in default_products){
+  #         removeUI(
+  #           selector = paste0("#fr_input_soil_nutrient_product_", i, "_", gsub("\\.", "",gsub(" ", "_", item))),
+  #           immediate = T
+  #         )
+  #       }
+  # 
+  #     }
+  #   }
+  # 
+  #   if( length(items_added)> 0){
+  #     for(item in items_added){
+  #       index <- match(item, newList)
+  #       id_selector_name = "#fr_aux_soil_fertProduct"
+  #       id_selector_prod = "#fr_aux_soil_XXXX"
+  # 
+  # 
+  #       if(index > 1){
+  #         b_item <- newList[index-1]
+  #         id_selector_name <- paste0("#fr_input_soil_nutrient_product_", gsub("\\.", "",gsub(" ", "_", b_item)))
+  #         id_selector_prod <- paste0("#fr_input_soil_nutrient_product_XXXX_", gsub("\\.", "",gsub(" ", "_", b_item)))
+  #       }
+  # 
+  #       mid <- paste0("input_soil_nutrient_product_", gsub("\\.", "", gsub(" ", "_", item)))
+  #       insertUI(
+  #         selector = id_selector_name,
+  #         where = "afterEnd",
+  #         ui = fluidRow( id = paste0("fr_", mid),column(12,
+  #                        disabled(textInput(mid, "", value=item)
+  #               ))
+  #         )
+  #       )
+  # 
+  #       for(i in default_products){
+  #         mid <- paste0("input_soil_nutrient_product_", i, "_", gsub("\\.", "", gsub(" ", "_", item)))
+  #         insertUI(
+  #           selector = gsub("XXXX", i,id_selector_prod ),
+  #           where = "afterEnd",
+  #           ui = fluidRow( id = paste0("fr_", mid), column(12,
+  #             numericInput(mid, "", min=0, max=100, value=NULL)
+  #             ))
+  #         )
+  #       }
+  # 
+  # 
+  #     }
+  #   }
+  # 
+  #   soilFertilityVar$products <- newList
+  # 
+  # })
+  # 
+  # 
+  # # fr_fertilizer_application_nutrient
+  # 
+  # 
+  # 
+  # ######## end soil fertility ###############################################
+
+
+  # ###########  nutrients ######################################################
+  # ## valor pra guardar cuantos boxes hay actualmente dibujados
+  # nutVar <- reactiveValues()
+  # nutVar$types <- list()
+  # 
+  # observe( {
+  #   if(is.null(input$appfTypeFertilizer) ){
+  #     removeUI(
+  #       selector = paste0("#Organic_fertilizer_box"),
+  #       immediate = T
+  #     )
+  #     removeUI(
+  #       selector = paste0("#Inorganic_fertilizer_box"),
+  #       immediate = T
+  #     )
+  #     removeUI(
+  #       selector = paste0("#Green_manure_fertilizer_box"),
+  #       immediate = T
+  #     )
+  #     nutVar$types <- list()
+  #   }
+  #   else{
+  #     l <- input$appfTypeFertilizer
+  #       for (typ in l) {
+  #         vtype = gsub(" ", "_", typ)
+  #         if (!(vtype %in% nutVar$types)){
+  #           insertUI(selector ="#fert123",
+  #                    where = "beforeBegin",
+  #                    ui = drawTypeFertBox(vtype))
+  #         }
+  #       }
+  #     for (xvar in nutVar$types){
+  #       vtype = gsub("_", " ", xvar)
+  #       if (!(vtype %in% l)){
+  #         removeUI(
+  #           selector = paste0("#", gsub(" ","_", vtype), "_fertilizer_box"),
+  #           immediate = T
+  #         )
+  #       }
+  #     }
+  #     nutVar$types <- gsub(" ", "_",l)
+  # 
+  #   }
+  # 
+  # })
+  # 
+  # drawTypeFertBox <- function(type){
+  #   fluidRow(id = paste0(type, "_fertilizer_box"),
+  #         box(title = gsub("_", " ", type),
+  #                     width = 12,
+  #                     solidHeader = TRUE, status = "primary", collapsible = T, collapsed = T,
+  #             fluidRow(id = paste0(type, "_fertilizer_box_in"),
+  #               column(width = 6,
+  #                      numericInput(paste0("numApplications_", type), label  = "Number of applications", value = 1, min = 1, max = 5)
+  # 
+  #               )
+  #           )
+  #     )
+  #   )
+  # 
+  # }
+  # 
+  # nutVar$nAppsOrg <- 1
+  # observeEvent(input$numApplications_Organic, {
+  #   num <- input$numApplications_Organic
+  #   if(is.numeric(num) &&  num>0){
+  #     if(nutVar$nAppsOrg == 1 && num  == 1 ){
+  # 
+  #       insertUI(selector ="#Organic_fertilizer_box_in",
+  #                where = "afterEnd",
+  #                ui = drawBoxNutrients(1, "Organic"))
+  #     }
+  #     else if(nutVar$nAppsOrg == 0 && num  == 1 ){
+  # 
+  #       insertUI(selector ="#Organic_fertilizer_box_in",
+  #                where = "afterEnd",
+  #                ui = drawBoxNutrients(1, "Organic"))
+  #     }
+  #     else if(nutVar$nAppsOrg > num){
+  #       removeBoxesNutrients(num+1, nutVar$nAppsOrg, "Organic")
+  #       nutVar$nAppsOrg <- num
+  #     }
+  #     else if(nutVar$nAppsOrg < num){
+  #       start <- nutVar$nAppsOrg + 1
+  #       for (i in start:num ) {
+  #         insertUI(selector = paste0("#box_nut_Organic_", i-1),
+  #                  where = "afterEnd",
+  #                  ui = drawBoxNutrients(i, "Organic")
+  #         )
+  #       }
+  #       nutVar$nAppsOrg <- num
+  #     }
+  # 
+  #   }
+  #   else{
+  #     removeBoxesNutrients(1, nutVar$nAppsOrg, "Organic")
+  #     nutVar$nAppsOrg <- 0
+  #   }
+  # 
+  # })
+  # 
+  # 
+  # nutVar$nAppsInorg <- 1
+  # observeEvent(input$numApplications_Inorganic, {
+  #   num <- input$numApplications_Inorganic
+  #   if(is.numeric(num) &&  num>0){
+  #     if(nutVar$nAppsInorg == 1 && num  == 1 ){
+  # 
+  #       insertUI(selector ="#Inorganic_fertilizer_box_in",
+  #                where = "afterEnd",
+  #                ui = drawBoxNutrients(1, "Inorganic"))
+  #     }
+  #     else if(nutVar$nAppsInorg == 0 && num  == 1 ){
+  # 
+  #       insertUI(selector ="#Inorganic_fertilizer_box_in",
+  #                where = "afterEnd",
+  #                ui = drawBoxNutrients(1, "Inorganic"))
+  #     }
+  #     else if(nutVar$nAppsInorg > num){
+  #       removeBoxesNutrients(num+1, nutVar$nAppsInorg, "Inorganic")
+  #       nutVar$nAppsInorg <- num
+  #     }
+  #     else if(nutVar$nAppsInorg < num){
+  #       start <- nutVar$nAppsInorg + 1
+  #       for (i in start:num ) {
+  #         insertUI(selector = paste0("#box_nut_Inorganic_", i-1),
+  #                  where = "afterEnd",
+  #                  ui = drawBoxNutrients(i, "Inorganic")
+  #         )
+  #       }
+  #       nutVar$nAppsInorg <- num
+  #     }
+  # 
+  #   }
+  #   else{
+  #     removeBoxesNutrients(1, nutVar$nAppsInorg, "Inorganic")
+  #     nutVar$nAppsInorg <- 0
+  #   }
+  # 
+  # })
+  # 
+  # nutVar$nAppsGreenManure <- 1
+  # observeEvent(input$numApplications_Green_manure, {
+  #   num <- input$numApplications_Green_manure
+  #   if(is.numeric(num) &&  num>0){
+  #     if(nutVar$nAppsGreenManure == 1 && num  == 1 ){
+  # 
+  #       insertUI(selector ="#Green_manure_fertilizer_box_in",
+  #                where = "afterEnd",
+  #                ui = drawBoxNutrients(1, "Green_manure"))
+  #     }
+  #     else if(nutVar$nAppsGreenManure == 0 && num  == 1 ){
+  # 
+  #       insertUI(selector ="#Green_manure_fertilizer_box_in",
+  #                where = "afterEnd",
+  #                ui = drawBoxNutrients(1, "Green_manure"))
+  #     }
+  #     else if(nutVar$nAppsGreenManure > num){
+  #       removeBoxesNutrients(num+1, nutVar$nAppsGreenManure, "Green_manure")
+  #       irrigVar$nAppsGreenManure <- num
+  #     }
+  #     else if(nutVar$nAppsGreenManure < num){
+  #       start <- nutVar$nAppsGreenManure + 1
+  #       for (i in start:num ) {
+  #         insertUI(selector = paste0("#box_nut_Green_manure_", i-1),
+  #                  where = "afterEnd",
+  #                  ui = drawBoxNutrients(i, "Green_manure")
+  #         )
+  #       }
+  #       nutVar$nAppsGreenManure <- num
+  #     }
+  # 
+  #   }
+  #   else{
+  #     removeBoxesNutrients(1, nutVar$nAppsGreenManure, "Green_manure")
+  #     nutVar$nAppsGreenManure <- 0
+  #   }
+  # 
+  # })
+  # 
+  # 
+  # removeBoxesNutrients <- function(begin, end, type){
+  #   for(i in begin:end){
+  #     removeUI(
+  #       selector = paste0("#box_nut_", type, "_", i),
+  #       immediate = T
+  #     )
+  #   }
+  # 
+  # }
+  # 
+  # drawBoxNutrients <- function(order, type){
+  #   fluidRow(id= paste0("box_nut_", type, "_", order),
+  #            box( title = paste0("Application", order),
+  #                 width = 12,
+  #                 solidHeader = TRUE, status = "warning",
+  #                 fluidRow(
+  #                   column(width = 6,
+  #                         fluidRow(
+  #                           column(width = 6,
+  #                                  dateInput(paste0("nutrient_start_date_", type, "_", order), label ="Start date", format = "yyyy-mm-dd")
+  #                           ),
+  #                           column(width = 6,
+  #                                  dateInput(paste0("nutrient_end_date_", type, "_", order), label ="End date", format = "yyyy-mm-dd")
+  #                           )
+  #                         ),
+  #                         fluidRow(
+  #                           column(width = 6,
+  #                                  textInput(paste0("nutrient_app_rate_", type, "_", order),  label = "Total application rate for the season", value="")
+  #                           ),
+  #                           column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                  selectizeInput(paste0("nutrient_app_rate_unit", type, "_", order), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                   c("g/sq m",
+  #                                                     "kg/ha",
+  #                                                     "lb/ac")
+  #                                  )
+  #                           )
+  #                         )
+  #                         #textInput(inputId= paste0("nutrient_app_rate_", type, "_", order), label="Total application rate for the season")
+  # 
+  #                   ),
+  #                   column(width = 6,
+  #                          fluidRow(
+  #                             column(width = 6,
+  #                                    textInput(inputId=paste0("nutrient_recommended_rate_", type, "_", order), label="Total recommended rate")
+  #                             ),
+  # 
+  #                             column(width = 6,
+  #                                    selectizeInput(paste0("nutrient_recommended_rate_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder="Select one..."), label= "Unit",
+  #                                                   c("g/sq m",
+  #                                                     "kg/ha",
+  #                                                     "lb/ac")
+  #                                     )
+  #                             )
+  #                           ),
+  #                          textInput(paste0("perc_recomm_rate_", type, "_", order), "Percentage of recommended rate applied")
+  #                   )
+  #                 ),
+  #                 h2(paste0("Fertilizer amount applied: ",gsub("_", " ", type))),
+  # 
+  #                 fluidRow(
+  # 
+  #                   column(width = 2,
+  #                          fluidRow(
+  #                            column(width = 5, br(),
+  #                                          div(style="text-align:right", h4("Name"))),
+  #                            column(width = 5,
+  #                                   br(),
+  #                                   div(style="text-align:center", h4("# of app"))
+  #                             ),
+  #                            column(width = 2,
+  #                                   br(),
+  #                                   div(style="text-align:center", h4("#")) )
+  #                          )
+  #                   ),
+  #                   column(width = 1,
+  #                          br(),
+  #                          div(style="text-align:center", h4("Start date"))
+  #                   ),
+  #                   column(width = 1,
+  #                          br(),
+  #                          div(style="text-align:center", h4("End date"))
+  #                   ),
+  # 
+  #                   column(width = 2,
+  # 
+  #                          column( width= 7,
+  #                                  br(),
+  #                           div(style="text-align:center", h4("Type"))
+  #                          ),
+  #                          column(width = 5,
+  #                                 br(),
+  #                                 div(style="text-align:center", h4("Type (Unit)"))
+  #                           )
+  #                   ),
+  #                   column(width=3,
+  #                          fluidRow(
+  #                            column(width = 6,
+  #                                   br(),
+  #                                   div(style="text-align:center", h4("Technique"))
+  #                            ),
+  #                            column(width = 6,
+  #                                   br(),
+  #                                   div(style="text-align:center", h4("Implement"))
+  #                            )
+  #                          )
+  #                   ),
+  # 
+  #                    column(width = 1,
+  #                          br(),
+  #                          div(style="text-align:center", h4("Rate"))
+  #                    ),
+  #                    column(width = 1,
+  #                           br(),
+  #                           div(style="text-align:center", h4("Rate (unit)"))
+  #                    ),
+  #                    column(width = 1,
+  #                           br(),
+  #                           div(style="text-align:center", h4("Nutrient Content"))
+  #                    )
+  # 
+  #                 ),
+  #                 fluidRow(
+  #                   column(width = 2,
+  #                          fluidRow(
+  #                            column(width = 5,
+  #                                   br(),
+  #                                          div(style="text-align:right", "Nitrogen")
+  #                             ),
+  #                            column(width = 5,
+  #                                   selectInput(paste0("nutrientApplied_nit_numApps1_", type, "_", order),"",c(1,2,3))
+  # 
+  #                             ),
+  #                            column(width = 2,
+  #                                   br(),
+  #                                   div(style="text-align:center", h4("1"))
+  #                             )
+  #                          )
+  #                     ),
+  #                   column(width = 1,
+  #                          dateInput(paste0("fert_nit_start_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                   ),
+  # 
+  #                   column(width = 1,
+  #                          dateInput(paste0("fert_nit_end_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                   ),
+  # 
+  # 
+  #                   column(width = 2,
+  #                          if(type == "Green_manure"){
+  #                            textInput(paste0("fert_nit_type1_", type, "_", order), "")
+  # 
+  #                          }
+  #                          else if(type == "Inorganic"){
+  #                            fluidRow(
+  #                            column(width = 7,
+  #                              selectizeInput(paste0("fert_nit_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                'Ammonium nitrate',
+  #                                'Ammonium nitrate sulfate',
+  #                                'Ammonium polyphosphate',
+  #                                'Ammonium sulfate',
+  #                                'Anhydrous ammonia',
+  #                                'Aqua ammonia',
+  #                                'Calcitic limestone',
+  #                                'Calcium ammonium nitrate solution',
+  #                                'Calcium hydroxide',
+  #                                'Calcium nitrate',
+  #                                'Diammonium phosphate',
+  #                                'Dolomitic limestone',
+  #                                'Liquid phosphoric acid',
+  #                                'Monoammonium phosphate',
+  #                                'Potassium chloride',
+  #                                'Potassium nitrate',
+  #                                'Potassium sulfate',
+  #                                'Rock phosphate',
+  #                                'Single super phosphate',
+  #                                'Triple super phosphate',
+  #                                'Urea',
+  #                                'Urea ammonium nitrate solution',
+  #                                'Urea super granules',
+  #                                'NPK fertilizers',
+  #                                'Other')
+  #                              )
+  #                            ),
+  #                              column(width = 5,
+  #                                     selectizeInput(paste0("fert_nit_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                    c("g/sq m","kg/ha","lb/ac"))
+  # 
+  #                              ),
+  # 
+  #                                 column(width=12,
+  #                                 hidden(textInput(paste0("fert_nit_type1_", type, "_", order, "_other"), ""))
+  #                                 )
+  # 
+  #                            )
+  # 
+  #                          }
+  #                          else{
+  #                            fluidRow(
+  #                              column(width = 7,
+  #                                selectizeInput(paste0("fert_nit_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                  "Alfalfa Meal",
+  #                                  "Bagasse",
+  #                                  "Biochar",
+  #                                  "Chicken litter (Poultry manure)",
+  #                                  "Compost",
+  #                                  "Farmyard manure",
+  #                                  "Guano",
+  #                                  "Liquid manure",
+  #                                  "Oil cake",
+  #                                  "Treated sewage sludge",
+  #                                  "Vermicompost",
+  #                                  "Fish fertilizer",
+  #                                  "Other"
+  #                                  )
+  #                                )
+  #                              ),
+  #                              column(width = 5,
+  #                                     selectizeInput(paste0("fert_nit_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                    c("g/sq m","kg/ha","lb/ac"))
+  #                              ),
+  #                              # conditionalPanel(paste0("input.fert_nit_type1_", type, "_", order, " == 'Other'"),
+  #                              #                  column(width=12,
+  #                              #                  textInput(paste0("fert_nit_type1_other_", type, "_", order), "")
+  #                              #                  )
+  #                              # )
+  #                              column(width=12,
+  #                                     hidden(textInput(paste0("fert_nit_type1_", type, "_", order, "_other"), ""))
+  #                              )
+  # 
+  #                            )
+  #                           }
+  #                   ),
+  #                   column(width = 3,
+  #                     fluidRow(
+  #                       column(width = 6,
+  #                            selectizeInput(paste0("fertilizer_nit_application_technique1_", type, "_", order), "", multiple = T,
+  #                                           options = list(maxItems = 1, placeholder ="Select one"),
+  #                                           choices = c(
+  #                                                       "Band application on surface",
+  #                                                       "Band application incorporated (Band application beneath surface)",
+  #                                                       "Broadcast surface",
+  #                                                       "Broadcast incorporated",
+  #                                                       "Contact placement (seed placement)",
+  #                                                       "Deep placement",
+  #                                                       "Fertigation",
+  #                                                       "Foliar application",
+  #                                                       "Injection",
+  #                                                       "Placed with seed (seed placement)",
+  #                                                       "Side dressing",
+  #                                                       "Sub-soil placement (injection)",
+  #                                                       "Localized application (using mechanical or hand device)",
+  #                                                       "Other")
+  #                            ),
+  #                            conditionalPanel(paste0("input.fertilizer_nit_application_technique1_", type, "_", order, " == 'Other'"),
+  #                                             textInput(paste0("fertilizer_nit_application_technique1_other_", type, "_", order), "")
+  #                            )
+  #                       ),
+  #                       column(width = 6,
+  #                            selectizeInput(paste0("fertilizer_nit_implement1_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                           choices = c("Backpack sprayer (airblast sprayer)",
+  #                                                       "Boom sprayer",
+  #                                                       "Broadcast spreader",
+  #                                                       "Hand sprayer",
+  #                                                       "Manure spreader",
+  #                                                       "Slurry injector",
+  #                                                       "Manual application",
+  #                                                       "Other")
+  #                            ),
+  #                            conditionalPanel(paste0("input.fertilizer_nit_implement1_", type, "_", order, " == 'Other'"),
+  #                                             textInput(paste0("fertilizer_nit_implement1_other_", type, "_", order), "")
+  #                            )
+  #                       )
+  #                     )
+  #                   ),
+  #                  column(width = 1,
+  #                         textInput(paste0("fert_nit_amountApplied1_", type, "_", order),"")
+  #                  ),
+  #                  column(width = 1,
+  #                         selectizeInput(paste0("fert_nit_amountAppliedScale1_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                        c("g/sq m","kg/ha","lb/ac"))
+  #                  ),
+  #                  column(width = 1,
+  #                         textInput(paste0("fert_nit_nutrientContent1_", type, "_", order),"")
+  #                  )
+  # 
+  #                 ),
+  #                 conditionalPanel(paste0("input.nutrientApplied_nit_numApps1_", type, "_", order,  " == 2 |
+  #                                  input.nutrientApplied_nit_numApps1_", type, "_", order, " == 3 "),
+  #                                         fluidRow(
+  #                                           column(width = 2,
+  #                                                  fluidRow(
+  #                                                    column(width = 5,
+  #                                                           br(),
+  #                                                           div(style="text-align:right", "")
+  #                                                    ),
+  #                                                    column(width = 5,
+  #                                                           br(),
+  #                                                           div(style="text-align:right", "")
+  # 
+  #                                                    ),
+  #                                                    column(width = 2,
+  #                                                           br(),
+  #                                                           div(style="text-align:center", h4("2"))
+  #                                                    )
+  #                                                  )
+  #                                           ),
+  #                                           column(width = 1,
+  #                                                  dateInput(paste0("fert_nit_start_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                           ),
+  # 
+  #                                           column(width = 1,
+  #                                                  dateInput(paste0("fert_nit_end_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                           ),
+  # 
+  # 
+  #                                           column(width = 2,
+  #                                                  if(type == "Green_manure"){
+  #                                                    textInput(paste0("fert_nit_type2_", type, "_", order), "")
+  #                                                  }
+  #                                                  else if(type == "Inorganic"){
+  #                                                    fluidRow(
+  #                                                      column(width = 7,
+  # 
+  #                                                      selectizeInput(paste0("fert_nit_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                                        'Ammonium nitrate',
+  #                                                        'Ammonium nitrate sulfate',
+  #                                                        'Ammonium polyphosphate',
+  #                                                        'Ammonium sulfate',
+  #                                                        'Anhydrous ammonia',
+  #                                                        'Aqua ammonia',
+  #                                                        'Calcitic limestone',
+  #                                                        'Calcium ammonium nitrate solution',
+  #                                                        'Calcium hydroxide',
+  #                                                        'Calcium nitrate',
+  #                                                        'Diammonium phosphate',
+  #                                                        'Dolomitic limestone',
+  #                                                        'Liquid phosphoric acid',
+  #                                                        'Monoammonium phosphate',
+  #                                                        'Potassium chloride',
+  #                                                        'Potassium nitrate',
+  #                                                        'Potassium sulfate',
+  #                                                        'Rock phosphate',
+  #                                                        'Single super phosphate',
+  #                                                        'Triple super phosphate',
+  #                                                        'Urea',
+  #                                                        'Urea ammonium nitrate solution',
+  #                                                        'Urea super granules',
+  #                                                        'NPK fertilizers',
+  #                                                        "Other")
+  #                                                      )
+  #                                                       ),
+  #                                                       column(width = 5,
+  #                                                              selectizeInput(paste0("fert_nit_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                             c("g/sq m","kg/ha","lb/ac"))
+  # 
+  #                                                       ),
+  #                                                      conditionalPanel(paste0("input.fert_nit_type2_", type, "_", order, " == 'Other'"),
+  #                                                                       column(width=12,
+  #                                                                       textInput(paste0("fert_nit_type2_other_", type, "_", order), "")
+  #                                                                       )
+  #                                                      )
+  # 
+  #                                                     )
+  #                                                  }
+  #                                                  else{
+  #                                                    fluidRow(
+  #                                                      column(width = 7,
+  # 
+  #                                                        selectizeInput(paste0("fert_nit_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                                          "Alfalfa Meal",
+  #                                                          "Bagasse",
+  #                                                          "Biochar",
+  #                                                          "Chicken litter (Poultry manure)",
+  #                                                          "Compost",
+  #                                                          "Farmyard manure",
+  #                                                          "Guano",
+  #                                                          "Liquid manure",
+  #                                                          "Oil cake",
+  #                                                          "Treated sewage sludge",
+  #                                                          "Vermicompost",
+  #                                                          "Fish fertilizer",
+  #                                                          "Other")
+  #                                                        )
+  #                                                      ),
+  #                                                      column(width = 5,
+  #                                                             selectizeInput(paste0("fert_nit_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                            c("g/sq m","kg/ha","lb/ac"))
+  # 
+  #                                                      ),
+  #                                                      conditionalPanel(paste0("input.fert_nit_type2_", type, "_", order, " == 'Other'"),
+  #                                                                       column(width=12,
+  #                                                                       textInput(paste0("fert_nit_type2_other_", type, "_", order), "")
+  #                                                                       )
+  #                                                      )
+  # 
+  #                                                    )
+  # 
+  # 
+  # 
+  #                                                    }
+  #                                           ),
+  #                                           column(width =3,
+  #                                             fluidRow(
+  #                                               column(width = 6,
+  #                                                      selectizeInput(paste0("fertilizer_nit_application_technique2_", type, "_", order), "", multiple = T,
+  #                                                                     options = list(maxItems = 1, placeholder ="Select one"),
+  #                                                                     choices = c(
+  #                                                                       "Band application on surface",
+  #                                                                       "Band application incorporated (Band application beneath surface)",
+  #                                                                       "Broadcast surface",
+  #                                                                       "Broadcast incorporated",
+  #                                                                       "Contact placement (seed placement)",
+  #                                                                       "Deep placement",
+  #                                                                       "Fertigation",
+  #                                                                       "Foliar application",
+  #                                                                       "Injection",
+  #                                                                       "Placed with seed (seed placement)",
+  #                                                                       "Side dressing",
+  #                                                                       "Sub-soil placement (injection)",
+  #                                                                       "Localized application (using mechanical or hand device)",
+  #                                                                       "Other")
+  #                                                      ),
+  #                                                      conditionalPanel(paste0("input.fertilizer_nit_application_technique2_", type, "_", order, " == 'Other'"),
+  #                                                                       textInput(paste0("fertilizer_nit_application_technique2_other_", type, "_", order), "")
+  #                                                      )
+  #                                               ),
+  #                                               column(width = 6,
+  #                                                      selectizeInput(paste0("fertilizer_nit_implement2_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                                                      choices = c("Backpack sprayer (airblast sprayer)",
+  #                                                                                           "Boom sprayer",
+  #                                                                                           "Broadcast spreader",
+  #                                                                                           "Hand sprayer",
+  #                                                                                           "Manure spreader",
+  #                                                                                           "Slurry injector",
+  #                                                                                           "Manual application",
+  #                                                                                           "Other")
+  #                                                      ),
+  #                                                      conditionalPanel(paste0("input.fertilizer_nit_implement2_", type, "_", order, " == 'Other'"),
+  #                                                                       textInput(paste0("fertilizer_nit_implement2_other_", type, "_", order), "")
+  #                                                      )
+  #                                               )
+  #                                             )
+  #                                           ),
+  #                                          column(width = 1,
+  #                                                 textInput(paste0("fert_nit_amountApplied2_", type, "_", order),"")
+  #                                          ),
+  #                                          column(width = 1,
+  #                                                 selectizeInput(paste0("fert_nit_amountAppliedScale2_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                c("kg/m2","kg/ha","t/ha"))
+  #                                          ),
+  #                                          column(width = 1,
+  #                                                 textInput(paste0("fert_nit_nutrientContent2_", type, "_", order),"")
+  #                                          )
+  #                                         )
+  # 
+  #                 ),
+  # 
+  # 
+  #                 conditionalPanel(paste0("input.nutrientApplied_nit_numApps1_" , type, "_", order, " == 3 "),
+  #                                  fluidRow(
+  #                                    column(width = 2,
+  #                                           fluidRow(
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  #                                             ),
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  # 
+  #                                             ),
+  #                                             column(width = 2,
+  #                                                    br(),
+  #                                                    div(style="text-align:center", h4("3"))
+  #                                             )
+  #                                           )
+  #                                    ),
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_nit_start_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  # 
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_nit_end_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  # 
+  #                                    column(width = 2,
+  #                                           if(type == "Green_manure"){
+  #                                             textInput(paste0("fert_nit_type3_", type, "_", order), "")
+  #                                           }
+  #                                           else if(type == "Inorganic"){
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  #                                             selectizeInput(paste0("fert_nit_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                               'Ammonium nitrate',
+  #                                               'Ammonium nitrate sulfate',
+  #                                               'Ammonium polyphosphate',
+  #                                               'Ammonium sulfate',
+  #                                               'Anhydrous ammonia',
+  #                                               'Aqua ammonia',
+  #                                               'Calcitic limestone',
+  #                                               'Calcium ammonium nitrate solution',
+  #                                               'Calcium hydroxide',
+  #                                               'Calcium nitrate',
+  #                                               'Diammonium phosphate',
+  #                                               'Dolomitic limestone',
+  #                                               'Liquid phosphoric acid',
+  #                                               'Monoammonium phosphate',
+  #                                               'Potassium chloride',
+  #                                               'Potassium nitrate',
+  #                                               'Potassium sulfate',
+  #                                               'Rock phosphate',
+  #                                               'Single super phosphate',
+  #                                               'Triple super phosphate',
+  #                                               'Urea',
+  #                                               'Urea ammonium nitrate solution',
+  #                                               'Urea super granules',
+  #                                               'NPK fertilizers',
+  #                                               "Other")
+  #                                             )
+  #                                               ),
+  #                                             column(width = 5,
+  #                                                    selectizeInput(paste0("fert_nit_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                   c("g/sq m","kg/ha","lb/ac"))
+  # 
+  #                                             ),
+  #                                             conditionalPanel(paste0("input.fert_nit_type3_", type, "_", order, " == 'Other'"),
+  #                                                              column(width=12,
+  #                                                              textInput(paste0("fert_nit_type3_other_", type, "_", order), "")
+  #                                                              )
+  #                                             )
+  # 
+  #                                             )
+  # 
+  #                                           }
+  #                                           else{
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  #                                                 selectizeInput(paste0("fert_nit_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                                   "Alfalfa Meal",
+  #                                                   "Bagasse",
+  #                                                   "Biochar",
+  #                                                   "Chicken litter (Poultry manure)",
+  #                                                   "Compost",
+  #                                                   "Farmyard manure",
+  #                                                   "Guano",
+  #                                                   "Liquid manure",
+  #                                                   "Oil cake",
+  #                                                   "Treated sewage sludge",
+  #                                                   "Vermicompost",
+  #                                                   "Fish fertilizer",
+  #                                                   "Other")
+  #                                                 )
+  #                                               ),
+  #                                               column(width = 5,
+  #                                                      selectizeInput(paste0("fert_nit_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                     c("g/sq m","kg/ha","lb/ac"))
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fert_nit_type3_", type, "_", order, " == 'Other'"),
+  #                                                                column(width=12,
+  #                                                                textInput(paste0("fert_nit_type3_other_", type, "_", order), "")
+  #                                                                )
+  #                                               )
+  # 
+  #                                             )
+  # 
+  # 
+  #                                             }
+  #                                    ),
+  #                                    column(width=3,
+  #                                       fluidRow(
+  #                                        column(width = 6,
+  #                                               selectizeInput(paste0("fertilizer_nit_application_technique3_", type, "_", order),label = "", multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                                                choices = c(
+  #                                                                  "Band application on surface",
+  #                                                                  "Band application incorporated (Band application beneath surface)",
+  #                                                                  "Broadcast surface",
+  #                                                                  "Broadcast incorporated",
+  #                                                                  "Contact placement (seed placement)",
+  #                                                                  "Deep placement",
+  #                                                                  "Fertigation",
+  #                                                                  "Foliar application",
+  #                                                                  "Injection",
+  #                                                                  "Placed with seed (seed placement)",
+  #                                                                  "Side dressing",
+  #                                                                  "Sub-soil placement (injection)",
+  #                                                                  "Localized application (using mechanical or hand device)",
+  #                                                                  "Other")
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fertilizer_nit_application_technique3_", type, "_", order, " == 'Other'"),
+  #                                                                textInput(paste0("fertilizer_nit_application_technique3_other_", type, "_", order), "")
+  #                                               )
+  #                                        ),
+  #                                        column(width = 6,
+  #                                               selectizeInput(paste0("fertilizer_nit_implement3_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                                              choices = c("Backpack sprayer (airblast sprayer)",
+  #                                                                          "Boom sprayer",
+  #                                                                          "Broadcast spreader",
+  #                                                                          "Hand sprayer",
+  #                                                                          "Manure spreader",
+  #                                                                          "Slurry injector",
+  #                                                                          "Manual application",
+  #                                                                          "Other")
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fertilizer_nit_implement3_", type, "_", order, " == 'Other'"),
+  #                                                                textInput(paste0("fertilizer_nit_implement3_other_", type, "_", order), "")
+  #                                               )
+  #                                        )
+  #                                       )
+  #                                    ),
+  # 
+  #                                   column(width = 1,
+  #                                          textInput(paste0("fert_nit_amountApplied3_", type, "_", order),"")
+  #                                   ),
+  #                                   column(width = 1,
+  #                                          selectizeInput(paste0("fert_nit_amountAppliedScale3_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                         c("kg/m2","kg/ha","t/ha"))
+  #                                   ),
+  #                                   column(width = 1,
+  #                                          textInput(paste0("fert_nit_nutrientContent3_", type, "_", order),"")
+  #                                   )
+  #                                  )
+  # 
+  # 
+  #                 ),#end conditional2
+  # 
+  #                 fluidRow(
+  #                   column(width = 2,
+  #                          fluidRow(
+  #                            column(width = 5,
+  #                                   br(),
+  #                                   div(style="text-align:right", "Phosphorus")
+  #                            ),
+  #                            column(width = 5,
+  #                                   selectInput(paste0("nutrientApplied_phos_numApps1_", type, "_", order),"",c(1,2,3))
+  # 
+  #                            ),
+  #                            column(width = 2,
+  #                                   br(),
+  #                                   div(style="text-align:center", h4("1"))
+  #                            )
+  #                          )
+  #                   ),
+  #                   column(width = 1,
+  #                          dateInput(paste0("fert_phos_start_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                   ),
+  # 
+  #                   column(width = 1,
+  #                          dateInput(paste0("fert_phos_end_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                   ),
+  # 
+  # 
+  #                   column(width = 2,
+  #                          if(type == "Green_manure"){
+  #                            textInput(paste0("fert_phos_type1_", type, "_", order), "")
+  #                          }
+  #                          else if(type == "Inorganic"){
+  #                            fluidRow(
+  #                              column(width = 7,
+  # 
+  #                            selectizeInput(paste0("fert_phos_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                              'Ammonium nitrate',
+  #                              'Ammonium nitrate sulfate',
+  #                              'Ammonium polyphosphate',
+  #                              'Ammonium sulfate',
+  #                              'Anhydrous ammonia',
+  #                              'Aqua ammonia',
+  #                              'Calcitic limestone',
+  #                              'Calcium ammonium nitrate solution',
+  #                              'Calcium hydroxide',
+  #                              'Calcium nitrate',
+  #                              'Diammonium phosphate',
+  #                              'Dolomitic limestone',
+  #                              'Liquid phosphoric acid',
+  #                              'Monoammonium phosphate',
+  #                              'Potassium chloride',
+  #                              'Potassium nitrate',
+  #                              'Potassium sulfate',
+  #                              'Rock phosphate',
+  #                              'Single super phosphate',
+  #                              'Triple super phosphate',
+  #                              'Urea',
+  #                              'Urea ammonium nitrate solution',
+  #                              'Urea super granules',
+  #                              'NPK fertilizers',
+  #                              "Other")
+  #                            )
+  #                              ),
+  #                            column(width = 5,
+  #                                   selectizeInput(paste0("fert_phos_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                  c("g/sq m","kg/ha","lb/ac"))
+  # 
+  #                            ),
+  #                            conditionalPanel(paste0("input.fert_phos_type1_", type, "_", order, " == 'Other'"),
+  #                                             column(width=12,
+  #                                             textInput(paste0("fert_phos_type1_other_", type, "_", order), "")
+  #                                             )
+  #                            )
+  # 
+  #                            )
+  # 
+  #                          }
+  #                          else{
+  #                            fluidRow(
+  #                              column(width = 7,
+  #                                selectizeInput(paste0("fert_phos_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                  "Alfalfa Meal",
+  #                                  "Bagasse",
+  #                                  "Biochar",
+  #                                  "Chicken litter (Poultry manure)",
+  #                                  "Compost",
+  #                                  "Farmyard manure",
+  #                                  "Guano",
+  #                                  "Liquid manure",
+  #                                  "Oil cake",
+  #                                  "Treated sewage sludge",
+  #                                  "Vermicompost",
+  #                                  "Fish fertilizer",
+  #                                  "Other")
+  #                                )
+  #                               ),
+  #                               column(width = 5,
+  #                                      selectizeInput(paste0("fert_phos_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                     c("g/sq m","kg/ha","lb/ac"))
+  #                               ),
+  #                              conditionalPanel(paste0("input.fert_phos_type1_", type, "_", order, " == 'Other'"),
+  #                                               column(width=12,
+  #                                               textInput(paste0("fert_phos_type1_other_", type, "_", order), "")
+  #                                               )
+  #                              )
+  # 
+  #                             )
+  #                            }
+  #                   ),
+  #                   column(width=3 ,
+  #                     fluidRow(
+  #                       column(width = 6,
+  #                              selectizeInput(paste0("fertilizer_phos_application_technique1_", type, "_", order), "", multiple = T,
+  #                                             options = list(maxItems = 1, placeholder ="Select one"),
+  #                                             choices = c(
+  #                                               "Band application on surface",
+  #                                               "Band application incorporated (Band application beneath surface)",
+  #                                               "Broadcast surface",
+  #                                               "Broadcast incorporated",
+  #                                               "Contact placement (seed placement)",
+  #                                               "Deep placement",
+  #                                               "Fertigation",
+  #                                               "Foliar application",
+  #                                               "Injection",
+  #                                               "Placed with seed (seed placement)",
+  #                                               "Side dressing",
+  #                                               "Sub-soil placement (injection)",
+  #                                               "Localized application (using mechanical or hand device)",
+  #                                               "Other")
+  #                              ),
+  #                              conditionalPanel(paste0("input.fertilizer_phos_application_technique1_", type, "_", order, " == 'Other'"),
+  #                                               textInput(paste0("fertilizer_phos_application_technique1_other_", type, "_", order), "")
+  #                              )
+  #                       ),
+  #                       column(width = 6,
+  #                              selectizeInput(paste0("fertilizer_phos_implement1_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                             choices = c("Backpack sprayer (airblast sprayer)",
+  #                                                         "Boom sprayer",
+  #                                                         "Broadcast spreader",
+  #                                                         "Hand sprayer",
+  #                                                         "Manure spreader",
+  #                                                         "Slurry injector",
+  #                                                         "Manual application",
+  #                                                         "Other")
+  #                              ),
+  #                              conditionalPanel(paste0("input.fertilizer_phos_implement1_", type, "_", order, " == 'Other'"),
+  #                                               textInput(paste0("fertilizer_phos_implement1_other_", type, "_", order), "")
+  #                              )
+  #                       )
+  #                     )
+  #                   ),
+  #                  column(width = 1,
+  #                         textInput(paste0("fert_phos_amountApplied1_", type, "_", order),"")
+  #                  ),
+  #                  column(width = 1,
+  #                         selectizeInput(paste0("fert_phos_amountAppliedScale1_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                        c("kg/m2","kg/ha","t/ha"))
+  #                  ),
+  #                  column(width = 1,
+  #                         textInput(paste0("fert_phos_nutrientContent1_", type, "_", order),"")
+  #                  )
+  #                 ),
+  # 
+  #                 conditionalPanel(paste0("input.nutrientApplied_phos_numApps1_", type, "_", order,  " == 2 |
+  #                                         input.nutrientApplied_phos_numApps1_", type, "_", order, " == 3 "),
+  #                                  fluidRow(
+  #                                    column(width = 2,
+  #                                           fluidRow(
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  #                                             ),
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  # 
+  #                                             ),
+  #                                             column(width = 2,
+  #                                                    br(),
+  #                                                    div(style="text-align:center", h4("2"))
+  #                                             )
+  #                                           )
+  #                                    ),
+  # 
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_phos_start_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  # 
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_phos_end_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  #                                    column(width = 2,
+  #                                           if(type == "Green_manure"){
+  #                                             textInput(paste0("fert_phos_type2_", type, "_", order), "")
+  #                                           }
+  #                                           else if(type == "Inorganic"){
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  #                                             selectizeInput(paste0("fert_phos_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                               'Ammonium nitrate',
+  #                                               'Ammonium nitrate sulfate',
+  #                                               'Ammonium polyphosphate',
+  #                                               'Ammonium sulfate',
+  #                                               'Anhydrous ammonia',
+  #                                               'Aqua ammonia',
+  #                                               'Calcitic limestone',
+  #                                               'Calcium ammonium nitrate solution',
+  #                                               'Calcium hydroxide',
+  #                                               'Calcium nitrate',
+  #                                               'Diammonium phosphate',
+  #                                               'Dolomitic limestone',
+  #                                               'Liquid phosphoric acid',
+  #                                               'Monoammonium phosphate',
+  #                                               'Potassium chloride',
+  #                                               'Potassium nitrate',
+  #                                               'Potassium sulfate',
+  #                                               'Rock phosphate',
+  #                                               'Single super phosphate',
+  #                                               'Triple super phosphate',
+  #                                               'Urea',
+  #                                               'Urea ammonium nitrate solution',
+  #                                               'Urea super granules',
+  #                                               'NPK fertilizers',
+  #                                               "Other")
+  #                                             )
+  #                                               ),
+  #                                             column(width = 5,
+  #                                                    selectizeInput(paste0("fert_phos_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                   c("g/sq m","kg/ha","lb/ac"))
+  #                                             ),
+  #                                             conditionalPanel(paste0("input.fert_phos_type2_", type, "_", order, " == 'Other'"),
+  #                                                              column(width=12,
+  #                                                              textInput(paste0("fert_phos_type2_other_", type, "_", order), "")
+  #                                                              )
+  #                                             )
+  #                                           )
+  # 
+  #                                           }
+  #                                           else{
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  #                                           selectizeInput(paste0("fert_phos_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                                 "Alfalfa Meal",
+  #                                                 "Bagasse",
+  #                                                 "Biochar",
+  #                                                 "Chicken litter (Poultry manure)",
+  #                                                 "Compost",
+  #                                                 "Farmyard manure",
+  #                                                 "Guano",
+  #                                                 "Liquid manure",
+  #                                                 "Oil cake",
+  #                                                 "Treated sewage sludge",
+  #                                                 "Vermicompost",
+  #                                                 "Fish fertilizer",
+  #                                                 "Other")
+  #                                               )
+  #                                               ),
+  #                                           column(width = 5,
+  #                                                  selectizeInput(paste0("fert_phos_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                 c("g/sq m","kg/ha","lb/ac"))
+  #                                           ),
+  #                                           conditionalPanel(paste0("input.fert_phos_type2_", type, "_", order, " == 'Other'"),
+  #                                                            column(width=12,
+  #                                                            textInput(paste0("fert_phos_type2_other_", type, "_", order), "")
+  #                                                            )
+  #                                           )
+  # 
+  #                                             )
+  # 
+  #                                             }
+  #                                    ),
+  #                                    column(width=3 ,
+  #                                       fluidRow(
+  #                                          column(width =6,
+  #                                                 selectizeInput(paste0("fertilizer_phos_application_technique2_", type, "_", order), "", multiple = T,
+  #                                                                options = list(maxItems = 1, placeholder ="Select one"),
+  #                                                                choices = c(
+  #                                                                  "Band application on surface",
+  #                                                                  "Band application incorporated (Band application beneath surface)",
+  #                                                                  "Broadcast surface",
+  #                                                                  "Broadcast incorporated",
+  #                                                                  "Contact placement (seed placement)",
+  #                                                                  "Deep placement",
+  #                                                                  "Fertigation",
+  #                                                                  "Foliar application",
+  #                                                                  "Injection",
+  #                                                                  "Placed with seed (seed placement)",
+  #                                                                  "Side dressing",
+  #                                                                  "Sub-soil placement (injection)",
+  #                                                                  "Localized application (using mechanical or hand device)",
+  #                                                                  "Other")
+  #                                                 ),
+  #                                                 conditionalPanel(paste0("input.fertilizer_phos_application_technique2_", type, "_", order, " == 'Other'"),
+  #                                                                  column(width=12,
+  #                                                                  textInput(paste0("fertilizer_phos_application_technique2_other_", type, "_", order), "")
+  #                                                                  )
+  #                                                 )
+  #                                        ),
+  #                                        column(width = 6,
+  #                                               selectizeInput(paste0("fertilizer_phos_implement2_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                                              choices = c("Backpack sprayer (airblast sprayer)",
+  #                                                                          "Boom sprayer",
+  #                                                                          "Broadcast spreader",
+  #                                                                          "Hand sprayer",
+  #                                                                          "Manure spreader",
+  #                                                                          "Slurry injector",
+  #                                                                          "Manual application",
+  #                                                                          "Other")
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fertilizer_phos_implement2_", type, "_", order, " == 'Other'"),
+  #                                                                  textInput(paste0("fertilizer_phos_implement2_other_", type, "_", order), "")
+  #                                               )
+  #                                        )
+  #                                       )
+  #                                    ),
+  #                                   column(width = 1,
+  #                                          textInput(paste0("fert_phos_amountApplied2_", type, "_", order),"")
+  #                                   ),
+  #                                   column(width = 1,
+  #                                          selectizeInput(paste0("fert_phos_amountAppliedScale2_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                         c("kg/m2","kg/ha","t/ha"))
+  #                                   ),
+  #                                   column(width = 1,
+  #                                          textInput(paste0("fert_phos_nutrientContent2_", type, "_", order),"")
+  #                                   )
+  # 
+  #                             )
+  # 
+  #                 ),
+  # 
+  # 
+  #                 conditionalPanel(paste0("input.nutrientApplied_phos_numApps1_" , type, "_", order, " == 3 "),
+  #                                  fluidRow(
+  #                                    column(width = 2,
+  #                                           fluidRow(
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  #                                             ),
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  # 
+  #                                             ),
+  #                                             column(width = 2,
+  #                                                    br(),
+  #                                                    div(style="text-align:center", h4("3"))
+  #                                             )
+  #                                           )
+  #                                    ),
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_phos_start_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  # 
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_phos_end_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  # 
+  # 
+  #                                    column(width = 2,
+  #                                           if(type == "Green_manure"){
+  #                                             textInput(paste0("fert_phos_type3_", type, "_", order), "")
+  #                                           }
+  #                                           else if(type == "Inorganic"){
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  # 
+  #                                             selectizeInput(paste0("fert_phos_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                               'Ammonium nitrate',
+  #                                               'Ammonium nitrate sulfate',
+  #                                               'Ammonium polyphosphate',
+  #                                               'Ammonium sulfate',
+  #                                               'Anhydrous ammonia',
+  #                                               'Aqua ammonia',
+  #                                               'Calcitic limestone',
+  #                                               'Calcium ammonium nitrate solution',
+  #                                               'Calcium hydroxide',
+  #                                               'Calcium nitrate',
+  #                                               'Diammonium phosphate',
+  #                                               'Dolomitic limestone',
+  #                                               'Liquid phosphoric acid',
+  #                                               'Monoammonium phosphate',
+  #                                               'Potassium chloride',
+  #                                               'Potassium nitrate',
+  #                                               'Potassium sulfate',
+  #                                               'Rock phosphate',
+  #                                               'Single super phosphate',
+  #                                               'Triple super phosphate',
+  #                                               'Urea',
+  #                                               'Urea ammonium nitrate solution',
+  #                                               'Urea super granules',
+  #                                               'NPK fertilizers',
+  #                                               "Other")
+  #                                             )
+  #                                               ),
+  #                                             column(width = 5,
+  #                                                    selectizeInput(paste0("fert_phos_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                   c("g/sq m","kg/ha","lb/ac"))
+  # 
+  #                                             ),
+  #                                             conditionalPanel(paste0("input.fert_phos_type3_", type, "_", order, " == 'Other'"),
+  #                                                              column(width=12,
+  #                                                              textInput(paste0("fert_phos_type3_other_", type, "_", order), "")
+  #                                                              )
+  #                                             )
+  # 
+  #                                             )
+  # 
+  #                                           }
+  #                                           else{
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  #                                               selectizeInput(paste0("fert_phos_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                                 "Alfalfa Meal",
+  #                                                 "Bagasse",
+  #                                                 "Biochar",
+  #                                                 "Chicken litter (Poultry manure)",
+  #                                                 "Compost",
+  #                                                 "Farmyard manure",
+  #                                                 "Guano",
+  #                                                 "Liquid manure",
+  #                                                 "Oil cake",
+  #                                                 "Treated sewage sludge",
+  #                                                 "Vermicompost",
+  #                                                 "Fish fertilizer",
+  #                                                 "Other")
+  #                                               )
+  #                                               ),
+  #                                               column(width = 5,
+  #                                                      selectizeInput(paste0("fert_phos_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                     c("g/sq m","kg/ha","lb/ac"))
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fert_phos_type3_", type, "_", order, " == 'Other'"),
+  #                                                                column(width=12,
+  #                                                                textInput(paste0("fert_phos_type3_other_", type, "_", order), "")
+  #                                                                )
+  #                                               )
+  # 
+  #                                             )
+  # 
+  #                                           }
+  #                                    ),
+  #                                    column(width=3 ,
+  #                                     fluidRow(
+  #                                        column(width = 6,
+  #                                               selectizeInput(paste0("fertilizer_phos_application_technique3_", type, "_", order),label = "", multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                                              choices = c(
+  #                                                                "Band application on surface",
+  #                                                                "Band application incorporated (Band application beneath surface)",
+  #                                                                "Broadcast surface",
+  #                                                                "Broadcast incorporated",
+  #                                                                "Contact placement (seed placement)",
+  #                                                                "Deep placement",
+  #                                                                "Fertigation",
+  #                                                                "Foliar application",
+  #                                                                "Injection",
+  #                                                                "Placed with seed (seed placement)",
+  #                                                                "Side dressing",
+  #                                                                "Sub-soil placement (injection)",
+  #                                                                "Localized application (using mechanical or hand device)",
+  #                                                                "Other")
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fertilizer_phos_application_technique3_", type, "_", order, " == 'Other'"),
+  #                                                                textInput(paste0("fertilizer_phos_application_technique3_other_", type, "_", order), "")
+  #                                               )
+  #                                        ),
+  #                                        column(width = 6,
+  #                                               selectizeInput(paste0("fertilizer_phos_implement3_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                                              choices = c("Backpack sprayer (airblast sprayer)",
+  #                                                                          "Boom sprayer",
+  #                                                                          "Broadcast spreader",
+  #                                                                          "Hand sprayer",
+  #                                                                          "Manure spreader",
+  #                                                                          "Slurry injector",
+  #                                                                          "Manual application",
+  #                                                                          "Other")
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fertilizer_phos_implement3_", type, "_", order, " == 'Other'"),
+  #                                                                textInput(paste0("fertilizer_phos_implement3_other_", type, "_", order), "")
+  #                                               )
+  #                                        )
+  #                                     )
+  #                                    ),
+  #                                   column(width = 1,
+  #                                          textInput(paste0("fert_phos_amountApplied3_", type, "_", order),"")
+  #                                   ),
+  #                                   column(width = 1,
+  #                                          selectizeInput(paste0("fert_phos_amountAppliedScale3_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                         c("kg/m2","kg/ha","t/ha"))
+  #                                   ),
+  #                                   column(width = 1,
+  #                                          textInput(paste0("fert_phos_nutrientContent3_", type, "_", order),"")
+  #                                   )
+  # 
+  #                               )
+  # 
+  # 
+  #                 ),#end conditional2
+  # 
+  # 
+  #                 fluidRow(
+  #                   column(width = 2,
+  #                          fluidRow(
+  #                            column(width = 5,
+  #                                   br(),
+  #                                   div(style="text-align:right", "Potassium")
+  #                            ),
+  #                            column(width = 5,
+  #                                   selectInput(paste0("nutrientApplied_potas_numApps1_", type, "_", order),"",c(1,2,3))
+  # 
+  #                            ),
+  #                            column(width = 2,
+  #                                   br(),
+  #                                   div(style="text-align:center", h4("1"))
+  #                            )
+  #                          )
+  #                   ),
+  #                   column(width = 1,
+  #                          dateInput(paste0("fert_potas_start_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                   ),
+  # 
+  #                   column(width = 1,
+  #                          dateInput(paste0("fert_potas_end_date1_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                   ),
+  # 
+  #                   column(width = 2,
+  #                          if(type == "Green_manure"){
+  #                            textInput(paste0("fert_potas_type1_", type, "_", order), "")
+  #                          }
+  #                          else if(type == "Inorganic"){
+  #                            fluidRow(
+  #                              column(width = 7,
+  # 
+  #                            selectizeInput(paste0("fert_potas_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                              'Ammonium nitrate',
+  #                              'Ammonium nitrate sulfate',
+  #                              'Ammonium polyphosphate',
+  #                              'Ammonium sulfate',
+  #                              'Anhydrous ammonia',
+  #                              'Aqua ammonia',
+  #                              'Calcitic limestone',
+  #                              'Calcium ammonium nitrate solution',
+  #                              'Calcium hydroxide',
+  #                              'Calcium nitrate',
+  #                              'Diammonium phosphate',
+  #                              'Dolomitic limestone',
+  #                              'Liquid phosphoric acid',
+  #                              'Monoammonium phosphate',
+  #                              'Potassium chloride',
+  #                              'Potassium nitrate',
+  #                              'Potassium sulfate',
+  #                              'Rock phosphate',
+  #                              'Single super phosphate',
+  #                              'Triple super phosphate',
+  #                              'Urea',
+  #                              'Urea ammonium nitrate solution',
+  #                              'Urea super granules',
+  #                              'NPK fertilizers',
+  #                              "Other")
+  #                            )
+  #                              ),
+  #                            column(width = 5,
+  #                                   selectizeInput(paste0("fert_potas_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                  c("g/sq m","kg/ha","lb/ac"))
+  #                            ),
+  #                            conditionalPanel(paste0("input.fert_potas_type1_", type, "_", order, " == 'Other'"),
+  #                                             column(width=12,
+  #                                             textInput(paste0("fert_potas_type1_other_", type, "_", order), "")
+  #                                             )
+  #                            )
+  # 
+  #                            )
+  # 
+  #                          }
+  #                          else{
+  #                            fluidRow(
+  #                              column(width = 7,
+  # 
+  #                              selectizeInput(paste0("fert_potas_type1_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                "Alfalfa Meal",
+  #                                "Bagasse",
+  #                                "Biochar",
+  #                                "Chicken litter (Poultry manure)",
+  #                                "Compost",
+  #                                "Farmyard manure",
+  #                                "Guano",
+  #                                "Liquid manure",
+  #                                "Oil cake",
+  #                                "Treated sewage sludge",
+  #                                "Vermicompost",
+  #                                "Fish fertilizer",
+  #                                "Other")
+  #                              )
+  #                              ),
+  #                              column(width = 5,
+  #                                     selectizeInput(paste0("fert_potas_type1_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                    c("g/sq m","kg/ha","lb/ac"))
+  #                              ),
+  #                              conditionalPanel(paste0("input.fert_potas_type1_", type, "_", order, " == 'Other'"),
+  #                                               column(width=12,
+  #                                                      textInput(paste0("fert_potas_type1_other_", type, "_", order), "")
+  #                                               )
+  #                              )
+  # 
+  #                            )
+  # 
+  #                            }
+  #                   ),
+  #                   column(width=3 ,
+  #                     fluidRow(
+  #                         column(width = 6,
+  #                                selectizeInput(paste0("fertilizer_potas_application_technique1_", type, "_", order), "", multiple = T,
+  #                                               options = list(maxItems = 1, placeholder ="Select one"),
+  #                                               choices = c(
+  #                                                 "Band application on surface",
+  #                                                 "Band application incorporated (Band application beneath surface)",
+  #                                                 "Broadcast surface",
+  #                                                 "Broadcast incorporated",
+  #                                                 "Contact placement (seed placement)",
+  #                                                 "Deep placement",
+  #                                                 "Fertigation",
+  #                                                 "Foliar application",
+  #                                                 "Injection",
+  #                                                 "Placed with seed (seed placement)",
+  #                                                 "Side dressing",
+  #                                                 "Sub-soil placement (injection)",
+  #                                                 "Localized application (using mechanical or hand device)",
+  #                                                 "Other")
+  #                                ),
+  #                                conditionalPanel(paste0("input.fertilizer_potas_application_technique1_", type, "_", order, " == 'Other'"),
+  #                                                 textInput(paste0("fertilizer_potas_application_technique1_other_", type, "_", order), "")
+  #                                )
+  #                         ),
+  #                         column(width = 6,
+  #                                selectizeInput(paste0("fertilizer_potas_implement1_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                               choices = c("Backpack sprayer (airblast sprayer)",
+  #                                                           "Boom sprayer",
+  #                                                           "Broadcast spreader",
+  #                                                           "Hand sprayer",
+  #                                                           "Manure spreader",
+  #                                                           "Slurry injector",
+  #                                                           "Manual application",
+  #                                                           "Other")
+  #                                ),
+  #                                conditionalPanel(paste0("input.fertilizer_potas_implement1_", type, "_", order, " == 'Other'"),
+  #                                                 textInput(paste0("fertilizer_potas_implement1__other_", type, "_", order), "")
+  #                                )
+  # 
+  #                         )
+  #                       )
+  #                   ),
+  # 
+  #                  column(width = 1,
+  #                         textInput(paste0("fert_potas_amountApplied1_", type, "_", order),"")
+  #                  ),
+  #                  column(width = 1,
+  #                         selectizeInput(paste0("fert_potas_amountAppliedScale1_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                        c("kg/m2","kg/ha","t/ha"))
+  #                  ),
+  #                  column(width = 1,
+  #                         textInput(paste0("fert_potas_nutrientContent1_", type, "_", order),"")
+  #                  )
+  #                 ),
+  # 
+  #                 conditionalPanel(paste0("input.nutrientApplied_potas_numApps1_", type, "_", order,  " == 2 |
+  #                                         input.nutrientApplied_potas_numApps1_", type, "_", order, " == 3 "),
+  #                                  fluidRow(
+  #                                    column(width = 2,
+  #                                           fluidRow(
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  #                                             ),
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  # 
+  #                                             ),
+  #                                             column(width = 2,
+  #                                                    br(),
+  #                                                    div(style="text-align:center", h4("2"))
+  #                                             )
+  #                                           )
+  #                                    ),
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_potas_start_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  # 
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_potas_end_date2_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  # 
+  #                                    column(width = 2,
+  #                                           if(type == "Green_manure"){
+  #                                             textInput(paste0("fert_potas_type2_", type, "_", order), "")
+  #                                           }
+  #                                           else if(type == "Inorganic"){
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  #                                             selectizeInput(paste0("fert_potas_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                               'Ammonium nitrate',
+  #                                               'Ammonium nitrate sulfate',
+  #                                               'Ammonium polyphosphate',
+  #                                               'Ammonium sulfate',
+  #                                               'Anhydrous ammonia',
+  #                                               'Aqua ammonia',
+  #                                               'Calcitic limestone',
+  #                                               'Calcium ammonium nitrate solution',
+  #                                               'Calcium hydroxide',
+  #                                               'Calcium nitrate',
+  #                                               'Diammonium phosphate',
+  #                                               'Dolomitic limestone',
+  #                                               'Liquid phosphoric acid',
+  #                                               'Monoammonium phosphate',
+  #                                               'Potassium chloride',
+  #                                               'Potassium nitrate',
+  #                                               'Potassium sulfate',
+  #                                               'Rock phosphate',
+  #                                               'Single super phosphate',
+  #                                               'Triple super phosphate',
+  #                                               'Urea',
+  #                                               'Urea ammonium nitrate solution',
+  #                                               'Urea super granules',
+  #                                               'NPK fertilizers',
+  #                                               "Other")
+  #                                             )
+  #                                               ),
+  #                                             column(width = 5,
+  #                                                    selectizeInput(paste0("fert_potas_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                   c("g/sq m","kg/ha","lb/ac"))
+  #                                             ),
+  #                                             conditionalPanel(paste0("input.fert_potas_type2_", type, "_", order, " == 'Other'"),
+  #                                                              column(width=12,
+  #                                                                     textInput(paste0("fert_potas_type2_other_", type, "_", order), "")
+  #                                                              )
+  #                                             )
+  # 
+  #                                             )
+  #                                           }
+  #                                           else{
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  #                                                 selectizeInput(paste0("fert_potas_type2_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                                   "Alfalfa Meal",
+  #                                                   "Bagasse",
+  #                                                   "Biochar",
+  #                                                   "Chicken litter (Poultry manure)",
+  #                                                   "Compost",
+  #                                                   "Farmyard manure",
+  #                                                   "Guano",
+  #                                                   "Liquid manure",
+  #                                                   "Oil cake",
+  #                                                   "Treated sewage sludge",
+  #                                                   "Vermicompost",
+  #                                                   "Fish fertilizer",
+  #                                                   "Other")
+  #                                                 )
+  #                                               ),
+  #                                               column(width = 5,
+  #                                                      selectizeInput(paste0("fert_potas_type2_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                     c("g/sq m","kg/ha","lb/ac"))
+  # 
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fert_potas_type2_", type, "_", order, " == 'Other'"),
+  #                                                                column(width=12,
+  #                                                                       textInput(paste0("fert_potas_type2_other_", type, "_", order), "")
+  #                                                                )
+  #                                               )
+  # 
+  #                                             )
+  #                                             }
+  #                                    ),
+  #                                    column(width=3 ,
+  #                                     fluidRow(
+  #                                        column(width = 6,
+  #                                               selectizeInput(paste0("fertilizer_potas_application_technique2_", type, "_", order), "", multiple = T,
+  #                                                              options = list(maxItems = 1, placeholder ="Select one"),
+  #                                                              choices = c(
+  #                                                                "Band application on surface",
+  #                                                                "Band application incorporated (Band application beneath surface)",
+  #                                                                "Broadcast surface",
+  #                                                                "Broadcast incorporated",
+  #                                                                "Contact placement (seed placement)",
+  #                                                                "Deep placement",
+  #                                                                "Fertigation",
+  #                                                                "Foliar application",
+  #                                                                "Injection",
+  #                                                                "Placed with seed (seed placement)",
+  #                                                                "Side dressing",
+  #                                                                "Sub-soil placement (injection)",
+  #                                                                "Localized application (using mechanical or hand device)",
+  #                                                                "Other")
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fertilizer_potas_application_technique2_", type, "_", order, " == 'Other'"),
+  #                                                                textInput(paste0("fertilizer_potas_application_technique2_other_", type, "_", order), "")
+  #                                               )
+  #                                        ),
+  #                                        column(width = 6,
+  #                                               selectizeInput(paste0("fertilizer_potas_implement2_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                                              choices = c("Backpack sprayer (airblast sprayer)",
+  #                                                                          "Boom sprayer",
+  #                                                                          "Broadcast spreader",
+  #                                                                          "Hand sprayer",
+  #                                                                          "Manure spreader",
+  #                                                                          "Slurry injector",
+  #                                                                          "Manual application",
+  #                                                                          "Other")
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fertilizer_potas_implement2_", type, "_", order, " == 'Other'"),
+  #                                                                textInput(paste0("fertilizer_potas_implement2__other_", type, "_", order), "")
+  #                                               )
+  #                                        )
+  #                                     )
+  #                                    ),
+  #                                   column(width = 1,
+  #                                          textInput(paste0("fert_potas_amountApplied2_", type, "_", order),"")
+  #                                   ),
+  #                                   column(width = 1,
+  #                                          selectizeInput(paste0("fert_potas_amountAppliedScale2_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                         c("kg/m2","kg/ha","t/ha"))
+  #                                   ),
+  #                                   column(width = 1,
+  #                                          textInput(paste0("fert_potas_nutrientContent2_", type, "_", order),"")
+  #                                   )
+  #                                  )
+  # 
+  #                 ),
+  # 
+  # 
+  #                 conditionalPanel(paste0("input.nutrientApplied_potas_numApps1_" , type, "_", order, " == 3 "),
+  #                                  fluidRow(
+  #                                    column(width = 2,
+  #                                           fluidRow(
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  #                                             ),
+  #                                             column(width = 5,
+  #                                                    br(),
+  #                                                    div(style="text-align:right", "")
+  # 
+  #                                             ),
+  #                                             column(width = 2,
+  #                                                    br(),
+  #                                                    div(style="text-align:center", h4("3"))
+  #                                             )
+  #                                           )
+  #                                    ),
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_potas_start_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  # 
+  #                                    column(width = 1,
+  #                                           dateInput(paste0("fert_potas_end_date3_", type, "_", order), label ="", format = "yyyy-mm-dd")
+  #                                    ),
+  # 
+  #                                    column(width = 2,
+  #                                           if(type == "Green_manure"){
+  #                                             textInput(paste0("fert_potas_type3_", type, "_", order), "")
+  #                                           }
+  #                                           else if(type == "Inorganic"){
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  #                                             selectizeInput(paste0("fert_potas_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                               'Ammonium nitrate',
+  #                                               'Ammonium nitrate sulfate',
+  #                                               'Ammonium polyphosphate',
+  #                                               'Ammonium sulfate',
+  #                                               'Anhydrous ammonia',
+  #                                               'Aqua ammonia',
+  #                                               'Calcitic limestone',
+  #                                               'Calcium ammonium nitrate solution',
+  #                                               'Calcium hydroxide',
+  #                                               'Calcium nitrate',
+  #                                               'Diammonium phosphate',
+  #                                               'Dolomitic limestone',
+  #                                               'Liquid phosphoric acid',
+  #                                               'Monoammonium phosphate',
+  #                                               'Potassium chloride',
+  #                                               'Potassium nitrate',
+  #                                               'Potassium sulfate',
+  #                                               'Rock phosphate',
+  #                                               'Single super phosphate',
+  #                                               'Triple super phosphate',
+  #                                               'Urea',
+  #                                               'Urea ammonium nitrate solution',
+  #                                               'Urea super granules',
+  #                                               'NPK fertilizers',
+  #                                               "Other")
+  #                                             )
+  #                                               ),
+  #                                             column(width = 5,
+  #                                                    selectizeInput(paste0("fert_potas_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                   c("g/sq m","kg/ha","lb/ac"))
+  #                                             ),
+  #                                             conditionalPanel(paste0("input.fert_potas_type3_", type, "_", order, " == 'Other'"),
+  #                                                              column(width=12,
+  #                                                                     textInput(paste0("fert_potas_type3_other_", type, "_", order), "")
+  #                                                              )
+  #                                             )
+  #                                           )
+  # 
+  #                                           }
+  #                                           else{
+  #                                             fluidRow(
+  #                                               column(width = 7,
+  # 
+  #                                                 selectizeInput(paste0("fert_potas_type3_", type, "_", order), multiple = TRUE, options = list(maxItems = 1, placeholder = "Select one..."), label ="", choices =c(
+  #                                                   "Alfalfa Meal",
+  #                                                   "Bagasse",
+  #                                                   "Biochar",
+  #                                                   "Chicken litter (Poultry manure)",
+  #                                                   "Compost",
+  #                                                   "Farmyard manure",
+  #                                                   "Guano",
+  #                                                   "Liquid manure",
+  #                                                   "Oil cake",
+  #                                                   "Treated sewage sludge",
+  #                                                   "Vermicompost",
+  #                                                   "Fish fertilizer",
+  #                                                   "Other")
+  #                                                 )
+  #                                               ),
+  #                                               column(width = 5,
+  #                                                      selectizeInput(paste0("fert_potas_type3_unit_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                                     c("g/sq m","kg/ha","lb/ac"))
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fert_potas_type3_", type, "_", order, " == 'Other'"),
+  #                                                                column(width=12,
+  #                                                                       textInput(paste0("fert_potas_type3_other_", type, "_", order), "")
+  #                                                                )
+  #                                               )
+  # 
+  #                                             )
+  #                                           }
+  #                                    ),
+  #                                    column(width=3 ,
+  #                                     fluidRow(
+  #                                        column(width = 6,
+  #                                               selectizeInput(paste0("fertilizer_potas_application_technique3_", type, "_", order),label = "", multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                                              choices = c(
+  #                                                                "Band application on surface",
+  #                                                                "Band application incorporated (Band application beneath surface)",
+  #                                                                "Broadcast surface",
+  #                                                                "Broadcast incorporated",
+  #                                                                "Contact placement (seed placement)",
+  #                                                                "Deep placement",
+  #                                                                "Fertigation",
+  #                                                                "Foliar application",
+  #                                                                "Injection",
+  #                                                                "Placed with seed (seed placement)",
+  #                                                                "Side dressing",
+  #                                                                "Sub-soil placement (injection)",
+  #                                                                "Localized application (using mechanical or hand device)",
+  #                                                                "Other")
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fertilizer_potas_application_technique3_", type, "_", order, " == 'Other'"),
+  #                                                                textInput(paste0("fertilizer_potas_application_technique3_other_", type, "_", order), "")
+  #                                               )
+  #                                        ),
+  #                                        column(width = 6,
+  #                                               selectizeInput(paste0("fertilizer_potas_implement3_", type, "_", order), label = "",multiple =T, options = list(maxItems=1, placeholder="Select one..."),
+  #                                                              choices = c("Backpack sprayer (airblast sprayer)",
+  #                                                                          "Boom sprayer",
+  #                                                                          "Broadcast spreader",
+  #                                                                          "Hand sprayer",
+  #                                                                          "Manure spreader",
+  #                                                                          "Slurry injector",
+  #                                                                          "Manual application",
+  #                                                                          "Other")
+  #                                               ),
+  #                                               conditionalPanel(paste0("input.fertilizer_potas_implement3_", type, "_", order, " == 'Other'"),
+  #                                                                textInput(paste0("fertilizer_potas_implement3_other_", type, "_", order), "")
+  #                                               )
+  #                                        )
+  #                                     )
+  #                                    ),
+  #                                    column(width = 1,
+  #                                           textInput(paste0("fert_potas_amountApplied3_", type, "_", order),"")
+  #                                    ),
+  #                                    column(width = 1,
+  #                                           selectizeInput(paste0("fert_potas_amountAppliedScale3_", type, "_", order), multiple =T, options = list(maxItems=1, placeholder=""), label= "",
+  #                                                          c("kg/m2","kg/ha","t/ha"))
+  #                                    ),
+  #                                    column(width = 1,
+  #                                           textInput(paste0("fert_potas_nutrientContent3_", type, "_", order),"")
+  #                                    )
+  # 
+  #                             )
+  # 
+  # 
+  #                 )#end conditional2
+  # 
+  #            ))
+  # 
+  # 
+  # }
+  # 
+  # ###################### end nutrients #####################################
 
   ###################### start Other focus #################################
 
@@ -11217,12 +13042,12 @@ server_design_agrofims <- function(input, output, session, values){
   # })
 
 
-  observeEvent(input$land_impl_type,{
-    if(input$land_impl_type == "Other"){
-      session$sendCustomMessage(type="focus",message="land_impl_type_other")
-    }
-
-  })
+  # observeEvent(input$land_impl_type,{
+  #   if(input$land_impl_type == "Other"){
+  #     session$sendCustomMessage(type="focus",message="land_impl_type_other")
+  #   }
+  # 
+  # })
 
 
   ########### traits table ############################################
@@ -13950,321 +15775,321 @@ server_design_agrofims <- function(input, output, session, values){
   # })
   
   
-  expCondsVars$num_harvest <- 0
-  expCondsVars$DEFAULT_harvest <- 1
-  expCondsVars$ids_harvest <- c()
-
-  observeEvent(input$croppingType,{
-
-    if(input$croppingType == "Monocrop"){
-      # removeTab(inputId = "fbDesignNav",target = "Crop_Measurement_intercrop")
-      # removeTab(inputId = "fbDesignNav",target = "Crop_Phenology_intercrop")
-      # 
-      # insertTab(inputId = "fbDesignNav",
-      #           tabPanel("Crop Measurement",  value = "Crop_Measurement_monocrop", icon = shiny::icon("leaf"),
-      #                    column(width = 12,
-      #                           h2("Crop measurement"),
-      #                           p(class = "text-muted", style="text-align:justify",
-      #                             paste("Please, select measurement by click.")
-      #                           ),
-      #                           column(12, align = "center", checkboxInput("dt_sel", "Select all")),
-      #                           br(),br()
-      #                    ),
-      #                    uiOutput("uiTraitsList3"),
-      #                    sidebarPanel(id="sidebar", width = 12,
-      #                                 actionButton("btnNextEnv", "Next", class = "btn-primary",style="color: #fff;", href="#top")
-      #                    )
-      #           ),
-      #           position =  "after",
-      #           target = "tabAgroFeat")
-      # insertTab(inputId = "fbDesignNav",
-      #           tabPanel("Crop Phenology", value = "Crop_Phenology_monocrop",  icon = shiny::icon("envira"),
-      #                    column(width = 12,
-      #                           h2("Crop Phenology"),
-      #                           p(class = "text-muted", style="text-align:justify",
-      #                             paste("Please, select phenology by click.")
-      #                           ),
-      #                           #column(12, align = "center", checkboxInput("dt_sel", "Select all"))
-      #                           DTOutput('phenoDT')
-      # 
-      #                    )#,
-      #                    #DTOutput('phenoDT')
-      #           ),
-      #           position =  "after",
-      #           target = "Crop_Measurement_monocrop")
-
-      isolate(removeAgroBoxesIntercrop())
-      isolate(drawAgroBoxes(1))
-      shinyjs::show(id="addHarvest")
-
-    }
-    else if(input$croppingType == "Intercrop"){
-
-      # removeTab(inputId = "fbDesignNav",target = "Crop_Measurement_monocrop")
-      # removeTab(inputId = "fbDesignNav",target = "Crop_Phenology_monocrop")
-      # 
-      # 
-      isolate(ids <- intercropVars$ids)
-      tt <- unlist(strsplit(ids[1],"_"))
-      # 
-      # insertTab(inputId = "fbDesignNav",
-      #        tabPanel("Crop Measurement",  value = "Crop_Measurement_intercrop", icon = shiny::icon("leaf"),
-      #                 column(12, h2("Crop Measurement"),
-      #                 tabsetPanel( id= "intercropMeasuTabs",
-      #                              tabPanel(title = textOutput(paste0("intercrop_tab_measu_title_",tt[2])), value = paste0("intercrop_tab_measu_",tt[2]),
-      #                                       br(),
-      #                                       column(12,DTOutput(paste0("crop_measurement_table_", tt[2])))
-      #                              )
-      #                 ))
-      # 
-      #        ),
-      #       position =  "after",
-      #       target = "tabAgroFeat")
-      # 
-      # insertTab(inputId = "fbDesignNav",
-      #         tabPanel("Crop Phenology",  value = "Crop_Phenology_intercrop", icon = shiny::icon("envira"),
-      #                  column(12, h2("Crop Phenology"),
-      #                   tabsetPanel( id= "intercropPhenoTabs",
-      #                                tabPanel(title = textOutput(paste0("intercrop_tab_pheno_title_",tt[2])), value = paste0("intercrop_tab_pheno_",tt[2]),
-      #                                         br(),
-      #                                         column(12,renderDataTable(pheno_vars , options = list(lengthChange = FALSE)))
-      #                                )
-      #                   ))
-      #          ),
-      #         position =  "after",
-      #         target = "Crop_Measurement_intercrop")
-
-     #isolate(drawTabsIntercrop(ids))
-     isolate(removeAgroBoxesMonocrop())
-     expCondsVars$ids_harvest <- c()
-     isolate(drawAgroBoxesIntercrop())
-     shinyjs::hide(id="addHarvest")
-    }
-  })
-  
-  drawTabsIntercrop <- function(ids){
-    tt <- unlist(strsplit(ids[1],"_"))
-    
-    mtarget <- paste0("intercrop_tab_measu_",tt[2])
-    ptarget <- paste0("intercrop_tab_pheno_",tt[2])
-    intercropVars$pheno[[tt[2]]] <- pheno_vars
-    
-    xtitle <- input[[paste0("int_cropCommonName_", tt[2])]]
-    mcrop <- xtitle
-    if(is.null(mcrop)) mcrop <- "Crop" 
-    
-    updateCropMeasurementTable(tt[2],mcrop)
-    
-    if(!is.null(xtitle)){
-      if(xtitle == "Other"  && input[[paste0("int_cropCommonName_", tt[2]), "_other"]] != "")  
-        xtitle <- input[[paste0("int_cropCommonName_", tt[2]), "_other"]]
-      else xtitle <- input[[paste0("int_cropCommonName_", tt[2])]]
-    }
-    else {
-      xtitle= "Crop"
-    }
-    
-    
-    mtitle <- paste0(xtitle, " Measurement")
-    ptitle <- paste0(xtitle, " Phenology")
-    
-  
-    isolate(renameTab(paste0("intercrop_tab_measu_title_",tt[2]), mtitle))
-    isolate(renameTab(paste0("intercrop_tab_pheno_title_",tt[2]), ptitle))
-    
-    len <- length(ids)
-    if(len < 2) return()
-    
-    for(ind  in 2:len){
-      vars <- unlist(strsplit(ids[ind],"_")) 
-      isolate(insertTabInterCrop(vars[2], mtarget, ptarget))
-      ptarget <- paste0("intercrop_tab_pheno_",vars[2])
-      mtarget <- paste0("intercrop_tab_measu_",vars[2])
-    }
-    
-    for(ind  in 2:len){
-      vars <- unlist(strsplit(ids[ind],"_")) 
-      isolate(insertTabRelayCrop(vars[2], mtarget, ptarget))
-      ptarget <- paste0("relaycrop_tab_pheno_",vars[2])
-      mtarget <- paste0("relaycrop_tab_measu_",vars[2])
-    }
-    
-    for(ind  in 2:len){
-      vars <- unlist(strsplit(ids[ind],"_")) 
-      isolate(insertTabRotationCrop(vars[2], mtarget, ptarget))
-      ptarget <- paste0("rotationcrop_tab_pheno_",vars[2])
-      mtarget <- paste0("rotationcrop_tab_measu_",vars[2])
-    }
-  }
-  
-  insertTabInterCrop <- function(index, mtarget, ptarget){
-    
-    xtitle <- input[[paste0("int_cropCommonName_", index)]]
-    
-    mcrop <- xtitle
-    if(is.null(mcrop)) mcrop <- "Crop"
-    
-    if(!is.null(xtitle)){
-      if(xtitle == "Other"  && input[[paste0("int_cropCommonName_", index, "_other")]] != "")  
-        xtitle <- input[[paste0("int_cropCommonName_", index, "_other")]]
-      else xtitle <- input[[paste0("int_cropCommonName_", index)]]
-    }
-    else {
-      xtitle= "Crop"
-    }
-    
-    
-    mtitle <- paste0(xtitle, " Measurement")
-    ptitle <- paste0(xtitle, " Phenology")
-    
-    intercropVars$pheno[[index]] <- pheno_vars
-    insertTab(inputId = "intercropPhenoTabs",
-              tabPanel(title = textOutput(paste0("intercrop_tab_pheno_title_",index)) , value = paste0("intercrop_tab_pheno_",index), 
-                       br(),
-                       column(12,renderDataTable(intercropVars$pheno[[index]] , options = list(lengthChange = FALSE)))
-              ), 
-              position="after",
-              target = ptarget
-    )
-    
-    insertTab(inputId = "intercropMeasuTabs",
-              tabPanel(title = textOutput(paste0("intercrop_tab_measu_title_",index)) , value = paste0("intercrop_tab_measu_",index),
-                       br(),
-                       column(12,DTOutput(paste0("crop_measurement_table_", index)))
-              ), 
-              position="after",
-              target = mtarget
-    )
-    
-    
-    #isolate(renameTab(paste0("intercrop_tab_measu_title_",index), mtitle))
-    #isolate(renameTab(paste0("intercrop_tab_pheno_title_",index), ptitle))
-    #updateCropMeasurementTable(index,mcrop)
-  }
-  
-  ##Insert Relay Crop
-  
-  insertTabRelayCrop <- function(index, mtarget, ptarget){
-    
-    xtitle <- input[[paste0("rel_cropCommonName_", index)]]
-    
-    mcrop <- xtitle
-    if(is.null(mcrop)) mcrop <- "Crop"
-    
-    if(!is.null(xtitle)){
-      if(xtitle == "Other"  && input[[paste0("rel_cropCommonName_", index, "_other")]] != "")  
-        xtitle <- input[[paste0("rel_cropCommonName_", index, "_other")]]
-      else xtitle <- input[[paste0("rel_cropCommonName_", index)]]
-    }
-    else {
-      xtitle= "Crop"
-    }
-    
-    
-    mtitle <- paste0(xtitle, " Measurement")
-    ptitle <- paste0(xtitle, " Phenology")
-    
-    relaycropVars$pheno[[index]] <- pheno_vars
-    insertTab(inputId = "relaycropPhenoTabs",
-              tabPanel(title = textOutput(paste0("relaycrop_tab_pheno_title_",index)) , value = paste0("relaycrop_tab_pheno_",index), 
-                       br(),
-                       column(12,renderDataTable(relaycropVars$pheno[[index]] , options = list(lengthChange = FALSE)))
-              ), 
-              position="after",
-              target = ptarget
-    )
-    
-    insertTab(inputId = "relaycropMeasuTabs",
-              tabPanel(title = textOutput(paste0("relaycrop_tab_measu_title_",index)) , value = paste0("relaycrop_tab_measu_",index),
-                       br(),
-                       column(12,DTOutput(paste0("crop_measurement_table_", index)))
-              ), 
-              position="after",
-              target = mtarget
-    )
-    
-    
-    isolate(renameTab(paste0("relaycrop_tab_measu_title_",index), mtitle))
-    isolate(renameTab(paste0("relaycrop_tab_pheno_title_",index), ptitle))
-    updateCropMeasurementTable(index,mcrop)
-  }
-  
-  
-  ##Insert Rotation Crop
-  
-  insertTabRotationCrop <- function(index, mtarget, ptarget){
-    
-    xtitle <- input[[paste0("cropCommonNameRotation_", index)]]
-    
-    mcrop <- xtitle
-    if(is.null(mcrop)) mcrop <- "Crop"
-    
-    if(!is.null(xtitle)){
-      if(xtitle == "Other"  && input[[paste0("cropCommonNameRotation_", index, "_other")]] != "")  
-        xtitle <- input[[paste0("cropCommonNameRotation_", index, "_other")]]
-      else xtitle <- input[[paste0("cropCommonNameRotation_", index)]]
-    }
-    else {
-      xtitle= "Crop"
-    }
-    
-    
-    mtitle <- paste0(xtitle, " Measurement")
-    ptitle <- paste0(xtitle, " Phenology")
-    
-    rotationcropVars$pheno[[index]] <- pheno_vars
-    insertTab(inputId = "rotationcropPhenoTabs",
-              tabPanel(title = textOutput(paste0("rotationcrop_tab_pheno_title_",index)) , value = paste0("rotationcrop_tab_pheno_",index), 
-                       br(),
-                       column(12,renderDataTable(rotationcropVars$pheno[[index]] , options = list(lengthChange = FALSE)))
-              ), 
-              position="after",
-              target = ptarget
-    )
-    
-    insertTab(inputId = "rotationcropMeasuTabs",
-              tabPanel(title = textOutput(paste0("rotationcrop_tab_measu_title_",index)) , value = paste0("rotationcrop_tab_measu_",index),
-                       br(),
-                       column(12,DTOutput(paste0("crop_measurement_table_", index)))
-              ), 
-              position="after",
-              target = mtarget
-    )
-    
-    
-    isolate(renameTab(paste0("rotationcrop_tab_measu_title_",index), mtitle))
-    isolate(renameTab(paste0("rotationcrop_tab_pheno_title_",index), ptitle))
-    updateCropMeasurementTable(index,mcrop)
-  }
-  
-  #Function to Update Crop Measurement Table for Intercrop Trials
-  
-  updateCropMeasurementTable <- function(index, crop_in){
-    aux <- dplyr::filter(as.data.frame(dict),Crop==crop_in)
-
-    if(crop_in == "Other") {
-      newVal <- trim(input[[paste0("int_cropCommonName_", index, "_other")]])
-      if(newVal == "") newVal <- "Other"
-      aux$Crop<- rep(newVal, length(aux$Crop))
-    }
-    
-    ## Create DT crop measurement tables for Intercrop trial
-    output[[paste0("crop_measurement_table_", index)]] <- renderDataTable(
-      data.table(aux),
-      escape = FALSE,
-      options = list(
-        scrollX = TRUE,
-        pageLength = 25,
-        #columnDefs = list(list(visible=FALSE, targets=c(1,6)))
-        columnDefs = list(list(visible=FALSE, targets=c(1,6,7,9,10,11,12,13,14,15)))#,
-      )
-    )
-  }
-  
-  
-  renameTab <- function(id, name){
-    output[[id]] <- renderText({name})
-  }
+  # expCondsVars$num_harvest <- 0
+  # expCondsVars$DEFAULT_harvest <- 1
+  # expCondsVars$ids_harvest <- c()
+  # 
+  # observeEvent(input$croppingType,{
+  # 
+  #   if(input$croppingType == "Monocrop"){
+  #     # removeTab(inputId = "fbDesignNav",target = "Crop_Measurement_intercrop")
+  #     # removeTab(inputId = "fbDesignNav",target = "Crop_Phenology_intercrop")
+  #     # 
+  #     # insertTab(inputId = "fbDesignNav",
+  #     #           tabPanel("Crop Measurement",  value = "Crop_Measurement_monocrop", icon = shiny::icon("leaf"),
+  #     #                    column(width = 12,
+  #     #                           h2("Crop measurement"),
+  #     #                           p(class = "text-muted", style="text-align:justify",
+  #     #                             paste("Please, select measurement by click.")
+  #     #                           ),
+  #     #                           column(12, align = "center", checkboxInput("dt_sel", "Select all")),
+  #     #                           br(),br()
+  #     #                    ),
+  #     #                    uiOutput("uiTraitsList3"),
+  #     #                    sidebarPanel(id="sidebar", width = 12,
+  #     #                                 actionButton("btnNextEnv", "Next", class = "btn-primary",style="color: #fff;", href="#top")
+  #     #                    )
+  #     #           ),
+  #     #           position =  "after",
+  #     #           target = "tabAgroFeat")
+  #     # insertTab(inputId = "fbDesignNav",
+  #     #           tabPanel("Crop Phenology", value = "Crop_Phenology_monocrop",  icon = shiny::icon("envira"),
+  #     #                    column(width = 12,
+  #     #                           h2("Crop Phenology"),
+  #     #                           p(class = "text-muted", style="text-align:justify",
+  #     #                             paste("Please, select phenology by click.")
+  #     #                           ),
+  #     #                           #column(12, align = "center", checkboxInput("dt_sel", "Select all"))
+  #     #                           DTOutput('phenoDT')
+  #     # 
+  #     #                    )#,
+  #     #                    #DTOutput('phenoDT')
+  #     #           ),
+  #     #           position =  "after",
+  #     #           target = "Crop_Measurement_monocrop")
+  # 
+  #     isolate(removeAgroBoxesIntercrop())
+  #     isolate(drawAgroBoxes(1))
+  #     shinyjs::show(id="addHarvest")
+  # 
+  #   }
+  #   else if(input$croppingType == "Intercrop"){
+  # 
+  #     # removeTab(inputId = "fbDesignNav",target = "Crop_Measurement_monocrop")
+  #     # removeTab(inputId = "fbDesignNav",target = "Crop_Phenology_monocrop")
+  #     # 
+  #     # 
+  #     isolate(ids <- intercropVars$ids)
+  #     tt <- unlist(strsplit(ids[1],"_"))
+  #     # 
+  #     # insertTab(inputId = "fbDesignNav",
+  #     #        tabPanel("Crop Measurement",  value = "Crop_Measurement_intercrop", icon = shiny::icon("leaf"),
+  #     #                 column(12, h2("Crop Measurement"),
+  #     #                 tabsetPanel( id= "intercropMeasuTabs",
+  #     #                              tabPanel(title = textOutput(paste0("intercrop_tab_measu_title_",tt[2])), value = paste0("intercrop_tab_measu_",tt[2]),
+  #     #                                       br(),
+  #     #                                       column(12,DTOutput(paste0("crop_measurement_table_", tt[2])))
+  #     #                              )
+  #     #                 ))
+  #     # 
+  #     #        ),
+  #     #       position =  "after",
+  #     #       target = "tabAgroFeat")
+  #     # 
+  #     # insertTab(inputId = "fbDesignNav",
+  #     #         tabPanel("Crop Phenology",  value = "Crop_Phenology_intercrop", icon = shiny::icon("envira"),
+  #     #                  column(12, h2("Crop Phenology"),
+  #     #                   tabsetPanel( id= "intercropPhenoTabs",
+  #     #                                tabPanel(title = textOutput(paste0("intercrop_tab_pheno_title_",tt[2])), value = paste0("intercrop_tab_pheno_",tt[2]),
+  #     #                                         br(),
+  #     #                                         column(12,renderDataTable(pheno_vars , options = list(lengthChange = FALSE)))
+  #     #                                )
+  #     #                   ))
+  #     #          ),
+  #     #         position =  "after",
+  #     #         target = "Crop_Measurement_intercrop")
+  # 
+  #    #isolate(drawTabsIntercrop(ids))
+  #    isolate(removeAgroBoxesMonocrop())
+  #    expCondsVars$ids_harvest <- c()
+  #    isolate(drawAgroBoxesIntercrop())
+  #    shinyjs::hide(id="addHarvest")
+  #   }
+  # })
+  # 
+  # drawTabsIntercrop <- function(ids){
+  #   tt <- unlist(strsplit(ids[1],"_"))
+  #   
+  #   mtarget <- paste0("intercrop_tab_measu_",tt[2])
+  #   ptarget <- paste0("intercrop_tab_pheno_",tt[2])
+  #   intercropVars$pheno[[tt[2]]] <- pheno_vars
+  #   
+  #   xtitle <- input[[paste0("int_cropCommonName_", tt[2])]]
+  #   mcrop <- xtitle
+  #   if(is.null(mcrop)) mcrop <- "Crop" 
+  #   
+  #   updateCropMeasurementTable(tt[2],mcrop)
+  #   
+  #   if(!is.null(xtitle)){
+  #     if(xtitle == "Other"  && input[[paste0("int_cropCommonName_", tt[2]), "_other"]] != "")  
+  #       xtitle <- input[[paste0("int_cropCommonName_", tt[2]), "_other"]]
+  #     else xtitle <- input[[paste0("int_cropCommonName_", tt[2])]]
+  #   }
+  #   else {
+  #     xtitle= "Crop"
+  #   }
+  #   
+  #   
+  #   mtitle <- paste0(xtitle, " Measurement")
+  #   ptitle <- paste0(xtitle, " Phenology")
+  #   
+  # 
+  #   isolate(renameTab(paste0("intercrop_tab_measu_title_",tt[2]), mtitle))
+  #   isolate(renameTab(paste0("intercrop_tab_pheno_title_",tt[2]), ptitle))
+  #   
+  #   len <- length(ids)
+  #   if(len < 2) return()
+  #   
+  #   for(ind  in 2:len){
+  #     vars <- unlist(strsplit(ids[ind],"_")) 
+  #     isolate(insertTabInterCrop(vars[2], mtarget, ptarget))
+  #     ptarget <- paste0("intercrop_tab_pheno_",vars[2])
+  #     mtarget <- paste0("intercrop_tab_measu_",vars[2])
+  #   }
+  #   
+  #   for(ind  in 2:len){
+  #     vars <- unlist(strsplit(ids[ind],"_")) 
+  #     isolate(insertTabRelayCrop(vars[2], mtarget, ptarget))
+  #     ptarget <- paste0("relaycrop_tab_pheno_",vars[2])
+  #     mtarget <- paste0("relaycrop_tab_measu_",vars[2])
+  #   }
+  #   
+  #   for(ind  in 2:len){
+  #     vars <- unlist(strsplit(ids[ind],"_")) 
+  #     isolate(insertTabRotationCrop(vars[2], mtarget, ptarget))
+  #     ptarget <- paste0("rotationcrop_tab_pheno_",vars[2])
+  #     mtarget <- paste0("rotationcrop_tab_measu_",vars[2])
+  #   }
+  # }
+  # 
+  # insertTabInterCrop <- function(index, mtarget, ptarget){
+  #   
+  #   xtitle <- input[[paste0("int_cropCommonName_", index)]]
+  #   
+  #   mcrop <- xtitle
+  #   if(is.null(mcrop)) mcrop <- "Crop"
+  #   
+  #   if(!is.null(xtitle)){
+  #     if(xtitle == "Other"  && input[[paste0("int_cropCommonName_", index, "_other")]] != "")  
+  #       xtitle <- input[[paste0("int_cropCommonName_", index, "_other")]]
+  #     else xtitle <- input[[paste0("int_cropCommonName_", index)]]
+  #   }
+  #   else {
+  #     xtitle= "Crop"
+  #   }
+  #   
+  #   
+  #   mtitle <- paste0(xtitle, " Measurement")
+  #   ptitle <- paste0(xtitle, " Phenology")
+  #   
+  #   intercropVars$pheno[[index]] <- pheno_vars
+  #   insertTab(inputId = "intercropPhenoTabs",
+  #             tabPanel(title = textOutput(paste0("intercrop_tab_pheno_title_",index)) , value = paste0("intercrop_tab_pheno_",index), 
+  #                      br(),
+  #                      column(12,renderDataTable(intercropVars$pheno[[index]] , options = list(lengthChange = FALSE)))
+  #             ), 
+  #             position="after",
+  #             target = ptarget
+  #   )
+  #   
+  #   insertTab(inputId = "intercropMeasuTabs",
+  #             tabPanel(title = textOutput(paste0("intercrop_tab_measu_title_",index)) , value = paste0("intercrop_tab_measu_",index),
+  #                      br(),
+  #                      column(12,DTOutput(paste0("crop_measurement_table_", index)))
+  #             ), 
+  #             position="after",
+  #             target = mtarget
+  #   )
+  #   
+  #   
+  #   #isolate(renameTab(paste0("intercrop_tab_measu_title_",index), mtitle))
+  #   #isolate(renameTab(paste0("intercrop_tab_pheno_title_",index), ptitle))
+  #   #updateCropMeasurementTable(index,mcrop)
+  # }
+  # 
+  # ##Insert Relay Crop
+  # 
+  # insertTabRelayCrop <- function(index, mtarget, ptarget){
+  #   
+  #   xtitle <- input[[paste0("rel_cropCommonName_", index)]]
+  #   
+  #   mcrop <- xtitle
+  #   if(is.null(mcrop)) mcrop <- "Crop"
+  #   
+  #   if(!is.null(xtitle)){
+  #     if(xtitle == "Other"  && input[[paste0("rel_cropCommonName_", index, "_other")]] != "")  
+  #       xtitle <- input[[paste0("rel_cropCommonName_", index, "_other")]]
+  #     else xtitle <- input[[paste0("rel_cropCommonName_", index)]]
+  #   }
+  #   else {
+  #     xtitle= "Crop"
+  #   }
+  #   
+  #   
+  #   mtitle <- paste0(xtitle, " Measurement")
+  #   ptitle <- paste0(xtitle, " Phenology")
+  #   
+  #   relaycropVars$pheno[[index]] <- pheno_vars
+  #   insertTab(inputId = "relaycropPhenoTabs",
+  #             tabPanel(title = textOutput(paste0("relaycrop_tab_pheno_title_",index)) , value = paste0("relaycrop_tab_pheno_",index), 
+  #                      br(),
+  #                      column(12,renderDataTable(relaycropVars$pheno[[index]] , options = list(lengthChange = FALSE)))
+  #             ), 
+  #             position="after",
+  #             target = ptarget
+  #   )
+  #   
+  #   insertTab(inputId = "relaycropMeasuTabs",
+  #             tabPanel(title = textOutput(paste0("relaycrop_tab_measu_title_",index)) , value = paste0("relaycrop_tab_measu_",index),
+  #                      br(),
+  #                      column(12,DTOutput(paste0("crop_measurement_table_", index)))
+  #             ), 
+  #             position="after",
+  #             target = mtarget
+  #   )
+  #   
+  #   
+  #   isolate(renameTab(paste0("relaycrop_tab_measu_title_",index), mtitle))
+  #   isolate(renameTab(paste0("relaycrop_tab_pheno_title_",index), ptitle))
+  #   updateCropMeasurementTable(index,mcrop)
+  # }
+  # 
+  # 
+  # ##Insert Rotation Crop
+  # 
+  # insertTabRotationCrop <- function(index, mtarget, ptarget){
+  #   
+  #   xtitle <- input[[paste0("cropCommonNameRotation_", index)]]
+  #   
+  #   mcrop <- xtitle
+  #   if(is.null(mcrop)) mcrop <- "Crop"
+  #   
+  #   if(!is.null(xtitle)){
+  #     if(xtitle == "Other"  && input[[paste0("cropCommonNameRotation_", index, "_other")]] != "")  
+  #       xtitle <- input[[paste0("cropCommonNameRotation_", index, "_other")]]
+  #     else xtitle <- input[[paste0("cropCommonNameRotation_", index)]]
+  #   }
+  #   else {
+  #     xtitle= "Crop"
+  #   }
+  #   
+  #   
+  #   mtitle <- paste0(xtitle, " Measurement")
+  #   ptitle <- paste0(xtitle, " Phenology")
+  #   
+  #   rotationcropVars$pheno[[index]] <- pheno_vars
+  #   insertTab(inputId = "rotationcropPhenoTabs",
+  #             tabPanel(title = textOutput(paste0("rotationcrop_tab_pheno_title_",index)) , value = paste0("rotationcrop_tab_pheno_",index), 
+  #                      br(),
+  #                      column(12,renderDataTable(rotationcropVars$pheno[[index]] , options = list(lengthChange = FALSE)))
+  #             ), 
+  #             position="after",
+  #             target = ptarget
+  #   )
+  #   
+  #   insertTab(inputId = "rotationcropMeasuTabs",
+  #             tabPanel(title = textOutput(paste0("rotationcrop_tab_measu_title_",index)) , value = paste0("rotationcrop_tab_measu_",index),
+  #                      br(),
+  #                      column(12,DTOutput(paste0("crop_measurement_table_", index)))
+  #             ), 
+  #             position="after",
+  #             target = mtarget
+  #   )
+  #   
+  #   
+  #   isolate(renameTab(paste0("rotationcrop_tab_measu_title_",index), mtitle))
+  #   isolate(renameTab(paste0("rotationcrop_tab_pheno_title_",index), ptitle))
+  #   updateCropMeasurementTable(index,mcrop)
+  # }
+  # 
+  # #Function to Update Crop Measurement Table for Intercrop Trials
+  # 
+  # updateCropMeasurementTable <- function(index, crop_in){
+  #   aux <- dplyr::filter(as.data.frame(dict),Crop==crop_in)
+  # 
+  #   if(crop_in == "Other") {
+  #     newVal <- trim(input[[paste0("int_cropCommonName_", index, "_other")]])
+  #     if(newVal == "") newVal <- "Other"
+  #     aux$Crop<- rep(newVal, length(aux$Crop))
+  #   }
+  #   
+  #   ## Create DT crop measurement tables for Intercrop trial
+  #   output[[paste0("crop_measurement_table_", index)]] <- renderDataTable(
+  #     data.table(aux),
+  #     escape = FALSE,
+  #     options = list(
+  #       scrollX = TRUE,
+  #       pageLength = 25,
+  #       #columnDefs = list(list(visible=FALSE, targets=c(1,6)))
+  #       columnDefs = list(list(visible=FALSE, targets=c(1,6,7,9,10,11,12,13,14,15)))#,
+  #     )
+  #   )
+  # }
+  # 
+  # 
+  # renameTab <- function(id, name){
+  #   output[[id]] <- renderText({name})
+  # }
   
   output$uiWeatherTab <- renderUI({
     column(12, 
@@ -14352,684 +16177,684 @@ server_design_agrofims <- function(input, output, session, values){
   
  
 
-  drawAgroBoxes <- function(index){
-    ## adding harvest box
-    
-    index_harv <- index
-    crop <- NULL
-    xtitle <- "Crop"
-    
-    isolate(
-      if(input$croppingType == 'Monocrop'){
-        expCondsVars$ids_harvest <- c()
-        str_id <- stri_rand_strings(1, 8,  '[A-Z]')
-        expCondsVars$ids_harvest <- c(expCondsVars$ids_harvest, paste0(str_id))
-        index_harv <- str_id
-        expCondsVars$num_harvest <- 1
-      }
-      else{
-        crop <- input[[paste0("int_cropCommonName_", index)]]
-        if(!is.null(crop)){
-          if(crop == "Other"){
-            if(input[[paste0("int_cropCommonName_", index, "_other")]] == ''){
-              xtitle <- "Other"
-            }
-            else {
-              xtitle <- input[[paste0("int_cropCommonName_", index, "_other")]]
-            }
-          }
-          else{
-            xtitle <- crop
-          }
-        }
-      }
-    )
-    
-    drawBoxHarvest(index_harv)
-    
-    ## adding planting transplanting box
-    insertUI(
-      selector = "#fr_plantingTransplating_reference_point",
-      where = "beforeBegin",
-      ui <- uiPlantingTransplantingBox(index)
-    )
-    if(is.null(crop)){
-      renameAgroBoxes(index_harv, index)  
-    }
-    else{
-      renameAgroBoxes(index_harv, index, xtitle)
-    }
-    
-    
-    
-  }
-  
-  drawAgroBoxesIntercrop <- function(){
-    isolate(ids <- intercropVars$ids)
-    for( id in ids){
-      vars <- unlist(strsplit(id,"_")) 
-      drawAgroBoxes(vars[2])
-    }
-  }
-  renameAgroBoxes <- function(index_harvest, index_planting, crop = ""){
-    titleHarvest <- "Harvest details"
-    titlePlanting <- "Planting & Transplanting details"
-    isolate(
-      if(input$croppingType == 'Intercrop'){
-          if(crop == ""){
-            titleHarvest <- "Harvest details: Crop"
-            titlePlanting <- "Planting & Transplanting details: Crop"
-          }
-          else{
-            titleHarvest <- paste0("Harvest details: ", crop)
-            titlePlanting <- paste0("Planting & Transplanting details: ", crop)
-          }
-          
-        }
-     )
-      
-      output[[paste0("planting_title_", index_planting)]] <- renderText({titlePlanting})
-      output[[paste0("harvest_title_", index_harvest)]] <- renderText({titleHarvest})
-    
-  }
-  
-  drawBoxHarvest <- function(index){
-    insertUI(
-      selector = "#fr_harvest_reference_point",
-      where = "beforeBegin",
-      ui = uiHarvestBox(index)
-    )
-  }
-  
-  
-  
-  uiHarvestBox <- function(index){
-    fluidRow( id = paste0("fr_harvestbox_", index),
-              box(id=paste0("desc_harvest_boxid_",index ),
-                  title = actionLink(paste0("desc_harvest_titleId_", index), uiOutput(paste0("harvest_title_", index))),
-                  # title = div(id=paste0("desc_harvest_titleId_", index), "Harvest detailssss"),
-                  status = "primary",
-                  solidHeader = TRUE,
-                  width = 12, collapsible = TRUE, collapsed = FALSE,
-                  fluidRow(
-                    column(width = 6,
-                           fluidRow(
-                             column(width = 6,
-                                    #dateInput(paste0("harvest_start_date_", index), label ="Start date", format = "yyyy-mm-dd")
-                                    #airDatepickerInput("harvest_start_date", "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                                    #uiOutput("h_start_date")
-                                    
-                                    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                                      airDatepickerInput(paste0("hahd_harvest_start_date_", index),
-                                                         "Start date",
-                                                         clearButton = T,
-                                                         autoClose = T,
-                                                         #value = as.Date(input$fbDesign_project_start_date) + 1,
-                                                         placeholder = "yyyy-mm-dd",
-                                                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                         
-                                      )
-                                    } else {
-                                      airDatepickerInput(paste0("hahd_harvest_start_date_", index),
-                                                         "Start date",
-                                                         clearButton = T,
-                                                         autoClose = T,
-                                                         placeholder = "yyyy-mm-dd"
-                                      )
-                                    }
-                             ),
-                             column(width = 6,
-                                    #dateInput(paste0("harvest_end_date_", index), label ="End date", format = "yyyy-mm-dd")
-                                    #airDatepickerInput("harvest_end_date", "End date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                                    #uiOutput("h_end_date")
-                                    
-                                    if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                                      airDatepickerInput(paste0("hahd_harvest_end_date_", index),
-                                                         "End date",
-                                                         clearButton = T,
-                                                         autoClose = T,
-                                                         #value = as.Date(input$fbDesign_project_start_date) + 1,
-                                                         placeholder = "yyyy-mm-dd",
-                                                         minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                         maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                         
-                                      )
-                                    } else {
-                                      airDatepickerInput(paste0("hahd_harvest_end_date_", index),
-                                                         "End date",
-                                                         clearButton = T,
-                                                         autoClose = T,
-                                                         placeholder = "yyyy-mm-dd"
-                                      )
-                                    }
-                             )
-                           ),
-                           
-                           fluidRow(
-                             column(6,
-                                    selectizeInput(paste0("hahd_harvest_method_", index), label = "Harvest method", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                     c("Baling", "Cutting", "Mowing", "Haymaking", "Picking", "Threshing", "Trussing", "Windrowing","Winnowing","Other")
-                                    ))
-                             
-                             
-                           ),
-                           
-                           hidden(textInput(paste0("hahd_harvest_method_", index,"_other"), "")),
-                           selectizeInput(paste0("hahd_crop_component_harvested_", index), label = "Crop component harvested", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
-                                            c("Canopy", "Aboveground biomass","Leaves","Stems","Seed","Pod", "Grain", "Tuber","Roots (excluding storage roots)", "Storage roots",
-                                              "Other")
-                           ),
-                           
-                           hidden(textInput(paste0("hahd_crop_component_harvested_",index,"_other"), "")),
-                           
-                           selectizeInput(paste0("hahd_crop_harvestable_area_", index), label = "Harvestable area", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                            c("m2 units", "Individual plants","Rows","Entire plot","Other")
-                           ),
-                           
-                           
-                           conditionalPanel(paste0("input.hahd_crop_harvestable_area_",index, " == 'm2 units'"),
-                                            textInput(paste0("hahd_crop_component_harvested_m2_",index), "Number of m2 units harvested")
-                           ),
-                           conditionalPanel(paste0("input.hahd_crop_harvestable_area_",index, " == 'Individual plants'"),
-                                            textInput(paste0("hahd_crop_component_harvested_ip_",index), "Number of plants harvested")
-                           ),
-                           conditionalPanel(paste0("input.hahd_crop_harvestable_area_",index, " == 'Rows'"),
-                                            fluidRow(
-                                              column(6,
-                                                     textInput(paste0("hahd_crop_component_harvested_num_",index), "Number of rows harvested")
-                                              )
-                                            ),
-                                            
-                                            
-                                            fluidRow(
-                                              column(6,
-                                                     textInput(paste0("hahd_crop_component_harvested_len_",index), "Length of rows harvested")
-                                                     
-                                              ),
-                                              column(6,
-                                                     selectizeInput(paste0("hahd_crop_component_harvested_lenunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
-                                                                      c("cm", "m", "in","ft"), selected = "cm")
-                                              )
-                                            ),
-                                            fluidRow(
-                                              column(6,
-                                                     textInput(paste0("hahd_crop_component_harvested_width_",index), "Width within rows harvested")
-                                              ),
-                                              column(6,
-                                                     selectizeInput(paste0("hahd_crop_component_harvested_widthunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
-                                                                      c("cm", "m", "in","ft"), selected = "cm")
-                                              )
-                                            ),
-                                            fluidRow(
-                                              column(6,
-                                                     numericInput(paste0("hahd_space_rows_harvested_", index), "Space between rows harvested", value = "", min = 0, step = 0.1)
-                                              ),
-                                              column(6,
-                                                     selectizeInput(paste0("hahd_crop_component_harvested_spaceunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
-                                                                      c("cm", "m", "in","ft"), selected = "cm")
-                                              )
-                                            )
-                           ),
-                           conditionalPanel(paste0("input.hahd_crop_harvestable_area_",index, " == 'Entire plot'"),
-                                            fluidRow(
-                                              column(6,
-                                                     textInput(paste0("hahd_crop_component_harvested_entire_",index), "Plot area harvested")
-                                              ),
-                                              column(6,
-                                                     selectizeInput(paste0("hahd_crop_component_harvested_entireunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
-                                                                      c("m2", "ha", "ft2","ac"), selected = "ha")
-                                              )
-                                            )
-                           ),
-                           hidden(textInput(paste0("hahd_crop_harvestable_area_", index,"_other"), "")),
-                           fluidRow(
-                             column(width = 6,
-                                    numericInput(paste0("hahd_amount_harvested_", index), "Amount harvested", value = "", min = 0, step = 0.1)
-                             ),
-                             column(width = 6,#IMPLEMENTAR EN EXCEL
-                                    selectizeInput(paste0("hahd_amount_harvested_unit_", index), label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("g", "kg", "lb", "t"), selected = "g")
-                             )
-                           ),
-                           
-                           
-                           
-                           #textInput("num_rows_harvested", "Number of rows harvested"),
-                           
-                           # textInput(paste0("num_plants_area_harvested_", index), "Number of plants in area harvested"),
-                           
-                           fluidRow(
-                             column(width = 6,
-                                    numericInput(paste0("hahd_harvest_cut_height_", index), "Harvest cut height", value = "", min = 0, step = 0.1)
-                             ),
-                             column(width = 6,
-                                    selectizeInput(paste0("hahd_harvest_cut_height_unit_", index), label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("cm", "ft", "in", "m"), selected = "cm")
-                             )
-                           ),
-                           textAreaInput(inputId = paste0("hahd_harvest_notes_", index), label = "Notes", value = "")
-                           
-                    ),
-                    column(width = 6,
-                           br(),
-                           isolate(
-                             if(input$croppingType == 'Monocrop'){
-                               column(12, 
-                                      style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_HARV_",index ), "", icon("close")),
-                                      br(),br()
-                               )                               
-                             }
-                           ),
-                           
-                          
-                           
-                           fluidRow(
-                             box(
-                               title = "Implement", solidHeader = TRUE, status = "warning", width=12,
-                               # selectizeInput(paste0("harvest_technique_", index), label = "Technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                               #                  c("Manual",
-                               #                    "Mechanized")
-                               # ),
-                               fluidRow(
-                                 column(12,
-                                        h4("Implement", style="font-weight: 800;color: #555;")
-                                 )
-                               ),
-                               selectizeInput(paste0("hahd_harvest_implement_", index), label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                c("Baler",
-                                                  "Chopper",
-                                                  "Combine",
-                                                  "Digger",
-                                                  "Mower",
-                                                  "Reaper",
-                                                  "Roller",
-                                                  "Sickle",
-                                                  "Other")
-                               ),
-                               hidden(textInput(paste0("hahd_harvest_implement_", index, "_other"), "")),
-                               # textInput("harvest_make", value="", label = "Implement make"),
-                               # textInput("harvest_model", value="", label = "Implement model"),
-                               selectizeInput(paste0("hahd_harvest_traction_" , index), label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                c("Animal",
-                                                  "Manual",
-                                                  "2 wheel tractor",
-                                                  "4 wheel tractor",
-                                                  "Other"
-                                                )
-                               ),
-                               hidden(textInput(paste0("hahd_harvest_traction_",index,"_other"), ""))
-                               
-                             ))
-                    ))
-              ))#end box description harvest
-  }
-  
-  uiPlantingTransplantingBox <- function(index){
-    fluidRow(id= paste0("fr_plantingTrasplanting_", index),
-             box( id = paste0("plantingTransplanting_boxid_", index),
-                  title = actionLink(paste0("plantingTransplanting_titleId_", index), uiOutput(paste0("planting_title_", index)) ),
-                  status = "primary",
-                  solidHeader = TRUE,
-                  width = 12, collapsible = TRUE,  collapsed = FALSE,
-                  fluidRow(
-                    
-                    box(id=paste0("direct_seeding_boxid_", index),
-                        title = checkboxInput(paste0("directSeeding_checkbox_", index), actionLink(paste0("direct_seeding_titleId_", index), "Direct seeding"), F),
-                        status = "primary",
-                        solidHeader = TRUE,
-                        width = 12, collapsible = TRUE,  collapsed = TRUE,
-                        
-                        fluidRow(
-                          column(width = 6,
-                                 fluidRow(
-                                   column(width = 6,
-                                          #dateInput(paste0("planting_start_date_", index), label ="Start date", format = "yyyy-mm-dd")
-                                          #airDatepickerInput("planting_start_date", "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                                          # uiOutput("pl_start_date")
-                                          
-                                          if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                                            airDatepickerInput(paste0("ptdi_planting_start_date_", index),
-                                                               "Start date",
-                                                               clearButton = T,
-                                                               autoClose = T,
-                                                               #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                                                               placeholder = "yyyy-mm-dd",
-                                                               minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                               maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                               
-                                            )
-                                          } else {
-                                            airDatepickerInput(paste0("ptdi_planting_start_date_", index),
-                                                               "Start date",
-                                                               clearButton = T,
-                                                               autoClose = T,
-                                                               placeholder = "yyyy-mm-dd"
-                                            )
-                                          }
-                                          
-                                   )
-                                   
-                                 )
-                          )
-                        ),
-                        fluidRow(
-                          
-                          column(width = 6,
-                                 fluidRow(
-                                   box(
-                                     title = "Planting, transplanting method", solidHeader = TRUE, status = "warning", width=12,
-                                     fluidRow(
-                                       column(12,
-                                              h4("Planting, transplanting method", style="font-weight: 800;color: #555;")
-                                       )
-                                     ),
-                                     # textInput("planting_directSeeding", value="", label = "Direct seeding"),
-                                     selectizeInput(paste0("ptdi_seeding_environment_", index), label = "Seeding environment", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                      c("Flat seed bed",
-                                                        "Hill",
-                                                        "Ridge", 
-                                                        "Other")
-                                     ),
-                                     hidden(textInput(paste0("ptdi_seeding_environment_", index, "_other"), "", value="")),
-                                     selectizeInput(paste0("ptdi_seeding_technique_", index), label = "Seeding technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                      c("Broadcasting",
-                                                        "Line sowing",
-                                                        "Dibbling"
-                                                      )
-                                     ),
-                                     hidden(textInput(paste0("ptdi_seeding_technique_", index,"_other"), "", value="")),
-                                     textInput(paste0("ptdi_seed_treatment_", index), value="", label = "Seed treatment")
-                                     
-                                   )),
-                                 
-                                 # column(width = 6,
-                                 fluidRow(
-                                   box(
-                                     title = "Implement", solidHeader = TRUE, status = "warning", width=12,
-                                     fluidRow(
-                                       column(12,
-                                              h4("Implement", style="font-weight: 800;color: #555;")
-                                       )
-                                     ),
-                                     selectizeInput(paste0("ptdi_seeding_implement_type_", index), label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                      c("Bucket broadcaster",
-                                                        "Dibbling stick",
-                                                        "Drum seeder",
-                                                        "Jab planter",
-                                                        "Seed drill",
-                                                        "Other"
-                                                      )
-                                     ),
-                                     hidden(textInput(paste0("ptdi_seeding_implement_type_", index, "_other"), "", value="")),
-                                     selectizeInput(paste0("ptdi_seeding_traction_", index), label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                      c("Animal",
-                                                        "Manual",
-                                                        "2 wheel tractor",
-                                                        "4 wheel tractor",
-                                                        "Other"
-                                                      )
-                                     ),
-                                     hidden(textInput(paste0("ptdi_seeding_traction_", index, "_other"), "", value=""))
-                                   )
-                                 )
-                                 # )
-                          ),
-                          column(width = 6,
-                                 fluidRow(
-                                   box(
-                                     title = "Seeding density", solidHeader = TRUE, status = "warning", width=12,
-                                     fluidRow(
-                                       column(12,
-                                              h4("Seeding density", style="font-weight: 800;color: #555;")
-                                       )
-                                     ),
-                                     fluidRow(
-                                       column(width = 6,
-                                              numericInput(paste0("ptdi_distance_rows_", index),  label = "Distance between rows", min=0, max=100, step=0.1,value=NULL)
-                                       ),
-                                       column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                              selectizeInput(paste0("ptdi_distance_rows_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                               c("cm",
-                                                                 "ft",
-                                                                 "in",
-                                                                 "m"),
-                                                             selected = "cm"
-                                              )
-                                       )
-                                     ),
-                                     fluidRow(
-                                       column(width = 6,
-                                              numericInput(paste0("ptdi_seeding_rate_", index),  label = "Seeding rate", min=0, max=100, step=1,value=NULL)
-                                       ),
-                                       column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                              selectizeInput(paste0("ptdi_seeding_rate_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                               c("kg/ha",
-                                                                 "lb/ac",
-                                                                 "plants/pot"),
-                                                             selected = "kg/ha"
-                                              )
-                                       )
-                                     ),
-                                     # textInput("seeds_per_hil", "Seeds/seedlings per hill", value =""),
-                                     fluidRow(
-                                       column(width = 6,
-                                              numericInput(paste0("ptdi_distance_plants_", index),  label = "Distance between plants", min=0, max=100, step=0.1,value=NULL)
-                                       ),
-                                       column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                              selectizeInput(paste0("ptdi_distance_plants_unit_",index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                               c("cm",
-                                                                 "ft",
-                                                                 "in",
-                                                                 "m"),
-                                                             selected = "cm"
-                                              )
-                                       )
-                                     ),
-                                     numericInput(paste0("ptdi_seeding_density_number_rows_", index),  label = "Number of rows", min=0, max=100, step=1, value=NULL),
-                                     fluidRow(
-                                       column(width = 6,
-                                              numericInput(paste0("ptdi_seeding_plant_density_", index),  label = "Plant density", min=0, max=100, step=0.1, value=NULL)
-                                       ),
-                                       column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                              selectizeInput(paste0("ptdi_seeding_plant_density_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                               c("plants/hill",
-                                                                 "plants/m2",
-                                                                 "plants/pot",
-                                                                 "plants/row"),
-                                                             selected = "plants/m2"
-                                              )
-                                       )
-                                     ),
-                                     fluidRow(
-                                       column(width = 6,
-                                              numericInput(paste0("ptdi_seeding_distance_bunds_", index),  label = "Distance between bunds", min=0, max=100, step=0.1, value=NULL)
-                                       ),
-                                       column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                              selectizeInput(paste0("ptdi_seeding_distance_bunds_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                               c("cm",
-                                                                 "m",
-                                                                 "in",
-                                                                 "ft"),
-                                                             selected = "cm"
-                                              )
-                                       )
-                                     ),
-                                     textAreaInput(paste0("ptdi_direct_seeding_notes_", index), label="Notes", value="")
-                                     
-                                   )
-                                 )
-                          )
-                        )
-                        
-                        
-                    )
-                  ),
-                  fluidRow(
-                    box(id=paste0("transplanting_boxid_", index),
-                        title = checkboxInput(paste0("transplanting_checkbox_", index), actionLink(paste0("transplanting_titleId_", index), "Transplanting"), F),
-                        status = "primary",
-                        solidHeader = TRUE,
-                        width = 12, collapsible = TRUE, collapsed = TRUE,
-                        fluidRow(
-                          
-                          column(width = 6,
-                                 fluidRow(
-                                   column(width = 6,
-                                          #dateInput(paste0("transplanting_start_date_", index), label ="Start date", format = "yyyy-mm-dd")
-                                          #airDatepickerInput("transplanting_start_date", "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                                          # uiOutput("trans_start_date")
-                                          
-                                          if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                                            airDatepickerInput(paste0("ptta_transplanting_start_date_", index),
-                                                               "Start date",
-                                                               clearButton = T,
-                                                               autoClose = T,
-                                                               #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                                                               placeholder = "yyyy-mm-dd",
-                                                               minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                               maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                               
-                                            )
-                                          } else {
-                                            airDatepickerInput(paste0("ptta_transplanting_start_date_", index),
-                                                               "Start date",
-                                                               clearButton = T,
-                                                               autoClose = T,
-                                                               placeholder = "yyyy-mm-dd"
-                                            )
-                                          }
-                                          
-                                   ),
-                                   column(width = 6,
-                                          #dateInput(paste0("transplanting_end_date_", index), label ="End date", format = "yyyy-mm-dd")
-                                          #airDatepickerInput("transplanting_end_date", "End date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
-                                          # uiOutput("trans_end_date")
-                                          
-                                          if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                                            airDatepickerInput(paste0("ptta_transplanting_end_date_", index),
-                                                               "End date",
-                                                               clearButton = T,
-                                                               autoClose = T,
-                                                               #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                                                               placeholder = "yyyy-mm-dd",
-                                                               minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                                                               maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                                                               
-                                            )
-                                          } else {
-                                            airDatepickerInput(paste0("ptta_transplanting_end_date_", index),
-                                                               "End date",
-                                                               clearButton = T,
-                                                               autoClose = T,
-                                                               placeholder = "yyyy-mm-dd"
-                                            )
-                                          }
-                                   )),
-                                 numericInput(paste0("ptta_age_seedling_", index), value="", label = "Age of seedling (days)", min=0, max=100, step=1),
-                                 selectizeInput(paste0("ptta_transplanting_environment_", index), label = "Seedling environment", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                  c("Flat seed bed",
-                                                    "Hill",
-                                                    "Ridge",
-                                                    "Other")
-                                 ),
-                                 hidden(textInput(paste0("ptta_transplanting_environment_", index, "_other"), "", value="")),
-                                 selectizeInput(paste0("ptta_transplanting_technique_", index), label = "Technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                  c("Manual",
-                                                    "Mechanical",
-                                                    "Other")
-                                 ),
-                                 hidden(textInput(paste0("ptta_transplanting_technique_", index, "_other"), "", value="")),
-                                 textInput(paste0("ptta_transplanting_treatment_", index), value="", label = "Seed treatment"),
-                                 selectizeInput(paste0("ptta_trans_traction_", index), label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                  c("Animal",
-                                                    "Traction",
-                                                    "2 wheel tractor",
-                                                    "4 wheel tractor",
-                                                    "Other"
-                                                  )
-                                 ),
-                                 hidden(textInput(paste0("ptta_trans_traction_", index,"_other"), "", value=""))
-                          ),
-                          
-                          
-                          column(width = 6,
-                                 fluidRow(
-                                   box(
-                                     title = "Transplanting density", solidHeader = TRUE, status = "warning", width=12,
-                                     fluidRow(
-                                       column(12,
-                                              h4("Transplanting density", style="font-weight: 800;color: #555;")
-                                       )
-                                     ),
-                                     #br(),
-                                     fluidRow(
-                                       column(width = 6,
-                                              numericInput(paste0("ptta_trans_distance_rows_", index),  label = "Distance between rows", value="", min=0, max=100, step=0.1)
-                                       ),
-                                       column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                              selectizeInput(paste0("ptta_trans_distance_rows_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                               c("cm",
-                                                                 "ft",
-                                                                 "in",
-                                                                 "m"),
-                                                             selected = "cm"
-                                              )
-                                       )
-                                     ),
-                                     fluidRow(
-                                       column(width = 6,
-                                              numericInput(paste0("ptta_trans_seeding_density_", index),  label = "Seedling density", value="", min=0, max=100, step=1)
-                                       ),
-                                       column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                              selectizeInput(paste0("ptta_trans_seeding_density_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                               c("plants/hill",
-                                                                 "plants/m2",
-                                                                 "plants/pot",
-                                                                 "plants/row"),
-                                                             selected = "plants/m2"
-                                              )
-                                       )
-                                     ),
-                                     numericInput(paste0("ptta_trans_num_rows_", index), "Number of rows", value ="", min=0, max=100, step=1),
-                                     fluidRow(
-                                       column(width = 6,
-                                              numericInput(paste0("ptta_trans_distance_plants_", index),  label = "Distance between plants", value="", min=0, max=100, step=0.1)
-                                       ),
-                                       column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                              selectizeInput(paste0("ptta_trans_distance_plants_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), selected="m", choices =
-                                                               c("m")
-                                              )
-                                       )
-                                     ),
-                                     fluidRow(
-                                       column(width = 6,
-                                              numericInput(paste0("ptta_trans_distance_bunds_", index),  label = "Distance between bunds", min=0, max=100, step=0.1, value=NULL)
-                                       ),
-                                       column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
-                                              selectizeInput(paste0("ptta_trans_distance_bunds_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
-                                                               c("cm",
-                                                                 "m",
-                                                                 "in",
-                                                                 "ft"),
-                                                             selected = "cm"
-                                              )
-                                       )
-                                     ),
-                                     textAreaInput(paste0("ptta_transplanting_density_notes_", index), label="Notes", value="")
-                                     
-                                   )
-                                 )
-                                 
-                                 
-                          )
-                        ) #end fluidrow,
-                        
-                        
-                    ) #end box sowing
-                  )
-             )
-    )
-  }
-  
+  # drawAgroBoxes <- function(index){
+  #   ## adding harvest box
+  #   
+  #   index_harv <- index
+  #   crop <- NULL
+  #   xtitle <- "Crop"
+  #   
+  #   isolate(
+  #     if(input$croppingType == 'Monocrop'){
+  #       expCondsVars$ids_harvest <- c()
+  #       str_id <- stri_rand_strings(1, 8,  '[A-Z]')
+  #       expCondsVars$ids_harvest <- c(expCondsVars$ids_harvest, paste0(str_id))
+  #       index_harv <- str_id
+  #       expCondsVars$num_harvest <- 1
+  #     }
+  #     else{
+  #       crop <- input[[paste0("int_cropCommonName_", index)]]
+  #       if(!is.null(crop)){
+  #         if(crop == "Other"){
+  #           if(input[[paste0("int_cropCommonName_", index, "_other")]] == ''){
+  #             xtitle <- "Other"
+  #           }
+  #           else {
+  #             xtitle <- input[[paste0("int_cropCommonName_", index, "_other")]]
+  #           }
+  #         }
+  #         else{
+  #           xtitle <- crop
+  #         }
+  #       }
+  #     }
+  #   )
+  #   
+  #   drawBoxHarvest(index_harv)
+  #   
+  #   ## adding planting transplanting box
+  #   insertUI(
+  #     selector = "#fr_plantingTransplating_reference_point",
+  #     where = "beforeBegin",
+  #     ui <- uiPlantingTransplantingBox(index)
+  #   )
+  #   if(is.null(crop)){
+  #     renameAgroBoxes(index_harv, index)  
+  #   }
+  #   else{
+  #     renameAgroBoxes(index_harv, index, xtitle)
+  #   }
+  #   
+  #   
+  #   
+  # }
+  # 
+  # drawAgroBoxesIntercrop <- function(){
+  #   isolate(ids <- intercropVars$ids)
+  #   for( id in ids){
+  #     vars <- unlist(strsplit(id,"_")) 
+  #     drawAgroBoxes(vars[2])
+  #   }
+  # }
+  # renameAgroBoxes <- function(index_harvest, index_planting, crop = ""){
+  #   titleHarvest <- "Harvest details"
+  #   titlePlanting <- "Planting & Transplanting details"
+  #   isolate(
+  #     if(input$croppingType == 'Intercrop'){
+  #         if(crop == ""){
+  #           titleHarvest <- "Harvest details: Crop"
+  #           titlePlanting <- "Planting & Transplanting details: Crop"
+  #         }
+  #         else{
+  #           titleHarvest <- paste0("Harvest details: ", crop)
+  #           titlePlanting <- paste0("Planting & Transplanting details: ", crop)
+  #         }
+  #         
+  #       }
+  #    )
+  #     
+  #     output[[paste0("planting_title_", index_planting)]] <- renderText({titlePlanting})
+  #     output[[paste0("harvest_title_", index_harvest)]] <- renderText({titleHarvest})
+  #   
+  # }
+  # 
+  # drawBoxHarvest <- function(index){
+  #   insertUI(
+  #     selector = "#fr_harvest_reference_point",
+  #     where = "beforeBegin",
+  #     ui = uiHarvestBox(index)
+  #   )
+  # }
+  # 
+  # 
+  # 
+  # uiHarvestBox <- function(index){
+  #   fluidRow( id = paste0("fr_harvestbox_", index),
+  #             box(id=paste0("desc_harvest_boxid_",index ),
+  #                 title = actionLink(paste0("desc_harvest_titleId_", index), uiOutput(paste0("harvest_title_", index))),
+  #                 # title = div(id=paste0("desc_harvest_titleId_", index), "Harvest detailssss"),
+  #                 status = "primary",
+  #                 solidHeader = TRUE,
+  #                 width = 12, collapsible = TRUE, collapsed = FALSE,
+  #                 fluidRow(
+  #                   column(width = 6,
+  #                          fluidRow(
+  #                            column(width = 6,
+  #                                   #dateInput(paste0("harvest_start_date_", index), label ="Start date", format = "yyyy-mm-dd")
+  #                                   #airDatepickerInput("harvest_start_date", "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                                   #uiOutput("h_start_date")
+  #                                   
+  #                                   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                                     airDatepickerInput(paste0("hahd_harvest_start_date_", index),
+  #                                                        "Start date",
+  #                                                        clearButton = T,
+  #                                                        autoClose = T,
+  #                                                        #value = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                        placeholder = "yyyy-mm-dd",
+  #                                                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                                        
+  #                                     )
+  #                                   } else {
+  #                                     airDatepickerInput(paste0("hahd_harvest_start_date_", index),
+  #                                                        "Start date",
+  #                                                        clearButton = T,
+  #                                                        autoClose = T,
+  #                                                        placeholder = "yyyy-mm-dd"
+  #                                     )
+  #                                   }
+  #                            ),
+  #                            column(width = 6,
+  #                                   #dateInput(paste0("harvest_end_date_", index), label ="End date", format = "yyyy-mm-dd")
+  #                                   #airDatepickerInput("harvest_end_date", "End date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                                   #uiOutput("h_end_date")
+  #                                   
+  #                                   if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                                     airDatepickerInput(paste0("hahd_harvest_end_date_", index),
+  #                                                        "End date",
+  #                                                        clearButton = T,
+  #                                                        autoClose = T,
+  #                                                        #value = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                        placeholder = "yyyy-mm-dd",
+  #                                                        minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                        maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                                        
+  #                                     )
+  #                                   } else {
+  #                                     airDatepickerInput(paste0("hahd_harvest_end_date_", index),
+  #                                                        "End date",
+  #                                                        clearButton = T,
+  #                                                        autoClose = T,
+  #                                                        placeholder = "yyyy-mm-dd"
+  #                                     )
+  #                                   }
+  #                            )
+  #                          ),
+  #                          
+  #                          fluidRow(
+  #                            column(6,
+  #                                   selectizeInput(paste0("hahd_harvest_method_", index), label = "Harvest method", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                    c("Baling", "Cutting", "Mowing", "Haymaking", "Picking", "Threshing", "Trussing", "Windrowing","Winnowing","Other")
+  #                                   ))
+  #                            
+  #                            
+  #                          ),
+  #                          
+  #                          hidden(textInput(paste0("hahd_harvest_method_", index,"_other"), "")),
+  #                          selectizeInput(paste0("hahd_crop_component_harvested_", index), label = "Crop component harvested", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
+  #                                           c("Canopy", "Aboveground biomass","Leaves","Stems","Seed","Pod", "Grain", "Tuber","Roots (excluding storage roots)", "Storage roots",
+  #                                             "Other")
+  #                          ),
+  #                          
+  #                          hidden(textInput(paste0("hahd_crop_component_harvested_",index,"_other"), "")),
+  #                          
+  #                          selectizeInput(paste0("hahd_crop_harvestable_area_", index), label = "Harvestable area", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                           c("m2 units", "Individual plants","Rows","Entire plot","Other")
+  #                          ),
+  #                          
+  #                          
+  #                          conditionalPanel(paste0("input.hahd_crop_harvestable_area_",index, " == 'm2 units'"),
+  #                                           textInput(paste0("hahd_crop_component_harvested_m2_",index), "Number of m2 units harvested")
+  #                          ),
+  #                          conditionalPanel(paste0("input.hahd_crop_harvestable_area_",index, " == 'Individual plants'"),
+  #                                           textInput(paste0("hahd_crop_component_harvested_ip_",index), "Number of plants harvested")
+  #                          ),
+  #                          conditionalPanel(paste0("input.hahd_crop_harvestable_area_",index, " == 'Rows'"),
+  #                                           fluidRow(
+  #                                             column(6,
+  #                                                    textInput(paste0("hahd_crop_component_harvested_num_",index), "Number of rows harvested")
+  #                                             )
+  #                                           ),
+  #                                           
+  #                                           
+  #                                           fluidRow(
+  #                                             column(6,
+  #                                                    textInput(paste0("hahd_crop_component_harvested_len_",index), "Length of rows harvested")
+  #                                                    
+  #                                             ),
+  #                                             column(6,
+  #                                                    selectizeInput(paste0("hahd_crop_component_harvested_lenunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
+  #                                                                     c("cm", "m", "in","ft"), selected = "cm")
+  #                                             )
+  #                                           ),
+  #                                           fluidRow(
+  #                                             column(6,
+  #                                                    textInput(paste0("hahd_crop_component_harvested_width_",index), "Width within rows harvested")
+  #                                             ),
+  #                                             column(6,
+  #                                                    selectizeInput(paste0("hahd_crop_component_harvested_widthunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
+  #                                                                     c("cm", "m", "in","ft"), selected = "cm")
+  #                                             )
+  #                                           ),
+  #                                           fluidRow(
+  #                                             column(6,
+  #                                                    numericInput(paste0("hahd_space_rows_harvested_", index), "Space between rows harvested", value = "", min = 0, step = 0.1)
+  #                                             ),
+  #                                             column(6,
+  #                                                    selectizeInput(paste0("hahd_crop_component_harvested_spaceunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
+  #                                                                     c("cm", "m", "in","ft"), selected = "cm")
+  #                                             )
+  #                                           )
+  #                          ),
+  #                          conditionalPanel(paste0("input.hahd_crop_harvestable_area_",index, " == 'Entire plot'"),
+  #                                           fluidRow(
+  #                                             column(6,
+  #                                                    textInput(paste0("hahd_crop_component_harvested_entire_",index), "Plot area harvested")
+  #                                             ),
+  #                                             column(6,
+  #                                                    selectizeInput(paste0("hahd_crop_component_harvested_entireunit_",index),  label ="Unit", multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), choices =
+  #                                                                     c("m2", "ha", "ft2","ac"), selected = "ha")
+  #                                             )
+  #                                           )
+  #                          ),
+  #                          hidden(textInput(paste0("hahd_crop_harvestable_area_", index,"_other"), "")),
+  #                          fluidRow(
+  #                            column(width = 6,
+  #                                   numericInput(paste0("hahd_amount_harvested_", index), "Amount harvested", value = "", min = 0, step = 0.1)
+  #                            ),
+  #                            column(width = 6,#IMPLEMENTAR EN EXCEL
+  #                                   selectizeInput(paste0("hahd_amount_harvested_unit_", index), label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("g", "kg", "lb", "t"), selected = "g")
+  #                            )
+  #                          ),
+  #                          
+  #                          
+  #                          
+  #                          #textInput("num_rows_harvested", "Number of rows harvested"),
+  #                          
+  #                          # textInput(paste0("num_plants_area_harvested_", index), "Number of plants in area harvested"),
+  #                          
+  #                          fluidRow(
+  #                            column(width = 6,
+  #                                   numericInput(paste0("hahd_harvest_cut_height_", index), "Harvest cut height", value = "", min = 0, step = 0.1)
+  #                            ),
+  #                            column(width = 6,
+  #                                   selectizeInput(paste0("hahd_harvest_cut_height_unit_", index), label="Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices=c("cm", "ft", "in", "m"), selected = "cm")
+  #                            )
+  #                          ),
+  #                          textAreaInput(inputId = paste0("hahd_harvest_notes_", index), label = "Notes", value = "")
+  #                          
+  #                   ),
+  #                   column(width = 6,
+  #                          br(),
+  #                          isolate(
+  #                            if(input$croppingType == 'Monocrop'){
+  #                              column(12, 
+  #                                     style='padding:0px; text-align:right; ',  actionButton(paste0("closeBox_HARV_",index ), "", icon("close")),
+  #                                     br(),br()
+  #                              )                               
+  #                            }
+  #                          ),
+  #                          
+  #                         
+  #                          
+  #                          fluidRow(
+  #                            box(
+  #                              title = "Implement", solidHeader = TRUE, status = "warning", width=12,
+  #                              # selectizeInput(paste0("harvest_technique_", index), label = "Technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                              #                  c("Manual",
+  #                              #                    "Mechanized")
+  #                              # ),
+  #                              fluidRow(
+  #                                column(12,
+  #                                       h4("Implement", style="font-weight: 800;color: #555;")
+  #                                )
+  #                              ),
+  #                              selectizeInput(paste0("hahd_harvest_implement_", index), label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                               c("Baler",
+  #                                                 "Chopper",
+  #                                                 "Combine",
+  #                                                 "Digger",
+  #                                                 "Mower",
+  #                                                 "Reaper",
+  #                                                 "Roller",
+  #                                                 "Sickle",
+  #                                                 "Other")
+  #                              ),
+  #                              hidden(textInput(paste0("hahd_harvest_implement_", index, "_other"), "")),
+  #                              # textInput("harvest_make", value="", label = "Implement make"),
+  #                              # textInput("harvest_model", value="", label = "Implement model"),
+  #                              selectizeInput(paste0("hahd_harvest_traction_" , index), label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                               c("Animal",
+  #                                                 "Manual",
+  #                                                 "2 wheel tractor",
+  #                                                 "4 wheel tractor",
+  #                                                 "Other"
+  #                                               )
+  #                              ),
+  #                              hidden(textInput(paste0("hahd_harvest_traction_",index,"_other"), ""))
+  #                              
+  #                            ))
+  #                   ))
+  #             ))#end box description harvest
+  # }
+  # 
+  # uiPlantingTransplantingBox <- function(index){
+  #   fluidRow(id= paste0("fr_plantingTrasplanting_", index),
+  #            box( id = paste0("plantingTransplanting_boxid_", index),
+  #                 title = actionLink(paste0("plantingTransplanting_titleId_", index), uiOutput(paste0("planting_title_", index)) ),
+  #                 status = "primary",
+  #                 solidHeader = TRUE,
+  #                 width = 12, collapsible = TRUE,  collapsed = FALSE,
+  #                 fluidRow(
+  #                   
+  #                   box(id=paste0("direct_seeding_boxid_", index),
+  #                       title = checkboxInput(paste0("directSeeding_checkbox_", index), actionLink(paste0("direct_seeding_titleId_", index), "Direct seeding"), F),
+  #                       status = "primary",
+  #                       solidHeader = TRUE,
+  #                       width = 12, collapsible = TRUE,  collapsed = TRUE,
+  #                       
+  #                       fluidRow(
+  #                         column(width = 6,
+  #                                fluidRow(
+  #                                  column(width = 6,
+  #                                         #dateInput(paste0("planting_start_date_", index), label ="Start date", format = "yyyy-mm-dd")
+  #                                         #airDatepickerInput("planting_start_date", "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                                         # uiOutput("pl_start_date")
+  #                                         
+  #                                         if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                                           airDatepickerInput(paste0("ptdi_planting_start_date_", index),
+  #                                                              "Start date",
+  #                                                              clearButton = T,
+  #                                                              autoClose = T,
+  #                                                              #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                                                              placeholder = "yyyy-mm-dd",
+  #                                                              minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                              maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                                              
+  #                                           )
+  #                                         } else {
+  #                                           airDatepickerInput(paste0("ptdi_planting_start_date_", index),
+  #                                                              "Start date",
+  #                                                              clearButton = T,
+  #                                                              autoClose = T,
+  #                                                              placeholder = "yyyy-mm-dd"
+  #                                           )
+  #                                         }
+  #                                         
+  #                                  )
+  #                                  
+  #                                )
+  #                         )
+  #                       ),
+  #                       fluidRow(
+  #                         
+  #                         column(width = 6,
+  #                                fluidRow(
+  #                                  box(
+  #                                    title = "Planting, transplanting method", solidHeader = TRUE, status = "warning", width=12,
+  #                                    fluidRow(
+  #                                      column(12,
+  #                                             h4("Planting, transplanting method", style="font-weight: 800;color: #555;")
+  #                                      )
+  #                                    ),
+  #                                    # textInput("planting_directSeeding", value="", label = "Direct seeding"),
+  #                                    selectizeInput(paste0("ptdi_seeding_environment_", index), label = "Seeding environment", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                     c("Flat seed bed",
+  #                                                       "Hill",
+  #                                                       "Ridge", 
+  #                                                       "Other")
+  #                                    ),
+  #                                    hidden(textInput(paste0("ptdi_seeding_environment_", index, "_other"), "", value="")),
+  #                                    selectizeInput(paste0("ptdi_seeding_technique_", index), label = "Seeding technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                     c("Broadcasting",
+  #                                                       "Line sowing",
+  #                                                       "Dibbling"
+  #                                                     )
+  #                                    ),
+  #                                    hidden(textInput(paste0("ptdi_seeding_technique_", index,"_other"), "", value="")),
+  #                                    textInput(paste0("ptdi_seed_treatment_", index), value="", label = "Seed treatment")
+  #                                    
+  #                                  )),
+  #                                
+  #                                # column(width = 6,
+  #                                fluidRow(
+  #                                  box(
+  #                                    title = "Implement", solidHeader = TRUE, status = "warning", width=12,
+  #                                    fluidRow(
+  #                                      column(12,
+  #                                             h4("Implement", style="font-weight: 800;color: #555;")
+  #                                      )
+  #                                    ),
+  #                                    selectizeInput(paste0("ptdi_seeding_implement_type_", index), label = "Type", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                     c("Bucket broadcaster",
+  #                                                       "Dibbling stick",
+  #                                                       "Drum seeder",
+  #                                                       "Jab planter",
+  #                                                       "Seed drill",
+  #                                                       "Other"
+  #                                                     )
+  #                                    ),
+  #                                    hidden(textInput(paste0("ptdi_seeding_implement_type_", index, "_other"), "", value="")),
+  #                                    selectizeInput(paste0("ptdi_seeding_traction_", index), label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                     c("Animal",
+  #                                                       "Manual",
+  #                                                       "2 wheel tractor",
+  #                                                       "4 wheel tractor",
+  #                                                       "Other"
+  #                                                     )
+  #                                    ),
+  #                                    hidden(textInput(paste0("ptdi_seeding_traction_", index, "_other"), "", value=""))
+  #                                  )
+  #                                )
+  #                                # )
+  #                         ),
+  #                         column(width = 6,
+  #                                fluidRow(
+  #                                  box(
+  #                                    title = "Seeding density", solidHeader = TRUE, status = "warning", width=12,
+  #                                    fluidRow(
+  #                                      column(12,
+  #                                             h4("Seeding density", style="font-weight: 800;color: #555;")
+  #                                      )
+  #                                    ),
+  #                                    fluidRow(
+  #                                      column(width = 6,
+  #                                             numericInput(paste0("ptdi_distance_rows_", index),  label = "Distance between rows", min=0, max=100, step=0.1,value=NULL)
+  #                                      ),
+  #                                      column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                             selectizeInput(paste0("ptdi_distance_rows_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                              c("cm",
+  #                                                                "ft",
+  #                                                                "in",
+  #                                                                "m"),
+  #                                                            selected = "cm"
+  #                                             )
+  #                                      )
+  #                                    ),
+  #                                    fluidRow(
+  #                                      column(width = 6,
+  #                                             numericInput(paste0("ptdi_seeding_rate_", index),  label = "Seeding rate", min=0, max=100, step=1,value=NULL)
+  #                                      ),
+  #                                      column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                             selectizeInput(paste0("ptdi_seeding_rate_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                              c("kg/ha",
+  #                                                                "lb/ac",
+  #                                                                "plants/pot"),
+  #                                                            selected = "kg/ha"
+  #                                             )
+  #                                      )
+  #                                    ),
+  #                                    # textInput("seeds_per_hil", "Seeds/seedlings per hill", value =""),
+  #                                    fluidRow(
+  #                                      column(width = 6,
+  #                                             numericInput(paste0("ptdi_distance_plants_", index),  label = "Distance between plants", min=0, max=100, step=0.1,value=NULL)
+  #                                      ),
+  #                                      column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                             selectizeInput(paste0("ptdi_distance_plants_unit_",index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                              c("cm",
+  #                                                                "ft",
+  #                                                                "in",
+  #                                                                "m"),
+  #                                                            selected = "cm"
+  #                                             )
+  #                                      )
+  #                                    ),
+  #                                    numericInput(paste0("ptdi_seeding_density_number_rows_", index),  label = "Number of rows", min=0, max=100, step=1, value=NULL),
+  #                                    fluidRow(
+  #                                      column(width = 6,
+  #                                             numericInput(paste0("ptdi_seeding_plant_density_", index),  label = "Plant density", min=0, max=100, step=0.1, value=NULL)
+  #                                      ),
+  #                                      column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                             selectizeInput(paste0("ptdi_seeding_plant_density_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                              c("plants/hill",
+  #                                                                "plants/m2",
+  #                                                                "plants/pot",
+  #                                                                "plants/row"),
+  #                                                            selected = "plants/m2"
+  #                                             )
+  #                                      )
+  #                                    ),
+  #                                    fluidRow(
+  #                                      column(width = 6,
+  #                                             numericInput(paste0("ptdi_seeding_distance_bunds_", index),  label = "Distance between bunds", min=0, max=100, step=0.1, value=NULL)
+  #                                      ),
+  #                                      column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                             selectizeInput(paste0("ptdi_seeding_distance_bunds_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                              c("cm",
+  #                                                                "m",
+  #                                                                "in",
+  #                                                                "ft"),
+  #                                                            selected = "cm"
+  #                                             )
+  #                                      )
+  #                                    ),
+  #                                    textAreaInput(paste0("ptdi_direct_seeding_notes_", index), label="Notes", value="")
+  #                                    
+  #                                  )
+  #                                )
+  #                         )
+  #                       )
+  #                       
+  #                       
+  #                   )
+  #                 ),
+  #                 fluidRow(
+  #                   box(id=paste0("transplanting_boxid_", index),
+  #                       title = checkboxInput(paste0("transplanting_checkbox_", index), actionLink(paste0("transplanting_titleId_", index), "Transplanting"), F),
+  #                       status = "primary",
+  #                       solidHeader = TRUE,
+  #                       width = 12, collapsible = TRUE, collapsed = TRUE,
+  #                       fluidRow(
+  #                         
+  #                         column(width = 6,
+  #                                fluidRow(
+  #                                  column(width = 6,
+  #                                         #dateInput(paste0("transplanting_start_date_", index), label ="Start date", format = "yyyy-mm-dd")
+  #                                         #airDatepickerInput("transplanting_start_date", "Start date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                                         # uiOutput("trans_start_date")
+  #                                         
+  #                                         if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                                           airDatepickerInput(paste0("ptta_transplanting_start_date_", index),
+  #                                                              "Start date",
+  #                                                              clearButton = T,
+  #                                                              autoClose = T,
+  #                                                              #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                                                              placeholder = "yyyy-mm-dd",
+  #                                                              minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                              maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                                              
+  #                                           )
+  #                                         } else {
+  #                                           airDatepickerInput(paste0("ptta_transplanting_start_date_", index),
+  #                                                              "Start date",
+  #                                                              clearButton = T,
+  #                                                              autoClose = T,
+  #                                                              placeholder = "yyyy-mm-dd"
+  #                                           )
+  #                                         }
+  #                                         
+  #                                  ),
+  #                                  column(width = 6,
+  #                                         #dateInput(paste0("transplanting_end_date_", index), label ="End date", format = "yyyy-mm-dd")
+  #                                         #airDatepickerInput("transplanting_end_date", "End date", placeholder = "yyyy-mm-dd", clearButton = T, autoClose = T)
+  #                                         # uiOutput("trans_end_date")
+  #                                         
+  #                                         if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+  #                                           airDatepickerInput(paste0("ptta_transplanting_end_date_", index),
+  #                                                              "End date",
+  #                                                              clearButton = T,
+  #                                                              autoClose = T,
+  #                                                              #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+  #                                                              placeholder = "yyyy-mm-dd",
+  #                                                              minDate = as.Date(input$fbDesign_project_start_date) + 1,
+  #                                                              maxDate = as.Date(input$fbDesign_project_end_date) + 1
+  #                                                              
+  #                                           )
+  #                                         } else {
+  #                                           airDatepickerInput(paste0("ptta_transplanting_end_date_", index),
+  #                                                              "End date",
+  #                                                              clearButton = T,
+  #                                                              autoClose = T,
+  #                                                              placeholder = "yyyy-mm-dd"
+  #                                           )
+  #                                         }
+  #                                  )),
+  #                                numericInput(paste0("ptta_age_seedling_", index), value="", label = "Age of seedling (days)", min=0, max=100, step=1),
+  #                                selectizeInput(paste0("ptta_transplanting_environment_", index), label = "Seedling environment", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                 c("Flat seed bed",
+  #                                                   "Hill",
+  #                                                   "Ridge",
+  #                                                   "Other")
+  #                                ),
+  #                                hidden(textInput(paste0("ptta_transplanting_environment_", index, "_other"), "", value="")),
+  #                                selectizeInput(paste0("ptta_transplanting_technique_", index), label = "Technique", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                 c("Manual",
+  #                                                   "Mechanical",
+  #                                                   "Other")
+  #                                ),
+  #                                hidden(textInput(paste0("ptta_transplanting_technique_", index, "_other"), "", value="")),
+  #                                textInput(paste0("ptta_transplanting_treatment_", index), value="", label = "Seed treatment"),
+  #                                selectizeInput(paste0("ptta_trans_traction_", index), label = "Traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                 c("Animal",
+  #                                                   "Traction",
+  #                                                   "2 wheel tractor",
+  #                                                   "4 wheel tractor",
+  #                                                   "Other"
+  #                                                 )
+  #                                ),
+  #                                hidden(textInput(paste0("ptta_trans_traction_", index,"_other"), "", value=""))
+  #                         ),
+  #                         
+  #                         
+  #                         column(width = 6,
+  #                                fluidRow(
+  #                                  box(
+  #                                    title = "Transplanting density", solidHeader = TRUE, status = "warning", width=12,
+  #                                    fluidRow(
+  #                                      column(12,
+  #                                             h4("Transplanting density", style="font-weight: 800;color: #555;")
+  #                                      )
+  #                                    ),
+  #                                    #br(),
+  #                                    fluidRow(
+  #                                      column(width = 6,
+  #                                             numericInput(paste0("ptta_trans_distance_rows_", index),  label = "Distance between rows", value="", min=0, max=100, step=0.1)
+  #                                      ),
+  #                                      column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                             selectizeInput(paste0("ptta_trans_distance_rows_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                              c("cm",
+  #                                                                "ft",
+  #                                                                "in",
+  #                                                                "m"),
+  #                                                            selected = "cm"
+  #                                             )
+  #                                      )
+  #                                    ),
+  #                                    fluidRow(
+  #                                      column(width = 6,
+  #                                             numericInput(paste0("ptta_trans_seeding_density_", index),  label = "Seedling density", value="", min=0, max=100, step=1)
+  #                                      ),
+  #                                      column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                             selectizeInput(paste0("ptta_trans_seeding_density_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                              c("plants/hill",
+  #                                                                "plants/m2",
+  #                                                                "plants/pot",
+  #                                                                "plants/row"),
+  #                                                            selected = "plants/m2"
+  #                                             )
+  #                                      )
+  #                                    ),
+  #                                    numericInput(paste0("ptta_trans_num_rows_", index), "Number of rows", value ="", min=0, max=100, step=1),
+  #                                    fluidRow(
+  #                                      column(width = 6,
+  #                                             numericInput(paste0("ptta_trans_distance_plants_", index),  label = "Distance between plants", value="", min=0, max=100, step=0.1)
+  #                                      ),
+  #                                      column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                             selectizeInput(paste0("ptta_trans_distance_plants_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), selected="m", choices =
+  #                                                              c("m")
+  #                                             )
+  #                                      )
+  #                                    ),
+  #                                    fluidRow(
+  #                                      column(width = 6,
+  #                                             numericInput(paste0("ptta_trans_distance_bunds_", index),  label = "Distance between bunds", min=0, max=100, step=0.1, value=NULL)
+  #                                      ),
+  #                                      column(width = 6, ##IMPLENTAR EN EXCEL o concatenar
+  #                                             selectizeInput(paste0("ptta_trans_distance_bunds_unit_", index), label = "Unit", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), choices =
+  #                                                              c("cm",
+  #                                                                "m",
+  #                                                                "in",
+  #                                                                "ft"),
+  #                                                            selected = "cm"
+  #                                             )
+  #                                      )
+  #                                    ),
+  #                                    textAreaInput(paste0("ptta_transplanting_density_notes_", index), label="Notes", value="")
+  #                                    
+  #                                  )
+  #                                )
+  #                                
+  #                                
+  #                         )
+  #                       ) #end fluidrow,
+  #                       
+  #                       
+  #                   ) #end box sowing
+  #                 )
+  #            )
+  #   )
+  # }
+  # 
   
   #####################################
   
@@ -15851,6 +17676,36 @@ server_design_agrofims <- function(input, output, session, values){
      }
      dt
    })
+  dt_prot_residual<-reactive({
+    
+    ecname <- "AgroFIMS_Agronomy_DataDictionary_05-3-2019.xlsx"
+    globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+    kds_resmgt <- readxl::read_excel(paste0(globalpath, ecname),sheet = "Residue management")
+    
+    if(isTRUE(input$residueDesc_checkbox)){
+      dt1 <- get_protocol_resdesc(input=input)
+      print(dt1)
+    } 
+    else {
+      dt1 <- data.frame()
+    }
+    
+    if(isTRUE(input$residueManag_checkbox)){
+      dt2 <- get_protocol_resmgt(input=input)
+      print(dt2)
+    } 
+    else{
+      dt2 <- data.frame()
+    }
+    
+    dt <- rbind(dt1,dt2) #column bind of two sub tabs (description and management)
+    print("dt")
+    dt<- dplyr::left_join(kds_resmgt, dt) %>% filter(Value!="")
+    print(dt)
+    #dt<- ec_clean_header(dt)
+    dt
+    
+  }) 
   lbl_residual <- reactive({
     
     if(isTRUE(input$residueDesc_checkbox)){
@@ -15964,8 +17819,8 @@ server_design_agrofims <- function(input, output, session, values){
     
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
     
-    if(ct=="Monocrop" || ct== "Relay crop"){
-      dt<- get_ec_plantrans(allinputs = AllInputs(), input = input)$dt
+    if(ct=="Monocrop"){
+      dt<- get_ec_plantrans(allinputs=AllInputs(), input, ctype="monocrop", cropId= "1", addId="1")$dt
       if(nrow(fbdesign())==0 && length(dt)>0){
         dt <- dt
       } else if( nrow(fbdesign())>0 && length(dt)>0 ) {
@@ -15974,46 +17829,93 @@ server_design_agrofims <- function(input, output, session, values){
         dt <- data.frame()
       }
       
-    } else {
+    } 
+    else if(ct=="Intercrop"){
       
-      if(ct=="Intercrop"){
+       id_rand_inter <- getAddInputId(intercropVars$ids, "int_", "") 
+       circm <- map_values(input, id_chr="int_cropCommonName_",id_rand_inter, format = "vector", lbl= "Select crop")
       
-      id_rand_inter <- getAddInputId(intercropVars$ids, "int_", "") 
-      circm <- map_values(input, id_chr="int_cropCommonName_",id_rand_inter, format = "vector", lbl= "Select crop")
-      dt<- get_ec_plantrans_inter(allinputs=AllInputs(), input, addId= id_rand_inter, circm)
+       ptdt_list<-NULL
+       for(i in 1:length(id_rand_inter)){
+         ptdt_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="intercrop", cropId=id_rand_inter[i], addId="1")$dt
+       }
+      
+      #Join fbdesign with harvest header of each crop for intercrop trials
+       dt<-NULL  
+       for(i in 1:length(ptdt_list)){
+            if(nrow(fbdesign())==0){
+              dt[[i]] <- ptdt_list[[i]]
+            } else {
+              dt[[i]] <-cbind(fbdesign(), ptdt_list[[i]] )
+            }
+        }
+       names(dt)<- circm
+    } 
+    else if(ct=="Relay crop"){
+      
+      id_rand_rel <- getAddInputId(relaycropVars$ids, "int_", "") 
+      crecm <- map_values(input, id_chr="rel_cropCommonName_",id_rand_rel, format = "vector", lbl= "Select crop")
+      
+      ptdt_list<-NULL
+      for(i in 1:length(id_rand_rel)){
+        ptdt_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="relay crop", cropId=id_rand_rel[i], addId="1")$dt
       }
       
       #Join fbdesign with harvest header of each crop for intercrop trials
-      for(j in 1:length(dt)){
+      dt<-NULL  
+      for(i in 1:length(ptdt_list)){
         if(nrow(fbdesign())==0){
-          dt[[ circm[j] ]] <- dt[[ circm[j] ]]
-        }else {
-          dt[[ circm[j] ]] <-cbind(fbdesign() ,dt[[ circm[j] ]] )
+          dt[[i]] <- ptdt_list[[i]]
+        } else {
+          dt[[i]] <-cbind(fbdesign(), ptdt_list[[i]] )
         }
       }
-      
-    }
+      names(dt)<- crecm
+    } 
     
+   
     dt  
   })
   lbl_plantrans <- reactive({
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Monocrop") 
-    if(ct=="Monocrop" || ct== "Relay crop"){
-      lbl <- get_ec_plantrans(allinputs = AllInputs(), input = input)$lbl
+    if(ct=="Monocrop"){
+      lbl <- get_ec_plantrans(allinputs = AllInputs(), input = input, ctype="monocrop", cropId="1",addId="1" )$lbl
       if(length(lbl)==0){lbl <- "no-label"}
       #lbl
-    } else{
+    } 
+    else if(ct=="Intercrop") {
       id_rand_inter <- getAddInputId(intercropVars$ids, "int_", "") 
       circm <- map_values(input, id_chr="int_cropCommonName_",id_rand_inter, format = "vector", lbl= "Select crop")
-      dt<- get_ec_plantrans_inter(allinputs=AllInputs(), input, addId= id_rand_inter, circm)
+      ptlbl_list<- NULL
+      for(i in 1:length(id_rand_inter)){
+        ptlbl_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="intercrop", cropId= id_rand_inter[i], addId="1")$lbl
+      }
       lbl<- NULL
-      for(i in 1:length(dt)){
-        if(length(dt[[i]])!=0){
-          lbl[[i]] <- str_replace_all(string = names(dt[[i]]), pattern = "__[:digit:]+$",replacement = "")
-          names(lbl[[i]])<-circm[i]
+      for(i in 1:length(ptlbl_list)){
+        if(length(ptlbl_list[[i]])!=0){
+          lbl[[i]] <- ptlbl_list[[i]] #str_replace_all(string = names(ptdt_list[[i]]), pattern = "__[:digit:]+$",replacement = "")
+         }
+      }
+      names(lbl)<- circm
+      lbl <- purrr::compact(lbl)
+    } 
+    else if (ct=="Relay crop"){
+      
+      id_rand_rel <- getAddInputId(relaycropVars$ids, "rel_", "") 
+      crecm <- map_values(input, id_chr="rel_cropCommonName_",id_rand_rel, format = "vector", lbl= "Select crop")
+      ptlbl_list<- NULL
+      for(i in 1:length(id_rand_rel)){
+        ptlbl_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="relay crop", cropId= id_rand_rel[i], addId="1")$lbl
+      }
+      lbl<- NULL
+      for(i in 1:length(ptlbl_list)){
+        if(length(ptlbl_list[[i]])!=0){
+          lbl[[i]] <- ptlbl_list[[i]] #str_replace_all(string = names(ptdt_list[[i]]), pattern = "__[:digit:]+$",replacement = "")
         }
       }
+      names(lbl)<- crecm
       lbl <- purrr::compact(lbl)
+      
     }
     lbl
   }) 
@@ -16040,7 +17942,7 @@ server_design_agrofims <- function(input, output, session, values){
   #'TODO Irrigation  #####################################################################
   dt_irrigation <- reactive({
     
-    addId <- getAddInputId(addId = expCondsVars$ids_irri, "ECIR_", "")
+    addId <- getAddInputId(addId = expconIRRImonocrop$ids, "mono_irri_", "")
     dt<- get_ec_irri(allinputs=AllInputs(), addId=addId)$dt
     if(nrow(fbdesign())==0){
       dt <- dt
@@ -16052,7 +17954,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   lbl_irrigation <- reactive({
     
-    addId <- getAddInputId(addId = expCondsVars$ids_irri, "ECIR_", "")
+    addId <- getAddInputId(addId = expconIRRImonocrop$ids, "mono_irri_", "")
     lbl<- get_ec_irri(allinputs=AllInputs(), addId=addId)$lbl
     if(length(lbl)==0){lbl <- "no-label"}
     lbl
@@ -16060,7 +17962,7 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
   ns_irrigation <- reactive({
-    addId <- getAddInputId(addId = expCondsVars$ids_irri, "ECIR_", "")
+    addId <- getAddInputId(addId = expconIRRImonocrop$ids, "mono_irri_", "")
     ns <- get_ns(addId)
     ns
   })
@@ -16068,7 +17970,7 @@ server_design_agrofims <- function(input, output, session, values){
   ## Weeding #########################################################################
   dt_weeding <- reactive({
    
-    addId <- getAddInputId(addId = expCondsVars$ids_weed, "ECWE_", "")
+    addId <- getAddInputId(addId = expconWEEmonocrop$ids, "mono_wee_", "")
     dt<- get_ec_weed(allinputs=AllInputs(), addId=addId)$dt
     if(nrow(fbdesign())==0){
       dt <- dt
@@ -16079,13 +17981,13 @@ server_design_agrofims <- function(input, output, session, values){
     
    })
   lbl_weeding<- reactive({
-    addId <- getAddInputId(addId = expCondsVars$ids_weed, "ECWE_", "")
+    addId <- getAddInputId(addId =  expconWEEmonocrop$ids, "mono_wee_", "")
     lbl <- get_ec_weed(allinputs=AllInputs(), addId=addId)$lbl
     if(length(lbl)==0){lbl <- "no-label"}
     lbl
   })
   ns_weeding<- reactive({
-    addId <- getAddInputId(addId = expCondsVars$ids_weed, "ECWE_", "")
+    addId <- getAddInputId(addId =  expconWEEmonocrop$ids, "mono_wee_", "")
     ns <- get_ns(addId)
     ns
   })
@@ -17388,22 +19290,13 @@ server_design_agrofims <- function(input, output, session, values){
 
        withProgress(message = 'Downloading fieldbook', value = 0, {
         
-         # ai <<- AllInputs()
-         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         # x <- reactiveValuesToList(input)
-         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+          ai <- AllInputs()
+          saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+          x <- reactiveValuesToList(input)
+          saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
          # dd<<- getFactorIds("frcbd")
          # #palis <<- getAddInputId(experimentVars$ids_FA, "FA_", "")
-         # print("------------")
-         # print(fa_dt())
-         # print(exp_dt())
-         # print(pe())
-         # print(epl())
-         # print(pers_dt())
-         # print(crop_dt())
-         # print("------------")
-         # #experimentId
-         
+        
          
         if(class(fbdesign())=="try-error"){
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: There is a missing factors or level"), styleclass = "danger")
@@ -17434,6 +19327,21 @@ server_design_agrofims <- function(input, output, session, values){
          openxlsx::addWorksheet(wb, "Metadata", gridLines = TRUE)
          openxlsx::writeDataTable(wb, "Metadata", x = gmetadata,
                                  colNames = TRUE, withFilter = FALSE)
+         print("inicio 3 -1 ")
+         ###### Protocol data  ########
+         protocol <- dt_prot_residual()
+         openxlsx::addWorksheet(wb, "Protocol", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Protocol", x = protocol,colNames = TRUE, withFilter = FALSE)
+         #############
+         
+         ##### Notes_deviations ########################################################################3
+         openxlsx::addWorksheet(wb, "Notes_Deviations", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Notes_Deviations", x = fbdesign(),colNames = TRUE, withFilter = FALSE)
+         #######
+         
+         
+         
+         
          print("inicio4")
        
          #Cropping type
@@ -17444,21 +19352,19 @@ server_design_agrofims <- function(input, output, session, values){
          
          #FIELDBOOK design sheet  ------------------------------------------
          if(ct=="Monocrop"){
-         incProgress(7/20,message = "Adding fieldbook data...")
-         openxlsx::addWorksheet(wb, "Fieldbook", gridLines = TRUE)
-         openxlsx::writeDataTable(wb, "Fieldbook", x = fb,
+         incProgress(7/20,message = "Adding Crop measurements data...")
+         openxlsx::addWorksheet(wb, "Crop_measurements", gridLines = TRUE)
+         openxlsx::writeDataTable(wb, "Crop_measurements", x = fb,
                                   colNames = TRUE, withFilter = FALSE)
          
          } else {
-           
-           
          if(ct=="Intercrop"){
              id_ic_rand <- getAddInputId(intercropVars$ids, "int_", "") 
              circm <- map_values(input = input, id_chr="int_cropCommonName_",id_ic_rand, format = "vector", lbl= "Select crop")
              for(i in 1:length(id_ic_rand)){
-               incProgress(7/20,message = "Adding fieldbook data...")
-               openxlsx::addWorksheet(wb, paste0("Fieldbook-",circm[i]), gridLines = TRUE)
-               openxlsx::writeDataTable(wb, paste0("Fieldbook-",circm[i]), 
+               incProgress(7/20,message = "Adding Crop measurements data...")
+               openxlsx::addWorksheet(wb, paste0("Crop_measurements-",circm[i]), gridLines = TRUE)
+               openxlsx::writeDataTable(wb, paste0("Crop_measurements-",circm[i]), 
                                         x = fbdesign_inter_traits()[[ circm[i] ]],
                                         colNames = TRUE, withFilter = FALSE)
                
@@ -17469,9 +19375,9 @@ server_design_agrofims <- function(input, output, session, values){
              id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "") 
              circm <- map_values(input = input, id_chr="rel_cropCommonName_", id_rc_rand, format = "vector", lbl= "Select crop")
              for(i in 1:length(id_rc_rand)){
-               incProgress(7/20,message = "Adding fieldbook data...")
-               openxlsx::addWorksheet(wb, paste0("Fieldbook-",circm[i]), gridLines = TRUE)
-               openxlsx::writeDataTable(wb, paste0("Fieldbook-",circm[i]), 
+               incProgress(7/20,message = "Adding Crop measurements data...")
+               openxlsx::addWorksheet(wb, paste0("Crop_measurements-",circm[i]), gridLines = TRUE)
+               openxlsx::writeDataTable(wb, paste0("Crop_measurements-",circm[i]), 
                                         x = fbdesign_inter_traits()[[ i ]],
                                         colNames = TRUE, withFilter = FALSE)
                
@@ -17520,32 +19426,30 @@ server_design_agrofims <- function(input, output, session, values){
          
          if(is.element("Planting and transplanting",input$selectAgroFeature)){
            print("Adding planting")
-           if(ct=="Monocrop" || ct== "Relay crop"){ 
+           if(ct=="Monocrop"){ 
              if(nrow(dt_plantrans())!=0){
              incProgress(7/20,message = "Adding planting and transplating")
              openxlsx::addWorksheet(wb, "Planting_transplating", gridLines = TRUE)
              openxlsx::writeDataTable(wb, "Planting_transplating", x = dt_plantrans(),
                                       colNames = TRUE, withFilter = FALSE)
              }
-           } else {
+           } 
+           else {
              #TODO: #-Show error when one crop is missing
              id_ic_rand <- getAddInputId(intercropVars$ids, "int_", "")  
-             print(id_ic_rand)
              circm <- map_values(input = input, id_chr="int_cropCommonName_",id_ic_rand, format = "vector", lbl= "Select crop")
- 
-                 for(i in 1:length(circm)){
+               
+                 for(i in 1:length(id_ic_rand)){
                    incProgress(7/20,message = "Adding planting and transplating" )##paste("Adding", circm[i] , "harvest sheet",sep=""))
                    
                    #
-                   if(nrow(dt_plantrans()[[circm[i]]])!=0  && ncol(fbdesign())!= ncol(dt_plantrans()[[circm[i]]])){
+                   if(nrow(dt_plantrans()[[i]])!=0  && ncol(fbdesign())!= ncol(dt_plantrans()[[i]])){
                    dt_pltr <- dt_plantrans()
-                   # print("paso intercrop planting ")
-                   # print(nrow(dt_pltr))
-                   
+                  
                    
                    #TODO: Avoid LONG names in sheetNames (error) max 32 characters
-                   openxlsx::addWorksheet(wb,  paste0("Planting-",circm[i]), gridLines = TRUE)
-                   openxlsx::writeDataTable(wb, paste0("Planting-",circm[i]), x = dt_pltr[[circm[i]]],
+                   openxlsx::addWorksheet(wb,  paste("Planting-",circm[i]), gridLines = TRUE)
+                   openxlsx::writeDataTable(wb, paste("Planting-",circm[i]), x = dt_pltr[[i]],
                                             colNames = TRUE, withFilter = FALSE)
                    }
                    
@@ -17705,8 +19609,8 @@ server_design_agrofims <- function(input, output, session, values){
          # SOIL SHEET ------------------------------------------------------------ 
          print("inicio10")
          if(nrow(soil_dt())!=0){
-           openxlsx::addWorksheet(wb, "Labbook", gridLines = TRUE)
-           openxlsx::writeDataTable(wb, "Labbook", x = soil_dt(),
+           openxlsx::addWorksheet(wb, "Soil", gridLines = TRUE)
+           openxlsx::writeDataTable(wb, "Soil", x = soil_dt(),
                                     colNames = TRUE, withFilter = FALSE)
          }
          # 
@@ -17740,7 +19644,8 @@ server_design_agrofims <- function(input, output, session, values){
             } else{
               cm_tl<- data.frame()
             }
-         } else { #intecrop
+         } 
+         else { #intecrop
         
            cm_tl <- rbindlist(traits_dt(),fill = TRUE)
            cm_tl <- ec_clean_header(cm_tl)
@@ -17845,28 +19750,30 @@ server_design_agrofims <- function(input, output, session, values){
            dt_kds<-rbindlist(list(dt_kds,kds_sedbed),fill = TRUE)
            dt_kds <- ec_clean_header(dt_kds)
          }
-         if(is.element("Soil fertility",input$selectAgroFeature)){
-           globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-           kds_soilf<- readxl::read_excel(paste0(globalpath, ecname),sheet = "Soil fertility")
-           kds_soilf <- ec_filter_data(kds_soilf)
-           kds_soilf <- kds_soilf %>% dplyr::filter(TraitName %in% lbl_soilFertility())
-           
-           kds_soilf <- data.table(kds_soilf)
-           dt_kds<-rbindlist(list(dt_kds,kds_soilf),fill = TRUE)
-           dt_kds<-ec_clean_header(dt_kds)
-         }
+         print("seedbed pt")
+         # if(is.element("Soil fertility",input$selectAgroFeature)){
+         #   globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
+         #   kds_soilf<- readxl::read_excel(paste0(globalpath, ecname),sheet = "Soil fertility")
+         #   kds_soilf <- ec_filter_data(kds_soilf)
+         #   kds_soilf <- kds_soilf %>% dplyr::filter(TraitName %in% lbl_soilFertility())
+         #   
+         #   kds_soilf <- data.table(kds_soilf)
+         #   dt_kds<-rbindlist(list(dt_kds,kds_soilf),fill = TRUE)
+         #   dt_kds<-ec_clean_header(dt_kds)
+         # }
          if(is.element("Planting and transplanting",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
            kds_platra <- readxl::read_excel(paste0(globalpath, ecname),sheet = "Planting, Transplanting")
            kds_platra <- ec_filter_data(kds_platra)
+           
+           poli<<- lbl_plantrans()
+           
            #TODO :generalizar para intercrop
-           if(ct=="Monocrop" || ct== "Relay crop"){
+           if(ct=="Monocrop"){
            kds_platra <- kds_platra %>% dplyr::filter(TraitName %in% lbl_plantrans())
            } else{
              temp_platra <- list()
-             
-             #plt<<- lbl_plantrans()
-             
+            
              for(i in 1:length(lbl_plantrans()) ) {
               
                if( length(lbl_plantrans())!=0) {
@@ -17882,6 +19789,7 @@ server_design_agrofims <- function(input, output, session, values){
            dt_kds<-rbindlist(list(dt_kds,kds_platra),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
+         print("paso pt")
          if(is.element("Mulch management",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
            kds_mulch <- readxl::read_excel(paste0(globalpath,ecname),sheet = "Mulch management")
@@ -17892,6 +19800,7 @@ server_design_agrofims <- function(input, output, session, values){
            dt_kds<-rbindlist(list(dt_kds,kds_mulch),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
+         print("paso mul")
          if(is.element("Irrigation",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
            kds_irri <- readxl::read_excel(paste0(globalpath,ecname),sheet = "Irrigation")
@@ -17903,6 +19812,7 @@ server_design_agrofims <- function(input, output, session, values){
            dt_kds<-rbindlist(list(dt_kds,kds_irri),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
+         print("paso irri")
          if(is.element("Weeding",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
            kds_weed <- readxl::read_excel(paste0(globalpath,ecname),sheet = "Weeding")
@@ -17914,6 +19824,7 @@ server_design_agrofims <- function(input, output, session, values){
            dt_kds<-rbindlist(list(dt_kds,kds_weed),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
          }
+         print("paso wwed")
          if(is.element("Harvest",input$selectAgroFeature)){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
            kds_harv <- readxl::read_excel(paste0(globalpath,ecname),sheet = "Harvest")

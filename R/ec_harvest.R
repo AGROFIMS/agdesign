@@ -1,4 +1,4 @@
-get_ec_harv <- function(allinputs, addId){
+get_ec_harv <- function(allinputs, addId, ctype="monocrop"){
   
   #allinputs<- readRDS("tests/testthat/userInput/harvest-tableIds-01.rds")
   #allinputs<- readRDS("tests/testthat/userInput/irri-table-id-all-tech-sel.rds.rds")
@@ -6,7 +6,7 @@ get_ec_harv <- function(allinputs, addId){
   harv <- allinputs %>%  
           filter(!str_detect(id, "button")) %>%
           filter(!str_detect(id, "-selectized")) %>%
-          filter(str_detect(id,"hahd"))
+          filter(str_detect(id,"_hahd"))
   
   harv_temp  <- data.frame()
   #addId <- c("NGBAKSHG", "VIITIDBD")
@@ -19,20 +19,20 @@ get_ec_harv <- function(allinputs, addId){
   #addId<- str_extract_all(harv$id, "[:uppercase:]{8}") %>% unlist() %>% unique()
   
   #harvest start date
-  startD <- harv  %>% filter(str_detect(id,  "hahd_harvest_start_date_[:uppercase:]{8}$"))
+  startD <- harv  %>% filter(str_detect(id,  "hahd_harvest_start_date_[:digit:]+$"))
   #harvest end date
-  endD <- harv  %>% filter(str_detect(id,  "hahd_harvest_end_date_[:uppercase:]{8}$"))
+  endD <- harv  %>% filter(str_detect(id,  "hahd_harvest_end_date_[:digit:]+$"))
   
-  method <- harv  %>% filter(str_detect(id,  "hahd_harvest_method_[:uppercase:]{8}$"))
-  method_other <- harv  %>% filter(str_detect(id,  "hahd_harvest_method_[:uppercase:]{8}_other$"))
+  method <- harv  %>% filter(str_detect(id,  "hahd_harvest_method_[:digit:]+$"))
+  method_other <- harv  %>% filter(str_detect(id,  "hahd_harvest_method_[:digit:]+_other$"))
   method <-  dt_inputs(method, method_other)
   
-  comph <- harv  %>% filter(str_detect(id,  "hahd_crop_component_harvested_[:uppercase:]{8}$"))
-  comph_other <- harv  %>% filter(str_detect(id,  "hahd_crop_component_harvested_[:uppercase:]{8}_other$"))
+  comph <- harv  %>% filter(str_detect(id,  "hahd_crop_component_harvested_[:digit:]+$"))
+  comph_other <- harv  %>% filter(str_detect(id,  "hahd_crop_component_harvested_[:digit:]+_other$"))
   comph<- dt_inputs(comph, comph_other)
   
   #Harvest area
-  ha_area <- harv  %>% filter(str_detect(id,  "hahd_crop_harvestable_area_[:uppercase:]{8}$"))
+  ha_area <- harv  %>% filter(str_detect(id,  "hahd_crop_harvestable_area_[:digit:]+$"))
   #lbl_ha_area <- "Harvest area"
   
   ###SPECIAL CASE FOR SELECTING HARVEST AREA
@@ -47,7 +47,7 @@ get_ec_harv <- function(allinputs, addId){
       lbl_ha_area_num <- append(lbl_ha_area_num, paste("Harvest_area",i,sep="__"))
       
     } else if(ha_area$values[i]=="m2 units"){
-      #input$hahd_crop_component_harvested_m2_[:uppercase:]{8}
+      #input$hahd_crop_component_harvested_m2_[:digit:]+
       ha_m2 <- harv  %>% filter(str_detect(id, paste0("hahd_crop_component_harvested_m2_",addId[i],"$")))
       values_ha_area_sp <- append(values_ha_area_sp, ha_m2$values)
       lbl_ha_area_sp <-  append(lbl_ha_area_sp, paste("Harvestable_area_number_of_m2_units_harvested",addId[i],sep="_"))
@@ -124,23 +124,23 @@ get_ec_harv <- function(allinputs, addId){
   ##############END ESPECIAL CASE HARVEST AREA 
   
   #Amount
-  amount <- harv  %>% filter(str_detect(id, "hahd_amount_harvested_[:uppercase:]{8}$"))
-  amount_unit <-  harv  %>% filter(str_detect(id, "hahd_amount_harvested_unit_[:uppercase:]{8}$"))
+  amount <- harv  %>% filter(str_detect(id, "hahd_amount_harvested_[:digit:]+$"))
+  amount_unit <-  harv  %>% filter(str_detect(id, "hahd_amount_harvested_unit_[:digit:]+$"))
   
-  cut<- harv  %>% filter(str_detect(id, "hahd_harvest_cut_height_[:uppercase:]{8}$"))
-  cut_unit <- harv  %>% filter(str_detect(id, "hahd_harvest_cut_height_unit_[:uppercase:]{8}$"))
+  cut<- harv  %>% filter(str_detect(id, "hahd_harvest_cut_height_[:digit:]+$"))
+  cut_unit <- harv  %>% filter(str_detect(id, "hahd_harvest_cut_height_unit_[:digit:]+$"))
   
   #implement
-  type <- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}$"))
-  type_other <- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:uppercase:]{8}_other$"))
+  type <- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:digit:]+$"))
+  type_other <- harv  %>% filter(str_detect(id, "hahd_harvest_implement_[:digit:]+_other$"))
   type <- dt_inputs(type, type_other)
   
   #traction
-  traction <- harv  %>% filter(str_detect(id, "hahd_harvest_traction_[:uppercase:]{8}$"))
-  traction_other <-  harv  %>% filter(str_detect(id, "hahd_harvest_traction_[:uppercase:]{8}_other$"))
+  traction <- harv  %>% filter(str_detect(id, "hahd_harvest_traction_[:digit:]+$"))
+  traction_other <-  harv  %>% filter(str_detect(id, "hahd_harvest_traction_[:digit:]+_other$"))
   traction <- dt_inputs(traction, traction_other)
     
-  notes<- harv  %>% filter(str_detect(id, "hahd_harvest_notes_[:uppercase:]{8}$"))
+  notes<- harv  %>% filter(str_detect(id, "hahd_harvest_notes_[:digit:]+$"))
   
   #Bind tables
   dt<- rbind(startD, endD, method,comph, ha_area, ha_area_sp, amount, cut,type, traction, notes )

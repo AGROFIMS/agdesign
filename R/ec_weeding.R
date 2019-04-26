@@ -1,12 +1,5 @@
-# 
-#  addId <- getAddInputId(addId = expCondsVars$ids_weed, "ECWE_", "")
-#  get_ec_weed(allinputs=allinputs, addId=addId)
-#  dt_weeding <- reactive({
-#       addId <- getAddInputId(addId = expCondsVars$ids_weed, "ECWE_", "")
-#       dt <- get_ec_weed(allinputs=allinputs(), addId=addId)
-#      
-#   }) 
-get_ec_weed<- function(allinputs, addId){
+
+get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     
     #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
     #input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
@@ -14,7 +7,7 @@ get_ec_weed<- function(allinputs, addId){
    
     w  <- allinputs %>% filter(!str_detect(id, "button")) %>%
                         filter(!str_detect(id, "-selectized")) %>%
-                        filter(str_detect(id,"wewd"))
+                        filter(str_detect(id, paste0(ctype,"_wewd")))
     
     lbl <- c("Weeding_start_date", "Weeding_technique", 
              "Weeding_notes", "Weeding_implement_type", "Weeding_implement_traction")
@@ -27,22 +20,22 @@ get_ec_weed<- function(allinputs, addId){
     w<- arrange_by_pattern(w, pattern = addId) 
     
     #start date
-    startD <- w %>% filter(str_detect(id, "^wewd_weeding_start_date_"))
+    startD <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_start_date_")))
      
     #technique
-    tech <- w %>% filter(str_detect(id, "^wewd_weeding_technique_"))
+    tech <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_technique_")))
     
     #notes
-    notes <- w %>% filter(str_detect(id, "^wewd_weeding_notes_"))
+    notes <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_notes_")))
     
     #type
-    type <- w %>% filter(str_detect(id, "^wewd_weeding_type_[:alpha:]+$"))
-    type_other <- w %>% filter(str_detect(id, "^wewd_weeding_type_[:alpha:]+_other$"))
+    type <- w %>% filter(str_detect(id,paste0("^",ctype,"_wewd_weeding_type_[:digit:]+$")))
+    type_other <- w %>% filter(str_detect(id,paste0("^",ctype,"_wewd_weeding_type_[:digit:]+_other$")))
     type<- dt_inputs(type, type_other)
     
     #traction
-    traction <- w %>% filter(str_detect(id, "^wewd_weeding_traction_[:alpha:]+$"))
-    traction_other <- w %>% filter(str_detect(id, "^wewd_weeding_type_[:alpha:]+_other$"))
+    traction <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_traction_[:digit:]+$")))
+    traction_other <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_type_[:digit:]+_other$")))
     traction<- dt_inputs(traction, traction_other)
 
     dt<- rbind(startD, tech, notes, type, traction)
