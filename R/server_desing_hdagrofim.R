@@ -1113,6 +1113,1780 @@ server_design_agrofims <- function(input, output, session, values){
   
   ############################### End: Tab Crop (New) ###############################
   
+  ####################################################################################
+  ############################### START SERVER: DESIGN ###############################
+  
+  # Database
+  factores <- agdesign::dtfactordesign   #agdesign::dtfactordesign  #readxl::read_excel("FACTOR_V9.xlsx")
+  dt <- factores %>% mutate(fchoices = FACTOR)
+  
+  ###################### START: CRD ######################
+  
+  # CRD: Asigna variables reactivas
+  factorCRD <- reactiveValues()
+  factorCRD$num <- 0
+  factorCRD$DEFAULT <- 1
+  factorCRD$ids <- c()
+  
+  # CRD: Treatments
+  factorCRD$currNumReplications <- 2
+  factorCRD$numRepAux <- 0
+  
+  # CRD: Variables de apoyo para la creacion de columnas, filas para la tabla inferior en CRD
+  designVarsCRD <- reactiveValues()
+  designVarsCRD$num_NFULL <- 0
+  designVarsCRD$DEFAULT_TREAT_NFULL <- 2
+  designVarsCRD$ids_NFULL <- c()
+  
+  # CRD: Inserta por defecto un row
+  observe({
+    if (factorCRD$num == 0) {
+      defaultCRD <- factorCRD$DEFAULT
+      
+      for (i in 1:defaultCRD) {
+        insertRow_GEN(i, design = "crd")
+      }
+    }
+  })
+  
+  # CRD: Agrega un row al hacer clic en el boton "Add factor"
+  observeEvent(input$crd_add, {
+    if (factorCRD$num >= 1) {
+      insertRow_GEN(factorCRD$num + 1, design = "crd")
+      drawNewColumnNFF(paste0("crd_", factorCRD$num),"crd") #factorCRD$num es reactiva, no necesita +1 nuevamente
+    }
+  })
+  
+  ###################### END: CRD ######################
+  
+  ###################### START: RCBD ######################
+  
+  # RCBD: Asigna variables reactivas
+  factorRCBD <- reactiveValues()
+  factorRCBD$num <- 0
+  factorRCBD$DEFAULT <- 1
+  factorRCBD$ids <- c()
+  
+  # RCBD: Treatments
+  factorRCBD$currNumReplications <- 2
+  factorRCBD$numRepAux <- 0
+  
+  # RCBD: Variables de apoyo para la creacion de columnas, filas para la tabla RCBD
+  designVarsRCBD <- reactiveValues()
+  designVarsRCBD$num_NFULL <- 0
+  designVarsRCBD$DEFAULT_TREAT_NFULL <- 2
+  designVarsRCBD$ids_NFULL <- c()
+  
+  # RCBD: Inserta por defecto un row
+  observe({
+    if (factorRCBD$num == 0) {
+      defaultRCBD <- factorRCBD$DEFAULT
+      
+      for (i in 1:defaultRCBD) {
+        insertRow_GEN(i, design = "rcbd")
+      }
+    }
+  })
+  
+  # RCBD: Agrega un row al hacer clic en el boton "Add factor"
+  observeEvent(input$rcbd_add, {
+    if (factorRCBD$num >= 1) {
+      insertRow_GEN(factorRCBD$num + 1, design = "rcbd")
+      drawNewColumnNFF(paste0("rcbd_", factorRCBD$num),"rcbd") #factorRCBD$num es reactiva, no necesita +1 nuevamente
+    }
+  })
+  
+  ###################### END: RCBD ######################
+  
+  ##################### Start: FCRD #####################
+  
+  # FCRD: Asigna variables reactivas
+  factorFCRD <- reactiveValues()
+  factorFCRD$num <- 0
+  factorFCRD$DEFAULT <- 2
+  factorFCRD$ids <- c()
+  
+  # FCRD: Inserta por defecto un row
+  observe({
+    if (factorFCRD$num == 0) {
+      defaultFCRD <- factorFCRD$DEFAULT
+      
+      for (i in 1:defaultFCRD) {
+        insertRow_GEN(i, design = "fcrd")
+      }
+    }
+  })
+  
+  # FCRD: Agrega un row al hacer clic en el boton "Add factor"
+  observeEvent(input$fcrd_add, {
+    if (factorFCRD$num >= 1) {
+      insertRow_GEN(factorFCRD$num + 1, design = "fcrd")
+    }
+  })
+  
+  ###################### End: FCRD ######################
+  
+  ##################### Start: FRCBD #####################
+  
+  # FRCBD: Asigna variables reactivas
+  factorFRCBD <- reactiveValues()
+  factorFRCBD$num <- 0
+  factorFRCBD$DEFAULT <- 2
+  factorFRCBD$ids <- c()
+  
+  # FRCBD: Inserta por defecto un row
+  observe({
+    if (factorFRCBD$num == 0) {
+      defaultFRCBD <- factorFRCBD$DEFAULT
+      
+      for (i in 1:defaultFRCBD) {
+        insertRow_GEN(i, design = "frcbd")
+      }
+    }
+  })
+  
+  # FRCBD: Agrega un row al hacer clic en el boton "Add factor"
+  observeEvent(input$frcbd_add, {
+    if (factorFRCBD$num >= 1) {
+      insertRow_GEN(factorFRCBD$num + 1, design = "frcbd")
+    }
+  })
+  
+  ##################### End: FRCBD #####################
+  
+  ###################### START: SPRCBD ######################
+  
+  # SPRCBD: Asigna variables reactivas
+  factorSPRCBD <- reactiveValues()
+  factorSPRCBD$num <- 0
+  factorSPRCBD$DEFAULT <- 2
+  factorSPRCBD$ids <- c()
+  # SPRCBD: Inserta por defecto un row
+  observe({
+    if (factorSPRCBD$num == 0) {
+      defaultSPRCBD <- factorSPRCBD$DEFAULT
+      
+      for (i in 1:defaultSPRCBD) {
+        insertRow_GEN(i, design = "sprcbd")
+      }
+    }
+  })
+  
+  # SPRCBD: Agrega un row al hacer clic en el boton "Add factor"
+  observeEvent(input$sprcbd_add, {
+    if (factorSPRCBD$num >= 1) {
+      insertRow_GEN(factorSPRCBD$num + 1, design = "sprcbd")
+    }
+  })
+  
+  ###################### END: SPRCBD ######################
+  
+  ###################### START: SPSP ######################
+  
+  # SPSP: Asigna variables reactivas
+  factorSPSP <- reactiveValues()
+  factorSPSP$num <- 0
+  factorSPSP$DEFAULT <- 3
+  factorSPSP$ids <- c()
+  
+  # SPSP: Inserta por defecto un row
+  observe({
+    if (factorSPSP$num == 0) {
+      defaultSPSP <- factorSPSP$DEFAULT
+      
+      for (i in 1:defaultSPSP) {
+        insertRow_GEN(i, design = "spsp")
+      }
+    }
+  })
+  
+  # SPSP: Agrega un row al hacer clic en el boton "Add factor"
+  observeEvent(input$spsp_add, {
+    if (factorSPSP$num >= 1) {
+      insertRow_GEN(factorSPSP$num + 1, design = "spsp")
+    }
+  })
+  
+  ###################### END: SPSP ######################
+  
+  ###################### START: Funciones GENERALES CRD/RCBD/FCRD/FRCBD/SPRCBD/SPSP ######################
+  
+  # Variables de apoyo para obtener el diseno 
+  # Son utiles para la creacion de tablas en CRD y RCBD
+  designVarsFactor <- reactiveValues()
+  designVarsFactor$design <- NULL
+  
+  # CRD/RCBD: Variables reactivas para capturar valores de los inputs
+  fvalues <- reactiveValues()
+  fvalues$flbl_crd <- NULL
+  fvalues$flvl_crd <- NULL
+  fvalues$flbl_rcbd <- NULL
+  fvalues$flvl_rcbd <- NULL
+  
+  # Funcion General que responde al cambio de FACTORES 
+  observeEvent(input$designFieldbook_agrofims, {
+    
+    designVarsFactor$design <- tolower(input$designFieldbook_agrofims) #tolower para usarlo en los Ids
+    
+    if (designVarsCRD$num_NFULL == 0 &&
+        designVarsFactor$design == "crd")
+    {
+      designVarsCRD$num_NFULL <- designVarsCRD$num_NFULL + 1
+      crdId <- getFactorIds("crd") # obtiene ids de los factorboxs
+      drawNewColumnNFF(crdId,designVarsFactor$design)
+      
+    }else if(designVarsRCBD$num_NFULL == 0 &&
+             designVarsFactor$design == "rcbd")
+    {
+      designVarsRCBD$num_NFULL <- designVarsRCBD$num_NFULL + 1
+      rcbdId <- getFactorIds("rcbd") # obtiene ids de los factorboxs
+      drawNewColumnNFF(rcbdId,designVarsFactor$design)
+    }
+  })
+  
+  #Funcion GENERAL que obtiene ids de los factor boxes
+  getFactorIds <- function(design) {
+    if (design == "crd")
+    {
+      factorCRD$ids
+    }
+    else if (design == "rcbd")
+    {
+      factorRCBD$ids
+    }
+    else if (design == "fcrd")
+    {
+      factorFCRD$ids
+    }
+    else if (design == "frcbd")
+    {
+      factorFRCBD$ids
+    }
+    else if (design == "sprcbd")
+    {
+      factorSPRCBD$ids
+    }
+    else if (design == "spsp")
+    {
+      factorSPSP$ids
+    }
+    
+  }
+  
+  # Funcion GENERAL que inserta el UI dependiendo del diseÃ±o
+  insertRow_GEN <- function(index, design) {
+    # CRD
+    if (design == "crd") {
+      factorCRD$ids <- c(factorCRD$ids, paste0(design, "_", index))
+      insertUI(
+        selector = "#crd_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_GEN(index, design)
+      )
+      factorCRD$num <- factorCRD$num + 1
+    }
+    
+    # RCBD
+    if (design == "rcbd") {
+      factorRCBD$ids <- c(factorRCBD$ids, paste0(design, "_", index))
+      insertUI(
+        selector = "#rcbd_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_GEN(index, design)
+      )
+      factorRCBD$num <- factorRCBD$num + 1
+    }
+    
+    # FCRD
+    if (design == "fcrd") {
+      factorFCRD$ids <- c(factorFCRD$ids, paste0(design, "_", index))
+      insertUI(
+        selector = "#fcrd_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_GEN(index, design)
+      )
+      factorFCRD$num <- factorFCRD$num + 1
+    }
+    
+    # FRCBD
+    if (design == "frcbd") {
+      factorFRCBD$ids <- c(factorFRCBD$ids, paste0(design, "_", index))
+      insertUI(
+        selector = "#frcbd_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_GEN(index, design)
+      )
+      factorFRCBD$num <- factorFRCBD$num + 1
+    }
+    
+    # SPRCBD
+    if (design == "sprcbd") {
+      factorSPRCBD$ids <- c(factorSPRCBD$ids, paste0(design, "_", index))
+      insertUI(
+        selector = "#sprcbd_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_GEN(index, design)
+      )
+      factorSPRCBD$num <- factorSPRCBD$num + 1
+    }
+    
+    # SPSP
+    if (design == "spsp") {
+      factorSPSP$ids <- c(factorSPSP$ids, paste0(design, "_", index))
+      insertUI(
+        selector = "#spsp_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_GEN(index, design)
+      )
+      factorSPSP$num <- factorSPSP$num + 1
+    }
+  }
+  
+  #Funcion que dibuja el titulo de SPRCBD/SPSP dependiendo del diseÃ±o
+  titleGEN <- function(index, design) {
+    if (design == "crd") {
+      title <- "Factor"
+    } else if (design == "rcbd") {
+      title <- "Factor"
+    }
+    else if (design == "fcrd") {
+      title <- "Factor"
+    }
+    else if (design == "frcbd") {
+      title <- "Factor"
+    } else if (design == "sprcbd") {
+      if (index == 1) {
+        title <- "Factor: main plot"
+      } else if (index == 2) {
+        title <- "Factor: sub plot"
+      } else if (index >= 3) {
+        title <- "Factor"
+      }
+    } else if (design == "spsp") {
+      if (index == 1) {
+        title <- "Factor: main plot"
+      } else if (index == 2) {
+        title <- "Factor: sub plot"
+      } else if (index == 3) {
+        title <- "Factor: sub-sub plot"
+      } else if (index >= 4) {
+        title <- "Factor"
+      }
+    }
+  }
+  
+  # Funcion GENERAL que dibuja el UI dependiendo del diseÃ±o
+  getDesignUI_GEN <- function(index, design, value = NULL) {
+    title <- titleGEN(index, design)
+    
+    fluidRow(
+      id = paste0(design, "_full_factor_box_", index),
+      box(
+        solidHeader = TRUE,
+        status = "warning",
+        width = 12,
+        column(
+          12,
+          offset = 0,
+          column(6, style = 'padding:0px; text-align:left;',
+                 h4(title, style = "font-weight: 800;color: #555;")),
+          column(
+            6,
+            style = 'padding:0px; text-align:right; ',
+            conditionalPanel(
+              "input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD' ||
+              input.designFieldbook_agrofims == 'FCRD' || input.designFieldbook_agrofims == 'FRCBD'",
+              actionButton(paste0(design, "_closeBox_", index), "", icon("close"))
+            )
+          )
+          ),
+        column(
+          12,
+          fluidRow(
+            column(6,
+                   fluidRow(
+                     column(
+                       10,
+                       selectizeInput(
+                         paste0(design, "_sel_factor_", index),
+                         "",
+                         multiple = TRUE,
+                         options = list(placeholder = "Select...", maxItems =
+                                          1),
+                         choices = c(dt$fchoices),
+                         selected = value
+                       ),
+                       fluidRow(id = paste0(design, "_sel_factorOth_aux_", index))
+                     )
+                   )),
+            column(
+              6,
+              fluidRow(column(width = 7,
+                              fluidRow(
+                                id = paste0(design, "_fl_title_factor_aux_", index)
+                              )),
+                       column(width = 5,
+                              hidden(
+                                selectInput(
+                                  paste0(design, "_numLevels_", index),
+                                  "Number of dates",
+                                  choices = 2:10,
+                                  selected = 2
+                                )
+                              ))),
+              fluidRow(id = paste0(design, "_type_input_aux_", index)),
+              fluidRow(id = paste0(
+                design, "_levelSelection_aux_", index
+              )),
+              fluidRow(id = paste0(design, "_levelSelOther_aux_", index)),
+              fluidRow(id = paste0(design, "_note_aux_", index))
+            )
+          ),
+          column(
+            12,
+            style = "text-align:right",
+            conditionalPanel(
+              "input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD' ||
+              input.designFieldbook_agrofims == 'FCRD' || input.designFieldbook_agrofims == 'FRCBD'",
+              fluidRow(actionButton(
+                paste0(design, "_btDuplicate_", index), "Duplicate"
+              ))
+            )
+        )
+        )
+          )
+        )
+  }
+  
+  # Funcion GENERAL que responde a "FACTOR"
+  observeEvent(input$selectGEN, {
+    vars <- unlist(strsplit(input$selectGENid, "_"))
+    design <- vars[1]
+    index <- vars[4]
+    
+    value <-  input[[input$selectGENid]]
+    value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR")
+    
+    isolate(updateLevelSelectionGEN(index, value, design))
+    
+    # CRD: Asigna nomber a columnas
+    if (design == "crd") {
+      if (is.null(value))
+        value <- "Factor"
+      output[[paste0("title_col_NFF_", design, "_", index)]] <-
+        renderText({
+          value
+        })
+    }
+    
+    # RCBD: Asigna nomber a columnas
+    if (design == "rcbd") {
+      if (is.null(value))
+        value <- "Factor"
+      output[[paste0("title_col_NFF_", design, "_", index)]] <-
+        renderText({
+          value
+        })
+    }
+    
+    # Genera el "OTHER" del FACTOR
+    choises <-  input[[input$selectGENid]]
+    updateSelectOtherGEN(index, choises, design)
+    
+    # Genera "OTHER/OTHER" de LEVELS
+    flevel <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "LEVEL")
+    choices <- strsplit(flevel, split = ";")
+    names(choices) <- "Levels"
+    removeUI(selector = paste0("#", design, "_type_input_", index), immediate = T)
+    
+    if (value == "Other") {
+      removeUI(selector = paste0("#", design, "_levelSelection_", index))
+      # Other level
+      insertUI(
+        selector = paste0("#", design, "_type_input_aux_", index),
+        where = "beforeBegin",
+        ui = fluidRow(
+          id = paste0(design, "_type_input_", index),
+          column(
+            12,
+            selectizeInput(
+              paste0(design, "_typeInput_", index),
+              "Type of input",
+              multiple = TRUE,
+              options = list(placeholder = "Select...", maxItems = 1),
+              choices = c(choices)
+            )
+          )
+        )
+      )
+    }
+  })
+  
+  # Funcion GENERAL que activa "OTHER" de "FACTOR" dependiendo del diseÃ±o
+  updateSelectOtherGEN <- function(index, choises, design, value = NULL) {
+    if (any(choises == "Other") == T) {
+      removeUI(
+        selector = paste0("#", design, "_sel_factorOth_", index),
+        immediate = T
+      )
+      
+      if (any(choises != "")) {
+        # Other
+        insertUI(
+          selector = paste0("#", design, "_sel_factorOth_aux_", index),
+          where = "beforeBegin",
+          ui = fluidRow(
+            id = paste0(design, "_sel_factorOth_", index),
+            column(12,
+                   textInput(
+                     paste0(design, "_sel_factor_other_", index), "", value
+                   ))
+          )
+        )
+      }
+    } else {
+      removeUI(
+        selector = paste0("#", design, "_sel_factorOth_", index),
+        immediate = T
+      )
+    }    
+  }
+  
+  # Funcion GENERAL que responde a "LEVELS"
+  observeEvent(input$levelsGEN, {
+    vars <- unlist(strsplit(input$levelsGENid, "_"))
+    design <- vars[1]
+    index <- vars[3]
+    
+    num_levels <-  input[[input$levelsGENid]]
+    
+    # ocultar en desarrollo la siguiente linea "factores"
+    #factores <- readRDS("dtfactordesign.rds")
+    dt <- factores %>% mutate(fchoices = FACTOR)
+    
+    drawDateComboLevelGEN(
+      order = index,
+      dt = dt,
+      design,
+      input_choice = input[[paste0(design, "_sel_factor_", index)]],
+      num_levels
+    )
+    shinyjs::show(id = paste0(design, "_numLevels_", index))
+  })
+  
+  # Funcion GENERAL que activa "LEVELS" dependiendo del diseÃ±o
+  updateLevelSelectionGEN <- function(index, value, design) {
+    # ocultar en desarrollo la siguiente linea "factores"
+    #factores <- readRDS("dtfactordesign.rds")
+    dt <- factores %>% mutate(fchoices = FACTOR)
+    
+    removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
+    removeUI(selector = paste0("#", design, "_note_", index), immediate = T)
+    removeUI(selector = paste0("#", design, "_levelSelection_", index), immediate = T)
+    removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
+    shinyjs::hide(id = paste0(design, "_numLevels_", index))
+    
+    num_levels <- input[[paste0(design, "_numLevels_", index)]]
+    
+    if (value != "") {
+      # Title
+      insertUI(
+        selector = paste0("#", design, "_fl_title_factor_aux_", index),
+        where = "beforeBegin",
+        ui = fluidRow(id = paste0(design, "_fl_title_factor_", index), column(12, h4(
+          HTML(paste0("<b>", value, "</b>"))
+        )))
+      )
+      
+      # Note
+      insertUI(
+        selector = paste0("#", design, "_note_aux_", index),
+        where = "beforeBegin",
+        ui = fluidRow(column(
+          12,
+          id = paste0(design, "_note_", index),
+          textAreaInput(paste0(design, "_note_factor_", index), "Note")
+        ))
+      )
+    } else {
+      removeUI(
+        selector = paste0("#", design, "_type_input_", index),
+        immediate = T
+      )
+    }
+    
+    if (!is.null(value)) {
+      type_form <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "FORM")
+      
+      if (!is.null(type_form) && type_form == "combo box") {
+        drawComboBoxLevelGEN(
+          order = index,
+          dt = dt,
+          design,
+          input_choice = input[[paste0(design, "_sel_factor_", index)]]
+        )
+        shinyjs::hide(id = paste0(design, "_numLevels_", index))
+      } else if (!is.null(type_form) && type_form == "text input") {
+        drawTextInputLevelGEN(
+          order = index,
+          dt = dt,
+          design,
+          input_choice = input[[paste0(design, "_sel_factor_", index)]],
+          "numeric + units"
+        )
+        shinyjs::hide(id = paste0(design, "_numLevels_", index))
+        
+      } else if (!is.null(type_form) && type_form == "date") {
+        drawDateComboLevelGEN(
+          order = index,
+          dt = dt,
+          design,
+          input_choice = input[[paste0(design, "_sel_factor_", index)]],
+          num_levels
+        )
+        shinyjs::show(id = paste0(design, "_numLevels_", index))
+      } else if (!is.null(type_form) && type_form == "other input") {
+        if (!is.null(input[[paste0(design, "_typeInput_", index)]]) &&
+            input[[paste0(design, "_typeInput_", index)]] == "text") {
+          drawTextInputLevelGEN(
+            order = index,
+            dt = dt,
+            design,
+            input_choice = input[[paste0(design, "_sel_factor_", index)]],
+            "text"
+          )
+          shinyjs::hide(id = paste0(design, "_numLevels_", index))
+        } else if (!is.null(input[[paste0(design, "_typeInput_", index)]]) &&
+                   input[[paste0(design, "_typeInput_", index)]] == "numeric") {
+          drawTextInputLevelGEN(
+            order = index,
+            dt = dt,
+            design,
+            input_choice = input[[paste0(design, "_sel_factor_", index)]],
+            "numeric"
+          )
+          shinyjs::hide(id = paste0(design, "_numLevels_", index))
+        } else if (!is.null(input[[paste0(design, "_typeInput_", index)]]) &&
+                   input[[paste0(design, "_typeInput_", index)]] == "numeric + units") {
+          drawTextInputLevelGEN(
+            order = index,
+            dt = dt,
+            design,
+            input_choice = input[[paste0(design, "_sel_factor_", index)]],
+            "numeric + units"
+          )
+          shinyjs::hide(id = paste0(design, "_numLevels_", index))
+        } else if (!is.null(input[[paste0(design, "_typeInput_", index)]]) &&
+                   input[[paste0(design, "_typeInput_", index)]] == "date") {
+          drawDateComboLevelGEN(
+            order = index,
+            dt = dt,
+            design,
+            input_choice = input[[paste0(design, "_sel_factor_", index)]],
+            num_levels
+          )
+          shinyjs::show(id = paste0(design, "_numLevels_", index))
+        }
+      }
+    }
+  }
+  
+  # Funcion GENERAL que responde a "OTHER" de "LEVELS"
+  observeEvent(input$otherGEN, {
+    vars <- unlist(strsplit(input$otherGENid, "_"))
+    design <- vars[1]
+    index <- vars[3]
+    choises <-  input[[input$otherGENid]]
+    
+    updateLevelSelOtherGEN(index, choises, design)
+  })
+  
+  # Funcion GENERAL que activa "OTHER" de "LEVELS" dependiendo del diseÃ±o
+  updateLevelSelOtherGEN <- function(index, choises, design) {
+    if (any(choises == "Other") == T) {
+      removeUI(
+        selector = paste0("#", design, "_levelSelOther_", index),
+        immediate = T
+      )
+      
+      if (any(choises != "")) {
+        # Other
+        insertUI(
+          selector = paste0("#", design, "_levelSelOther_aux_", index),
+          where = "beforeBegin",
+          ui = fluidRow(
+            id = paste0(design, "_levelSelOther_", index),
+            column(
+              12,
+              selectizeInput(
+                paste0(design, "_lvl_other_", index),
+                label = "Insert other levels",
+                multiple = T,
+                choices = c(),
+                options = list(
+                  maxItems = 20,
+                  placeholder = "Write..." ,
+                  'create' = TRUE,
+                  'persist' = FALSE
+                )
+              )
+            )
+          )
+        )
+      }
+    } else {
+      removeUI(
+        selector = paste0("#", design, "_levelSelOther_", index),
+        immediate = T
+      )
+    }
+  }
+  
+  # Funcion GENERAL que responde a "OTHER/OTHER" de LEVELS
+  observeEvent(input$otherOthGEN, {
+    vars <- unlist(strsplit(input$otherOthGENid, "_"))
+    design <- vars[1]
+    index <- vars[3]
+    
+    value <-  input[[input$selectGENid]]
+    value <-
+      get_dfa_values(dt = dt,
+                     choice = value,
+                     attribute = "FACTOR")
+    
+    updateLevelSelectionGEN(index, value, design)
+  })
+  
+  # Funcion GENERAL que responde a "DUPLICATE"
+  observeEvent(input$duplicateGEN, {
+    vars <- unlist(strsplit(input$duplicateGENid, "_"))
+    design <- vars[1]
+    index <- vars[3]
+    str_id <- stri_rand_strings(1, 8,  '[A-Z]')
+    insertBoxDuplicateGEN(index, str_id, design)
+    
+    factorIdsAux <- getFactorIds(design)
+    id <- match(paste0(design, "_", index), factorIdsAux) #encuentra la posicion del factor de la lista de los IDs
+    
+    len <- length(factorIdsAux)
+    left_side <- factorIdsAux[1:id]
+    right_side <- NULL
+    
+    if (len > 1 && id < len) {
+      rg <- id + 1
+      right_side <- factorIdsAux[rg:len]
+    }
+    
+    factorIdsAux <- c(left_side, paste0(design, "_", str_id), right_side) #junta todos los casos
+    
+    updateFactorIdsAfterDuplicate(design, factorIdsAux) #actualiza los FactorIds Reactivos luego de duplicar
+  })
+  
+  #Funcion GENERAL que actualiza FactorIds luego de duplicar
+  updateFactorIdsAfterDuplicate <- function(design, factorIdsAux) {
+    if (design == "crd")
+    {
+      factorCRD$ids <- factorIdsAux
+    }
+    else if (design == "rcbd")
+    {
+      factorRCBD$ids <- factorIdsAux
+    }
+    else if (design == "fcrd")
+    {
+      factorFCRD$ids <- factorIdsAux
+    }
+    else if (design == "frcbd")
+    {
+      factorFRCBD$ids <- factorIdsAux
+    }
+    else if (design == "sprcbd")
+    {
+      factorSPRCBD$ids <- factorIdsAux
+    }
+    else if (design == "spsp")
+    {
+      factorSPSP$ids <- factorIdsAux
+    }
+  }
+  
+  # Funcion GENERAL que activa "DUPLICATE"
+  insertBoxDuplicateGEN <- function(index, str_id, design) {
+    val <- input[[paste0(design, "_sel_factor_", index)]]
+    value <- get_dfa_values(dt = dt, choice = val, attribute = "FACTOR")
+    
+    insertUI(
+      selector = paste0("#", design, "_full_factor_box_", index),
+      where = "afterEnd",
+      ui = getDesignUI_GEN(str_id, design, val),
+      immediate = T
+    )
+    
+    if (design == "crd" || design == "rcbd") {
+      delay(200, isolate(drawNewColumnNFFDuplicate(design,index, paste0(design,"_", str_id))))
+    }
+    
+    oth <- input[[paste0(design, "_sel_factor_other_", index)]]
+    
+    delay(100, isolate(updateLevelSelectionGEN(str_id, value, design)))
+    delay(100, isolate(updateSelectOtherGEN(str_id, val, design, oth)))
+    
+    if (val == "Other" && !is.null(val)) {
+      # Other level
+      flevel <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "LEVEL")
+      choices <- strsplit(flevel, split = ";")
+      names(choices) <- "Levels"
+      
+      delay(
+        200,
+        insertUI(
+          selector = paste0("#", design, "_type_input_aux_", str_id),
+          where = "beforeBegin",
+          ui = fluidRow(
+            id = paste0(design, "_type_input_", str_id),
+            column(
+              12,
+              selectizeInput(
+                paste0(design, "_typeInput_", str_id),
+                "Type of input",
+                multiple = TRUE,
+                options = list(placeholder = "Select...", maxItems = 1),
+                choices = c(choices)
+              )
+            )
+          )
+        )
+      )
+    }
+  }
+  
+  # Funcion GENERAL que activa "Close"
+  observeEvent(input$closeBox_button_GEN, {
+    vars <- unlist(strsplit(input$closeBox_button_GENid, "_"))
+    design <- vars[1]
+    index <- vars[3]
+    
+    # CRD
+    if (design == "crd") {
+      if (length(factorCRD$ids) > 1) {
+        removeUI(
+          selector = paste0("#", design, "_full_factor_box_", index),
+          immediate = T
+        )
+        factorCRD$ids <- factorCRD$ids[!factorCRD$ids %in% paste0(design, "_", index)]
+        #Removemos la columna de la tabla de CRD
+        removeUI(
+          selector = paste0("#", "col_NFF_" , design, "_" , index),
+          immediate = T
+        )
+        
+        num_treat <- input$crd_ntrt
+        #Limpiamos el inputtext de la columna Treatment
+        for (i in 1:num_treat) {
+          updateSummary("crd",i)
+        }
+      }
+    }
+    
+    # RCBD
+    if (design == "rcbd") {
+      if (length(factorRCBD$ids) > 1) {
+        removeUI(
+          selector = paste0("#", design, "_full_factor_box_", index),
+          immediate = T
+        )
+        factorRCBD$ids <- factorRCBD$ids[!factorRCBD$ids %in% paste0(design, "_", index)]
+        #Removemos la columna de la tabla de RCBD
+        removeUI(selector = paste0("#", "col_NFF_" , design, "_" , index), immediate = T)
+        #CAMBIO----------------------
+        num_treat <- input$rcbd_ntrt  
+        ##---------------------------
+        #Limpiamos el inputtext de la columna Treatment
+        for (i in 1:num_treat) {
+          updateSummary("rcbd",i)
+        }
+      }
+    }
+    
+    # FCRD
+    if (design == "fcrd") {
+      if (length(factorFCRD$ids) > 2) {
+        removeUI(
+          selector = paste0("#", design, "_full_factor_box_", index),
+          immediate = T
+        )
+        factorFCRD$ids <- factorFCRD$ids[!factorFCRD$ids %in% paste0(design, "_", index)]
+      }
+    }
+    
+    # FRCBD
+    if (design == "frcbd") {
+      if (length(factorFRCBD$ids) > 2) {
+        removeUI(
+          selector = paste0("#", design, "_full_factor_box_", index),
+          immediate = T
+        )
+        factorFRCBD$ids <- factorFRCBD$ids[!factorFRCBD$ids %in% paste0(design, "_", index)]
+      }
+    }
+    
+    # SPRCBD
+    if (design == "sprcbd") {
+      if (length(factorSPRCBD$ids) > 1) {
+        removeUI(
+          selector = paste0("#", design, "_full_factor_box_", index),
+          immediate = T
+        )
+        factorSPRCBD$ids <- factorSPRCBD$ids[!factorSPRCBD$ids %in% paste0(design, "_", index)]
+      }
+    }
+    
+    # SPSP
+    if (design == "spsp") {
+      if (length(factorSPSP$ids) > 1) {
+        removeUI(
+          selector = paste0("#", design, "_full_factor_box_", index),
+          immediate = T
+        )
+        factorSPSP$ids <- factorSPSP$ids[!factorSPSP$ids %in% paste0(design, "_", index)]
+      }
+    }
+  })
+  
+  #Get design-factor values from design_factor table
+  get_dfa_values <- function(dt, choice = "Abiotic stress Abiotic stress End date", attribute = "LEVEL") {
+    if (!is.null(choice)) {
+      out <- dt %>% filter(fchoices == choice)
+      out <- out[, attribute][[1]]
+    } else{
+      out <-  ""
+    }
+    out
+  }
+  
+  # Funcion GENERAL que dibuja ComboBox dependiendo del diseÃ±o
+  drawComboBoxLevelGEN <- function(order, dt, design, input_choice) {
+    flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
+    choices <- strsplit(flevel, split = ";")
+    names(choices) <- "Levels"
+    lbl <-
+      get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
+    unit <-
+      get_dfa_values(dt, choice = input_choice, attribute = "UNIT")
+    
+    if (is.na(unit)) {
+      removeUI(
+        selector = paste0("#", design, "_levelSelection_", order),
+        immediate = T
+      )
+      
+      insertUI(
+        selector = paste0("#", design, "_levelSelection_aux_", order),
+        where = "afterEnd",
+        ui = fluidRow(
+          id = paste0(design, "_levelSelection_", order),
+          column(
+            12,
+            selectizeInput(
+              inputId = paste0(design, "_lvl_", order),
+              label = "Enter levels",
+              multiple = TRUE,
+              options = list(placeholder = "Select..."),
+              choices = choices
+            )
+          )
+        )
+      )
+    } else {
+      choices_unit <- strsplit(unit, ",")[[1]]
+      removeUI(
+        selector = paste0("#", design, "_levelSelection_", order),
+        immediate = T
+      )
+      
+      insertUI(
+        selector = paste0("#", design, "_levelSelection_aux_", order),
+        where = "afterEnd",
+        ui = fluidRow(
+          id = paste0(design, "_levelSelection_", order),
+          column(
+            6,
+            selectizeInput(
+              inputId = paste0(design, "_lvl_", order),
+              label = "Enter levels",
+              multiple = TRUE,
+              options = list(placeholder = "Select..."),
+              choices = choices
+            )
+          ),
+          column(
+            6,
+            selectInput(
+              inputId = paste0(design, "_lvl_unit_", order),
+              label = "Unit",
+              choices = c(choices_unit),
+              selected = 2
+            )
+          )
+        )
+      )
+    }
+  }
+  
+  # Funcion GENERAL que dibuja TextInput dependiendo del diseÃ±o
+  drawTextInputLevelGEN <- function(order, dt,  design, input_choice, type) {
+    lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
+    unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT")
+    
+    if (input_choice == "Fertilizer product application rate") {
+      #List of fertilizers
+      flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
+      choices <- strsplit(flevel, split = ";")
+      names(choices) <- "Levels"
+      removeUI(
+        selector = paste0("#", design, "_levelSelection_", order),
+        immediate = T
+      )
+      removeUI(
+        selector = paste0("#", design, "_fluid_levels_", order),
+        immediate = T
+      )
+      insertUI(
+        selector = paste0("#", design, "_levelSelection_aux_", order),
+        where = "afterEnd",
+        ui = fluidRow(
+          id = paste0(design, "_levelSelection_", order),
+          column(
+            12,
+            selectizeInput(
+              inputId = paste0(design, "_lvl_fert_", order),
+              label = "Enter fertilizer",
+              multiple = FALSE,
+              options = list(placeholder = "Select..."),
+              choices = choices
+            ),
+            
+            selectizeInput(
+              paste0(design, "_lvl_", order),
+              label = "Enter levels",
+              multiple = T,
+              choices = c(),
+              options = list(
+                maxItems = 20,
+                placeholder = "Write..." ,
+                'create' = TRUE,
+                'persist' = FALSE
+              )
+            )
+          )
+        )
+      )
+    } else if (input_choice == "Nutrient element application rate") {
+      #List of fertilizers
+      flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
+      choices <- strsplit(flevel, split = ";")
+      names(choices) <- "Levels"
+      removeUI(
+        selector = paste0("#", design, "_levelSelection_", order),
+        immediate = T
+      )
+      removeUI(
+        selector = paste0("#", design, "_fluid_levels_", order),
+        immediate = T
+      )
+      insertUI(
+        selector = paste0("#", design, "_levelSelection_aux_", order),
+        where = "afterEnd",
+        ui = fluidRow(
+          id = paste0(design, "_levelSelection_", order),
+          column(
+            12,
+            
+            selectizeInput(
+              inputId = paste0(design, "_lvl_fert_", order),
+              label = "Enter nutrient element",
+              multiple = FALSE,
+              options = list(placeholder = "Select..."),
+              choices = choices
+            ),
+            
+            selectizeInput(
+              paste0(design, "_lvl_", order),
+              label = "Enter levels",
+              multiple = T,
+              choices = c(),
+              options = list(
+                maxItems = 20,
+                placeholder = "Write..." ,
+                'create' = TRUE,
+                'persist' = FALSE
+              )
+            )
+          )
+        )
+      )
+    } else if (input_choice == "Oxidized nutrient application rate") {
+      flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
+      choices <- strsplit(flevel, split = ";")
+      names(choices) <- "Levels"
+      removeUI(
+        selector = paste0("#", design, "_levelSelection_", order),
+        immediate = T
+      )
+      removeUI(
+        selector = paste0("#", design, "_fluid_levels_", order),
+        immediate = T
+      )
+      insertUI(
+        selector = paste0("#", design, "_levelSelection_aux_", order),
+        where = "afterEnd",
+        ui = fluidRow(
+          id = paste0(design, "_levelSelection_", order),
+          column(
+            12,
+            textInput(
+              inputId = paste0(design, "_lvl_fert_", order),
+              label = "Oxidized nutrient",
+              value = "",
+              placeholder = "enter oxidized nutrient"
+            ),
+            selectizeInput(
+              paste0(design, "_lvl_", order),
+              label = "Enter levels",
+              multiple = T,
+              choices = c(),
+              options = list(
+                maxItems = 20,
+                placeholder = "Write..." ,
+                'create' = TRUE,
+                'persist' = FALSE
+              )
+            )
+          )
+        )
+      )
+    } else if (type == "numeric + units") {
+      if (is.na(unit)) {
+        removeUI(
+          selector = paste0("#", design, "_levelSelection_", order),
+          immediate = T
+        )
+        insertUI(
+          selector = paste0("#", design, "_levelSelection_aux_", order),
+          where = "afterEnd",
+          ui = fluidRow(
+            id = paste0(design, "_levelSelection_", order),
+            column(
+              12,
+              selectizeInput(
+                paste0(design, "_lvl_", order),
+                label = "Enter levels",
+                multiple = T,
+                choices = c(),
+                options = list(
+                  maxItems = 20,
+                  placeholder = "Write..." ,
+                  'create' = TRUE,
+                  'persist' = FALSE
+                )
+              )
+            )
+          )
+        )
+      } else {
+        choices_unit <- strsplit(unit, ",")[[1]]
+        removeUI(
+          selector = paste0("#", design, "_levelSelection_", order),
+          immediate = T
+        )
+        insertUI(
+          selector = paste0("#", design, "_levelSelection_aux_", order),
+          where = "afterEnd",
+          ui = fluidRow(
+            id = paste0(design, "_levelSelection_", order),
+            column(
+              6,
+              selectizeInput(
+                paste0(design, "_lvl_", order),
+                label = "Enter levels",
+                multiple = T,
+                choices = c(),
+                options = list(
+                  maxItems = 20,
+                  placeholder = "Write..." ,
+                  'create' = TRUE,
+                  'persist' = FALSE
+                )
+              )
+            ),
+            column(
+              6,
+              selectInput(
+                inputId = paste0(design, "_lvl_unit_", order),
+                label = "Unit",
+                choices = c(choices_unit),
+                selected = 2
+              )
+            )
+          )
+        )
+      }
+    } else if (type == "text" || type == "numeric") {
+      removeUI(
+        selector = paste0("#", design, "_levelSelection_", order),
+        immediate = T
+      )
+      insertUI(
+        selector = paste0("#", design, "_levelSelection_aux_", order),
+        where = "afterEnd",
+        ui = fluidRow(
+          id = paste0(design, "_levelSelection_", order),
+          column(
+            12,
+            selectizeInput(
+              paste0(design, "_lvl_", order),
+              label = "Enter levels",
+              multiple = T,
+              choices = c(),
+              options = list(
+                maxItems = 20,
+                placeholder = "Write..." ,
+                'create' = TRUE,
+                'persist' = FALSE
+              )
+            )
+          )
+        )
+      )
+    }
+  }
+  
+  # Funcion GENERAL que dibuja Date dependiendo del diseÃ±o
+  drawDateComboLevelGEN <- function(order, dt, design, input_choice, num_levels) {
+    lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
+    removeUI(
+      selector = paste0("#", design, "_levelSelection_", order),
+      immediate = T
+    )
+    insertUI(
+      selector = paste0("#", design, "_levelSelection_aux_", order),
+      where = "afterEnd",
+      ui = fluidRow(
+        id = paste0(design, "_levelSelection_", order),
+        column(
+          12,
+          fluidRow(
+            id = paste0(design, "_factor_dates_", order, "_1"),
+            column(
+              12,
+              airDatepickerInput(
+                inputId = paste0(design, "_lvl_", order, "_1", "_date"),
+                label = paste0("#1 ", lbl),
+                dateFormat = "yyyy-mm-dd",
+                value = Sys.Date(),
+                placeholder = "yyyy-mm-dd",
+                clearButton = TRUE
+              )
+            )
+          )
+        )
+      )
+    )
+    
+    num_levels <- as.integer(num_levels)
+    
+    if (num_levels > 1) {
+      for (i in 2:num_levels) {
+        insertUI(
+          selector = paste0("#", design, "_factor_dates_", order, "_", i - 1),
+          where = "afterEnd",
+          ui = fluidRow(
+            id = paste0(design, "_factor_dates_", order, "_", i),
+            column(
+              12,
+              airDatepickerInput(
+                inputId = paste0(design, "_lvl_", order, "_", i, "_date"),
+                label = paste0("#", i, " ", lbl),
+                dateFormat = "yyyy-mm-dd",
+                value = Sys.Date(),
+                placeholder = "yyyy-mm-dd",
+                clearButton = TRUE
+              )
+            )
+          )
+        )
+      }
+    }
+  }
+  
+  ###################### END: Funciones GENERALES CRD/RCBD/FCRD/FRCBD/SPRCBD/SPSP ######################
+  
+  ###################### START: Funciones Compartidas CRD/RCBD ######################
+  
+  # Funcion que responde a LVLS de la tabla CRD-RCBD 
+  observeEvent(input$levelInput, {
+    designFactor <- tolower(designVarsFactor$design)
+    if (designFactor == "crd") {
+      design <- tolower(input$designFieldbook_agrofims)
+      IdDesignInputs <- getFactorIds(design)
+      index <- get_index_design(IdDesignInputs, design)
+      #allinputs<<-AllInputs()
+      flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
+      flvl<- get_levels_design(allinputs = AllInputs(),index=index, data_dictionary=dt,
+                               factors = flbl, design=design, format="list")
+      fvalues$flbl_crd <- flbl #get_factors_design(allinputs = AllInputs(),  design = design)
+      fvalues$flvl_crd <- flvl #get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl, design=design, format="list")
+      #fvalues$flbl_crd <- get_factors_design(allinputs = AllInputs(),  design = designFactor)
+      #fvalues$flvl_crd <-get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl_crd, design = designFactor, format = "list")
+      
+      fill_CRD_RCBD_ValuesInput(designFactor)
+      
+    } else if (designFactor == "rcbd") {
+      design <- tolower(input$designFieldbook_agrofims)
+      IdDesignInputs <- getFactorIds(design)
+      index <- get_index_design(IdDesignInputs, design)
+      #allinputs<<-AllInputs()
+      flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
+      flvl<- get_levels_design(allinputs = AllInputs(),index=index, data_dictionary=dt,
+                               factors = flbl, design=design, format="list")
+      fvalues$flbl_rcbd <- flbl #get_factors_design(allinputs = AllInputs(),  design = design)
+      fvalues$flvl_rcbd <- flvl #get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl, design=design, format="list")
+      #fvalues$flbl_rcbd <- get_factors_design(allinputs = AllInputs(),  design = designFactor)
+      #fvalues$flvl_rcbd <-get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl_rcbd, design = designFactor, format = "list")
+      
+      fill_CRD_RCBD_ValuesInput(designFactor)
+    }
+  })
+  
+  # Funcion que responde a los selects de la tabla para CRD-RCBD 
+  observeEvent(input$input_factor_treatment, {
+    designFactor <- tolower(designVarsFactor$design)
+    inputId <- input$levelInputid
+    
+    vars <- unlist(strsplit(inputId, ","))
+    inputValue <- input[[input$levelInputid]]
+    
+    if (designFactor == "crd" || designFactor == "rcbd") {
+      num_treat <- input[[paste0(designFactor,"_ntrt")]]
+      if (is.null(num_treat))
+        if (designFactor == "crd"){
+          num_treat <- designVarsCRD$DEFAULT_TREAT_NFULL
+        }else if(designFactor == "rcbd")
+        {
+          num_treat <- designVarsRCBD$DEFAULT_TREAT_NFULL
+        }
+      else
+        num_treat <- as.integer(num_treat)
+      if (num_treat < 1)
+        return()
+      
+      for (i in 1:num_treat) {
+        updateSummary(designFactor,i)
+      }
+    }
+  })
+  
+  # Funcion general que responde a input Other para CRD-RCBD 
+  observeEvent(input$crd_rcbd_SelFactorOther,{
+    designFactor <- tolower(designVarsFactor$design)
+    
+    value <- input[[input$crd_rcbd_SelFactorOtherid]]
+    id <- input$crd_rcbd_SelFactorOtherid
+    
+    vals <- unlist(strsplit(id, "_"))
+    index <- vals[5]
+    
+    selFactorValue <- input[[paste0(designFactor,"_sel_factor_",index)]]
+    
+    if (designFactor == "crd") {
+      if (selFactorValue == "Other"){
+        output[[paste0("title_col_NFF_", designFactor, "_", index)]] <- renderText({value})
+        
+      }
+    }else if (designFactor == "rcbd"){
+      if (selFactorValue == "Other"){
+        output[[paste0("title_col_NFF_", designFactor, "_", index)]] <- renderText({value})
+        
+      }
+    }
+  })
+  
+  # Funcion que responde al numero de tratamientos para CRD
+  observeEvent(input$crd_ntrt, {
+    designVarsCRD$ids_NFULL <- getFactorIds("crd")
+    designFactor <- designVarsFactor$design
+    
+    ids <- designVarsCRD$ids_NFULL
+    rep <- as.numeric(input$crd_ntrt) #CRD
+    
+    if (factorCRD$currNumReplications > rep  && !is.na(rep)) {
+      start <- rep + 1
+      for (i in factorCRD$currNumReplications:start) {
+        deleteSummaryEntry(designFactor,i)
+      }
+    } else if (factorCRD$currNumReplications < rep && !is.na(rep)) {
+      start  <- factorCRD$currNumReplications + 1
+      for (i in start:rep) {
+        insertSummaryEntry(i,designFactor)
+        updateSummary(designFactor,i)
+      }
+    }
+    print(ids)
+    for (id in ids) {
+      vars <- id
+      if (factorCRD$currNumReplications > rep  && !is.na(rep)) {
+        start <- rep + 1
+        for (i in factorCRD$currNumReplications:start) {
+          removeUI(selector = paste0("#aux_col_NFF_", vars, "_", i),
+                   immediate = T)
+        }
+      } else if (factorCRD$currNumReplications < rep && !is.na(rep)) {
+        start  <- factorCRD$currNumReplications + 1
+        for (i in start:rep) {
+          insertUI(
+            selector = paste0("#fr_col_NFF_", vars),
+            where = "beforeBegin",
+            ui = column(
+              id = paste0("aux_col_NFF_", vars, "_", i),
+              width = 12,
+              uiOutput(paste0("ui_col_NFF_", vars, "_", i))
+            )
+          )
+          drawInputNFF(designFactor,vars, i)
+        }
+      }
+    }
+    
+    factorCRD$currNumReplications <- rep
+    updateSummaryAll(designFactor,rep)
+  })
+  
+  # Funcion que responde al numero de tratamientos para RCBD 
+  observeEvent(input$rcbd_ntrt, {
+    designVarsRCBD$ids_NFULL <- getFactorIds("rcbd")
+    designFactor <- designVarsFactor$design
+    
+    ids <- designVarsRCBD$ids_NFULL
+    rep <- as.numeric(input$rcbd_ntrt) #RCBD
+    
+    if (factorRCBD$currNumReplications > rep  && !is.na(rep)) {
+      start <- rep + 1
+      for (i in factorRCBD$currNumReplications:start) {
+        deleteSummaryEntry(designFactor,i)
+      }
+    } else if (factorRCBD$currNumReplications < rep && !is.na(rep)) {
+      start  <- factorRCBD$currNumReplications + 1
+      for (i in start:rep) {
+        insertSummaryEntry(i,designFactor)
+        updateSummary(designFactor,i)
+      }
+    }
+    
+    for (id in ids) {
+      vars <- id
+      if (factorRCBD$currNumReplications > rep  && !is.na(rep)) {
+        start <- rep + 1
+        for (i in factorRCBD$currNumReplications:start) {
+          removeUI(selector = paste0("#aux_col_NFF_", vars, "_", i),
+                   immediate = T)
+        }
+      } else if (factorRCBD$currNumReplications < rep && !is.na(rep)) {
+        start  <- factorRCBD$currNumReplications + 1
+        for (i in start:rep) {
+          insertUI(
+            selector = paste0("#fr_col_NFF_", vars),
+            where = "beforeBegin",
+            ui = column(
+              id = paste0("aux_col_NFF_", vars, "_", i),
+              width = 12,
+              uiOutput(paste0("ui_col_NFF_", vars, "_", i))
+            )
+          )
+          
+          drawInputNFF(designFactor,vars, i)
+        }
+      }
+    }
+    
+    factorRCBD$currNumReplications <- rep
+    updateSummaryAll(designFactor,rep)
+  })
+  
+  # Funcion que dibujar y carga valores en los inputs de la tabla CRD-RCBD
+  drawInputNFF <- function(designFactor,index, order) {
+    ids <- getFactorIds(designFactor) #getFactorIds
+    
+    if(designFactor == "crd") {
+      output[[paste0("ui_col_NFF_", index, "_", order)]] <-
+        renderUI(
+          selectizeInput(
+            paste0("input_factor_treatment_", index, "_", order),
+            label = "",
+            multiple = TRUE,
+            options =  list(maxItems = 1, placeholder = "Select one..."),
+            choices = fvalues$flvl_crd[[which(ids == index, arr.ind = TRUE)]] #CRD
+          )
+        )
+    } else if (designFactor == "rcbd") {
+      output[[paste0("ui_col_NFF_", index, "_", order)]] <-
+        renderUI(
+          selectizeInput(
+            paste0("input_factor_treatment_", index, "_", order),
+            label = "",
+            multiple = TRUE,
+            options =  list(maxItems = 1, placeholder = "Select one..."),
+            choices = fvalues$flvl_rcbd[[which(ids == index, arr.ind = TRUE)]] #RCBD
+          )
+        )
+    }
+  }
+  
+  # Funcion que elimina inputs treatment summary para CRD-RCBD
+  deleteSummaryEntry <- function(designFactor,treat_num) {
+    removeUI(selector = paste0("#row_NFF_summ_",designFactor,"_", treat_num),
+             immediate = T)
+  }
+  
+  # Funcion que dibuja inputs treatment summary para CRD-RCBD
+  insertSummaryEntry <- function(treat_num,designFactor) {
+    if(designFactor == "crd"){
+      cn <- length(designVarsCRD$ids_NFULL)
+    } else if(designFactor=="rcbd") {
+      cn <- length(designVarsRCBD$ids_NFULL)
+    }
+    
+    if (!is.null(cn) && cn > 0) {
+      repl <- rep("-", cn)
+      xvalue <- paste(repl, collapse = " / ")
+    } else{
+      xvalue <- ''
+    }
+    
+    insertUI(
+      selector = paste0("#fr_col_NFF_cons_",designFactor),
+      where = "beforeBegin",
+      ui = column(
+        12,
+        id = paste0("row_NFF_summ_",designFactor,"_", treat_num),
+        HTML('<center>'),
+        disabled(textInput(
+          paste0("ui_NFF_summ_",designFactor,"_", treat_num), "" , value = xvalue
+        )),
+        HTML('</center>')
+      )
+    )
+  }
+  
+  # Funcion que dibuja columnas en la tabla para CRD-RCBD
+  drawNewColumnNFF <- function(index,designFactor) {
+    if(designFactor == "crd"){
+      if (factorCRD$numRepAux == 0) {
+        for (i in 1:factorCRD$currNumReplications) {
+          insertSummaryEntry(i,designFactor)
+        }
+        factorCRD$numRepAux <- 1
+        
+      }
+    } else if (designFactor == "rcbd") {
+      if (factorRCBD$numRepAux == 0) {
+        for (i in 1:factorRCBD$currNumReplications) {
+          insertSummaryEntry(i,designFactor)
+        }
+        factorRCBD$numRepAux <- 1
+      }
+    }
+    
+    insertUI(
+      selector = paste0("#not_full_factor_table_",designFactor),
+      where = "beforeBegin",
+      ui = column(
+        id = paste0("col_NFF_", index),
+        width = 2,
+        HTML("<center>"),
+        uiOutput(paste0("title_col_NFF_", index)),
+        HTML("</center>"),
+        fluidRow(id = paste0("fr_col_NFF_", index))
+      )
+    )
+    
+    vals <- unlist(strsplit(index, "_"))
+    value <- input[[paste0(designFactor,"_sel_factor_", vals[2])]]
+    
+    if (is.null(value))
+      value <- "Factor"
+    output[[paste0("title_col_NFF_", index)]] <- renderText({
+      value
+    })
+    
+    num_treat <- input[[paste0(designFactor,"_ntrt")]]
+    
+    if (is.null(num_treat))
+      if(designFactor == "crd") {
+        num_treat <- designVarsCRD$DEFAULT_TREAT_NFULL #CRD
+      } else if(designFactor=="rcbd") {
+        num_treat <- designVarsRCBD$DEFAULT_TREAT_NFULL #RCBD
+      }
+    else
+      num_treat <- as.integer(num_treat)
+    if (num_treat < 1)
+      return()
+    
+    for (i in 1:num_treat) {
+      insertUI(
+        selector = paste0("#fr_col_NFF_", index),
+        where = "beforeBegin",
+        ui = column(
+          id = paste0("aux_col_NFF_", index, "_", i),
+          width = 12,
+          uiOutput(paste0("ui_col_NFF_", index, "_", i))
+        )
+      )
+      isolate(drawInputNFF(designFactor,index, i))
+      updateSummary(designFactor,i)
+      
+    }
+  }
+  
+  # Funcion duplicate que dibuja columnas en la tabla para CRD-RCBD
+  drawNewColumnNFFDuplicate <- function(designFactor,prev, index) {
+    insertUI(
+      selector = paste0("#col_NFF_",designFactor,"_", prev),
+      where = "afterEnd",
+      ui = column(
+        id = paste0("col_NFF_", index),
+        width = 2,
+        HTML("<center>"),
+        uiOutput(paste0("title_col_NFF_", index)),
+        HTML("</center>"),
+        fluidRow(id = paste0("fr_col_NFF_", index))
+      )
+    )
+    
+    value <- NULL
+    
+    if (is.null(value))
+      value <- "Factor"
+    
+    output[[paste0("title_col_NFF_", index)]] <- renderText({
+      value
+    })
+    
+    if(designFactor == "crd"){
+      num_treat <- input$crd_ntrt
+    } else if(designFactor == "rcbd") {
+      num_treat <- input$rcbd_ntrt
+    }
+    
+    if (is.null(num_treat)) {
+      if (designFactor == "crd") {
+        num_treat <- designVarsCRD$DEFAULT_TREAT_NFULL #CRD
+      } else if (designFactor == "rcbd") {
+        num_treat <- designVarsRCBD$DEFAULT_TREAT_NFULL #RCBD
+      }
+    }
+    else {
+      num_treat <- as.integer(num_treat)
+    }
+    if (num_treat < 1)
+      return()
+    
+    for (i in 1:num_treat) {
+      insertUI(
+        selector = paste0("#fr_col_NFF_", index),
+        where = "beforeBegin",
+        ui = column(
+          id = paste0("aux_col_NFF_", index, "_", i),
+          width = 12,
+          uiOutput(paste0("ui_col_NFF_", index, "_", i))
+        )
+      )
+      
+      isolate(drawInputNFF(designFactor,index, i))
+      updateSummary(designFactor,i)
+    }
+  }
+  
+  # Funcion que actualiza el input summary de la tabla para CRD-RCBD
+  updateSummary <- function(designFactor,treat_index) {
+    ids <- getFactorIds(designFactor)
+    l <- c()
+    
+    for (id in ids) {
+      vals <- unlist(strsplit(id, "_"))
+      val <- input[[paste0("input_factor_treatment_",vals[1],"_",vals[2],"_",treat_index)]]
+      
+      if (typeof(val) == 'double') {
+        val = as.character(val)
+      }
+      
+      if (is.null(val) || val == '')
+        val <- '-'
+      l <- c(l, val)
+    }
+    
+    updateTextInput(
+      session,
+      inputId = paste0("ui_NFF_summ_",designFactor,"_", treat_index),
+      value = paste(l, collapse = " / ")
+    )
+  }
+  
+  # Funcion que actualiza los input summary de la tabla para CRD-RCBD
+  updateSummaryAll <- function(designFactor,num = NULL) {
+    if (is.null(num)) {
+      num_treat <- input[[paste0(designFactor,"_ntrt")]]
+      if (is.null(num_treat))
+        if(designFactor == "crd" ){
+          num_treat <- designVarsCRD$DEFAULT_TREAT_NFULL #CRD
+          
+        }else if (designFactor == "rcbd"){
+          num_treat <- designVarsRCBD$DEFAULT_TREAT_NFULL #RCBD
+        }
+    }
+    else{
+      num_treat <-  num
+    }
+    
+    for (i in 1:num_treat) {
+      updateSummary(designFactor,i)
+    }
+  }
+  
+  # Funcion que actualiza el valor de los selectbox de la tabla para CRD-RCBD
+  fUpdateSelect <- function(selID,in_choices = NULL,value = NULL){
+    updateSelectInput(session, selID, choices = in_choices, selected = value)
+  }
+  
+  # Funcion que recorre los select box y los actualiza de la tabla para CRD-RCBD
+  fill_CRD_RCBD_ValuesInput <- function(designFactor) {
+    ids <- getFactorIds(designFactor)
+    rep <- input[[paste0(designFactor,"_ntrt")]]
+    
+    for (id in ids) {
+      vars <- id
+      for (i in 1:rep) {
+        idInput <- paste0("input_factor_treatment_", vars, "_", i)
+        inputValue <- input[[paste0("input_factor_treatment_", vars, "_", i)]]
+        
+        if(designFactor=="crd") {
+          fUpdateSelect(selID = idInput,
+                        in_choices = fvalues$flvl_crd[[which(ids == id, arr.ind = TRUE)]], inputValue)
+          
+          
+        } else if (designFactor == "rcbd") {
+          fUpdateSelect(selID = idInput,
+                        in_choices = fvalues$flvl_rcbd[[which(ids == id, arr.ind = TRUE)]], inputValue)
+          
+        }
+      }
+    }
+  }
+  
+  ###################### END: Funciones Compartidas CRD/RCBD ######################
+  
+  ############################### END SERVER: DESIGN ###############################
+  ##################################################################################
+  
   ##################################################################################################
   ############################### START SERVER: MANAGEMENT PRACTICES ###############################
   
@@ -7942,1040 +9716,1040 @@ server_design_agrofims <- function(input, output, session, values){
   ################# fin design ######################################################
   
   
-  ########################################## Start: Design Ivan New ##################################################
-  
-  getFactorIds <- function(design) {
-    if (design == "crd") 
-    {
-      factorCRD$ids
-    }
-    else if (design == "rcbd" )
-    {
-      factorRCBD$ids
-    }
-    else if(design == "fcrd")
-    {
-      factorFCRD$ids
-    }
-    else if(design == "frcbd")
-    {
-      factorFRCBD$ids
-    }
-    else if(design == "sprcbd")
-    {
-      factorSPRCBD$ids
-    }
-    else if(design == "spsp")
-    {
-      factorSPSP$ids
-    }
-    
-  }
-  
-  observeEvent(input$idstest, {
-    design <- input$selectFactor
-    print( getFactorIds(design))
-  })
-  
-  # Database
-  factores <- agdesign::dtfactordesign   #agdesign::dtfactordesign  #readxl::read_excel("FACTOR_V9.xlsx")
-  
-  #factores<- gsheet::gsheet2tbl("https://docs.google.com/spreadsheets/d/1M5KA4JTqd1zdv1p-Gu5kfsLNi8WHWAyCMvCNBDa9G_Y/edit#gid=1932177125")
-  #dtf<- factores
-  dt <- factores %>% mutate(fchoices= FACTOR) # paste(GROUP, SUBGROUP, FACTOR))
-  
-  ###################### START: CRD ######################
-  
-  # CRD: Asigna variables reactivas
-  factorCRD <- reactiveValues()
-  factorCRD$num <- 0
-  factorCRD$DEFAULT <- 1
-  factorCRD$ids <- c()
-  
-  # CRD: Inserta por defecto un row
-  observe({
-    if (factorCRD$num == 0) {
-      defaultCRD <- factorCRD$DEFAULT
-      
-      for (i in 1:defaultCRD) {
-        insertRow_GEN(i, design = "crd")
-      }
-    }
-  })
-  
-  # CRD: Agrega un row al hacer clic en el boton "Add factor" 
-  observeEvent(input$crd_add, {
-    if(factorCRD$num >= 1) {
-      insertRow_GEN(factorCRD$num + 1, design = "crd")
-    }
-  })
-  
-  ###################### END: CRD ######################
-  
-  ###################### START: RCBD ######################
-  
-  # RCBD: Asigna variables reactivas
-  factorRCBD <- reactiveValues()
-  factorRCBD$num <- 0
-  factorRCBD$DEFAULT <- 1
-  factorRCBD$ids <- c()
-  # RCBD: Inserta por defecto un row
-  observe({
-    if (factorRCBD$num == 0) {
-      defaultRCBD <- factorRCBD$DEFAULT
-      
-      for (i in 1:defaultRCBD) {
-        insertRow_GEN(i, design = "rcbd")
-      }
-    }
-  })
-  
-  # RCBD: Agrega un row al hacer clic en el boton "Add factor" 
-  observeEvent(input$rcbd_add, {
-    if(factorRCBD$num >= 1) {
-      insertRow_GEN(factorRCBD$num + 1, design = "rcbd")
-    }
-  })
-  
-  ###################### END: RCBD ######################
-  
-  ##################### Start: FCRD #####################
-  
-  # FCRD: Asigna variables reactivas
-  factorFCRD <- reactiveValues()
-  factorFCRD$num <- 0
-  factorFCRD$DEFAULT <- 2
-  factorFCRD$ids <- c()
-  
-  # FCRD: Inserta por defecto un row
-  observe({
-    if (factorFCRD$num == 0) {
-      defaultFCRD <- factorFCRD$DEFAULT
-      
-      for (i in 1:defaultFCRD) {
-        insertRow_GEN(i, design = "fcrd")
-      }
-    }
-  })
-  
-  # FCRD: Agrega un row al hacer clic en el boton "Add factor" 
-  observeEvent(input$fcrd_add, {
-    if(factorFCRD$num >= 1) {
-      insertRow_GEN(factorFCRD$num + 1, design = "fcrd")
-    }
-  })
-  
-  ###################### End: FCRD ######################
-  
-  ##################### Start: FRCBD #####################
-  
-  # FRCBD: Asigna variables reactivas
-  factorFRCBD <- reactiveValues()
-  factorFRCBD$num <- 0
-  factorFRCBD$DEFAULT <- 2
-  factorFRCBD$ids <- c()
-  
-  # FRCBD: Inserta por defecto un row
-  observe({
-    if (factorFRCBD$num == 0) {
-      defaultFRCBD <- factorFRCBD$DEFAULT
-      
-      for (i in 1:defaultFRCBD) {
-        insertRow_GEN(i, design = "frcbd")
-      }
-    }
-  })
-  
-  # FRCBD: Agrega un row al hacer clic en el boton "Add factor" 
-  observeEvent(input$frcbd_add, {
-    if(factorFRCBD$num >= 1) {
-      insertRow_GEN(factorFRCBD$num + 1, design = "frcbd")
-    }
-  })
-  
-  ##################### End: FRCBD #####################
-  
-  ###################### START: SPRCBD ######################
-  
-  # SPRCBD: Asigna variables reactivas
-  factorSPRCBD <- reactiveValues()
-  factorSPRCBD$num <- 0
-  factorSPRCBD$DEFAULT <- 2
-  factorSPRCBD$ids <- c()
-  # SPRCBD: Inserta por defecto un row
-  observe({
-    if (factorSPRCBD$num == 0) {
-      defaultSPRCBD <- factorSPRCBD$DEFAULT
-      
-      for (i in 1:defaultSPRCBD) {
-        insertRow_GEN(i, design = "sprcbd")
-      }
-    }
-  })
-  
-  # SPRCBD: Agrega un row al hacer clic en el boton "Add factor" 
-  observeEvent(input$sprcbd_add, {
-    if(factorSPRCBD$num >= 1) {
-      insertRow_GEN(factorSPRCBD$num + 1, design = "sprcbd")
-    }
-  })
-  
-  ###################### END: SPRCBD ######################
-  
-  ###################### START: SPSP ######################
-  
-  # SPSP: Asigna variables reactivas
-  factorSPSP <- reactiveValues()
-  factorSPSP$num <- 0
-  factorSPSP$DEFAULT <- 3
-  factorSPSP$ids <- c()
-  
-  # SPSP: Inserta por defecto un row
-  observe({
-    if (factorSPSP$num == 0) {
-      defaultSPSP <- factorSPSP$DEFAULT
-      
-      for (i in 1:defaultSPSP) {
-        insertRow_GEN(i, design = "spsp")
-      }
-    }
-  })
-  
-  # SPSP: Agrega un row al hacer clic en el boton "Add factor" 
-  observeEvent(input$spsp_add, {
-    if(factorSPSP$num >= 1) {
-      insertRow_GEN(factorSPSP$num + 1, design = "spsp")
-    }
-  })
-  
-  ###################### END: SPSP ######################
-  
-  ###################### Start: Funciones GENERALES CRD/RCBD/FCRD/FRCBD/SPRCBD/SPSP ######################
-  
-  # Funcion GENERAL que inserta el UI dependiendo del diseño
-  insertRow_GEN <- function(index, design) {
-    # CRD
-    if (design == "crd") {
-      factorCRD$ids <- c(factorCRD$ids, paste0(design,"_",index))
-      insertUI(
-        selector = "#crd_boxes",
-        where = "beforeBegin",
-        ui = getDesignUI_GEN(index, design)
-      )
-      factorCRD$num <- factorCRD$num + 1
-    }
-    
-    # RCBD
-    if (design == "rcbd") {
-      factorRCBD$ids <- c(factorRCBD$ids, paste0(design,"_",index))
-      insertUI(
-        selector = "#rcbd_boxes",
-        where = "beforeBegin",
-        ui = getDesignUI_GEN(index, design)
-      )
-      factorRCBD$num <- factorRCBD$num + 1
-    }
-    
-    # FCRD
-    if (design == "fcrd") {
-      factorFCRD$ids <- c(factorFCRD$ids, paste0(design,"_", index))
-      insertUI(
-        selector = "#fcrd_boxes",
-        where = "beforeBegin",
-        ui = getDesignUI_GEN(index, design)
-      )
-      factorFCRD$num <- factorFCRD$num + 1
-    }
-    
-    # FRCBD
-    if (design == "frcbd") {
-      factorFRCBD$ids <- c(factorFRCBD$ids, paste0(design,"_", index))
-      insertUI(
-        selector = "#frcbd_boxes",
-        where = "beforeBegin",
-        ui = getDesignUI_GEN(index, design)
-      )
-      factorFRCBD$num <- factorFRCBD$num + 1
-    }
-    
-    # SPRCBD
-    if (design == "sprcbd") {
-      factorSPRCBD$ids <- c(factorSPRCBD$ids, paste0(design,"_",index))
-      insertUI(
-        selector = "#sprcbd_boxes",
-        where = "beforeBegin",
-        ui = getDesignUI_GEN(index, design)
-      )
-      factorSPRCBD$num <- factorSPRCBD$num + 1
-    }
-    
-    # SPSP
-    if (design == "spsp") {
-      factorSPSP$ids <- c(factorSPSP$ids, paste0(design,"_",index))
-      insertUI(
-        selector = "#spsp_boxes",
-        where = "beforeBegin",
-        ui = getDesignUI_GEN(index, design)
-      )
-      factorSPSP$num <- factorSPSP$num + 1
-    }
-  }
-  
-  #Funcion que dibuja el titulo de SPRCBD/SPSP dependiendo del diseño
-  titleGEN <- function(index, design) {
-    if (design == "crd") {
-      title <- "Factor"
-    } else if (design == "rcbd") {
-      title <- "Factor"
-    }
-    else if (design == "fcrd") {
-      title <- "Factor"
-    }
-    else if (design == "frcbd") {
-      title <- "Factor"
-    } else if (design == "sprcbd") {
-      if (index == 1) {
-        title <- "Factor: main plot"
-      } else if (index == 2) {
-        title <- "Factor: sub plot"
-      } else if (index >= 3) {
-        title <- "Factor"
-      }
-    } else if (design == "spsp") {
-      if (index == 1) {
-        title <- "Factor: main plot"
-      } else if (index == 2) {
-        title <- "Factor: sub plot"
-      } else if (index == 3) {
-        title <- "Factor: sub-sub plot"
-      } else if (index >= 4) {
-        title <- "Factor"
-      }
-    }
-  }
-  
-  # Funcion GENERAL que dibuja el UI dependiendo del diseño
-  getDesignUI_GEN <- function(index, design, value = NULL) {
-    title <- titleGEN(index, design)
-    
-    fluidRow(
-      id = paste0(design, "_full_factor_box_", index), 
-      box(
-        solidHeader = TRUE, status = "warning", width=12,
-        column(12, offset = 0, 
-               column(6,style='padding:0px; text-align:left;',
-                      h4(title, style="font-weight: 800;color: #555;")
-               ),
-               column(
-                 6,
-                 style='padding:0px; text-align:right; ',
-                 conditionalPanel(
-                   "input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD' || 
-                   input.designFieldbook_agrofims == 'FCRD' || input.designFieldbook_agrofims == 'FRCBD'",
-                   actionButton(paste0(design, "_closeBox_", index), "", icon("close"))
-                 )
-               )
-               ),
-        column(
-          12,
-          fluidRow(
-            column(
-              6,
-              fluidRow(
-                column(
-                  10,
-                  selectizeInput(
-                    paste0(design, "_sel_factor_", index), "", multiple = TRUE,
-                    options = list(placeholder ="Select...", maxItems =1),
-                    choices = c(dt$fchoices),
-                    selected = value  
-                  ),
-                  fluidRow(id = paste0(design, "_sel_factorOth_aux_", index))
-                )
-              )
-            ),
-            column(
-              6,
-              fluidRow(
-                column(width = 7,
-                       fluidRow(id = paste0(design, "_fl_title_factor_aux_", index))
-                       
-                ),
-                column(width = 5,
-                       hidden(selectInput(paste0(design, "_numLevels_", index), "Number of dates", choices = 2:10, selected = 2))
-                )
-              ),
-              fluidRow(id = paste0(design, "_type_input_aux_", index)),
-              fluidRow(id = paste0(design, "_levelSelection_aux_", index)),
-              fluidRow(id = paste0(design, "_levelSelOther_aux_", index)),
-              fluidRow(id = paste0(design, "_note_aux_",index))
-            )
-          ),
-          column(
-            12, style="text-align:right",
-            conditionalPanel(
-              "input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD' || 
-              input.designFieldbook_agrofims == 'FCRD' || input.designFieldbook_agrofims == 'FRCBD'",
-              fluidRow(actionButton(paste0(design, "_btDuplicate_", index), "Duplicate"))
-            )
-          )
-          )
-        )
-        )
-  }
-  
-  # Funcion GENERAL que responde a "FACTOR"
-  observeEvent(input$selectGEN, {
-    vars <- unlist(strsplit(input$selectGENid, "_"))
-    design <- vars[1]
-    index <- vars[4]
-    
-    value <-  input[[input$selectGENid]]
-    value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR")
-    
-    isolate(updateLevelSelectionGEN(index, value, design))
-    
-    # Genera el "OTHER" del FACTOR 
-    choises <-  input[[input$selectGENid]]
-    updateSelectOtherGEN(index, choises, design)
-    
-    # Genera "OTHER/OTHER" de LEVELS
-    flevel <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "LEVEL")
-    choices <- strsplit(flevel, split = ";")
-    names(choices) <- "Levels"
-    removeUI(selector = paste0("#", design, "_type_input_", index), immediate = T)
-    
-    if (value == "Other") {
-      removeUI(selector = paste0("#", design,"_levelSelection_",index))
-      # Other level
-      insertUI(
-        selector = paste0("#", design, "_type_input_aux_", index),
-        where = "beforeBegin",
-        ui = fluidRow(
-          id = paste0(design, "_type_input_", index),
-          column(
-            12,
-            selectizeInput(
-              paste0(design, "_typeInput_", index), "Type of input", multiple = TRUE,
-              options = list(placeholder ="Select...", maxItems =1),
-              choices = c(choices)
-            )
-          )
-        )
-      )
-    }
-  })
-  
-  # Funcion GENERAL que activa "OTHER" de "FACTOR" dependiendo del diseño
-  updateSelectOtherGEN <- function(index, choises, design, value = NULL) {
-    if (any(choises == "Other") == T) {
-      removeUI(selector = paste0("#", design, "_sel_factorOth_", index), immediate = T)
-      
-      if (any(choises != "")) {
-        # Other
-        insertUI(
-          selector = paste0("#", design, "_sel_factorOth_aux_", index),
-          where = "beforeBegin",
-          ui = fluidRow(
-            id = paste0(design, "_sel_factorOth_", index),
-            column(
-              12,
-              textInput(paste0(design, "_sel_factor_other_", index), "", value)
-            )
-          )
-        )
-      }
-    } else {
-      removeUI(selector = paste0("#", design, "_sel_factorOth_", index), immediate = T)
-    }
-  }
-  
-  # Funcion GENERAL que responde a "LEVELS"
-  observeEvent(input$levelsGEN,{
-    vars <- unlist(strsplit(input$levelsGENid, "_"))
-    design <- vars[1]
-    index <- vars[3]
-    
-    num_levels <-  input[[input$levelsGENid]]
-    
-    factores <- agdesign::dtfactordesign #readRDS("dtfactordesign.rds")
-    dt <- factores %>% mutate(fchoices= FACTOR) # paste(GROUP, SUBGROUP, FACTOR))
-    
-    
-    drawDateComboLevelGEN(order = index, dt = dt, design, 
-                          input_choice = input[[paste0(design, "_sel_factor_", index)]], num_levels)
-    shinyjs::show(id = paste0(design, "_numLevels_", index))
-  })
-  
-  # Funcion GENERAL que activa "LEVELS" dependiendo del diseño
-  updateLevelSelectionGEN <- function(index, value, design) {
-    
-    ###OMAR ###
-    factores <- agdesign::dtfactordesign #readRDS("dtfactordesign.rds")
-    dt <- factores %>% mutate(fchoices= FACTOR) # paste(GROUP, SUBGROUP, FACTOR)) 
-    ### ######
-    
-    removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
-    removeUI(selector = paste0("#", design, "_note_", index), immediate = T)
-    removeUI(selector = paste0("#", design, "_levelSelection_", index), immediate = T)
-    removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
-    shinyjs::hide(id = paste0(design, "_numLevels_", index))
-    
-    num_levels <- input[[paste0(design, "_numLevels_", index)]]
-    
-    if (value != "") {
-      # Title
-      insertUI(
-        selector = paste0("#", design, "_fl_title_factor_aux_", index),
-        where = "beforeBegin",
-        ui = fluidRow(id = paste0(design, "_fl_title_factor_", index), column(12, h4(HTML(paste0("<b>", value, "</b>")))))
-      )
-      
-      # Note
-      insertUI(
-        selector = paste0("#", design, "_note_aux_", index),
-        where = "beforeBegin",
-        ui = fluidRow(
-          column(12, id = paste0(design, "_note_", index), textAreaInput(paste0(design, "_note_factor_", index), "Note"))
-        )
-      )
-    } else {
-      removeUI(selector = paste0("#", design, "_type_input_", index), immediate = T)
-    }
-    
-    if (!is.null(value)) {
-      type_form <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "FORM")
-      
-      if(!is.null(type_form) && type_form == "combo box") {
-        drawComboBoxLevelGEN(order = index, dt = dt, design,
-                             input_choice = input[[paste0(design, "_sel_factor_", index)]])
-        shinyjs::hide(id = paste0(design, "_numLevels_", index))
-      } else if(!is.null(type_form) && type_form == "text input") {
-        drawTextInputLevelGEN(order = index, dt = dt, design, 
-                              input_choice = input[[paste0(design, "_sel_factor_", index)]],
-                              "numeric + units")
-        shinyjs::hide(id = paste0(design, "_numLevels_", index))
-        
-      } else if(!is.null(type_form) && type_form == "date") {
-        drawDateComboLevelGEN(order = index, dt = dt, design, 
-                              input_choice = input[[paste0(design, "_sel_factor_", index)]], num_levels)
-        shinyjs::show(id = paste0(design, "_numLevels_", index))
-      } else if(!is.null(type_form) && type_form == "other input") {
-        if (!is.null(input[[paste0(design, "_typeInput_", index)]]) && input[[paste0(design, "_typeInput_", index)]] == "text") {
-          drawTextInputLevelGEN(order = index, dt = dt, design,
-                                input_choice = input[[paste0(design, "_sel_factor_", index)]],
-                                "text")
-          shinyjs::hide(id = paste0(design, "_numLevels_", index))
-        } else if (!is.null(input[[paste0(design, "_typeInput_", index)]]) && input[[paste0(design, "_typeInput_", index)]] == "numeric") {
-          drawTextInputLevelGEN(order = index, dt = dt, design,
-                                input_choice = input[[paste0(design, "_sel_factor_", index)]],
-                                "numeric")
-          shinyjs::hide(id = paste0(design, "_numLevels_", index))
-        } else if (!is.null(input[[paste0(design, "_typeInput_", index)]]) && input[[paste0(design, "_typeInput_", index)]] == "numeric + units") {
-          drawTextInputLevelGEN(order = index, dt = dt, design,
-                                input_choice = input[[paste0(design, "_sel_factor_", index)]],
-                                "numeric + units")
-          shinyjs::hide(id = paste0(design, "_numLevels_", index))
-        } else if (!is.null(input[[paste0(design, "_typeInput_", index)]]) && input[[paste0(design, "_typeInput_", index)]] == "date") {
-          drawDateComboLevelGEN(order = index, dt = dt, design, 
-                                input_choice = input[[paste0(design, "_sel_factor_", index)]], num_levels)
-          shinyjs::show(id = paste0(design, "_numLevels_", index))
-        }
-      }
-    }
-  }
-  
-  # Funcion GENERAL que responde a "OTHER" de "LEVELS"
-  observeEvent(input$otherGEN,{
-    vars <- unlist(strsplit(input$otherGENid, "_"))
-    design <- vars[1]
-    index <- vars[3]
-    choises <-  input[[input$otherGENid]]
-    
-    updateLevelSelOtherGEN(index, choises, design)
-  })
-  
-  # Funcion GENERAL que activa "OTHER" de "LEVELS" dependiendo del diseño
-  updateLevelSelOtherGEN <- function(index, choises, design) {
-    if (any(choises == "Other") == T) {
-      removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
-      
-      if (any(choises != "")) {
-        # Other
-        insertUI(
-          selector = paste0("#", design, "_levelSelOther_aux_", index),
-          where = "beforeBegin",
-          ui = fluidRow(
-            id = paste0(design, "_levelSelOther_", index),
-            column(
-              12,
-              selectizeInput(
-                paste0(design,"_lvl_other_", index), label = "Insert other levels",
-                multiple = T, choices = c(),
-                options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
-              )
-            )
-          )
-        )
-      }
-    } else {
-      removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
-    }
-  }
-  
-  # Funcion GENERAL que responde a "OTHER/OTHER" de LEVELS
-  observeEvent(input$otherOthGEN,{
-    vars <- unlist(strsplit(input$otherOthGENid, "_"))
-    design <- vars[1]
-    index <- vars[3]
-    
-    value <-  input[[input$selectGENid]]
-    value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR")
-    
-    updateLevelSelectionGEN(index, value, design)
-  })
-  
-  # Funcion GENERAL que responde a "DUPLICATE"
-  observeEvent(input$duplicateGEN, {
-    vars <- unlist(strsplit(input$duplicateGENid, "_"))
-    design <- vars[1]
-    index <- vars[3]
-    str_id <- stri_rand_strings(1, 8,  '[A-Z]')
-    insertBoxDuplicateGEN(index, str_id, design)
-    
-    factorIdsAux <- getFactorIds(design)
-    id <- match(paste0(design,"_", index), factorIdsAux) #encuentra la posicion del factor de la lista de los IDs
-    len <- length(factorIdsAux)
-    left_side <- factorIdsAux[1:id]
-    right_side <- NULL
-    if(len > 1 && id < len){
-      rg <- id + 1
-      right_side <- factorIdsAux[rg:len]
-    }
-    
-    factorIdsAux <- c(left_side, paste0(design,"_", str_id), right_side) #junta todos los casos
-    updateFactorIdsAfterDuplicate(design,factorIdsAux) #actualiza los FactorIds Reactivos luego de duplicar
-    
-  })
-  
-  #Funcion GENERAL que actualiza FactorIds luego de duplicar
-  updateFactorIdsAfterDuplicate <- function(design,factorIdsAux){
-    if (design == "crd") 
-    {
-      factorCRD$ids <- factorIdsAux
-    }
-    else if (design == "rcbd" )
-    {
-      factorRCBD$ids <- factorIdsAux
-    }
-    else if(design == "fcrd")
-    {
-      factorFCRD$ids <- factorIdsAux
-    }
-    else if(design == "frcbd")
-    {
-      factorFRCBD$ids <- factorIdsAux
-    }
-    else if(design == "sprcbd")
-    {
-      factorSPRCBD$ids <- factorIdsAux
-    }
-    else if(design == "spsp")
-    {
-      factorSPSP$ids <- factorIdsAux
-    }
-  }
-  
-  
-  # Funcion GENERAL que activa "DUPLICATE"
-  insertBoxDuplicateGEN <- function(index, str_id, design) {
-    # str_id <- stri_rand_strings(1, 8,  '[A-Z]')
-    val <- input[[paste0(design, "_sel_factor_", index)]]
-    value <- get_dfa_values(dt = dt, choice = val, attribute = "FACTOR")
-    
-    insertUI(
-      selector = paste0("#", design, "_full_factor_box_", index),
-      where = "afterEnd",
-      ui = getDesignUI_GEN(str_id, design, val),
-      immediate = T
-    )
-    
-    oth <- input[[paste0(design, "_sel_factor_other_", index)]]
-    
-    delay(100, isolate(updateLevelSelectionGEN(str_id, value, design)))
-    delay(100, isolate(updateSelectOtherGEN(str_id, val, design, oth)))
-    
-    if (val == "Other" && !is.null(val)) {
-      # Other level
-      flevel <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "LEVEL")
-      choices <- strsplit(flevel, split = ";")
-      names(choices) <- "Levels"
-      
-      delay(
-        200,
-        insertUI(
-          selector = paste0("#", design, "_type_input_aux_", str_id),
-          where = "beforeBegin",
-          ui = fluidRow(
-            id = paste0(design, "_type_input_", str_id),
-            column(
-              12,
-              selectizeInput(
-                paste0(design, "_typeInput_", str_id), "Type of input", multiple = TRUE,
-                options = list(placeholder ="Select...", maxItems =1),
-                choices = c(choices)
-              )
-            )
-          )
-        )
-      )
-    }
-  }
-  
-  # Funcion GENERAL que activa "Close"
-  observeEvent(input$closeBox_button_GEN, {
-    vars <- unlist(strsplit(input$closeBox_button_GENid,"_"))
-    design <- vars[1]
-    index <- vars[3]
-    
-    # CRD
-    if (design == "crd") {
-      if (length(factorCRD$ids) > 1) {
-        removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
-        factorCRD$ids <- factorCRD$ids[!factorCRD$ids %in% paste0(design,"_",index)] 
-      }
-    }
-    
-    # RCBD
-    if (design == "rcbd") {
-      if (length(factorRCBD$ids) > 1) {
-        removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
-        factorRCBD$ids <- factorRCBD$ids[!factorRCBD$ids %in% paste0(design,"_",index)] 
-      }
-    }
-    
-    # FCRD
-    if (design == "fcrd") {
-      if (length(factorFCRD$ids) > 2) {
-        removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
-        factorFCRD$ids <- factorFCRD$ids[!factorFCRD$ids %in% paste0(design,"_",index)] 
-      }
-    }
-    
-    # FRCBD
-    if (design == "frcbd") {
-      if (length(factorFRCBD$ids) > 2) {
-        removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
-        factorFRCBD$ids <- factorFRCBD$ids[!factorFRCBD$ids %in% paste0(design,"_",index)] 
-      }
-    }
-    
-    # SPRCBD
-    if (design == "sprcbd") {
-      if (length(factorSPRCBD$ids) > 1) {
-        removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
-        factorSPRCBD$ids <- factorSPRCBD$ids[!factorSPRCBD$ids %in% paste0(design,"_",index)] 
-      }
-    }
-    
-    # SPSP
-    if (design == "spsp") {
-      if (length(factorSPSP$ids) > 1) {
-        removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
-        factorSPSP$ids <- factorSPSP$ids[!factorSPSP$ids %in% paste0(design,"_",index)]
-      }
-    }
-  })
-  
-  #Get design-factor values from design_factor table
-  get_dfa_values <- function(dt, choice= "Abiotic stress Abiotic stress End date", attribute ="LEVEL") {
-    if(!is.null(choice)) {
-      out<- dt %>% filter(fchoices==choice)
-      out <- out[,attribute][[1]]
-    } else{
-      out<-  ""
-    }
-    out
-  }
-  
-  # Funcion GENERAL que dibuja ComboBox dependiendo del diseño
-  drawComboBoxLevelGEN <- function(order, dt, design, input_choice) {
-    flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
-    choices <- strsplit(flevel, split = ";")
-    names(choices) <- "Levels"
-    lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
-    unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT") 
-    
-    if(is.na(unit)) {
-      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-      
-      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
-               where = "afterEnd",
-               ui = fluidRow(
-                 id = paste0(design, "_levelSelection_", order),
-                 column(
-                   12,
-                   selectizeInput(
-                     inputId = paste0(design, "_lvl_", order), label = "Enter levels",
-                     multiple = TRUE,
-                     options = list(placeholder = "Select..."),
-                     choices = choices
-                   )
-                 )
-               )
-      )
-    } else {
-      choices_unit<- strsplit(unit,",")[[1]]
-      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-      
-      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
-               where = "afterEnd",
-               ui = fluidRow(
-                 id = paste0(design, "_levelSelection_", order),
-                 column(
-                   6,
-                   selectizeInput(
-                     inputId = paste0(design, "_lvl_",order), label = "Enter levels",
-                     multiple = TRUE,
-                     options = list(placeholder = "Select..."),
-                     choices = choices
-                   )
-                 ),
-                 column(
-                   6,
-                   selectInput(
-                     inputId = paste0(design,"_lvl_unit_", order), label = "Unit",
-                     choices = c(choices_unit), 
-                     selected = 2 
-                   )
-                 )
-               )
-      )
-    }
-  }
-  
-  # Funcion GENERAL que dibuja TextInput dependiendo del diseño
-  drawTextInputLevelGEN <- function(order, dt,  design, input_choice, type) {
-    lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
-    unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT") 
-    
-    if(input_choice=="Fertilizer product application rate"){
-      
-      #List of fertilizers
-      flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
-      choices <- strsplit(flevel, split = ";")
-      names(choices) <- "Levels"
-      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-      removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
-      
-      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
-               where = "afterEnd",
-               ui = fluidRow(
-                 id = paste0(design, "_levelSelection_", order),
-                 column(
-                   12,
-                   
-                   selectizeInput(
-                     inputId = paste0(design, "_lvl_fert_",order), label = "Enter fertilizer",
-                     multiple = FALSE,
-                     options = list(placeholder = "Select..."),
-                     choices = choices
-                   ),  
-                   
-                   selectizeInput(
-                     paste0(design,"_lvl_", order), label = "Enter levels",
-                     multiple = T, choices = c(),
-                     options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
-                   )
-                 )
-               )
-      )
-      
-      
-      
-      
-    }
-    else if (input_choice=="Nutrient element application rate"){
-      
-      #List of fertilizers
-      flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
-      choices <- strsplit(flevel, split = ";")
-      names(choices) <- "Levels"
-      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-      removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
-      
-      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
-               where = "afterEnd",
-               ui = fluidRow(
-                 id = paste0(design, "_levelSelection_", order),
-                 column(
-                   12,
-                   
-                   selectizeInput(
-                     inputId = paste0(design, "_lvl_fert_",order), label = "Enter nutrient element",
-                     multiple = FALSE,
-                     options = list(placeholder = "Select..."),
-                     choices = choices
-                   ),  
-                   
-                   selectizeInput(
-                     paste0(design,"_lvl_", order), label = "Enter levels",
-                     multiple = T, choices = c(),
-                     options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
-                   )
-                 )
-               )
-      )
-      
-      
-    }
-    else if (input_choice== "Oxidized nutrient application rate"){
-      flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
-      choices <- strsplit(flevel, split = ";")
-      names(choices) <- "Levels"
-      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-      removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
-      
-      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
-               where = "afterEnd",
-               ui = fluidRow(
-                 id = paste0(design, "_levelSelection_", order),
-                 column(
-                   12,
-                   
-                   textInput(
-                     inputId = paste0(design, "_lvl_fert_",order), label = "Oxidized nutrient",value = "", placeholder = "enter oxidized nutrient"
-                   ),  
-                   
-                   selectizeInput(
-                     paste0(design,"_lvl_", order), label = "Enter levels",
-                     multiple = T, choices = c(),
-                     options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
-                   )
-                 )
-               )
-      )
-    }
-    else if (type == "numeric + units") {
-      if(is.na(unit)){
-        removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-        
-        insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
-                 where = "afterEnd",
-                 ui = fluidRow(
-                   id = paste0(design, "_levelSelection_", order),
-                   column(
-                     12,
-                     selectizeInput(
-                       paste0(design,"_lvl_", order), label = "Enter levels",
-                       multiple = T, choices = c(),
-                       options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
-                     )
-                   )
-                 )
-        )
-      } else {
-        choices_unit <- strsplit(unit,",")[[1]]
-        removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-        
-        insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
-                 where = "afterEnd",
-                 ui = fluidRow(
-                   id = paste0(design, "_levelSelection_", order),
-                   column(
-                     6,
-                     selectizeInput(
-                       paste0(design,"_lvl_", order), label = "Enter levels",
-                       multiple = T, choices = c(),
-                       options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
-                     )
-                   ),
-                   column(
-                     6,
-                     selectInput(
-                       inputId = paste0(design,"_lvl_unit_", order), label = "Unit",
-                       choices = c(choices_unit), selected = 2 
-                     )
-                   )
-                 )
-        )
-      }
-    } 
-    else if (type == "text" || type == "numeric") {
-      removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-      
-      insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
-               where = "afterEnd",
-               ui = fluidRow(
-                 id = paste0(design, "_levelSelection_", order),
-                 column(
-                   12,
-                   selectizeInput(
-                     paste0(design,"_lvl_", order), label = "Enter levels",
-                     multiple = T, choices = c(),
-                     options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
-                   )
-                 )
-               )
-      )
-    }
-  }
-  
-  # Funcion GENERAL que dibuja Date dependiendo del diseño
-  drawDateComboLevelGEN <- function(order, dt,  design, input_choice, num_levels) {
-    lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
-    removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
-    
-    insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
-             where = "afterEnd",
-             ui = fluidRow(
-               id= paste0(design, "_levelSelection_", order),
-               column(
-                 12,
-                 fluidRow(
-                   id = paste0(design, "_factor_dates_", order, "_1"),
-                   column(
-                     12,
-                     airDatepickerInput(
-                       inputId = paste0(design,"_lvl_", order, "_1","_date"),
-                       label = paste0("#1 ", lbl),
-                       dateFormat = "yyyy-mm-dd",
-                       value = Sys.Date(),
-                       placeholder = "yyyy-mm-dd",
-                       clearButton = TRUE
-                     )
-                   )
-                 )
-               )
-             )
-    )
-    
-    num_levels <- as.integer(num_levels)
-    
-    if (num_levels > 1) {
-      for (i in 2:num_levels) {
-        insertUI(selector = paste0("#", design, "_factor_dates_", order, "_", i-1),
-                 where = "afterEnd",
-                 ui = fluidRow(
-                   id= paste0(design, "_factor_dates_", order, "_", i),
-                   column(
-                     12,
-                     airDatepickerInput(
-                       inputId = paste0(design,"_lvl_", order, "_", i,"_date"),
-                       label = paste0("#", i, " ", lbl),
-                       dateFormat = "yyyy-mm-dd",
-                       value = Sys.Date(),
-                       placeholder = "yyyy-mm-dd",
-                       clearButton = TRUE
-                     )
-                   )
-                 )
-        )
-      }
-    }
-  }
-  
-  ###################### End: Funciones GENERALES CRD/RCBD/FCRD/FRCBD/SPRCBD/SPSP ######################
+  # ########################################## Start: Design Ivan New ##################################################
+  # 
+  # getFactorIds <- function(design) {
+  #   if (design == "crd") 
+  #   {
+  #     factorCRD$ids
+  #   }
+  #   else if (design == "rcbd" )
+  #   {
+  #     factorRCBD$ids
+  #   }
+  #   else if(design == "fcrd")
+  #   {
+  #     factorFCRD$ids
+  #   }
+  #   else if(design == "frcbd")
+  #   {
+  #     factorFRCBD$ids
+  #   }
+  #   else if(design == "sprcbd")
+  #   {
+  #     factorSPRCBD$ids
+  #   }
+  #   else if(design == "spsp")
+  #   {
+  #     factorSPSP$ids
+  #   }
+  #   
+  # }
+  # 
+  # observeEvent(input$idstest, {
+  #   design <- input$selectFactor
+  #   print( getFactorIds(design))
+  # })
+  # 
+  # # Database
+  # factores <- agdesign::dtfactordesign   #agdesign::dtfactordesign  #readxl::read_excel("FACTOR_V9.xlsx")
+  # 
+  # #factores<- gsheet::gsheet2tbl("https://docs.google.com/spreadsheets/d/1M5KA4JTqd1zdv1p-Gu5kfsLNi8WHWAyCMvCNBDa9G_Y/edit#gid=1932177125")
+  # #dtf<- factores
+  # dt <- factores %>% mutate(fchoices= FACTOR) # paste(GROUP, SUBGROUP, FACTOR))
+  # 
+  # ###################### START: CRD ######################
+  # 
+  # # CRD: Asigna variables reactivas
+  # factorCRD <- reactiveValues()
+  # factorCRD$num <- 0
+  # factorCRD$DEFAULT <- 1
+  # factorCRD$ids <- c()
+  # 
+  # # CRD: Inserta por defecto un row
+  # observe({
+  #   if (factorCRD$num == 0) {
+  #     defaultCRD <- factorCRD$DEFAULT
+  #     
+  #     for (i in 1:defaultCRD) {
+  #       insertRow_GEN(i, design = "crd")
+  #     }
+  #   }
+  # })
+  # 
+  # # CRD: Agrega un row al hacer clic en el boton "Add factor" 
+  # observeEvent(input$crd_add, {
+  #   if(factorCRD$num >= 1) {
+  #     insertRow_GEN(factorCRD$num + 1, design = "crd")
+  #   }
+  # })
+  # 
+  # ###################### END: CRD ######################
+  # 
+  # ###################### START: RCBD ######################
+  # 
+  # # RCBD: Asigna variables reactivas
+  # factorRCBD <- reactiveValues()
+  # factorRCBD$num <- 0
+  # factorRCBD$DEFAULT <- 1
+  # factorRCBD$ids <- c()
+  # # RCBD: Inserta por defecto un row
+  # observe({
+  #   if (factorRCBD$num == 0) {
+  #     defaultRCBD <- factorRCBD$DEFAULT
+  #     
+  #     for (i in 1:defaultRCBD) {
+  #       insertRow_GEN(i, design = "rcbd")
+  #     }
+  #   }
+  # })
+  # 
+  # # RCBD: Agrega un row al hacer clic en el boton "Add factor" 
+  # observeEvent(input$rcbd_add, {
+  #   if(factorRCBD$num >= 1) {
+  #     insertRow_GEN(factorRCBD$num + 1, design = "rcbd")
+  #   }
+  # })
+  # 
+  # ###################### END: RCBD ######################
+  # 
+  # ##################### Start: FCRD #####################
+  # 
+  # # FCRD: Asigna variables reactivas
+  # factorFCRD <- reactiveValues()
+  # factorFCRD$num <- 0
+  # factorFCRD$DEFAULT <- 2
+  # factorFCRD$ids <- c()
+  # 
+  # # FCRD: Inserta por defecto un row
+  # observe({
+  #   if (factorFCRD$num == 0) {
+  #     defaultFCRD <- factorFCRD$DEFAULT
+  #     
+  #     for (i in 1:defaultFCRD) {
+  #       insertRow_GEN(i, design = "fcrd")
+  #     }
+  #   }
+  # })
+  # 
+  # # FCRD: Agrega un row al hacer clic en el boton "Add factor" 
+  # observeEvent(input$fcrd_add, {
+  #   if(factorFCRD$num >= 1) {
+  #     insertRow_GEN(factorFCRD$num + 1, design = "fcrd")
+  #   }
+  # })
+  # 
+  # ###################### End: FCRD ######################
+  # 
+  # ##################### Start: FRCBD #####################
+  # 
+  # # FRCBD: Asigna variables reactivas
+  # factorFRCBD <- reactiveValues()
+  # factorFRCBD$num <- 0
+  # factorFRCBD$DEFAULT <- 2
+  # factorFRCBD$ids <- c()
+  # 
+  # # FRCBD: Inserta por defecto un row
+  # observe({
+  #   if (factorFRCBD$num == 0) {
+  #     defaultFRCBD <- factorFRCBD$DEFAULT
+  #     
+  #     for (i in 1:defaultFRCBD) {
+  #       insertRow_GEN(i, design = "frcbd")
+  #     }
+  #   }
+  # })
+  # 
+  # # FRCBD: Agrega un row al hacer clic en el boton "Add factor" 
+  # observeEvent(input$frcbd_add, {
+  #   if(factorFRCBD$num >= 1) {
+  #     insertRow_GEN(factorFRCBD$num + 1, design = "frcbd")
+  #   }
+  # })
+  # 
+  # ##################### End: FRCBD #####################
+  # 
+  # ###################### START: SPRCBD ######################
+  # 
+  # # SPRCBD: Asigna variables reactivas
+  # factorSPRCBD <- reactiveValues()
+  # factorSPRCBD$num <- 0
+  # factorSPRCBD$DEFAULT <- 2
+  # factorSPRCBD$ids <- c()
+  # # SPRCBD: Inserta por defecto un row
+  # observe({
+  #   if (factorSPRCBD$num == 0) {
+  #     defaultSPRCBD <- factorSPRCBD$DEFAULT
+  #     
+  #     for (i in 1:defaultSPRCBD) {
+  #       insertRow_GEN(i, design = "sprcbd")
+  #     }
+  #   }
+  # })
+  # 
+  # # SPRCBD: Agrega un row al hacer clic en el boton "Add factor" 
+  # observeEvent(input$sprcbd_add, {
+  #   if(factorSPRCBD$num >= 1) {
+  #     insertRow_GEN(factorSPRCBD$num + 1, design = "sprcbd")
+  #   }
+  # })
+  # 
+  # ###################### END: SPRCBD ######################
+  # 
+  # ###################### START: SPSP ######################
+  # 
+  # # SPSP: Asigna variables reactivas
+  # factorSPSP <- reactiveValues()
+  # factorSPSP$num <- 0
+  # factorSPSP$DEFAULT <- 3
+  # factorSPSP$ids <- c()
+  # 
+  # # SPSP: Inserta por defecto un row
+  # observe({
+  #   if (factorSPSP$num == 0) {
+  #     defaultSPSP <- factorSPSP$DEFAULT
+  #     
+  #     for (i in 1:defaultSPSP) {
+  #       insertRow_GEN(i, design = "spsp")
+  #     }
+  #   }
+  # })
+  # 
+  # # SPSP: Agrega un row al hacer clic en el boton "Add factor" 
+  # observeEvent(input$spsp_add, {
+  #   if(factorSPSP$num >= 1) {
+  #     insertRow_GEN(factorSPSP$num + 1, design = "spsp")
+  #   }
+  # })
+  # 
+  # ###################### END: SPSP ######################
+  # 
+  # ###################### Start: Funciones GENERALES CRD/RCBD/FCRD/FRCBD/SPRCBD/SPSP ######################
+  # 
+  # # Funcion GENERAL que inserta el UI dependiendo del diseño
+  # insertRow_GEN <- function(index, design) {
+  #   # CRD
+  #   if (design == "crd") {
+  #     factorCRD$ids <- c(factorCRD$ids, paste0(design,"_",index))
+  #     insertUI(
+  #       selector = "#crd_boxes",
+  #       where = "beforeBegin",
+  #       ui = getDesignUI_GEN(index, design)
+  #     )
+  #     factorCRD$num <- factorCRD$num + 1
+  #   }
+  #   
+  #   # RCBD
+  #   if (design == "rcbd") {
+  #     factorRCBD$ids <- c(factorRCBD$ids, paste0(design,"_",index))
+  #     insertUI(
+  #       selector = "#rcbd_boxes",
+  #       where = "beforeBegin",
+  #       ui = getDesignUI_GEN(index, design)
+  #     )
+  #     factorRCBD$num <- factorRCBD$num + 1
+  #   }
+  #   
+  #   # FCRD
+  #   if (design == "fcrd") {
+  #     factorFCRD$ids <- c(factorFCRD$ids, paste0(design,"_", index))
+  #     insertUI(
+  #       selector = "#fcrd_boxes",
+  #       where = "beforeBegin",
+  #       ui = getDesignUI_GEN(index, design)
+  #     )
+  #     factorFCRD$num <- factorFCRD$num + 1
+  #   }
+  #   
+  #   # FRCBD
+  #   if (design == "frcbd") {
+  #     factorFRCBD$ids <- c(factorFRCBD$ids, paste0(design,"_", index))
+  #     insertUI(
+  #       selector = "#frcbd_boxes",
+  #       where = "beforeBegin",
+  #       ui = getDesignUI_GEN(index, design)
+  #     )
+  #     factorFRCBD$num <- factorFRCBD$num + 1
+  #   }
+  #   
+  #   # SPRCBD
+  #   if (design == "sprcbd") {
+  #     factorSPRCBD$ids <- c(factorSPRCBD$ids, paste0(design,"_",index))
+  #     insertUI(
+  #       selector = "#sprcbd_boxes",
+  #       where = "beforeBegin",
+  #       ui = getDesignUI_GEN(index, design)
+  #     )
+  #     factorSPRCBD$num <- factorSPRCBD$num + 1
+  #   }
+  #   
+  #   # SPSP
+  #   if (design == "spsp") {
+  #     factorSPSP$ids <- c(factorSPSP$ids, paste0(design,"_",index))
+  #     insertUI(
+  #       selector = "#spsp_boxes",
+  #       where = "beforeBegin",
+  #       ui = getDesignUI_GEN(index, design)
+  #     )
+  #     factorSPSP$num <- factorSPSP$num + 1
+  #   }
+  # }
+  # 
+  # #Funcion que dibuja el titulo de SPRCBD/SPSP dependiendo del diseño
+  # titleGEN <- function(index, design) {
+  #   if (design == "crd") {
+  #     title <- "Factor"
+  #   } else if (design == "rcbd") {
+  #     title <- "Factor"
+  #   }
+  #   else if (design == "fcrd") {
+  #     title <- "Factor"
+  #   }
+  #   else if (design == "frcbd") {
+  #     title <- "Factor"
+  #   } else if (design == "sprcbd") {
+  #     if (index == 1) {
+  #       title <- "Factor: main plot"
+  #     } else if (index == 2) {
+  #       title <- "Factor: sub plot"
+  #     } else if (index >= 3) {
+  #       title <- "Factor"
+  #     }
+  #   } else if (design == "spsp") {
+  #     if (index == 1) {
+  #       title <- "Factor: main plot"
+  #     } else if (index == 2) {
+  #       title <- "Factor: sub plot"
+  #     } else if (index == 3) {
+  #       title <- "Factor: sub-sub plot"
+  #     } else if (index >= 4) {
+  #       title <- "Factor"
+  #     }
+  #   }
+  # }
+  # 
+  # # Funcion GENERAL que dibuja el UI dependiendo del diseño
+  # getDesignUI_GEN <- function(index, design, value = NULL) {
+  #   title <- titleGEN(index, design)
+  #   
+  #   fluidRow(
+  #     id = paste0(design, "_full_factor_box_", index), 
+  #     box(
+  #       solidHeader = TRUE, status = "warning", width=12,
+  #       column(12, offset = 0, 
+  #              column(6,style='padding:0px; text-align:left;',
+  #                     h4(title, style="font-weight: 800;color: #555;")
+  #              ),
+  #              column(
+  #                6,
+  #                style='padding:0px; text-align:right; ',
+  #                conditionalPanel(
+  #                  "input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD' || 
+  #                  input.designFieldbook_agrofims == 'FCRD' || input.designFieldbook_agrofims == 'FRCBD'",
+  #                  actionButton(paste0(design, "_closeBox_", index), "", icon("close"))
+  #                )
+  #              )
+  #              ),
+  #       column(
+  #         12,
+  #         fluidRow(
+  #           column(
+  #             6,
+  #             fluidRow(
+  #               column(
+  #                 10,
+  #                 selectizeInput(
+  #                   paste0(design, "_sel_factor_", index), "", multiple = TRUE,
+  #                   options = list(placeholder ="Select...", maxItems =1),
+  #                   choices = c(dt$fchoices),
+  #                   selected = value  
+  #                 ),
+  #                 fluidRow(id = paste0(design, "_sel_factorOth_aux_", index))
+  #               )
+  #             )
+  #           ),
+  #           column(
+  #             6,
+  #             fluidRow(
+  #               column(width = 7,
+  #                      fluidRow(id = paste0(design, "_fl_title_factor_aux_", index))
+  #                      
+  #               ),
+  #               column(width = 5,
+  #                      hidden(selectInput(paste0(design, "_numLevels_", index), "Number of dates", choices = 2:10, selected = 2))
+  #               )
+  #             ),
+  #             fluidRow(id = paste0(design, "_type_input_aux_", index)),
+  #             fluidRow(id = paste0(design, "_levelSelection_aux_", index)),
+  #             fluidRow(id = paste0(design, "_levelSelOther_aux_", index)),
+  #             fluidRow(id = paste0(design, "_note_aux_",index))
+  #           )
+  #         ),
+  #         column(
+  #           12, style="text-align:right",
+  #           conditionalPanel(
+  #             "input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD' || 
+  #             input.designFieldbook_agrofims == 'FCRD' || input.designFieldbook_agrofims == 'FRCBD'",
+  #             fluidRow(actionButton(paste0(design, "_btDuplicate_", index), "Duplicate"))
+  #           )
+  #         )
+  #         )
+  #       )
+  #       )
+  # }
+  # 
+  # # Funcion GENERAL que responde a "FACTOR"
+  # observeEvent(input$selectGEN, {
+  #   vars <- unlist(strsplit(input$selectGENid, "_"))
+  #   design <- vars[1]
+  #   index <- vars[4]
+  #   
+  #   value <-  input[[input$selectGENid]]
+  #   value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR")
+  #   
+  #   isolate(updateLevelSelectionGEN(index, value, design))
+  #   
+  #   # Genera el "OTHER" del FACTOR 
+  #   choises <-  input[[input$selectGENid]]
+  #   updateSelectOtherGEN(index, choises, design)
+  #   
+  #   # Genera "OTHER/OTHER" de LEVELS
+  #   flevel <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "LEVEL")
+  #   choices <- strsplit(flevel, split = ";")
+  #   names(choices) <- "Levels"
+  #   removeUI(selector = paste0("#", design, "_type_input_", index), immediate = T)
+  #   
+  #   if (value == "Other") {
+  #     removeUI(selector = paste0("#", design,"_levelSelection_",index))
+  #     # Other level
+  #     insertUI(
+  #       selector = paste0("#", design, "_type_input_aux_", index),
+  #       where = "beforeBegin",
+  #       ui = fluidRow(
+  #         id = paste0(design, "_type_input_", index),
+  #         column(
+  #           12,
+  #           selectizeInput(
+  #             paste0(design, "_typeInput_", index), "Type of input", multiple = TRUE,
+  #             options = list(placeholder ="Select...", maxItems =1),
+  #             choices = c(choices)
+  #           )
+  #         )
+  #       )
+  #     )
+  #   }
+  # })
+  # 
+  # # Funcion GENERAL que activa "OTHER" de "FACTOR" dependiendo del diseño
+  # updateSelectOtherGEN <- function(index, choises, design, value = NULL) {
+  #   if (any(choises == "Other") == T) {
+  #     removeUI(selector = paste0("#", design, "_sel_factorOth_", index), immediate = T)
+  #     
+  #     if (any(choises != "")) {
+  #       # Other
+  #       insertUI(
+  #         selector = paste0("#", design, "_sel_factorOth_aux_", index),
+  #         where = "beforeBegin",
+  #         ui = fluidRow(
+  #           id = paste0(design, "_sel_factorOth_", index),
+  #           column(
+  #             12,
+  #             textInput(paste0(design, "_sel_factor_other_", index), "", value)
+  #           )
+  #         )
+  #       )
+  #     }
+  #   } else {
+  #     removeUI(selector = paste0("#", design, "_sel_factorOth_", index), immediate = T)
+  #   }
+  # }
+  # 
+  # # Funcion GENERAL que responde a "LEVELS"
+  # observeEvent(input$levelsGEN,{
+  #   vars <- unlist(strsplit(input$levelsGENid, "_"))
+  #   design <- vars[1]
+  #   index <- vars[3]
+  #   
+  #   num_levels <-  input[[input$levelsGENid]]
+  #   
+  #   factores <- agdesign::dtfactordesign #readRDS("dtfactordesign.rds")
+  #   dt <- factores %>% mutate(fchoices= FACTOR) # paste(GROUP, SUBGROUP, FACTOR))
+  #   
+  #   
+  #   drawDateComboLevelGEN(order = index, dt = dt, design, 
+  #                         input_choice = input[[paste0(design, "_sel_factor_", index)]], num_levels)
+  #   shinyjs::show(id = paste0(design, "_numLevels_", index))
+  # })
+  # 
+  # # Funcion GENERAL que activa "LEVELS" dependiendo del diseño
+  # updateLevelSelectionGEN <- function(index, value, design) {
+  #   
+  #   ###OMAR ###
+  #   factores <- agdesign::dtfactordesign #readRDS("dtfactordesign.rds")
+  #   dt <- factores %>% mutate(fchoices= FACTOR) # paste(GROUP, SUBGROUP, FACTOR)) 
+  #   ### ######
+  #   
+  #   removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
+  #   removeUI(selector = paste0("#", design, "_note_", index), immediate = T)
+  #   removeUI(selector = paste0("#", design, "_levelSelection_", index), immediate = T)
+  #   removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
+  #   shinyjs::hide(id = paste0(design, "_numLevels_", index))
+  #   
+  #   num_levels <- input[[paste0(design, "_numLevels_", index)]]
+  #   
+  #   if (value != "") {
+  #     # Title
+  #     insertUI(
+  #       selector = paste0("#", design, "_fl_title_factor_aux_", index),
+  #       where = "beforeBegin",
+  #       ui = fluidRow(id = paste0(design, "_fl_title_factor_", index), column(12, h4(HTML(paste0("<b>", value, "</b>")))))
+  #     )
+  #     
+  #     # Note
+  #     insertUI(
+  #       selector = paste0("#", design, "_note_aux_", index),
+  #       where = "beforeBegin",
+  #       ui = fluidRow(
+  #         column(12, id = paste0(design, "_note_", index), textAreaInput(paste0(design, "_note_factor_", index), "Note"))
+  #       )
+  #     )
+  #   } else {
+  #     removeUI(selector = paste0("#", design, "_type_input_", index), immediate = T)
+  #   }
+  #   
+  #   if (!is.null(value)) {
+  #     type_form <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "FORM")
+  #     
+  #     if(!is.null(type_form) && type_form == "combo box") {
+  #       drawComboBoxLevelGEN(order = index, dt = dt, design,
+  #                            input_choice = input[[paste0(design, "_sel_factor_", index)]])
+  #       shinyjs::hide(id = paste0(design, "_numLevels_", index))
+  #     } else if(!is.null(type_form) && type_form == "text input") {
+  #       drawTextInputLevelGEN(order = index, dt = dt, design, 
+  #                             input_choice = input[[paste0(design, "_sel_factor_", index)]],
+  #                             "numeric + units")
+  #       shinyjs::hide(id = paste0(design, "_numLevels_", index))
+  #       
+  #     } else if(!is.null(type_form) && type_form == "date") {
+  #       drawDateComboLevelGEN(order = index, dt = dt, design, 
+  #                             input_choice = input[[paste0(design, "_sel_factor_", index)]], num_levels)
+  #       shinyjs::show(id = paste0(design, "_numLevels_", index))
+  #     } else if(!is.null(type_form) && type_form == "other input") {
+  #       if (!is.null(input[[paste0(design, "_typeInput_", index)]]) && input[[paste0(design, "_typeInput_", index)]] == "text") {
+  #         drawTextInputLevelGEN(order = index, dt = dt, design,
+  #                               input_choice = input[[paste0(design, "_sel_factor_", index)]],
+  #                               "text")
+  #         shinyjs::hide(id = paste0(design, "_numLevels_", index))
+  #       } else if (!is.null(input[[paste0(design, "_typeInput_", index)]]) && input[[paste0(design, "_typeInput_", index)]] == "numeric") {
+  #         drawTextInputLevelGEN(order = index, dt = dt, design,
+  #                               input_choice = input[[paste0(design, "_sel_factor_", index)]],
+  #                               "numeric")
+  #         shinyjs::hide(id = paste0(design, "_numLevels_", index))
+  #       } else if (!is.null(input[[paste0(design, "_typeInput_", index)]]) && input[[paste0(design, "_typeInput_", index)]] == "numeric + units") {
+  #         drawTextInputLevelGEN(order = index, dt = dt, design,
+  #                               input_choice = input[[paste0(design, "_sel_factor_", index)]],
+  #                               "numeric + units")
+  #         shinyjs::hide(id = paste0(design, "_numLevels_", index))
+  #       } else if (!is.null(input[[paste0(design, "_typeInput_", index)]]) && input[[paste0(design, "_typeInput_", index)]] == "date") {
+  #         drawDateComboLevelGEN(order = index, dt = dt, design, 
+  #                               input_choice = input[[paste0(design, "_sel_factor_", index)]], num_levels)
+  #         shinyjs::show(id = paste0(design, "_numLevels_", index))
+  #       }
+  #     }
+  #   }
+  # }
+  # 
+  # # Funcion GENERAL que responde a "OTHER" de "LEVELS"
+  # observeEvent(input$otherGEN,{
+  #   vars <- unlist(strsplit(input$otherGENid, "_"))
+  #   design <- vars[1]
+  #   index <- vars[3]
+  #   choises <-  input[[input$otherGENid]]
+  #   
+  #   updateLevelSelOtherGEN(index, choises, design)
+  # })
+  # 
+  # # Funcion GENERAL que activa "OTHER" de "LEVELS" dependiendo del diseño
+  # updateLevelSelOtherGEN <- function(index, choises, design) {
+  #   if (any(choises == "Other") == T) {
+  #     removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
+  #     
+  #     if (any(choises != "")) {
+  #       # Other
+  #       insertUI(
+  #         selector = paste0("#", design, "_levelSelOther_aux_", index),
+  #         where = "beforeBegin",
+  #         ui = fluidRow(
+  #           id = paste0(design, "_levelSelOther_", index),
+  #           column(
+  #             12,
+  #             selectizeInput(
+  #               paste0(design,"_lvl_other_", index), label = "Insert other levels",
+  #               multiple = T, choices = c(),
+  #               options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+  #             )
+  #           )
+  #         )
+  #       )
+  #     }
+  #   } else {
+  #     removeUI(selector = paste0("#", design, "_levelSelOther_", index), immediate = T)
+  #   }
+  # }
+  # 
+  # # Funcion GENERAL que responde a "OTHER/OTHER" de LEVELS
+  # observeEvent(input$otherOthGEN,{
+  #   vars <- unlist(strsplit(input$otherOthGENid, "_"))
+  #   design <- vars[1]
+  #   index <- vars[3]
+  #   
+  #   value <-  input[[input$selectGENid]]
+  #   value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR")
+  #   
+  #   updateLevelSelectionGEN(index, value, design)
+  # })
+  # 
+  # # Funcion GENERAL que responde a "DUPLICATE"
+  # observeEvent(input$duplicateGEN, {
+  #   vars <- unlist(strsplit(input$duplicateGENid, "_"))
+  #   design <- vars[1]
+  #   index <- vars[3]
+  #   str_id <- stri_rand_strings(1, 8,  '[A-Z]')
+  #   insertBoxDuplicateGEN(index, str_id, design)
+  #   
+  #   factorIdsAux <- getFactorIds(design)
+  #   id <- match(paste0(design,"_", index), factorIdsAux) #encuentra la posicion del factor de la lista de los IDs
+  #   len <- length(factorIdsAux)
+  #   left_side <- factorIdsAux[1:id]
+  #   right_side <- NULL
+  #   if(len > 1 && id < len){
+  #     rg <- id + 1
+  #     right_side <- factorIdsAux[rg:len]
+  #   }
+  #   
+  #   factorIdsAux <- c(left_side, paste0(design,"_", str_id), right_side) #junta todos los casos
+  #   updateFactorIdsAfterDuplicate(design,factorIdsAux) #actualiza los FactorIds Reactivos luego de duplicar
+  #   
+  # })
+  # 
+  # #Funcion GENERAL que actualiza FactorIds luego de duplicar
+  # updateFactorIdsAfterDuplicate <- function(design,factorIdsAux){
+  #   if (design == "crd") 
+  #   {
+  #     factorCRD$ids <- factorIdsAux
+  #   }
+  #   else if (design == "rcbd" )
+  #   {
+  #     factorRCBD$ids <- factorIdsAux
+  #   }
+  #   else if(design == "fcrd")
+  #   {
+  #     factorFCRD$ids <- factorIdsAux
+  #   }
+  #   else if(design == "frcbd")
+  #   {
+  #     factorFRCBD$ids <- factorIdsAux
+  #   }
+  #   else if(design == "sprcbd")
+  #   {
+  #     factorSPRCBD$ids <- factorIdsAux
+  #   }
+  #   else if(design == "spsp")
+  #   {
+  #     factorSPSP$ids <- factorIdsAux
+  #   }
+  # }
+  # 
+  # 
+  # # Funcion GENERAL que activa "DUPLICATE"
+  # insertBoxDuplicateGEN <- function(index, str_id, design) {
+  #   # str_id <- stri_rand_strings(1, 8,  '[A-Z]')
+  #   val <- input[[paste0(design, "_sel_factor_", index)]]
+  #   value <- get_dfa_values(dt = dt, choice = val, attribute = "FACTOR")
+  #   
+  #   insertUI(
+  #     selector = paste0("#", design, "_full_factor_box_", index),
+  #     where = "afterEnd",
+  #     ui = getDesignUI_GEN(str_id, design, val),
+  #     immediate = T
+  #   )
+  #   
+  #   oth <- input[[paste0(design, "_sel_factor_other_", index)]]
+  #   
+  #   delay(100, isolate(updateLevelSelectionGEN(str_id, value, design)))
+  #   delay(100, isolate(updateSelectOtherGEN(str_id, val, design, oth)))
+  #   
+  #   if (val == "Other" && !is.null(val)) {
+  #     # Other level
+  #     flevel <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "LEVEL")
+  #     choices <- strsplit(flevel, split = ";")
+  #     names(choices) <- "Levels"
+  #     
+  #     delay(
+  #       200,
+  #       insertUI(
+  #         selector = paste0("#", design, "_type_input_aux_", str_id),
+  #         where = "beforeBegin",
+  #         ui = fluidRow(
+  #           id = paste0(design, "_type_input_", str_id),
+  #           column(
+  #             12,
+  #             selectizeInput(
+  #               paste0(design, "_typeInput_", str_id), "Type of input", multiple = TRUE,
+  #               options = list(placeholder ="Select...", maxItems =1),
+  #               choices = c(choices)
+  #             )
+  #           )
+  #         )
+  #       )
+  #     )
+  #   }
+  # }
+  # 
+  # # Funcion GENERAL que activa "Close"
+  # observeEvent(input$closeBox_button_GEN, {
+  #   vars <- unlist(strsplit(input$closeBox_button_GENid,"_"))
+  #   design <- vars[1]
+  #   index <- vars[3]
+  #   
+  #   # CRD
+  #   if (design == "crd") {
+  #     if (length(factorCRD$ids) > 1) {
+  #       removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
+  #       factorCRD$ids <- factorCRD$ids[!factorCRD$ids %in% paste0(design,"_",index)] 
+  #     }
+  #   }
+  #   
+  #   # RCBD
+  #   if (design == "rcbd") {
+  #     if (length(factorRCBD$ids) > 1) {
+  #       removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
+  #       factorRCBD$ids <- factorRCBD$ids[!factorRCBD$ids %in% paste0(design,"_",index)] 
+  #     }
+  #   }
+  #   
+  #   # FCRD
+  #   if (design == "fcrd") {
+  #     if (length(factorFCRD$ids) > 2) {
+  #       removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
+  #       factorFCRD$ids <- factorFCRD$ids[!factorFCRD$ids %in% paste0(design,"_",index)] 
+  #     }
+  #   }
+  #   
+  #   # FRCBD
+  #   if (design == "frcbd") {
+  #     if (length(factorFRCBD$ids) > 2) {
+  #       removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
+  #       factorFRCBD$ids <- factorFRCBD$ids[!factorFRCBD$ids %in% paste0(design,"_",index)] 
+  #     }
+  #   }
+  #   
+  #   # SPRCBD
+  #   if (design == "sprcbd") {
+  #     if (length(factorSPRCBD$ids) > 1) {
+  #       removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
+  #       factorSPRCBD$ids <- factorSPRCBD$ids[!factorSPRCBD$ids %in% paste0(design,"_",index)] 
+  #     }
+  #   }
+  #   
+  #   # SPSP
+  #   if (design == "spsp") {
+  #     if (length(factorSPSP$ids) > 1) {
+  #       removeUI(selector = paste0("#", design, "_full_factor_box_", index), immediate = T)
+  #       factorSPSP$ids <- factorSPSP$ids[!factorSPSP$ids %in% paste0(design,"_",index)]
+  #     }
+  #   }
+  # })
+  # 
+  # #Get design-factor values from design_factor table
+  # get_dfa_values <- function(dt, choice= "Abiotic stress Abiotic stress End date", attribute ="LEVEL") {
+  #   if(!is.null(choice)) {
+  #     out<- dt %>% filter(fchoices==choice)
+  #     out <- out[,attribute][[1]]
+  #   } else{
+  #     out<-  ""
+  #   }
+  #   out
+  # }
+  # 
+  # # Funcion GENERAL que dibuja ComboBox dependiendo del diseño
+  # drawComboBoxLevelGEN <- function(order, dt, design, input_choice) {
+  #   flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
+  #   choices <- strsplit(flevel, split = ";")
+  #   names(choices) <- "Levels"
+  #   lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
+  #   unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT") 
+  #   
+  #   if(is.na(unit)) {
+  #     removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+  #     
+  #     insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+  #              where = "afterEnd",
+  #              ui = fluidRow(
+  #                id = paste0(design, "_levelSelection_", order),
+  #                column(
+  #                  12,
+  #                  selectizeInput(
+  #                    inputId = paste0(design, "_lvl_", order), label = "Enter levels",
+  #                    multiple = TRUE,
+  #                    options = list(placeholder = "Select..."),
+  #                    choices = choices
+  #                  )
+  #                )
+  #              )
+  #     )
+  #   } else {
+  #     choices_unit<- strsplit(unit,",")[[1]]
+  #     removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+  #     
+  #     insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+  #              where = "afterEnd",
+  #              ui = fluidRow(
+  #                id = paste0(design, "_levelSelection_", order),
+  #                column(
+  #                  6,
+  #                  selectizeInput(
+  #                    inputId = paste0(design, "_lvl_",order), label = "Enter levels",
+  #                    multiple = TRUE,
+  #                    options = list(placeholder = "Select..."),
+  #                    choices = choices
+  #                  )
+  #                ),
+  #                column(
+  #                  6,
+  #                  selectInput(
+  #                    inputId = paste0(design,"_lvl_unit_", order), label = "Unit",
+  #                    choices = c(choices_unit), 
+  #                    selected = 2 
+  #                  )
+  #                )
+  #              )
+  #     )
+  #   }
+  # }
+  # 
+  # # Funcion GENERAL que dibuja TextInput dependiendo del diseño
+  # drawTextInputLevelGEN <- function(order, dt,  design, input_choice, type) {
+  #   lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
+  #   unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT") 
+  #   
+  #   if(input_choice=="Fertilizer product application rate"){
+  #     
+  #     #List of fertilizers
+  #     flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
+  #     choices <- strsplit(flevel, split = ";")
+  #     names(choices) <- "Levels"
+  #     removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+  #     removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
+  #     
+  #     insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+  #              where = "afterEnd",
+  #              ui = fluidRow(
+  #                id = paste0(design, "_levelSelection_", order),
+  #                column(
+  #                  12,
+  #                  
+  #                  selectizeInput(
+  #                    inputId = paste0(design, "_lvl_fert_",order), label = "Enter fertilizer",
+  #                    multiple = FALSE,
+  #                    options = list(placeholder = "Select..."),
+  #                    choices = choices
+  #                  ),  
+  #                  
+  #                  selectizeInput(
+  #                    paste0(design,"_lvl_", order), label = "Enter levels",
+  #                    multiple = T, choices = c(),
+  #                    options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+  #                  )
+  #                )
+  #              )
+  #     )
+  #     
+  #     
+  #     
+  #     
+  #   }
+  #   else if (input_choice=="Nutrient element application rate"){
+  #     
+  #     #List of fertilizers
+  #     flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
+  #     choices <- strsplit(flevel, split = ";")
+  #     names(choices) <- "Levels"
+  #     removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+  #     removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
+  #     
+  #     insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+  #              where = "afterEnd",
+  #              ui = fluidRow(
+  #                id = paste0(design, "_levelSelection_", order),
+  #                column(
+  #                  12,
+  #                  
+  #                  selectizeInput(
+  #                    inputId = paste0(design, "_lvl_fert_",order), label = "Enter nutrient element",
+  #                    multiple = FALSE,
+  #                    options = list(placeholder = "Select..."),
+  #                    choices = choices
+  #                  ),  
+  #                  
+  #                  selectizeInput(
+  #                    paste0(design,"_lvl_", order), label = "Enter levels",
+  #                    multiple = T, choices = c(),
+  #                    options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+  #                  )
+  #                )
+  #              )
+  #     )
+  #     
+  #     
+  #   }
+  #   else if (input_choice== "Oxidized nutrient application rate"){
+  #     flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
+  #     choices <- strsplit(flevel, split = ";")
+  #     names(choices) <- "Levels"
+  #     removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+  #     removeUI(selector = paste0("#", design, "_fluid_levels_", order), immediate = T)
+  #     
+  #     insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+  #              where = "afterEnd",
+  #              ui = fluidRow(
+  #                id = paste0(design, "_levelSelection_", order),
+  #                column(
+  #                  12,
+  #                  
+  #                  textInput(
+  #                    inputId = paste0(design, "_lvl_fert_",order), label = "Oxidized nutrient",value = "", placeholder = "enter oxidized nutrient"
+  #                  ),  
+  #                  
+  #                  selectizeInput(
+  #                    paste0(design,"_lvl_", order), label = "Enter levels",
+  #                    multiple = T, choices = c(),
+  #                    options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+  #                  )
+  #                )
+  #              )
+  #     )
+  #   }
+  #   else if (type == "numeric + units") {
+  #     if(is.na(unit)){
+  #       removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+  #       
+  #       insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+  #                where = "afterEnd",
+  #                ui = fluidRow(
+  #                  id = paste0(design, "_levelSelection_", order),
+  #                  column(
+  #                    12,
+  #                    selectizeInput(
+  #                      paste0(design,"_lvl_", order), label = "Enter levels",
+  #                      multiple = T, choices = c(),
+  #                      options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+  #                    )
+  #                  )
+  #                )
+  #       )
+  #     } else {
+  #       choices_unit <- strsplit(unit,",")[[1]]
+  #       removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+  #       
+  #       insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+  #                where = "afterEnd",
+  #                ui = fluidRow(
+  #                  id = paste0(design, "_levelSelection_", order),
+  #                  column(
+  #                    6,
+  #                    selectizeInput(
+  #                      paste0(design,"_lvl_", order), label = "Enter levels",
+  #                      multiple = T, choices = c(),
+  #                      options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+  #                    )
+  #                  ),
+  #                  column(
+  #                    6,
+  #                    selectInput(
+  #                      inputId = paste0(design,"_lvl_unit_", order), label = "Unit",
+  #                      choices = c(choices_unit), selected = 2 
+  #                    )
+  #                  )
+  #                )
+  #       )
+  #     }
+  #   } 
+  #   else if (type == "text" || type == "numeric") {
+  #     removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+  #     
+  #     insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+  #              where = "afterEnd",
+  #              ui = fluidRow(
+  #                id = paste0(design, "_levelSelection_", order),
+  #                column(
+  #                  12,
+  #                  selectizeInput(
+  #                    paste0(design,"_lvl_", order), label = "Enter levels",
+  #                    multiple = T, choices = c(),
+  #                    options = list(maxItems = 20, placeholder = "Write..." , 'create' = TRUE, 'persist' = FALSE)
+  #                  )
+  #                )
+  #              )
+  #     )
+  #   }
+  # }
+  # 
+  # # Funcion GENERAL que dibuja Date dependiendo del diseño
+  # drawDateComboLevelGEN <- function(order, dt,  design, input_choice, num_levels) {
+  #   lbl <- get_dfa_values(dt, choice = input_choice, attribute = "FACTOR")
+  #   removeUI(selector = paste0("#", design, "_levelSelection_", order), immediate = T)
+  #   
+  #   insertUI(selector = paste0("#", design, "_levelSelection_aux_", order),
+  #            where = "afterEnd",
+  #            ui = fluidRow(
+  #              id= paste0(design, "_levelSelection_", order),
+  #              column(
+  #                12,
+  #                fluidRow(
+  #                  id = paste0(design, "_factor_dates_", order, "_1"),
+  #                  column(
+  #                    12,
+  #                    airDatepickerInput(
+  #                      inputId = paste0(design,"_lvl_", order, "_1","_date"),
+  #                      label = paste0("#1 ", lbl),
+  #                      dateFormat = "yyyy-mm-dd",
+  #                      value = Sys.Date(),
+  #                      placeholder = "yyyy-mm-dd",
+  #                      clearButton = TRUE
+  #                    )
+  #                  )
+  #                )
+  #              )
+  #            )
+  #   )
+  #   
+  #   num_levels <- as.integer(num_levels)
+  #   
+  #   if (num_levels > 1) {
+  #     for (i in 2:num_levels) {
+  #       insertUI(selector = paste0("#", design, "_factor_dates_", order, "_", i-1),
+  #                where = "afterEnd",
+  #                ui = fluidRow(
+  #                  id= paste0(design, "_factor_dates_", order, "_", i),
+  #                  column(
+  #                    12,
+  #                    airDatepickerInput(
+  #                      inputId = paste0(design,"_lvl_", order, "_", i,"_date"),
+  #                      label = paste0("#", i, " ", lbl),
+  #                      dateFormat = "yyyy-mm-dd",
+  #                      value = Sys.Date(),
+  #                      placeholder = "yyyy-mm-dd",
+  #                      clearButton = TRUE
+  #                    )
+  #                  )
+  #                )
+  #       )
+  #     }
+  #   }
+  # }
+  # 
+  # ###################### End: Funciones GENERALES CRD/RCBD/FCRD/FRCBD/SPRCBD/SPSP ######################
   
   # ##################### Start: FCRD & FRCBD #####################
   # 
@@ -17853,12 +19627,12 @@ server_design_agrofims <- function(input, output, session, values){
     } 
     else if(ct=="Relay crop"){
       
-      id_rand_rel <- getAddInputId(relaycropVars$ids, "int_", "") 
-      crecm <- map_values(input, id_chr="rel_cropCommonName_",id_rand_rel, format = "vector", lbl= "Select crop")
+      id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "") 
+      crecm <- map_values(input, id_chr="rel_cropCommonName_",id_re_rand, format = "vector", lbl= "Select crop")
       
       ptdt_list<-NULL
-      for(i in 1:length(id_rand_rel)){
-        ptdt_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="relay crop", cropId=id_rand_rel[i], addId="1")$dt
+      for(i in 1:length(id_re_rand)){
+        ptdt_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="relay crop", cropId=id_re_rand[i], addId="1")$dt
       }
       
       #Join fbdesign with harvest header of each crop for intercrop trials
@@ -17901,11 +19675,11 @@ server_design_agrofims <- function(input, output, session, values){
     } 
     else if (ct=="Relay crop"){
       
-      id_rand_rel <- getAddInputId(relaycropVars$ids, "rel_", "") 
-      crecm <- map_values(input, id_chr="rel_cropCommonName_",id_rand_rel, format = "vector", lbl= "Select crop")
+      id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "") 
+      crecm <- map_values(input, id_chr="rel_cropCommonName_",id_re_rand, format = "vector", lbl= "Select crop")
       ptlbl_list<- NULL
-      for(i in 1:length(id_rand_rel)){
-        ptlbl_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="relay crop", cropId= id_rand_rel[i], addId="1")$lbl
+      for(i in 1:length(id_re_rand)){
+        ptlbl_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="relay crop", cropId= id_re_rand[i], addId="1")$lbl
       }
       lbl<- NULL
       for(i in 1:length(ptlbl_list)){
@@ -18645,7 +20419,22 @@ server_design_agrofims <- function(input, output, session, values){
     
     try({
     
-    if(design=="fcrd"){
+    if(design=="crd"){
+      #ntrt <- as.integer(input$crd_ntrt)
+      rep<- as.integer(input$crd_rep)
+      
+      #flbl<- get_factors_design(allinputs = AllInputs(), index, design = "crd")
+      flvl<- get_nonfactorial_levels(input,"crd")
+      fb<- fbdesign_agrofims(design=design, rep=rep,trt=flvl) 
+                              
+    } else if(design =="rcbd"){
+      block<- as.integer(input$rcbd_rep)
+     
+      #flbl<- get_factors_design(allinputs = AllInputs(), index, design = "fcrd")
+      flvl<- get_nonfactorial_levels(input,"rcbd")
+      fb<- fbdesign_agrofims(design=design, block=block, trt=flvl)
+                             
+    } else if(design=="fcrd"){
       rep <- as.integer(input$fcrd_rep)
       flbl<- get_factors_design(allinputs = AllInputs(), index, design = "fcrd")
       flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dtfactordesign,
@@ -19000,22 +20789,20 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
   
-  ### Fieldbook + Traits for Intercrop ##########################################################
-  fbdesign_inter_traits <- reactive({
+  ### Fieldbook + Traits for multicrop trials ##########################################################
+  fbdesign_mult_traits <- reactive({
     
     ct <- map_singleform_values(input$croppingType, type = "combo box", format = "vector",default = "Intercrop") 
     
     if(ct=="Intercrop"){
       id_ic_rand <- getAddInputId(intercropVars$ids, "int_", "")
-      circm <- map_values(input = input, id_chr="int_cropCommonName_",id_ic_rand, format = "vector", lbl= "Select crop")
+      crop_name <- map_values(input = input, id_chr="int_cropCommonName_",id_ic_rand, format = "vector", lbl= "Select crop")
     }
     if(ct=="Relay crop"){
-      id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
-      circm <- map_values(input = input, id_chr="int_cropCommonName_",id_rc_rand, format = "vector", lbl= "Select crop")
+      id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
+      crop_name <- map_values(input = input, id_chr="rel_cropCommonName_",id_re_rand, format = "vector", lbl= "Select crop")
       
     }
-    
-  
     if(ct!="Monocrop"){
       
       fb <- fbdesign()
@@ -19047,7 +20834,7 @@ server_design_agrofims <- function(input, output, session, values){
           if(is.element("---",names(fb_inter[[i]]))){ fb_inter[[i]][,"---"]<-NULL } 
         }
       }
-      names(fb_inter) <- circm
+      names(fb_inter) <- crop_name
       fb <-fb_inter
     }
     fb 
@@ -19256,17 +21043,28 @@ server_design_agrofims <- function(input, output, session, values){
 
       incProgress(1/10,message = "...")
        
-       # #Flag variable to know if everythin is ok
+       # #Flag variable to know if everything is ok
         flag <- TRUE
-      
+       
+       #Get crop
+       #Monocrop
+       crp <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", 
+                                    format = "vector",label = "Crop")
+        
+        
        if(class(fbdesign())=="try-error"){
          shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select factors and levels properly"), styleclass = "danger")
+         flag<-FALSE
+       }else if(crp==""){
+         #Monocrop
+         shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: Select the crop for your experiment"), styleclass = "danger")
          flag<-FALSE
        }
 
        if(flag){
 
        fb  <- fbdesign_traits()# fb_agrofims_traits()
+       print(fb)
        if(is.element("PLOT",names(fb))){fb$PLOT <- as.factor(fb$PLOT)}
        if(is.element("SUBPLOT",names(fb))){fb$SUBPLOT <- as.factor(fb$SUBPLOT)}
        if(is.element("SUB-SUB-PLOT",names(fb))){fb$`SUB-SUB-PLOT` <- as.factor(fb$`SUB-SUB-PLOT`)}
@@ -19294,11 +21092,15 @@ server_design_agrofims <- function(input, output, session, values){
           saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
           x <- reactiveValuesToList(input)
           saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         # dd<<- getFactorIds("frcbd")
-         # #palis <<- getAddInputId(experimentVars$ids_FA, "FA_", "")
-        
+          
+          design <- tolower(input$designFieldbook_agrofims) #lowercase
+          #Get IDS from design inputs
+          IdDesignInputs <- getFactorIds(design)
+          #Get index from Design's IDs
+          index22 <- get_index_design(IdDesignInputs, design)
+          trait2<<-traits_dt()
          
-        if(class(fbdesign())=="try-error"){
+        if(class(fbdesign())=="try-error"){ 
            shinysky::showshinyalert(session, "alert_fb_done", paste("ERROR: There is a missing factors or level"), styleclass = "danger")
            fname <- paste(file,"xlsx",sep=".")
            wb <- createWorkbook()
@@ -19365,20 +21167,20 @@ server_design_agrofims <- function(input, output, session, values){
                incProgress(7/20,message = "Adding Crop measurements data...")
                openxlsx::addWorksheet(wb, paste0("Crop_measurements-",circm[i]), gridLines = TRUE)
                openxlsx::writeDataTable(wb, paste0("Crop_measurements-",circm[i]), 
-                                        x = fbdesign_inter_traits()[[ circm[i] ]],
+                                        x = fbdesign_mult_traits()[[ circm[i] ]],
                                         colNames = TRUE, withFilter = FALSE)
                
              }
            }
          if(ct=="Relay crop"){
              
-             id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "") 
-             circm <- map_values(input = input, id_chr="rel_cropCommonName_", id_rc_rand, format = "vector", lbl= "Select crop")
-             for(i in 1:length(id_rc_rand)){
+             id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "") 
+             crecm <- map_values(input = input, id_chr="rel_cropCommonName_", id_re_rand, format = "vector", lbl= "Select crop")
+             for(i in 1:length(id_re_rand)){
                incProgress(7/20,message = "Adding Crop measurements data...")
-               openxlsx::addWorksheet(wb, paste0("Crop_measurements-",circm[i]), gridLines = TRUE)
-               openxlsx::writeDataTable(wb, paste0("Crop_measurements-",circm[i]), 
-                                        x = fbdesign_inter_traits()[[ i ]],
+               openxlsx::addWorksheet(wb, paste0("Crop_measurements-",crecm[i]), gridLines = TRUE)
+               openxlsx::writeDataTable(wb, paste0("Crop_measurements-",crecm[i]), 
+                                        x = fbdesign_mult_traits()[[ i ]],
                                         colNames = TRUE, withFilter = FALSE)
                
                
@@ -19434,7 +21236,7 @@ server_design_agrofims <- function(input, output, session, values){
                                       colNames = TRUE, withFilter = FALSE)
              }
            } 
-           else {
+           else if(ct=="Intercrop") {
              #TODO: #-Show error when one crop is missing
              id_ic_rand <- getAddInputId(intercropVars$ids, "int_", "")  
              circm <- map_values(input = input, id_chr="int_cropCommonName_",id_ic_rand, format = "vector", lbl= "Select crop")
@@ -19455,7 +21257,25 @@ server_design_agrofims <- function(input, output, session, values){
                    
                  }
           }
-         
+           else if(ct=="Relay crop"){
+             #TODO: #-Show error when one crop is missing
+             id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")  
+             crecm <- map_values(input = input, id_chr="rel_cropCommonName_",id_re_rand, format = "vector", lbl= "Select crop")
+             
+             for(i in 1:length(id_re_rand)){
+               incProgress(7/20,message = "Adding planting and transplating")
+
+                 if(nrow(dt_plantrans()[[i]])!=0  && ncol(fbdesign())!= ncol(dt_plantrans()[[i]])){
+                 dt_pltr <- dt_plantrans()
+                 
+                 #TODO Avoid LONG names in sheetNames (error) max 32 characters
+                 openxlsx::addWorksheet(wb,  paste("Planting-",crecm[i]), gridLines = TRUE)
+                 openxlsx::writeDataTable(wb, paste("Planting-",crecm[i]), x = dt_pltr[[i]],
+                                          colNames = TRUE, withFilter = FALSE)
+               }
+               
+             }
+           }
         }
         
          if(is.element("Mulch management",input$selectAgroFeature)){
@@ -19467,8 +21287,6 @@ server_design_agrofims <- function(input, output, session, values){
                                   colNames = TRUE, withFilter = FALSE)
         
          }
-         
-         ## HIDE --------------------------------------------------------------
          
          if(is.element("Irrigation",input$selectAgroFeature)){
          incProgress(7/20,message = "Adding irrigation sheet")
@@ -19485,8 +21303,6 @@ server_design_agrofims <- function(input, output, session, values){
          openxlsx::writeDataTable(wb, "Weeding", x = dt_weeding(),
                                   colNames = TRUE, withFilter = FALSE)
          }
-         
-         ### END HIDE----------------------------------------------------------
          
          if(is.element("Harvest",input$selectAgroFeature)){
          print("harvest")
@@ -19765,26 +21581,35 @@ server_design_agrofims <- function(input, output, session, values){
            globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
            kds_platra <- readxl::read_excel(paste0(globalpath, ecname),sheet = "Planting, Transplanting")
            kds_platra <- ec_filter_data(kds_platra)
-           
-           poli<<- lbl_plantrans()
-           
+          
            #TODO :generalizar para intercrop
            if(ct=="Monocrop"){
            kds_platra <- kds_platra %>% dplyr::filter(TraitName %in% lbl_plantrans())
-           } else{
+           } 
+           else if(ct=="Intercrop") {
+             
              temp_platra <- list()
-            
              for(i in 1:length(lbl_plantrans()) ) {
               
                if( length(lbl_plantrans())!=0) {
                    temp_platra[[i]] <- kds_platra %>% dplyr::filter(TraitName %in% lbl_plantrans()[[i]])
                    temp_platra[[i]]$Crop <- circm[i]
                }
-                    
-               #circm[i]
              }
              kds_platra <- rbindlist(temp_platra,fill = TRUE)
            }
+           else if(ct=="Relay crop"){
+             temp_platra <- list()
+             for(i in 1:length(lbl_plantrans()) ) {
+               
+               if( length(lbl_plantrans())!=0) {
+                 temp_platra[[i]] <- kds_platra %>% dplyr::filter(TraitName %in% lbl_plantrans()[[i]])
+                 temp_platra[[i]]$Crop <- crecm[i]
+               }
+             }
+             kds_platra <- rbindlist(temp_platra,fill = TRUE)
+           }
+           
            kds_platra <- data.table(kds_platra)
            dt_kds<-rbindlist(list(dt_kds,kds_platra),fill = TRUE)
            dt_kds<- ec_clean_header(dt_kds)
@@ -19848,19 +21673,10 @@ server_design_agrofims <- function(input, output, session, values){
            dt_kds<- ec_clean_header(dt_kds)
          }
          
-         print("inicio16")
-         # Select the nex columns :
-         # lbl_trait_dt<- c('Crop','Group','Subgroup','Measurement','Measurement_2',
-         #                 'Measurement_3', 'TraitUnit', 'TraitAlias','TraitDataType',
-         #                 'TraitValidation', 'VariableId')
-         
-         ####ADDING  EXTRA VARIABLES
+         # ADDING  EXTRA VARIABLES------------------------------------------------------------
          dt_extra_vars <- ec_clean_header(extra_variables)
          dt_kds<-rbindlist(list(dt_kds,dt_extra_vars),fill = TRUE)
-         
-         # END ADDING EXTRA VARIABLES
-         
-         
+         # END ADDING EXTRA VARIABLES --------------------------------------------------------
          
          lbl_traitlist_dt <- c("Crop","Group","Subgroup","Measurement","TraitName",
                              "TraitUnit",
@@ -19889,7 +21705,7 @@ server_design_agrofims <- function(input, output, session, values){
                                   colNames = TRUE, withFilter = FALSE)
 
         
-         ### END HIDE----------------------------------------------------------
+         ### END HIDE ----------------------------------------------------------
          print("inicio18")  
          incProgress(19/20,message = "Downloading file...")
          saveWorkbook(wb, file = fname , overwrite = TRUE)

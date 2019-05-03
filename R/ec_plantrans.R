@@ -23,8 +23,8 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
     
     #direct seedling -------------------------------------------------------------
     ptdi <- allinputs %>%  filter(!str_detect(id, "button")) %>%
-      filter(!str_detect(id, "-selectized")) %>%
-      filter(str_detect(id, paste0(lookup,"_ptdi")))
+                          filter(!str_detect(id, "-selectized")) %>%
+                          filter(str_detect(id, paste0(lookup,"_ptdi")))
     
     #start date
     startD <- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_planting_start_date_[:digit:]+$")  ) )

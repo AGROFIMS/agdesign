@@ -320,45 +320,104 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 })
                 '),
     
-    ## Design
+    ##### Design  #####
     # Factor GENERAL
-    tags$script('$(document).on("change", "select[id*=\'_sel_factor_\']",  function(){
-                Shiny.onInputChange("selectGEN", Math.random());
-                Shiny.onInputChange("selectGENid", this.id);
-                })
-                '),
+    tags$script(
+      '$(document).on("change", "select[id*=\'_sel_factor_\']",  function(){
+      Shiny.onInputChange("selectGEN", Math.random());
+      Shiny.onInputChange("selectGENid", this.id);
+      })
+      '
+    ),
     # Levels GENERAL
-    tags$script('$(document).on("change", "select[id*=\'_numLevels_\']",  function(){
-                Shiny.onInputChange("levelsGEN", Math.random());
-                Shiny.onInputChange("levelsGENid", this.id);
-                })
-                '),
+    tags$script(
+      '$(document).on("change", "select[id*=\'_numLevels_\']",  function(){
+      Shiny.onInputChange("levelsGEN", Math.random());
+      Shiny.onInputChange("levelsGENid", this.id);
+      })
+      '
+      ),
     # Other de Factor GENERAL
-    tags$script('$(document).on("change", "select[id*=\'_lvl_\']",  function(){
-                Shiny.onInputChange("otherGEN", Math.random());
-                Shiny.onInputChange("otherGENid", this.id);
-                })
-                '),
+    tags$script(
+      '$(document).on("change", "select[id*=\'_lvl_\']",  function(){
+      Shiny.onInputChange("otherGEN", Math.random());
+      Shiny.onInputChange("otherGENid", this.id);
+      })
+      '
+      ),
     # Duplicate GENERAL
-    tags$script('$(document).on("click", "button[id*=\'_btDuplicate_\']",  function(){
-                Shiny.onInputChange("duplicateGEN", Math.random());
-                Shiny.onInputChange("duplicateGENid", this.id);
-                })
-                '),
+    tags$script(
+      '$(document).on("click", "button[id*=\'_btDuplicate_\']",  function(){
+      Shiny.onInputChange("duplicateGEN", Math.random());
+      Shiny.onInputChange("duplicateGENid", this.id);
+      })
+      '
+      ),
     # Delete GENERAL
-    tags$script('$(document).on("click", "button[id*=\'_closeBox_\']",  function(){
-                Shiny.onInputChange("closeBox_button_GEN", Math.random());
-                Shiny.onInputChange("closeBox_button_GENid", this.id);
-                })
-                '),
+    tags$script(
+      '$(document).on("click", "button[id*=\'_closeBox_\']",  function(){
+      Shiny.onInputChange("closeBox_button_GEN", Math.random());
+      Shiny.onInputChange("closeBox_button_GENid", this.id);
+      })
+      '
+      ),
     # Other/Other GENERAL
-    tags$script('$(document).on("change", "select[id*=\'_typeInput_\']",  function(){
-                Shiny.onInputChange("otherOthGEN", Math.random());
-                Shiny.onInputChange("otherOthGENid", this.id);
-                })
-                '),
-    
-    
+    tags$script(
+      '$(document).on("change", "select[id*=\'_typeInput_\']",  function(){
+      Shiny.onInputChange("otherOthGEN", Math.random());
+      Shiny.onInputChange("otherOthGENid", this.id);
+      })
+      '
+      ),
+    # Levels Inputs CRD
+    tags$script(
+      '$(document).on("change", "select[id*=\'crd_lvl_\']:not([id$=\'_date\'])",  function(){
+      Shiny.onInputChange("levelInput", Math.random());
+      Shiny.onInputChange("levelInputid", this.id);
+      })
+      '
+      ),
+    # Levels Inputs RCBD
+    tags$script(
+      '$(document).on("change", "select[id*=\'rcbd_lvl_\']:not([id$=\'_date\'])",  function(){
+      Shiny.onInputChange("levelInput", Math.random());
+      Shiny.onInputChange("levelInputid", this.id);
+      })
+      '
+      ),
+    # # Levels Inputs Dates
+    # tags$script(
+    #   '$(document).on("change", "[id$=\'_date\']",  function(){
+    #   Shiny.onInputChange("levelInput", Math.random());
+    #   Shiny.onInputChange("levelInputid", this.id);
+    #   })
+    #   '
+    #   ),
+    # Inputs Factor Columns
+    tags$script(
+      '$(document).on("change", "select[id*=\'input_factor_treatment_\']",  function(){
+        Shiny.onInputChange("input_factor_treatment", Math.random());
+        Shiny.onInputChange("input_factor_treatmentid", this.id);
+        })
+        '
+    ),
+    # Inputs Other Factor CRD
+    tags$script(
+      '$(document).on("change", "input[id*=\'crd_sel_factor_other_\']",  function(){
+      Shiny.onInputChange("crd_rcbd_SelFactorOther", Math.random());
+      Shiny.onInputChange("crd_rcbd_SelFactorOtherid", this.id);
+        })
+      '
+    ),
+    # Inputs Other Factor RCBD
+    tags$script(
+      '$(document).on("change", "[id*=\'rcbd_sel_factor_other_\']",  function(){
+      Shiny.onInputChange("crd_rcbd_SelFactorOther", Math.random());
+      Shiny.onInputChange("crd_rcbd_SelFactorOtherid", this.id);
+        })
+      '
+    ),
+
     
     ##### EXP COND ultimo #####
     # Add planting mono and multicrop
@@ -1757,52 +1816,87 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'CRD'",
                 h1("CRD"),
-                fluidRow(
-                  column(
-                    6,
-                    selectInput("crd_ntrt", "Number of treatments", choices = 2:100, selected = 2)
-                  ),
-                  column(
-                    6,
-                    selectInput("crd_rep", "Repetitions", choices = 2:100, selected = 2)
+                fluidRow(column(
+                  6,
+                  selectInput(
+                    "crd_ntrt",
+                    "Number of treatments",
+                    choices = 2:100,
+                    selected = 2
                   )
                 ),
+                column(
+                  6,
+                  selectInput(
+                    "crd_rep",
+                    "Repetitions",
+                    choices = 2:100,
+                    selected = 2
+                  )
+                )),
                 fluidRow(id = "crd_boxes"),
                 actionButton("crd_add", "Add factor"),
-                br(), br(),
-                column(id="col_NFF_consolid", width=4,
-                       HTML("<center>"),"Treatment",HTML("</center>"), 
-                       fluidRow(id="fr_col_NFF_cons")
+                br(),
+                br(),
+                column(
+                  id = "col_NFF_consolid_crd",
+                  width = 4,
+                  HTML("<center>"),
+                  "Treatment",
+                  HTML("</center>"),
+                  fluidRow(id = "fr_col_NFF_cons_crd")
                 ),
-                fluidRow(id="not_full_factor_table")
+                fluidRow(id = "not_full_factor_table_crd")
               ),
               
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'RCBD'",
                 h1("RCBD"),
-                fluidRow(
-                  column(
-                    6,
-                    selectInput("rcbd_ntrt", "Number of treatments", choices = 2:100, selected = 2)
-                  ),
-                  column(
-                    6,
-                    selectInput("crd_rep", "Block ", choices = 2:100, selected = 2)
+                fluidRow(column(
+                  6,
+                  selectInput(
+                    "rcbd_ntrt",
+                    "Number of treatments",
+                    choices = 2:100,
+                    selected = 2
                   )
                 ),
+                column(
+                  6,
+                  selectInput(
+                    "rcbd_rep",
+                    "Block ",
+                    choices = 2:100,
+                    selected = 2
+                  )
+                )),
                 fluidRow(id = "rcbd_boxes"),
-                actionButton("rcbd_add", "Add factor")
+                actionButton("rcbd_add", "Add factor"),
+                br(),
+                br(),
+                column(
+                  id = "col_NFF_consolid_rcbd",
+                  width = 4,
+                  HTML("<center>"),
+                  "Treatment",
+                  HTML("</center>"),
+                  fluidRow(id = "fr_col_NFF_cons_rcbd")
+                ),
+                fluidRow(id = "not_full_factor_table_rcbd")
               ),
               
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'FCRD'",
                 h1("FCRD"),
-                fluidRow(
-                  column(
-                    6,
-                    selectInput("fcrd_rep", "Repetitions", choices = 2:100, selected = 2)
+                fluidRow(column(
+                  6,
+                  selectInput(
+                    "fcrd_rep",
+                    "Repetitions",
+                    choices = 2:100,
+                    selected = 2
                   )
-                ),
+                )),
                 fluidRow(id = "fcrd_boxes"),
                 actionButton("fcrd_add", "Add factor")
               ),
@@ -1810,12 +1904,15 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'FRCBD'",
                 h1("FRCBD"),
-                fluidRow(
-                  column(
-                    6,
-                    selectInput("frcbd_block", "Block", choices = 2:100, selected = 2)
+                fluidRow(column(
+                  6,
+                  selectInput(
+                    "frcbd_block",
+                    "Block",
+                    choices = 2:100,
+                    selected = 2
                   )
-                ),
+                )),
                 fluidRow(id = "frcbd_boxes"),
                 actionButton("frcbd_add", "Add factor")
               ),
@@ -1823,26 +1920,32 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'SPRCBD'",
                 h1("SPRCBD"),
-                fluidRow(
-                  column(
-                    6,
-                    selectInput("sp1_block", "Block", choices = 2:100, selected = 2)
+                fluidRow(column(
+                  6,
+                  selectInput(
+                    "sp1_block",
+                    "Block",
+                    choices = 2:100,
+                    selected = 2
                   )
-                ),
+                )),
+                fluidRow(id = "sprcbd_boxes"),
                 fluidRow(id = "sprcbd_boxes")#,
-                #fluidRow(id = "sprcbd_boxes")#,
                 #actionButton("sprcbd_add", "Add factor")
               ),
               
               conditionalPanel(
                 "input.designFieldbook_agrofims == 'SPSP'",
                 h1("SPSP"),
-                fluidRow(
-                  column(
-                    6,
-                    selectInput("spsp2_block", "Block", choices = 2:100, selected = 2)
+                fluidRow(column(
+                  6,
+                  selectInput(
+                    "spsp2_block",
+                    "Block",
+                    choices = 2:100,
+                    selected = 2
                   )
-                ),
+                )),
                 fluidRow(id = "spsp_boxes")#,
                 #actionButton("spsp_add", "Add factor")
               ),

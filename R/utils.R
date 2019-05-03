@@ -560,11 +560,14 @@ dt_inputs<- function(dt, dt_other){
 arrange_by_pattern <- function(data, pattern){
   
   if(nrow(data)>0 && length(pattern)>0){
-    dt <- data.frame()
+    dt <-  list() #data.frame()
     #pattern <- c("MORIBVKI","JVCBBMVG","POBNRFFA")
-    for( i in 1:nrow(data)){
-      dt<- rbind(dt, data %>% filter(str_detect(id, pattern[i])))
+    for( i in 1:length(pattern)){
+      #print(dt)
+      #dt<- rbind(dt, data %>% filter(str_detect(id, pattern[i])))
+      dt[[i]] <- data %>% filter(str_detect(id, pattern[i])) #rbind(dt, data %>% filter(str_detect(id, pattern[i])))
     }
+    dt <- data.table::rbindlist(dt, fill=TRUE) %>% as.data.frame(stringsAsFactors=FALSE)
   } else {
     dt <- data.frame()
   }
