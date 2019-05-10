@@ -106,7 +106,7 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
   
   factors <- stringr::str_replace_all(string = factors,pattern = "_f[:digit:]",replacement = "")
   factors <- stringr::str_replace_all(string = factors,pattern = "_",replacement = " ")
-  print(factors)
+  #print(factors)
   
   lookup<- paste0("^",design,"_lvl_")
   dt <- allinputs %>%   dplyr::filter(!str_detect(id, "add")) %>%
@@ -135,7 +135,7 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
     }
     else {
       temp <- data_dictionary %>% filter(FACTOR==factors[i]) 
-      print(temp)
+      #print(temp)
       if(nrow(temp)>0){
         print("--1--")
         #When lenght(out) is equal to 1 ---> form is text input or combo.
@@ -143,7 +143,7 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
         form<- form$FORM   
         
         print("entro1")
-        print(form)
+        #print(form)
         if(form=="date"){
           print("entro2")
           out[[i]] <- out[[i]] %>%  dplyr::filter(str_detect(id,  "date" ))
@@ -151,8 +151,8 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
           
         } 
         else { 
-          print(out)
-          pl <<- out
+          #print(out)
+          #pl <<- out
           
           #if(length(out[[i]])==1){
           out[[i]] <- out[[i]] %>%  dplyr::filter(!str_detect(id,  "date" ))
@@ -196,11 +196,11 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
       } 
       else { #Si no tiene al menos una fila, este debe ser un OTHER FACTOR
         print("--2--")
-        kt<<-allinputs
+        #kt<<-allinputs
         othFacType <- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%  
                                     dplyr::filter(str_detect(id, paste0("^",design,"_typeInput_",index[i])))  
-        print(i)
-        print(othFacType)
+        #print(i)
+        #print(othFacType)
         othFacType <- othFacType$values
         
         if(othFacType=="date"){
