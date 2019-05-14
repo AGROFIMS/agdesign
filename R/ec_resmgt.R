@@ -35,12 +35,20 @@ get_ec_resdesc <- function(input, lbl){
   r_notes <- input$rmgt_residue_management_notes
   
   #BASE FORM OF HEADERS
-  lbl <-  c("Residue_management_plant_part",
-            "Residue_management_crop_residue_moisture",
-            paste0("Residue_management_crop_residue_thickness_",r_thick_unit),
-            paste0("Residue_management_crop_residue_amount_",r_amount_unit),
-            "Residue_management_crop_residue_percent_of_coverage_%", 
-            "Residue_management_residue_description_notes")
+  # lbl <-  c("Residue_management_plant_part",
+  #           "Residue_management_crop_residue_moisture",
+  #           paste0("Residue_management_crop_residue_thickness_",r_thick_unit),
+  #           paste0("Residue_management_crop_residue_amount_",r_amount_unit),
+  #           "Residue_management_crop_residue_percent_of_coverage_%", 
+  #           "Residue_management_residue_description_notes")
+  
+  lbl <- c("Plant part",
+           "Crop_residue_moisture",
+           "Crop_residue_thickness",
+           "Crop_residue_amount",
+           "Crop_residue_percent_coverage_%",
+           "Notes"
+           )
   
   #Label for spreadsheet and kdsmart headers
   lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
