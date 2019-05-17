@@ -11797,11 +11797,9 @@ server_design_agrofims <- function(input, output, session, values){
       ptdt_list<-NULL
       for(i in 1:length(id_rand_inter)){
          ptdt_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="intercrop", cropId=id_rand_inter[i], addId="1")$dt
-         print("entro rara")
-         print(ptdt_list[[i]])
        }
-      print("total de pdt list")
-      print(ptdt_list)
+      #print("total de pdt list")
+      #print(ptdt_list)
        
       #Join fbdesign with harvest header of each crop for intercrop trials
        dt<-NULL  
@@ -11831,8 +11829,10 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in 1:length(ptdt_list)){
         if(nrow(fbdesign())==0){
           dt[[i]] <- ptdt_list[[i]]
-        } else {
-          dt[[i]] <-smart_colbind(fbdesign(), ptdt_list[[i]] )
+        } else if( nrow(ptdt_list[[i]])==0){ # when one platn-trans data.frame is empty
+          dt[[i]] <- smart_colbind(fbdesign(), ptdt_list[[i]] )
+        } else if(nrow(ptdt_list[[i]])!=0){ #when one plan-trans data.frame is full
+          dt[[i]] <- cbind(fbdesign(), ptdt_list[[i]] )
         }
       }
       names(dt)<- crecm
@@ -11854,8 +11854,6 @@ server_design_agrofims <- function(input, output, session, values){
       ptlbl_list<- NULL
       for(i in 1:length(id_rand_inter)){
         ptlbl_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="intercrop", cropId= id_rand_inter[i], addId="1")$lbl
-        print("entro label")
-        print(ptlbl_list[[i]])
       }
       lbl<- NULL
       for(i in 1:length(ptlbl_list)){
@@ -11883,8 +11881,10 @@ server_design_agrofims <- function(input, output, session, values){
           lbl[[i]] <- ptlbl_list[[i]] #str_replace_all(string = names(ptdt_list[[i]]), pattern = "__[:digit:]+$",replacement = "")
         }
       }
-      names(lbl)<- crecm
-      lbl <- purrr::compact(lbl)
+      if(!is.null(lbl)){
+        names(lbl)<- crecm
+        lbl <- purrr::compact(lbl)  
+      }
       
     }
     lbl
@@ -13455,9 +13455,6 @@ server_design_agrofims <- function(input, output, session, values){
                  openxlsx::writeDataTable(wb, paste0("Crop_measurements-",crecm[i]), 
                                           x = fbdesign_mult_traits()[[ i ]],
                                           colNames = TRUE, withFilter = FALSE)
-                 
-                 
-                 
                }
              }
          }
@@ -13671,17 +13668,17 @@ server_design_agrofims <- function(input, output, session, values){
              
              id_rc_rand <- getAddInputId(relaycropVars$ids, "rel_", "") 
              print(id_rc_rand)
-             crccm <- map_values(input = input, id_chr="rel_cropCommonName_",id_rc_rand, format = "vector", lbl= "Select crop")
-             print(crccm)
+             crecm <- map_values(input = input, id_chr="rel_cropCommonName_",id_rc_rand, format = "vector", lbl= "Select crop")
+             print(crecm)
              for(i in 1:length(id_rc_rand)){
                
                
                #print(pheno_dt()[[ circm[i] ]])
                
-               if(nrow(pheno_dt()[[ crccm[i] ]])!=0 &&  !is.element("Measurement_3", names(pheno_dt()[[crccm[i] ]]) )){
+               if(nrow(pheno_dt()[[crecm[i] ]])!=0 &&  !is.element("Measurement_3", names(pheno_dt()[[crecm[i] ]]) )){
                  incProgress(7/20,message = "Adding Phenology data...")
-                 openxlsx::addWorksheet(wb, paste0("Phenology-",crccm[i]), gridLines = TRUE)
-                 openxlsx::writeDataTable(wb, paste0("Phenology-",crccm[i]), 
+                 openxlsx::addWorksheet(wb, paste0("Phenology-",crecm[i]), gridLines = TRUE)
+                 openxlsx::writeDataTable(wb, paste0("Phenology-",crecm[i]), 
                                           x = pheno_dt()[[ i ]],
                                           colNames = TRUE, withFilter = FALSE)
                }
@@ -13882,12 +13879,13 @@ server_design_agrofims <- function(input, output, session, values){
              kds_platra <- rbindlist(temp_platra,fill = TRUE)
            }
            else if(ct=="Relay crop"){
+             
              temp_platra <- list()
              for(i in 1:length(lbl_plantrans()) ) {
 
                if( length(lbl_plantrans())!=0) {
-                 temp_platra[[i]] <- kds_platra %>% dplyr::filter(TraitName %in% lbl_plantrans()[[i]])
-                 temp_platra[[i]]$Crop <- crecm[i]
+                   temp_platra[[i]] <- kds_platra %>% dplyr::filter(TraitName %in% lbl_plantrans()[[i]])
+                   temp_platra[[i]]$Crop <- crecm[i]
                }
              }
              kds_platra <- rbindlist(temp_platra,fill = TRUE)
