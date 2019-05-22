@@ -1,4 +1,4 @@
-
+#Get management practicse for weeding experiments
 get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     
     #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
@@ -9,8 +9,12 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
                         filter(!str_detect(id, "-selectized")) %>%
                         filter(str_detect(id, paste0(ctype,"_wewd")))
     
+    # lbl <- c("Weeding_start_date", "Weeding_technique", 
+    #          "Weeding_notes", "Weeding_implement_type", "Weeding_implement_traction")
+    
     lbl <- c("Weeding_start_date", "Weeding_technique", 
-             "Weeding_notes", "Weeding_implement_type", "Weeding_implement_traction")
+             "Weeding_notes", "Weeding_implement_type", "Weeding_traction_type")
+    
     lbl_weed <- vector(mode = "character",length = 0L)
     for(i in 1:length(addId)){
       lbl_weed <- append(lbl_weed, paste(lbl, i,sep="__"))
@@ -35,7 +39,7 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     
     #traction
     traction <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_traction_[:digit:]+$")))
-    traction_other <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_type_[:digit:]+_other$")))
+    traction_other <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_traction_[:digit:]+_other$")))
     traction<- dt_inputs(traction, traction_other)
 
     dt<- rbind(startD, tech, notes, type, traction)
@@ -62,3 +66,13 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     
 }
 
+#Get protocol table for weeding experiments
+get_protocol_weed <- function(allinputs, addId, ctype="monocrop"){
+  
+  out <- get_ec_weed(allinputs, addId, ctype="monocrop")$dt
+  names(out) <- stringr::str_replace_all(names(out),"__1","")
+  out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
+  out <- out %>% dplyr::filter(V1!="")
+  names(out) <- c("TraitName","Value")
+  out
+}

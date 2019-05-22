@@ -13,9 +13,14 @@ get_ec_sblalv<- function(input){
   dt<- data.frame(ll_start_date, ll_npasses, ll_notes, ll_type, ll_traction)
   
   #BASE FORM OF HEADERS
-  lbl<- c("Land_levelling_start_date_(yyyy/mm/dd)", 
-              "Land_levelling_total_number_of_levelling_passes", "Land_levelling_notes",
-              "Land_levelling_implement_type", "Land_levelling_implement_traction")
+  # lbl<- c("Land_levelling_start_date_(yyyy/mm/dd)", 
+  #             "Land_levelling_total_number_of_levelling_passes", "Land_levelling_notes",
+  #             "Land_levelling_implement_type", "Land_levelling_implement_traction")
+  
+  lbl<- c("Land_levelling_start_date", 
+          "Land_levelling_total_number_passes", "Land_levelling_notes",
+          "Land_levelling_implement_type", "Land_levelling_implement_traction")
+  
   
   #Label for spreadsheet and kdsmart headers
   lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
@@ -49,11 +54,16 @@ get_ec_sbpud <- function(input){
   
   dt <- data.frame(lp_start_date, lp_depth_val, lp_npasses, lp_notes, lp_type, lp_traction) 
   
+  #Labels / headers
+  # lbl <- c("Puddling_start_date_(yyyy/mm/dd)", 
+  #              paste0("Puddling_depth_",lp_depth_unit),
+  #              "Puddling_total_number_of_puddling_passes",
+  #              "Puddling_notes", "Puddling_implement_type", "Puddling_implement_traction")
   
-  lbl <- c("Puddling_start_date_(yyyy/mm/dd)", 
-               paste0("Puddling_depth_",lp_depth_unit),
-               "Puddling_total_number_of_puddling_passes",
-               "Puddling_notes", "Puddling_implement_type", "Puddling_implement_traction")
+  lbl <- c("Puddling_start_date", 
+           paste0("Puddling_depth_",lp_depth_unit),
+           "Puddling_total_number_passes",
+           "Puddling_notes", "Puddling_implement_type", "Puddling_traction_type")
   
   #Label for spreadsheet and kdsmart headers
   lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__")
@@ -87,12 +97,18 @@ get_ec_sbtill <- function(input){
                                      type = "select", format = "vector", label = "Factor")
   lt_traction <- map_singleform_values(input =input$till_traction, input$till_traction_other,
                                        type = "select", format = "vector", label = "Factor")
+  #Labels / Headers
+  # lbl <- c("Tillage_start_date_(yyyy/mm/dd)", 
+  #              "Tillage_technique",
+  #              paste0("Tillage_depth_",lt_depth_unit), 
+  #              "Tillage_total_number_of_tillage_passes", "Tillage_notes", 
+  #              "Tillage_implement_type", "Tillage_implement_traction")
   
-  lbl <- c("Tillage_start_date_(yyyy/mm/dd)", 
-               "Tillage_technique",
-               paste0("Tillage_depth_",lt_depth_unit), 
-               "Tillage_total_number_of_tillage_passes", "Tillage_notes", 
-               "Tillage_implement_type", "Tillage_implement_traction")
+  lbl <- c("Tillage_start_date",
+           "Tillage_technique",
+            paste0("Tillage_depth_",lt_depth_unit),
+            "Tillage_total_number_passes", "Tillage_notes",
+            "Tillage_implement_type", "Tillage_traction_type")
   
   dt <- data.frame(lt_start_date, lt_technique,
                      lt_depth, lt_npasses ,lt_notes, lt_type, lt_traction,stringsAsFactors = FALSE )
@@ -110,7 +126,35 @@ get_ec_sbtill <- function(input){
 
 
 
+##### Protocols ############################################
 
+# Get protocol for land levelling #######################
+get_protocol_sblavl <- function(input){
+  
+  out<- get_ec_sblalv(input)$dt 
+  names(out) <- stringr::str_replace_all(names(out),"__1","")
+  out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
+  out <- out %>% dplyr::filter(V1!="")
+  names(out) <- c("TraitName","Value")
+  out
+}
 
+# Get protocol for puddling ###########################
+get_protocol_sbpud <- function(input){
+  out<- get_ec_sbtill(input)$dt 
+  names(out) <- stringr::str_replace_all(names(out),"__1","")
+  out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
+  out <- out %>% dplyr::filter(V1!="")
+  names(out) <- c("TraitName","Value")
+  out
+}
 
-
+# Get protocol for tillage ##############################
+get_protocol_sbtill <- function(input){
+  out<- get_ec_sbtill(input)$dt 
+  names(out) <- stringr::str_replace_all(names(out),"__1","")
+  out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
+  out <- out %>% dplyr::filter(V1!="")
+  names(out) <- c("TraitName","Value")
+  out
+}

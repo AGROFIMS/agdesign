@@ -1,4 +1,4 @@
-
+# Get management practices for mulching experiments
 get_ec_mulching <- function(allinputs){
   
   #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
@@ -64,17 +64,30 @@ get_ec_mulching <- function(allinputs){
   dt<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
   
   #BASE LABELS
-  lbl <- c("Mulch_start_date", "Mulch_type", 
+  # lbl <- c("Mulch_start_date", "Mulch_type", 
+  #          paste0("Mulch_thickness_", mthick_unit$values),
+  #          paste0("Mulch_amount_",mamount_unit$values),
+  #          "Mulch_color", 
+  #          paste0("Mulch_percentage_of_coverage_",mper_unit$values),
+  #          "Mulch_removal_start_date", 
+  #          "Mulch_removal_end_date",
+  #          "Mulch_notes",
+  #          "Mulch_implement_type",
+  #          "Mulch_implement_traction"
+  #          )
+  
+  lbl <- c("Mulching_start_date", "Mulching_type", 
            paste0("Mulch_thickness_", mthick_unit$values),
            paste0("Mulch_amount_",mamount_unit$values),
            "Mulch_color", 
-           paste0("Mulch_percentage_of_coverage_",mper_unit$values),
+           paste0("Mulch_percentage_of_coverage_","_%"),
            "Mulch_removal_start_date", 
            "Mulch_removal_end_date",
-           "Mulch_notes",
-           "Mulch_implement_type",
-           "Mulch_implement_traction"
-           )
+           "Mulching_notes",
+           "Mulching_implement_type",
+           "Mulching_implement_traction"
+  )
+  
   
   #LABELS FOR SPREADSHEETS and KDSMART
   lbl_dt<- paste(lbl, rep("1", length(lbl)) ,sep="__") 
@@ -84,4 +97,14 @@ get_ec_mulching <- function(allinputs){
   
   out<- list(dt = dt, lbl=lbl)
   
+}
+
+# Get protocol values for mulching experiments
+get_protocol_mulching <- function(allinputs){
+    out<- get_ec_mulching(allinputs)$dt 
+    names(out) <- stringr::str_replace_all(names(out),"__1","")
+    out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
+    out <- out %>% dplyr::filter(V1!="")
+    names(out) <- c("TraitName","Value")
+    out
 }

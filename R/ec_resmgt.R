@@ -42,12 +42,12 @@ get_ec_resdesc <- function(input, lbl){
   #           "Residue_management_crop_residue_percent_of_coverage_%", 
   #           "Residue_management_residue_description_notes")
   
-  lbl <- c("Plant part",
+  lbl <- c("Crop_residue_plant_part",
            "Crop_residue_moisture",
-           "Crop_residue_thickness",
-           "Crop_residue_amount",
+           paste0("Crop_residue_thickness_",r_thick_unit),
+           paste0("Crop_residue_amount_",r_amount_unit),
            "Crop_residue_percent_coverage_%",
-           "Notes"
+           "Crop_residue_notes"
            )
   
   #Label for spreadsheet and kdsmart headers
@@ -77,11 +77,18 @@ get_ec_resdesc <- function(input, lbl){
 get_ec_resmgt <- function(input, lbl){
 
   #LABEL BASE FORM
-  lbl <-   c("Residue_management_description_start_date", 
-                   "Residue_management_description_technique",
-                   "Residue_management_description_traction",
-                   "Residue_management_description_notes"
-            )
+  # lbl <-   c("Residue_management_description_start_date", 
+  #                  "Residue_management_description_technique",
+  #                  "Residue_management_description_traction",
+  #                  "Residue_management_description_notes"
+  #           )
+  
+  lbl <-   c("Residue_management_start_date", 
+             "Residue_management_end_date",
+             "Residue_management_technique",
+             "Residue_management_notes"
+  )
+  
   #LABEL FOR SPREADSHEET AND KDSMART with underscore
   lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
   
@@ -110,11 +117,19 @@ get_ec_resmgt <- function(input, lbl){
       dt <- data.frame(r_start_date, r_technique, rb_incordepth, r_traction, r_notes, stringsAsFactors = FALSE)
       
       #LABEL BASE FORM
-      lbl <-   c("Residue_management_description_start_date", 
-                 "Residue_management_description_technique",
-                 paste0("Residue_management_residue_incorporation_depth_",rb_incordepthunit),
-                 "Residue_management_description_traction",
-                 "Residue_management_description_notes")
+      # lbl <-   c("Residue_management_description_start_date", 
+      #            "Residue_management_description_technique",
+      #            paste0("Residue_management_residue_incorporation_depth_",rb_incordepthunit),
+      #            "Residue_management_description_traction",
+      #            "Residue_management_description_notes")
+      # 
+      
+      lbl <-   c("Residue_management_start_date", 
+                 "Residue_management_technique",
+                 paste0("Residue_incorporation_depth_",rb_incordepthunit),
+                 "Residue_management_traction_type",
+                 "Residue_management_notes")
+      
      
       #LABEL FOR SPREADSHEET AND KDSMART with underscore
       lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
@@ -134,7 +149,7 @@ get_ec_resmgt <- function(input, lbl){
 
 
 
-##### Protocols
+##### Protocols ############################################
 
 # Get protocol residual dsecription
 
@@ -144,7 +159,7 @@ get_protocol_resdesc <- function(input){
   names(out) <- stringr::str_replace_all(names(out),"__1","")
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
   out <- out %>% dplyr::filter(V1!="")
-  names(out) <- c("Fieldbook_download","Value")
+  names(out) <- c("TraitName","Value")
   out
 }
 
@@ -156,7 +171,7 @@ get_protocol_resmgt <- function(input){
   names(out) <- stringr::str_replace_all(names(out),"__1","")
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
   out <- out %>% dplyr::filter(V1!="")
-  names(out) <- c("Fieldbook_download","Value")
+  names(out) <- c("TraitName","Value")
   out
 }
 
