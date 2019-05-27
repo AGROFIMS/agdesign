@@ -177,12 +177,12 @@ get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1
     
     #implement
     type <-rbind(type, harv %>% filter(str_detect(id,  paste0(lookup,"_hahd_harvest_implement_",addId[i],"$"))) )
-    type_other <-rbind(type_other, harv  %>% filter(str_detect(id,  paste0(lookup,"_hahd_harvest_implement_",addId[i],"$"))) )
+    type_other <-rbind(type_other, harv  %>% filter(str_detect(id,  paste0(lookup,"_hahd_harvest_implement_",addId[i],"_other$"))) )
     #type <- dt_inputs(type, type_other)
     
     #traction
     traction <-rbind(traction, harv  %>% filter(str_detect(id,  paste0(lookup,"_hahd_harvest_traction_",addId[i],"$"))) )
-    traction_other <- rbind(traction_other, harv  %>% filter(str_detect(id,  paste0(lookup,"_hahd_harvest_traction_",addId[i],"$"))) )
+    traction_other <- rbind(traction_other, harv  %>% filter(str_detect(id,  paste0(lookup,"_hahd_harvest_traction_",addId[i],"_other$"))))
     #traction <- dt_inputs(traction, traction_other)
     
     #notes
@@ -320,4 +320,10 @@ get_protocol_harv <- function(allinputs, input, ctype="monocrop", cropId="1", ad
   out
   
 }
+
+
+
+
+
+
 

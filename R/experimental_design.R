@@ -99,6 +99,12 @@ get_factors_design <- function(allinputs, index=NULL, design="fcrd",duplicate= T
 
 
 ## Get levels from desigin tab
+# allinputs: reactiveTable
+# index : vector of indexes
+# factors: vector of factors
+# design: design
+# data dictionary: data dictionary for FACTOR_V10
+# format: format
 get_levels_design <- function(allinputs, index, factors, design="fcrd", 
                               data_dictionary=NULL, format=c("list","data.frame")){
   
@@ -110,141 +116,138 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
   
   lookup<- paste0("^",design,"_lvl_")
   dt <- allinputs %>%   dplyr::filter(!str_detect(id, "add")) %>%
-                        dplyr::filter(!str_detect(id, "button")) %>%
-                        dplyr::filter(!str_detect(id, "unit")) %>% 
-                        dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
-                        dplyr::filter(!str_detect(id, "-selectized")) %>%  
-                        dplyr::filter(str_detect(id, lookup))
-  
-  #a2<<- dt
-                      
-  #Arrange by order
-  dt <- arrange_by_pattern(dt, pattern = index)
-  #a1<<- dt
-  
-  out <- vector(mode="list",length = length(factors))
-  a<-u<-NULL
-  
-  for(i in 1:length(factors)){
-    
-    out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i] )))
-    #out[[i]] <-  out[[i]]$values
-    
-    if(factors[i]==""){
-      out[[i]] <- c("","","")
-    }
-    else {
-      temp <- data_dictionary %>% filter(FACTOR==factors[i]) 
-      #print(temp)
-      if(nrow(temp)>0){
-        print("--1--")
-        #When lenght(out) is equal to 1 ---> form is text input or combo.
-        form<- data_dictionary %>% filter(FACTOR==factors[i]) %>% dplyr::select(FORM)
-        form<- form$FORM   
+                              dplyr::filter(!str_detect(id, "button")) %>%
+                              dplyr::filter(!str_detect(id, "unit")) %>% 
+                              dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                              dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                              dplyr::filter(str_detect(id, lookup))
         
-        print("entro1")
-        #print(form)
-        if(form=="date"){
-          print("entro2")
-          out[[i]] <- out[[i]] %>%  dplyr::filter(str_detect(id,  "date" ))
-          out[[i]] <-  out[[i]]$values
+        #Arrange by order
+        dt <- arrange_by_pattern(dt, pattern = index)
+      
+        out <- vector(mode="list",length = length(factors))
+        a<-u<-NULL
+        
+        for(i in 1:length(factors)){
           
-        } 
-        else { 
-          #print(out)
-          #pl <<- out
-          
-          #if(length(out[[i]])==1){
-          out[[i]] <- out[[i]] %>%  dplyr::filter(!str_detect(id,  "date" ))
-          out[[i]] <-  out[[i]]$values
-          #print("1")
-          out[[i]]<- strsplit(out[[i]],split= ", ")[[1]]
-          
-          #Detect Others
-          if( nrow(dt %>% dplyr::filter(str_detect(id, paste0(lookup,"other_", index[i] ))))>=1)  {
-            
-            a <- dt %>% dplyr::filter(str_detect(id, paste0(lookup,"other_",index[i])))
-            a<- a$values
-            a <- strsplit(a,split= ", ")[[1]]
-            out[[i]]<- append(out[[i]], a)
-            out[[i]]<- setdiff(out[[i]],"Other") #remove other value from vector
+          # For timing factors
+          if(stringr::str_detect(factors[i],pattern="timing")){
+            print("Timing factor")
+              # for(i in seq.int(factors)){
+                out[[i]] <- get_timing_levels(allinputs, index= index[i], factors[i], design=design,
+                                              data_dictionary=data_dictionary)
+              #}
           }
-          
-          #Detect Units
-          if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i] ))))>=1 ){
+          else if(stringr::str_detect(factors[i],pattern="type and amount")){
             
-            u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
-                                dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i] ) ))
-                              u<- u$values
-            out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
-          }
-          
-          #We place underscore in `pattern` because factors include underscore
-          if(stringr::str_detect(factors[i],pattern="_application_rate")){ #special case for product, nutrient and oxidzed
-            # 95, 96 y 97 from FACTOR_V10-DRAFT
-            
-            print("application rate")
-            fert<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
-              dplyr::filter(str_detect(id,  paste0(lookup, "fert_",index[i]) ))
-            fert<- fert$values
-            out[[i]]<- paste0(fert," ",out[[i]]) #quantity + whitespace + unit
+            print("type and amount factor")
+            out[[i]] <- get_amountype_levels(allinputs, index= index[i], factors[i], design=design,
+                                              data_dictionary=data_dictionary)
             
           }
+          #General cases
+          else {
+                 
+            out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i] )))
+            if(factors[i]==""){
+              out[[i]] <- c("","","")
+            }
+            else {
+              temp <- data_dictionary %>% filter(FACTOR==factors[i]) 
+              
+              ## Si es un factor estadarizado, entonces temp debe tener al menos una fila ----------------
+              if(nrow(temp)>0){
+                #When lenght(out) is equal to 1 ---> form is text input or combo.
+                form<- data_dictionary %>% filter(FACTOR==factors[i]) %>% dplyr::select(FORM)
+                form<- form$FORM   
+                form <- stringi::stri_trim_both(str = form)
+                
+                if(form=="date"){
+                  out[[i]] <- out[[i]] %>%  dplyr::filter(str_detect(id,  "date" ))
+                  out[[i]] <-  out[[i]]$values
+                } 
+                else { 
+                  out[[i]] <- out[[i]] %>%  dplyr::filter(!str_detect(id,  "date" ))
+                  out[[i]] <-  out[[i]]$values
+                  out[[i]] <- strsplit(out[[i]],split= ",")[[1]]
+                  out[[i]] <- stringi::stri_trim_both(str = out[[i]])
+                  
+                  #Detect Others
+                  if( nrow(dt %>% dplyr::filter(str_detect(id, paste0(lookup,"other_", index[i] ))))>=1)  {
+                    
+                    a <- dt %>% dplyr::filter(str_detect(id, paste0(lookup,"other_",index[i])))
+                    a<- a$values
+                    a <- strsplit(a,split= ",")[[1]]
+                    a <- stringi::stri_trim_both(str = a)
+                    out[[i]]<- append(out[[i]], a)
+                    out[[i]]<- setdiff(out[[i]],"Other") #remove other value from vector
+                  }
+                  
+                  #Detect Units
+                  if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i] ))))>=1 ){
+                    
+                    u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+                      dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i] ) ))
+                    u<- u$values
+                    out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
+                  }
+                  
+                  #We place underscore in `pattern` because factors include underscore
+                  if(stringr::str_detect(factors[i],pattern="_application_rate")){ #special case for product, nutrient and oxidzed
+                    # 95, 96 y 97 from FACTOR_V10-DRAFT
+                    print("application rate")
+                    fert<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+                      dplyr::filter(str_detect(id,  paste0(lookup, "fert_",index[i]) ))
+                    fert<- fert$values
+                    out[[i]]<- paste0(fert," ",out[[i]]) #quantity + whitespace + unit
+                    
+                  }
+                }
+                
+              } 
+              ## El factor no esta estandirizado cuando el factor no fue encontrado (no hay filas)
+              else { #Si no tiene al menos una fila, este debe ser un OTHER FACTOR
+                othFacType <- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                  dplyr::filter(str_detect(id, paste0("^",design,"_typeInput_",index[i])))  
+                othFacType <- othFacType$values
+                
+                if(othFacType=="date"){
+                  out[[i]] <- out[[i]] %>%  dplyr::filter(str_detect(id,  "date" ))
+                  out[[i]] <-  out[[i]]$values
+                }
+                else{
+                  out[[i]] <- out[[i]] %>%  dplyr::filter(!str_detect(id,  "date" )) 
+                  out[[i]]<- strsplit(out[[i]]$values,split= ",")[[1]]
+                  out[[i]] <- stringi::stri_trim_both(str = out[[i]])
+                  
+                  #Detect Units
+                  if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i] ))))>=1 ){
+                    
+                    u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+                      dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i] ) ))
+                    u<- u$values
+                    out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
+                  }
+                  
+                }
+                
+              }
+            }
+            
+              
+           }
           
         }
         
-      } 
-      else { #Si no tiene al menos una fila, este debe ser un OTHER FACTOR
-        print("--2--")
-        #kt<<-allinputs
-        othFacType <- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%  
-                                    dplyr::filter(str_detect(id, paste0("^",design,"_typeInput_",index[i])))  
-        #print(i)
-        #print(othFacType)
-        othFacType <- othFacType$values
-        
-        if(othFacType=="date"){
-          out[[i]] <- out[[i]] %>%  dplyr::filter(str_detect(id,  "date" ))
-          out[[i]] <-  out[[i]]$values
-        }
-        else{
-          out[[i]] <- out[[i]] %>%  dplyr::filter(!str_detect(id,  "date" )) 
-          out[[i]]<- strsplit(out[[i]]$values,split= ", ")[[1]]
-          
-          #Detect Units
-          if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i] ))))>=1 ){
-            
-            u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
-              dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i] ) ))
-            u<- u$values
-            out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
-          }
-          
+        if(format=="data.frame"){
+          print("tranform to data.frame")
         }
         
-        #out[[i]] <-  out[[i]]$values
-        
-        #out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i] )))
-        #
-        
-        
-        
-      }
-    }
-    
-    
-    #Si es un factor estadarizado, entonces temp debe tener al menos una fila
-    
-  }
-  
-  if(format=="data.frame"){
-    print("tranform to data.frame")
-  }
-  out
+        out
   
 }
 
-
+# Get level for non-full factorial designs
 get_nonfactorial_levels <- function(input,design){
   
   if(design=="crd"){
@@ -262,6 +265,125 @@ get_nonfactorial_levels <- function(input,design){
   }
   out
 }
+
+
+# Get levels for special factors : timing and amount/type factors
+# ADVICE: NOT VECTORIZED, should be included in the main class get_levels_design
+get_timing_levels <- function(allinputs, index="1", factors, design="fcrd", 
+                               data_dictionary=NULL){
+  
+  #Remove underscore from factors
+  factors <- stringr::str_replace_all(string = factors,pattern = "_f[:digit:]",replacement = "")
+  factors <- stringr::str_replace_all(string = factors,pattern = "_",replacement = " ")
+
+  #Look up for pattern
+    lookup<- paste0("^",design,"_lvltiming") #Timing factor case : _lvltiming_
+
+  dt <- allinputs %>%   dplyr::filter(!str_detect(id, "add")) %>%
+                        dplyr::filter(!str_detect(id, "button")) %>%
+                        dplyr::filter(!str_detect(id, "unit")) %>% 
+                        dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                        dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                        dplyr::filter(str_detect(id, lookup))
+  
+  out <- vector(mode="character",length = length(factors))
+  tproc<- vector(mode="character",length = length(factors))
+  
+
+  #Type of timing procedure
+  tproc <- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
+                          dplyr::filter(str_detect(id,  paste0(lookup,"_",index,"$") ))
+  tproc <- tproc$values
+  
+  
+  ## Case: Days after plating, Grow stage, Frequency: -------------------------------------------------------------
+  if(tproc!="Date"){
+          ##Pattern: lookup_timing_index[i]_"1"
+          out <-  dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"Value","_",index,"_1$") ))
+          out<- strsplit(out$values,split= ",")[[1]]
+          out <- stringi::stri_trim_both(str = out)
+  } 
+  else {
+          #Number of dates
+          numdate <- allinputs %>%  dplyr::filter(str_detect(id,  paste0("^",design, "_numLevelsTimingESP_",index,"$")))
+          numdate <- as.integer(numdate$value)
+          
+          ## For date that includes number of dates -------------------------------------
+          out_date <- character(numdate)
+          for(j in seq.int(numdate)){
+            res <-  dt %>% dplyr::filter(str_detect(id,  paste0(lookup, "Value_",index,"_",j,"$")))
+            out_date[j] <- res$values
+          }
+          out<- out_date
+  }
+
+  #print(tproc)
+  #print(out)
+  out
+}
+
+
+# Get levels for amount and type factors
+# ADVICE: NOT VECTORIZED, should be included in the main class get_levels_design
+get_amountype_levels <- function(allinputs, index, factors, design="fcrd", 
+                                 data_dictionary=NULL){
+  
+  factors <- stringr::str_replace_all(string = factors,pattern = "_f[:digit:]",replacement = "")
+  factors <- stringr::str_replace_all(string = factors,pattern = "_",replacement = " ")
+  
+  #lookup<- paste0("^",design,"_lvltiming") #Timing factor case : _lvltiming_
+  lookup <- paste0("^",design,"_")
+  
+  dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
+                      dplyr::filter(!str_detect(id, "button")) %>%
+                      #dplyr::filter(!str_detect(id, "unit")) %>%  ##Contemplate Unit case
+                      dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                      dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                      dplyr::filter(str_detect(id, lookup))
+  
+  ## crop --------------------------------------------------------------------------------------------
+  #structure: design_factor_crop_input_index
+  crop <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",design,"factor","_crop_input",index,"$") )) 
+  if(nrow(crop)!=0){
+    crop <- crop$values  
+  }else{
+    crop<- ""
+  }
+  
+  ## number of evaluation for each element -----------------------------------------------------------
+  ## input structure: design_numLevelsESP_index
+  numEval<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",design, "_numLevelsESP_",index,"$"))) %>% nth(2)
+  numEval <- as.integer(numEval)
+  
+  eleType <- unit <- out <- NULL
+  lvl <- NULL
+  for(j in seq.int(numEval)){
+    
+    ## level values. 
+    ## input structure: design_lvl_espType_index_numEval------------------------------------------------------------------------------
+    eleType <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_espType_",index,"_", j,"$"))) %>% nth(2) 
+    #print(eleType[j]) 
+                                  
+    ## levels + unit -----------------------------------------------------------------------------------------------
+    ## input structure:  #design_lvl_index_numEval
+    lvl <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup, "lvl_",index,"_", j,"$")))  %>% nth(2)
+    lvl <-  strsplit(lvl,",")[[1]] %>% stringi::stri_trim_both()
+  
+    #unit  ----------------------------------------------------------------------------------------
+    ##  input strcucture: design_lvl_unit_index_numEval 
+    unit <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_unit_",index,"_", j,"$")))  %>% nth(2)
+    #print(unit[j])
+    
+    if(crop!=""){
+      out[[j]] <- paste0(crop,"_",eleType,"_",lvl,"_",unit)
+      print(out[j])
+    } else {
+      out[[j]] <- paste0(eleType,"_",lvl,"_",unit)
+    }
+    
+  }
+  out <- unlist(out)
+}  
 
 
 ## Get experimental design label (or full name) based on abrreviations
