@@ -149,7 +149,7 @@ get_ec_resmgt <- function(input, lbl){
 
 
 
-##### Protocols ############################################
+## Protocols ############################################
 
 # Get protocol residual dsecription
 
@@ -176,3 +176,14 @@ get_protocol_resmgt <- function(input){
 }
 
 
+
+
+## Get labels for management practices' user interface
+## choices = c("Plant part",
+# "Crop residue moisture",
+# "Crop residue thickness",
+# "Crop residue amount",
+# "Crop residue percent of coverage")
+# ),
+## 
+## 

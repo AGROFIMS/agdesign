@@ -191,7 +191,7 @@ map_values <- function(input, id_chr="", id_rand,
   funAgenVals <- vector(mode = "list", length = length(id_rand))
   for(i in id_rand){
 
-    
+    print(id_chr)
  
     if(is.null(input[[paste0(id_chr, i)]])){
       funAgenVals[[i]] <- ""        
@@ -211,7 +211,27 @@ map_values <- function(input, id_chr="", id_rand,
         funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("leadNameOther_", i)]],
                                                    input_other = "",
                                                    type = "select", format="vector")
-      } else if(id_chr== "int_cropCommonName_"){
+      } 
+       
+      else if(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_", i)]]=="CGIAR center" ){
+        # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
+        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("tLeadCenter_", i)]],
+                                                   input_other = "",
+                                                   type = "select", format="vector")
+      }
+      
+      else if(id_chr=="tLeadContCRP_" && input[[paste0("projLeadEnt_", i)]]=="CGIAR center" ){
+        # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
+        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("tLeadContCRP_", i)]],
+                                                   input_other = "",
+                                                   type = "select", format="vector")
+      }
+      #tLeadContCRP_1
+      
+      
+      
+      
+      else if(id_chr== "int_cropCommonName_"){
          if(!is.null(input[[paste0("int_cropCommonName_", i)]])){
            if(input[[paste0("int_cropCommonName_", i)]]=="Other"){
              funAgenVals[[i]] <-input[[paste0("int_cropCommonName_", i,"_other")]]
@@ -263,15 +283,15 @@ map_values <- function(input, id_chr="", id_rand,
       }
     }  
     
-    #SPECIAL CASE:  id_chr="tLeadCenter_" y projecLeadEnt=="Other" in EXPERIMENT LEAD BOX
-    if( id_chr=="tLeadCenter_") { 
-      #special cases 3 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
-      if( input[[paste0("projLeadEnt_",i)]]=="Other"){
-        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("leadNameOther_", i)]],
-                                                   input_other = "",
-                                                   type = "select", format="vector",default = "None")
-      }
-    }  
+    #Deprecated case: SPECIAL CASE:  id_chr="tLeadCenter_" y projecLeadEnt=="Other" in EXPERIMENT LEAD BOX
+    # if( id_chr=="tLeadCenter_") { 
+    #   #special cases 3 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+    #   if(input[[paste0("projLeadEnt_",i)]]=="Other"){
+    #     funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("leadNameOther_", i)]],
+    #                                                input_other = "",
+    #                                                type = "select", format="vector",default = "None")
+    #   }
+    # }  
     
     
     #Special cases 4 (get Experiment, lead organization name): projLeadEnt == NULO &  id_chr=="tLeadCenter_" & tLeadCenter=="NULL
@@ -280,8 +300,7 @@ map_values <- function(input, id_chr="", id_rand,
        print("case 5")
        funAgenVals[[i]] <- "" #input[[paste0(id_chr, i)]]
     }
-    
-    
+   
     
     
   }
@@ -599,6 +618,7 @@ ec_clean_header <- function(dt){
   dt$`Factor?`<-dt$`Reorganisation of all the variables (see GitHub 112 for the mock-up)`<- NULL
   #dt$Fieldbook_download<-NULL
   dt$Measurement_2<-NULL
+  #dt <- dt %>% dplyr::select(-starts_with("NA."))
   dt
 }
 
@@ -758,30 +778,31 @@ changes_units <- function(ec, input, allinputs){
 
 # Function to attach underscore and hashtag
 #
+# "NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot"
 add_season_numplot_prefix<- function(dt){
   
   if(!is.null(dt) && nrow(dt)!=0){
     out<-NULL
-    dt$CropMeasurementPerSeason <- as.numeric(dt$CropMeasurementPerSeason)
-    dt$CropMeasurementPerPlot <- as.numeric(dt$CropMeasurementPerPlot)
-    season_idx <- which(dt$CropMeasurementPerSeason<=0)
-    nplot_idx <-  which(dt$CropMeasurementPerPlot<=0)
+    dt$NumberofMeasurementsPerSeason <- as.numeric(dt$NumberofMeasurementsPerSeason)
+    dt$NumberofMeasurementsPerPlot <- as.numeric(dt$NumberofMeasurementsPerPlot)
+    season_idx <- which(dt$NumberofMeasurementsPerSeason<=0)
+    nplot_idx <-  which(dt$NumberofMeasurementsPerPlot<=0)
     #out2<- list()
     
         if(length(season_idx)>0){
-          dt$CropMeasurementPerSeason[season_idx]<- 1
+          dt$NumberofMeasurementsPerSeason[season_idx]<- 1
         }
         if(length(nplot_idx)>0){
-          dt$CropMeasurementPerPlot[nplot_idx]<- 1
+          dt$NumberofMeasurementsPerPlot[nplot_idx]<- 1
         }
         out <- list()
         
         #Number of instaces per seasons
         for(i in 1:nrow(dt)) {
-          out[[i]]<- paste(dt$TraitName[i],1:dt$CropMeasurementPerSeason[i],sep="__") 
+          out[[i]]<- paste(dt$TraitName[i],1:dt$NumberofMeasurementsPerSeason[i],sep="__") 
         }
     
-        if(all(dt$CropMeasurementPerPlot==1L)){
+        if(all(dt$NumberofMeasurementsPerPlot==1L)){
           
           out<- unlist(out)
           
@@ -790,10 +811,10 @@ add_season_numplot_prefix<- function(dt){
           out2<- list()
           for( i in 1:nrow(dt)){
             
-            if(dt$CropMeasurementPerPlot[i]==1L){
+            if(dt$NumberofMeasurementsPerPlot[i]==1L){
               out2[[i]] <- out[[i]]
             }else{
-              out2[[i]]<- sort( as.vector(outer(out[[i]], 1:dt$CropMeasurementPerPlot[i], paste, sep="#")))
+              out2[[i]]<- sort( as.vector(outer(out[[i]], 1:dt$NumberofMeasurementsPerPlot[i], paste, sep="#")))
             }
           }
           
@@ -815,15 +836,15 @@ add_season_numplot_prefix<- function(dt){
 #   
 #   if(!is.null(dt) && nrow(dt)!=0){
 #   
-#   dt$CropMeasurementPerPlot <- as.numeric(dt$CropMeasurementPerPlot)
-#   nplot_idx <-  which(dt$CropMeasurementPerPlot<=0)
+#   dt$NumberofMeasurementsPerPlot <- as.numeric(dt$NumberofMeasurementsPerPlot)
+#   nplot_idx <-  which(dt$NumberofMeasurementsPerPlot<=0)
 #   if(length(nplot_idx)>0){
-#     dt$CropMeasurementPerPlot[nplot_idx]<- 1
+#     dt$NumberofMeasurementsPerPlot[nplot_idx]<- 1
 #   }
 #   out <- NULL
 #   for(i in 1:nrow(dt)) {
-#     #if(dt$CropMeasurementPerPlot[i]!=1){
-#       out<- append(out, paste(cs[i],1:dt$CropMeasurementPerPlot[i],sep="#") )
+#     #if(dt$NumberofMeasurementsPerPlot[i]!=1){
+#       out<- append(out, paste(cs[i],1:dt$NumberofMeasurementsPerPlot[i],sep="#") )
 #     #} else {
 #      # out <- append(out, paste(cs[i]))
 #     #}

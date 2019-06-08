@@ -1,4 +1,6 @@
 #Get measurement data from Crop Measurement Data Dictionary
+#
+#
 get_dcm_values <- function(data_dictionary=NULL, attribute = "Subgroup", crop="Potato"){
   
   if (!is.null(data_dictionary) && !is.null(crop)) {
@@ -16,64 +18,133 @@ get_dcm_values <- function(data_dictionary=NULL, attribute = "Subgroup", crop="P
   out
 } 
 
-
-
-#Get measurement values from crop measurement layout
-#ctype: croppping type
-#addId: Id of the number of measurement per crop (list of vectors `addId``)
-#cropId: id number of the crop (vector of id)
-
-get_mea_inputs <-function(ctype="monocrop",  addId=list(c("1"),c("1")), cropId= "1") {
+# allinputs : reactive table with all the shiny inputs
+# ctype: croppping type
+# addId: list active Ids(number) derived from user click on add button()
+# cropId: vector active Ids(number) of the crop in the CROP tab
+#
+get_dtcmea_variables <- function(allinputs, ctype="monocrop", addId="1", crop="none", cropId="1"){
   
-  #template 
-  if(cytpe=="monocrop"){
-    lookup <- paste0("mono","_mea_")
-    cropId<-"1"
-  } 
-  else if(ctype=="intercrop"){
-    lookup <- paste0("int","_mea_")
-    #paste0(lookup,"_mea_",cropId,"_measurement_"addId)
-    #"int_mea_1_measurement_1"
-  } 
-  else if(ctype=="relay crop"){
-    lookup <- paste0("rel","_mea_")
-    #paste0(lookup,"_mea_",cropId,"_measurement_"addId)
+  if(ctype=="monocrop"){
+    lookup <- "mono_mea_"
+    cropId <- "1"
+  } else if(ctype=="intercrop"){
+    lookup <- "int_mea_"
+  } else if(ctype=="relay crop"){
+    lookup <- "rel_mea_"
   }
   
-  mea <- allinputs %>% dplyr::filter(!str_detect(id, "button")) %>%
-    dplyr::filter(!str_detect(id, "-selectized")) %>%
-    dplyr::filter(str_detect(id, paste0(lookup)))
+  dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
+                      dplyr::filter(!str_detect(id, "button")) %>%
+                      dplyr::filter(!str_detect(id, "_search")) %>%  ##Contemplate Unit case
+                      dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                      dplyr::filter(!str_detect(id, "_closeBox_")) %>%  
+                      dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                      dplyr::filter(str_detect(id,   paste0("^",lookup) ))
+  #print("dt_cmea")
+  #print(dt)
   
-  
-  #measurement<- parmea <- munit <- pseason<- pplot <-tim NULL
-  
-  for( i in 1:length(addId)){
+  if(nrow(dt)!=0 &&  length(addId)!=0 && length(cropId)!=0){
+    mea<-parmea <-unit <- pseason <- pplot<- timing<- timValue <- NULL
+    for( i in seq.int(addId) ){
+      mea[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_measurement_",addId[i],"$") ))  %>% dplyr::nth(2)
+      parmea[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_parmea_",addId[i],"$") ))  %>% dplyr::nth(2)
+      unit[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup, cropId,"_unit_",addId[i],"$") ))  %>% dplyr::nth(2)
+      pseason[i]<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_per_season_",addId[i],"$") ))  %>% dplyr::nth(2)
+      pplot[i]<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_per_plot_",addId[i],"$") ))  %>% dplyr::nth(2)
+      timing[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_timing_",addId[i],"$") ))  %>% dplyr::nth(2)
+      timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)
+    }
     
-    # #measurement
-    # measurement <- rbind(measurement , mea  %>% filter(str_detect(id, paste0(lookup, cropId,"_measurement_"addId[i],"$"))))
-    # 
-    # #parameter
-    # parmea <- rbind(parmea, mea %>%  filter(str_detect(id, paste0(lookup, cropId,"_parmea_"addId[i]),"$")))
-    # 
-    # #unit
-    # munit <- rbind(munit,  mea %>% filter(str_detect(id, paste0(lookup,cropId,"_unit_"addId[i]),"$")))
-    # 
-    # #per season
-    # pseason <- rbind(pseason,  mea %>% filter(str_detect(id, paste0(lookup, cropId,"_per_season_"addId[i]),"$")))
-    # #TODO: Default = 1
-    # 
-    # #per plot
-    # pplot<- rbind(pplot,  mea %>% filter(str_detect(id, paste0(lookup, cropId,"_per_plot_"addId[i]),"$")))
-    # #mono_mea_1_per_plot_1
-    # 
-    # #timing
-    # tim <- rbind(tim ,  mea %>% filter(str_detect(id,  paste0(lookup, cropId,"_timing_"addId[i]),"$")))
-    
-    ### TODO: ID de los timingValues deben ser iguales, excepto para fecha.
-    #timingValue  
-    #paste0(lookup,cropId,"_timingValue_"addId[i])
-    #mono_timingValueText_1_1
-    
+    dt<- tibble::tibble(crop, mea, parmea, unit, as.numeric(pseason), as.numeric(pplot), timing, timValue)
+    names(dt) <- c("Crop", "Measurement", "Subgroup","TraitUnit",  "NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot",
+                   "Timing", "TimingValue")
+  } 
+  else {
+    #Case: In case there are not any selected variable/measurement 
+    dt <- data.frame()
   }
-  
+  dt
 }
+
+
+#Get trait data
+# trait_variables: variables selected in the Crop Measurement interface 
+get_dt_trait <- function(dtcmea_variables, dt_cmea){
+
+ if(nrow(dtcmea_variables)!=0){
+   dt <- dplyr::left_join(dtcmea_variables, dplyr::select(dt_cmea,-starts_with("Number")))
+   dt <- dt %>% dplyr::mutate(TraitName = paste(Crop, Subgroup, Measurement, TraitUnit, sep="_"))
+ } else {
+   dt <- data.frame()
+ }
+ dt  
+
+}
+
+  
+  
+  
+# cropId active Ids(number) of the crop in the CROP tab
+# ctype: croppping type
+#
+# get_cmea_multicrop_addId <- function(cropId, ctype= "intercrop"){
+#   
+#   if(ctype=="intercrop"){
+#     
+#     
+#     if( cropId=="1" ){
+#       v <- getAddInputId(meaINT1$ids, "int_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="2"){
+#       v <- getAddInputId(meaINT2$ids, "int_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="3"){
+#       v <- getAddInputId(meaINT3$ids ,"int_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="4"){
+#       v <- getAddInputId(meaINT4$ids ,"int_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="5"){
+#       v <- getAddInputId(meaINT5$ids ,"int_mea_[:digit:]+_fluidRow_","")
+#     } else{ 
+#       v <-NULL
+#     }
+#   } 
+#   else if(ctype=="relay crop"){
+#     
+#     if(cropId=="1"){#
+#       v <- getAddInputId(meaREL1$ids , "rel_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="2"){
+#       v <- getAddInputId(meaREL2$ids , "rel_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="3"){
+#       v <- getAddInputId(meaREL3$ids ,"rel_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="4"){
+#       v <- getAddInputId(meaREL4$ids ,"rel_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="5"){
+#       v <- getAddInputId(meaREL5$ids , "rel_mea_[:digit:]+_fluidRow_","")
+#     } else{ 
+#       v <-NULL
+#     }
+#     
+#   } 
+#   else if(ctype=="rotation"){
+#     
+#     if( cropId=="1" ){
+#       v <- getAddInputId(meaROT1$ids, "rot_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="2"){
+#       v <- getAddInputId(meaROT2$ids,"rot_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="3"){
+#       v <- getAddInputId(meaROT3$ids,"rot_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="4"){
+#       v <- getAddInputId(meaROT4$ids,"rot_mea_[:digit:]+_fluidRow_","")
+#     } else if (cropId=="5"){
+#       v <- getAddInputId(meaROT5$ids,"rot_mea_[:digit:]+_fluidRow_","")
+#     } else{ 
+#       v <-NULL
+#     }
+#     
+#   }
+#   
+#   out<- v 
+# }
+
+
+
+

@@ -3,8 +3,8 @@ library(agdesign)
 context("test add season and plot number per trait")
 
 dt<- data.frame(TraitName = paste0("TraitName",1:4),
-                CropMeasurementPerSeason=c(1,5,1,3), 
-                CropMeasurementPerPlot= c(1,1,4,6), stringsAsFactors = FALSE )
+                NumberofMeasurementsPerSeason=c(1,5,1,3), 
+                NumberofMeasurementsPerPlot= c(1,1,4,6), stringsAsFactors = FALSE )
 
 test_that("Test season =1 and plot =1", {
   

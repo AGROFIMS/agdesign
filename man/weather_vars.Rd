@@ -3,7 +3,7 @@
 \docType{data}
 \name{weather_vars}
 \alias{weather_vars}
-\title{weather_vars weather soil_data}
+\title{weather_vars weather weather_vars}
 \format{A list of installation sheet data in HiDAP-AGROFIMS}
 \source{
 CGIAR Big Data Platform, Bioversity, International Potato Center CIP, CIAT,  CGIAR

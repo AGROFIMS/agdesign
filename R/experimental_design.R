@@ -36,6 +36,8 @@ fbdesign_agrofims <- function(design, rep=2, block=2, trt=2, ntrt=NULL,
             }
             
             if (design == "frcbd") { ##factorial rcbd
+              print(fnames)
+              print(flevels)
               fb <- try(st4gi::cr.f(fnames = fnames, flevels = flevels, design = "rcbd", nrep = rep)$book)
               names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")  #rename first 5 cols
             }
@@ -55,7 +57,7 @@ fbdesign_agrofims <- function(design, rep=2, block=2, trt=2, ntrt=NULL,
               fb <- try(st4gi::cr.strd(A = ,B = ,nb = )$book )
               names(fb)[1:4] <- c("PLOT", "BLOCK", "ROW","COL")
             }
-            
+            #print(fb)
             fb
           
 }
@@ -375,10 +377,10 @@ get_amountype_levels <- function(allinputs, index, factors, design="fcrd",
     #print(unit[j])
     
     if(crop!=""){
-      out[[j]] <- paste0(crop,"_",eleType,"_",lvl,"_",unit)
+      out[[j]] <- paste0(crop,"_",eleType,"_",lvl,unit)
       print(out[j])
     } else {
-      out[[j]] <- paste0(eleType,"_",lvl,"_",unit)
+      out[[j]] <- paste0(eleType,"_",lvl,unit)
     }
     
   }
@@ -413,55 +415,55 @@ experimental_design_label <- function(abbr_design = "frcbd"){
 }
 
 
-## Build experimental design table metadata
-get_faclevdt <- function(design, allinputs){
-  
-  output <- try({  
-  design <- tolower(design)
-  dsg <- experimental_design_label(design)
-  dsg_abbr <- design %>% toupper()
-
-  #Get IDS from design inputs
-  IdDesignInputs <- getFactorIds(design)
-  #Get index from Design's IDs
-  index <- get_index_design(IdDesignInputs, design)
-  
-  
-  flbl<- get_factors_design(allinputs = allinputs, index, design = design,duplicate = FALSE)
-  #Get list of labels
-  flvl <- get_levels_design(allinputs = allinputs, data_dictionary= dtfactordesign,
-                            index, factors = flbl, design=design, format="list")
-  #out <- setDT(transpose(flvl))[]
-  flvl <-  lapply(flvl, function(x)paste(x,collapse=", "))
-  # Number of factors
-  nf <- length(flvl)
-  
-  ## Labels
-  flab<- paste("Factor", 1:length(flbl))
-  levlab <- paste("Factor", 1:length(flbl), "- Levels")
-  paramlab <- c(rbind(flab, levlab)) 
-  #Ensemble as a data frame of factors and levels
-  out<- data.frame()
-  for( i in 1:length(flvl)){
-    out <- rbind(out, rbind(flbl[i], flvl[[i]]) )
-  }
-  #Put as a table
-  dsg_dt<- data.frame(Factor= c("Experimental design", "Experimental design abbreviation",
-                                   "Number of factors"), 
-                      Value = c(dsg,dsg_abbr, nf),stringsAsFactors = FALSE)
-  out<- data.frame(Factor= paramlab, Value= out$V1)
-  out<-rbind(dsg_dt, out) 
-
-  out 
-  })
-  
-  if(class(output)=="try-error"){
-    out<- data.frame(Factor=NULL, Value= NULL)
-  }else{
-    out<- output
-  }
-  out
-}
+# ## Build experimental design table metadata
+# get_faclevdt <- function(design, allinputs){
+#   
+#   output <- try({  
+#   design <- tolower(design)
+#   dsg <- experimental_design_label(design)
+#   dsg_abbr <- design %>% toupper()
+# 
+#   #Get IDS from design inputs
+#   IdDesignInputs <- getFactorIds(design)
+#   #Get index from Design's IDs
+#   index <- get_index_design(IdDesignInputs, design)
+#   
+#   
+#   flbl<- get_factors_design(allinputs = allinputs, index, design = design,duplicate = FALSE)
+#   #Get list of labels
+#   flvl <- get_levels_design(allinputs = allinputs, data_dictionary= dtfactordesign,
+#                             index, factors = flbl, design=design, format="list")
+#   #out <- setDT(transpose(flvl))[]
+#   flvl <-  lapply(flvl, function(x)paste(x,collapse=", "))
+#   # Number of factors
+#   nf <- length(flvl)
+#   
+#   ## Labels
+#   flab<- paste("Factor", 1:length(flbl))
+#   levlab <- paste("Factor", 1:length(flbl), "- Levels")
+#   paramlab <- c(rbind(flab, levlab)) 
+#   #Ensemble as a data frame of factors and levels
+#   out<- data.frame()
+#   for( i in 1:length(flvl)){
+#     out <- rbind(out, rbind(flbl[i], flvl[[i]]) )
+#   }
+#   #Put as a table
+#   dsg_dt<- data.frame(Factor= c("Experimental design", "Experimental design abbreviation",
+#                                    "Number of factors"), 
+#                       Value = c(dsg,dsg_abbr, nf),stringsAsFactors = FALSE)
+#   out<- data.frame(Factor= paramlab, Value= out$V1)
+#   out<-rbind(dsg_dt, out) 
+# 
+#   out 
+#   })
+#   
+#   if(class(output)=="try-error"){
+#     out<- data.frame(Factor=NULL, Value= NULL)
+#   }else{
+#     out<- output
+#   }
+#   out
+# }
 
 
 ## Get index from ID (provided by the statistical design prefix)

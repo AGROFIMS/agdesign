@@ -9,7 +9,7 @@ context("test get labels for residue management")
 
 test_that("Test to get labels for RESIDUE management and filter them in experiment conditions", {
   
-  fname <- rprojroot::find_testthat_root_file("userInput", "ec-labelinputs.rds")
+  fname <- rprojroot::find_testthat_root_file("userInput", "ec-label-inputs.rds")
   fec <- rprojroot::find_testthat_root_file("excel", "ExpConditions-05-3-2019.xlsx")
   
   # Harvest -----------------------------------------------------------------

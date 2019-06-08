@@ -52,10 +52,11 @@ intercrop_phetables <- function(dtInterCrop, fbdesign, inter_row_selected ){
   
 }
  
-intercrop_phe_vars <- function(dtInterCrop,  inter_row_selected ){
+multicrop_phe_vars <- function(dtMultiCrop,  mult_row_selected ){
   
-  row_select <- sort(inter_row_selected)
-  dt <- dtInterCrop[row_select, ]
+  #dtMultiCrop<-ec_clean_header(dtMultiCrop)#Remove foo columns
+  #row_select <- sort(inter_row_selected)
+  dtMultiCrop <- dtMultiCrop[sort(mult_row_selected), ]
   #lbl <- dt$Measurement
   
 }

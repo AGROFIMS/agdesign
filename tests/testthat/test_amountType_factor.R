@@ -28,12 +28,12 @@ test_that("Test type and amount factor (special factor)", {
                          data_dictionary=data_dictionary)
   }
   
-  testthat::expect_equal(lvl1, c("Bark / Wood chips_a1_g/m2", "Bark / Wood chips_a2_g/m2",
-                                "Bark / Wood chips_a3_g/m2", "Compost_b1_g/m2"          ,
-                                "Compost_b2_g/m2","Compost_b3_g/m2")        
+  testthat::expect_equal(lvl1, c("Bark / Wood chips_a1g/m2", "Bark / Wood chips_a2g/m2",
+                                "Bark / Wood chips_a3g/m2", "Compost_b1g/m2"          ,
+                                "Compost_b2g/m2","Compost_b3g/m2")        
                          )
-  testthat::expect_equal(lvl2, c("Maize_Alfalfa meal_k1_g/m2", "Maize_Alfalfa meal_k2_g/m2",
-                                 "Maize_Alfalfa meal_k3_g/m2"))
+  testthat::expect_equal(lvl2, c("Maize_Alfalfa meal_k1g/m2", "Maize_Alfalfa meal_k2g/m2",
+                                 "Maize_Alfalfa meal_k3g/m2"))
   
   
   testthat::expect_equal(out[[1]], lvl1)

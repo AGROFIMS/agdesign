@@ -18,20 +18,20 @@ test_that("Test timing factor (special factor)", {
   index <- c("1","2","3","4","5")
   
   data_dictionary <- agdesign::dtfactordesign
-  lvl1 <- get_timing_levels(allinputs, index="1", factors[1], design="crd",case="timing", 
-                           data_dictionary=data_dictionary, format="list")
+  lvl1 <- get_timing_levels(allinputs, index="1", factors[1], design="crd",
+                           data_dictionary=data_dictionary)
   
-  lvl2 <- get_timing_levels(allinputs, index="2", factors[2], design="crd",case="timing", 
-                             data_dictionary=data_dictionary, format="list")
+  lvl2 <- get_timing_levels(allinputs, index="2", factors[2], design="crd", 
+                             data_dictionary=data_dictionary)
   
-  lvl3 <- get_timing_levels(allinputs, index="3", factors[3], design="crd",case="timing", 
-                             data_dictionary=data_dictionary, format="list")
+  lvl3 <- get_timing_levels(allinputs, index="3", factors[3], design="crd",
+                             data_dictionary=data_dictionary)
   
-  lvl4 <- get_timing_levels(allinputs, index="4", factors[4], design="crd",case="timing", 
-                             data_dictionary=data_dictionary, format="list")
+  lvl4 <- get_timing_levels(allinputs, index="4", factors[4], design="crd", 
+                             data_dictionary=data_dictionary)
   
-  lvl5 <- get_timing_levels(allinputs, index="5", factors[5], design="crd",case="timing", 
-                             data_dictionary=data_dictionary, format="list")
+  lvl5 <- get_timing_levels(allinputs, index="5", factors[5], design="crd", 
+                             data_dictionary=data_dictionary)
   
   
   testthat::expect_equal(lvl1, c("g1", "g2", "g3"))
