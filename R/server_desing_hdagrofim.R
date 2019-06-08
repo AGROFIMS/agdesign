@@ -12378,11 +12378,11 @@ server_design_agrofims <- function(input, output, session, values){
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
-        ai <- AllInputs()
-        saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-        x <- reactiveValuesToList(input)
-        saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-        
+        # ai <- AllInputs()
+        # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+        # x <- reactiveValuesToList(input)
+        # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+        # 
         # idpheno <<-  mea_phe_multicrop$var_PHE_int
         # print(idpheno)
         # 
@@ -12428,6 +12428,7 @@ server_design_agrofims <- function(input, output, session, values){
           }
           
           print("inicio")
+          ######################### INITIALIZE THE EXCEL WORKBOOK ###############################
           wb <- createWorkbook()
           
           print("inicio2")
