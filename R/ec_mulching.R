@@ -1,4 +1,4 @@
-# Get management practices for mulching experiments
+# Get management practices for mulching experiments  ########################
 get_ec_mulching <- function(allinputs){
   
   #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
@@ -99,7 +99,7 @@ get_ec_mulching <- function(allinputs){
   
 }
 
-# Get protocol values for mulching experiments
+# Get protocol values for mulching experiments  #############################
 get_protocol_mulching <- function(allinputs){
     out<- get_ec_mulching(allinputs)$dt 
     names(out) <- stringr::str_replace_all(names(out),"__1","")
@@ -108,3 +108,17 @@ get_protocol_mulching <- function(allinputs){
     names(out) <- c("TraitName","Value")
     out
 }
+
+
+
+# Get collectable inputs from Mulching #############################################################################
+# allinputs: data frame of all inputs derived from ReactiveValuesToList
+get_collectable_mulching <- function(allinputs){
+  
+  mu <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","mulch_management_to_collect_field","$") )) %>% dplyr::nth(2)
+  out <- stringi::stri_split_regex(mu,",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")
+  if(length(out)!=0){
+    out <- paste0("Mulch management" ,"_", out)
+  }
+}
+

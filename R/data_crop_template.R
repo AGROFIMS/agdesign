@@ -226,3 +226,15 @@ NULL
 #' @format data.frame
 #' @source CGIAR Big Data Platform, Bioversity, International Potato Center, CIAT,  CGIAR
 NULL
+
+
+#' @name magm_label
+#' @title magm_label
+#' @docType data
+#' @aliases magm_label
+#' @description Labels for management practices UI in AGROFIMS
+#' @references This data is related to AGROFIMS Management Practices
+#' @usage magm_label
+#' @format data.frame
+#' @source CGIAR Big Data Platform, Bioversity, International Potato Center, CIAT,  CGIAR
+NULL

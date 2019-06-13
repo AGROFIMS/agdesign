@@ -1,4 +1,4 @@
-## Get managements practices for harvest
+## Get managements practices for harvest ########################################################
 get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1"){
   
   #allinputs<- readRDS("tests/testthat/userInput/harvest-tableIds-01.rds")
@@ -304,7 +304,7 @@ get_addId_multiharvest <- function(cropId, ctype= "intercrop" ){
 }
 
 # 
-# Get protocol for harvest trials ----------------------------------------
+# Get protocol for harvest trials ##############################################################
 get_protocol_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1"){
   
   out<- get_ec_harv(allinputs, input, ctype= ctype, cropId=cropId, addId= addId)$dt 
@@ -322,8 +322,52 @@ get_protocol_harv <- function(allinputs, input, ctype="monocrop", cropId="1", ad
 }
 
 
-
-
+# Get Collectable inputs for Harvest ###########################################################3
+get_collectable_harvest <- function(allinputs, ctype="monocrop",crop, cropId="1"){
+  
+  if(ctype=="monocrop"){
+    lookup<- "mono"
+    cropId <- "1"
+    #direct seeding
+    ha <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^", lookup,"_harvest_to_collect_field","$") )) %>% dplyr::nth(2)
+    out <- stringi::stri_split_regex(ha, ",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("") 
+    
+    if(length(out)!=0){
+      out <- paste0("Harvest" ,"_", out) 
+    }
+    
+  } 
+  else {
+    
+    if(ctype=="intercrop"){
+      crop_pattern <- "int"
+    }
+    else if(ctype=="relay crop"){
+      crop_pattern <- "rel"
+    }
+    else if(cytpe=="rotation"){
+      crop_pattern <- "rot"
+    }  
+      #direct seeding
+      #int_harv_2_harvest_to_collect_field_1
+      ha <- lapply(X = cropId, function(x) allinputs %>% 
+                     dplyr::filter(str_detect(id,  paste0("^", paste0(crop_pattern,"_harv_",x) ,"_harvest_to_collect_field_1","$") ))%>% 
+                     dplyr::nth(2)) 
+      
+      ha <- lapply(ha, function(x)stringi::stri_split_regex(x, ",")[[1]] )
+      
+      for( i in seq.int(crop)){
+        ha[[i]] <- ha[[i]] %>% stringr::str_trim(side = "both") %>% setdiff("")
+        ha[[i]] <- paste0(crop[i],"_",ha[[i]])
+      }
+      out <- unlist(ha)
+      if(length(out)!=0){
+        out <- paste0("Harvest" ,"_", out) #%>% stringr::str_replace_all(" ","_")
+      }
+  } 
+ 
+  out 
+}
 
 
 

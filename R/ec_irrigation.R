@@ -1,5 +1,5 @@
 
-# Get management practices for irrigation experiments
+# Get management practices for irrigation experiments ###############################################
 #ctype: cropppyng type ("monocrop","intercrop")
 get_ec_irri <- function(allinputs, ctype="monocrop", addId ){
 
@@ -164,7 +164,7 @@ get_ec_irri <- function(allinputs, ctype="monocrop", addId ){
     
 }
 
-# Get protocol for irrigation experiments
+# Get protocol for irrigation experiments  ##########################################################
 get_protocol_irri <- function(allinputs, ctype="monocrop", addId ){
   
   out <- get_ec_irri(allinputs, ctype, addId)$dt
@@ -176,6 +176,12 @@ get_protocol_irri <- function(allinputs, ctype="monocrop", addId ){
 }
 
 
-
-#allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-#get_ec_irri(allinputs=allinputs,addId= c("1","2"))
+# Get Collectable Irrigation inputs #################################################################
+get_collectable_irri <- function(allinputs){
+  
+  irri <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","irrigation_to_collect_field","$") )) %>% dplyr::nth(2)
+  out <- stringi::stri_split_regex(irri,",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")
+  if(length(out)!=0){
+    out <- paste0("Irrigation" ,"_", out)
+  }
+}

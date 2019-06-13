@@ -101,3 +101,19 @@ test_that("Remove variables from weather and soil", {
   
 })
 
+
+# test_that("Test add_season_numplot for weather variables in Monocrop trials", {
+#   fname <- rprojroot::find_testthat_root_file("userInput", "test_weather3.rds")
+#   #fname <- rprojroot::find_testthat_root_file("userInput", "table_ids.rds")
+#   allinputs <- readRDS(fname)
+#   addId <- c("1")
+#   dt1 <- get_weather_variables(allinputs,addId = addId)
+#   dt1_join<- get_dt_soil(dt1, dt_soil = dt_soil)
+#   
+#   cs<- add_season_numplot_prefix(dt=dt1_join)
+#   
+#   testthat::expect_equal(ncol(dt1),1)
+#   testthat::expect_equal(length(cs),1)
+#   testthat::expect_false(anyNA(cs))
+#   
+# })

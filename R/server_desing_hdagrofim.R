@@ -491,6 +491,95 @@ server_design_agrofims <- function(input, output, session, values){
     res
   }
   
+  # Funcion que crea lista de inputs a guardar: Soil
+  inputsSoil <- function(){
+    df2 <- df3 <- df4 <- df5 <- data.frame()
+    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- c()
+    b1 <- b2 <- b3 <- b4 <- b5 <- b6 <- b7 <- b8 <- b9 <- c()
+    c1 <- c2 <- c3 <- c4 <- c5 <- c6 <- c7 <- c8 <- c9 <- c()
+    
+    # inputs para: Soil
+    id_rand_soil <-  getAddInputId(soilVars$ids, "soil_", "") 
+
+    #Variables auxiliares
+    aux1<-aux2<-aux3<-aux4<-aux5<-aux6<-aux7<-aux8<-aux9 <- c()
+    for (i in 1:length(id_rand_soil)) {
+      
+      aux1[i] <- paste0("soil_mea_", id_rand_soil[i])
+      aux2[i] <- paste0("soil_unit_", id_rand_soil[i])
+      aux3[i] <- paste0("soil_depth_", id_rand_soil[i])
+      aux4[i] <- paste0("soil_depthunit_", id_rand_soil[i])
+      aux5[i] <- paste0("soil_per_season_", id_rand_soil[i])
+      aux6[i] <- paste0("soil_per_plot_", id_rand_soil[i])
+      aux7[i] <- paste0("soil_timing_", id_rand_soil[i])
+      aux8[i] <- paste0("soil_timingNumLevels_", id_rand_soil[i])
+      
+      # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
+      # 
+      # if(!is.na(numlvls) && numlvls != "" ){
+      #   for( j in 1:numlvls){
+      #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
+      #   }
+      # }
+
+      a1[i] <- paste0("soil_mea_", i)
+      a2[i] <- paste0("soil_unit_", i)
+      a3[i] <- paste0("soil_depth_", i)
+      a4[i] <- paste0("soil_depthunit_", i)
+      a5[i] <- paste0("soil_per_season_", i)
+      a6[i] <- paste0("soil_per_plot_", i)
+      a7[i] <- paste0("soil_timing_", i)
+      a8[i] <- paste0("soil_timingNumLevels_", i)
+
+      # if(!is.na(numlvls) && numlvls != "" ){
+      #   for( j in 1:numlvls){
+      #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
+      #   }
+      # }
+
+      b1[i] <- "textInput"
+      b2[i] <- "selectizeInput"
+      b3[i] <- "selectizeInput"
+      b4[i] <- "selectizeInput"
+      b5[i] <- "textInput"
+      b6[i] <- "textInput"
+      b7[i] <- "selectizeInput"
+      b8[i] <- "selectizeInput"
+      
+      # if(!is.na(numlvls) && numlvls != "" ){
+      #   for( j in 1:numlvls){
+      #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
+      #       b9[i] <- "dateInput"
+      #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
+      #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
+      #     {
+      #       b9[i] <- "selectizeInput"
+      #     }
+      #   }
+      # }
+
+
+      c1[i] <- "n"
+      c2[i] <- "y"
+      c3[i] <- "y"
+      c4[i] <- "n"
+      c5[i] <- "n"
+      c6[i] <- "n"
+      c7[i] <- "n"
+      c8[i] <- "n"
+      #c9[i] <- "n"
+
+    }
+    df1 <- data.frame(originalInputId = c(aux1,aux2,aux3,aux4,aux5,aux6,aux7,aux8),
+                      inputId = c(a1, a2, a3, a4, a5, a6, a7, a8),
+                      type = c(b1, b2, b3, b4, b5, b6, b7, b8),
+                      create = c(c1, c2, c3, c4, c5, c6, c7, c8),
+                      stringsAsFactors = F)
+    
+    res <- df1
+    res
+  }
+  
   # Funcion que crea lista de inputs a guardar: Design
   inputsDesign <- function() {
     df2 <- df3 <- df4 <- data.frame()
@@ -938,9 +1027,12 @@ server_design_agrofims <- function(input, output, session, values){
       inputs_to_save <- rbind(inputsExperiment(),
                               inputsPersonnel(),
                               inputsSite(),
-                              inputsCrop())
+                              inputsCrop(),
+                              inputsSoil())
       #inputsDesign(),
       #inputsExpCon())
+      
+      View(inputs_to_save)
       
       case1p <- dplyr::filter(inputs_to_save, type == "textInput" |
                                 type == "numericInput" |
@@ -1001,11 +1093,13 @@ server_design_agrofims <- function(input, output, session, values){
       #Crea el dataframe con los valores capturados para selectize y select Input
       inputs_data_frame3 <- data.frame(inputId = case3, type = case3_type, create = case3_create, value = inputs3)
       
-      print("no sale")
-      print(paste(input[["fbDesign_inSiteVegetation_other"]],collapse="$"))
       
-      print("correcto")
-      print(paste(input[["fbDesign_inSiteVegetation"]],collapse="$"))
+      #Eliminar sesion
+      # print("no sale")
+      # print(paste(input[["fbDesign_inSiteVegetation_other"]],collapse="$"))
+      # 
+      # print("correcto")
+      # print(paste(input[["fbDesign_inSiteVegetation"]],collapse="$"))
       
       
       #inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame2, inputs_data_frame3)
@@ -1027,15 +1121,13 @@ server_design_agrofims <- function(input, output, session, values){
       cropREL  <- cropRELRowsSaveSession()
       cropROT  <- cropROTRowsSaveSession()
       
+      soilRow  <- soilRowsSaveSession()
+      
       #Unimos todos los dataframe en uno solo
-      final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame, expRow, persRow, cropIC, cropREL, cropROT)
+      final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame, expRow, persRow, cropIC, cropREL, cropROT,soilRow)
       
-      
-      #Eliminar
-      print(cropROT)
       View(final_inputs_df)
-      
-      
+
       #Almacena archivos en 2 csv's
       write.csv(final_inputs_df, paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
       write.csv(final_inputs_df, paste0(sessionpathbk, input$uniqueId, ".csv"), row.names = FALSE)
@@ -1092,10 +1184,18 @@ server_design_agrofims <- function(input, output, session, values){
     nrowCropREL <- data.frame(inputId = "nrowCropREL", type = "", create = "", value = nrowCropREL)
   }
   
+  #Crop Rotation Rows SaveSession
   cropROTRowsSaveSession <- function(){
     nrowCropROT <- as.character(length(rotationcropVars$ids))
     nrowCropROT <- data.frame(inputId = "nrowCropROT", type = "", create = "", value = nrowCropROT)
   }
+  
+  #Crop Measurement Rows SaveSession
+  soilRowsSaveSession <- function(){
+    nrowSOIL <- as.character(length(soilVars$ids))
+    nrowSOIL <- data.frame(inputId = "nrowSOIL", type = "", create = "", value = nrowSOIL)
+  }
+  
   # Save session
   observeEvent(input$savefieldbook, {
     savesession()
@@ -1172,12 +1272,19 @@ server_design_agrofims <- function(input, output, session, values){
   
   loadsession2 <- function() {
     
-    #Sesion Eliminar
-    print(factorRCBD$ids)
-    
+
     if (length(selectedRow() != 0)) {
       if (file.exists(isolate(paste0(sessionpath, selectedRow(), ".csv")))){
         uploaded_inputs <- read.csv(paste0(sessionpath, selectedRow(), ".csv"))
+        
+        
+        soil_df <- as.data.frame(uploaded_inputs) %>% filter(inputId %like% "soil")
+        View(soil_df)
+        
+        uploaded_inputs <- uploaded_inputs %>% filter(!str_detect(inputId,"soil"))
+          #%>% filter(!str_detect(id, "-selectized")) %>%
+        
+        View(as.data.frame(uploaded_inputs))
         
         #Funding Agency
         nrowFundingAgency <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowFundingAgency") %>% select_("value")
@@ -1217,7 +1324,6 @@ server_design_agrofims <- function(input, output, session, values){
           }
         }
         
-        
         #Crop
         croppingType <- as.data.frame(uploaded_inputs) %>% filter(inputId == "croppingType") %>% select_("value")
         croppingType <- as.character(croppingType[[1]])
@@ -1248,9 +1354,7 @@ server_design_agrofims <- function(input, output, session, values){
            }else if (croppingType == "Rotation"){
               nrowCropROT <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowCropROT") %>% select_("value")
               nrowCropROT <- as.numeric(as.character(nrowCropROT[[1]]))
-  
-              #Eliminar sesion
-              print(nrowCropROT)
+
   
               if(nrowCropROT>=3){
                 for(i in 3:nrowCropROT){
@@ -1259,17 +1363,120 @@ server_design_agrofims <- function(input, output, session, values){
               }
           }
         }
+        
+        #Soil 
+        nrowSoil <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowSOIL") %>% select_("value")
+        nrowSoil <- as.numeric(as.character(nrowSoil[[1]]))
+        
+        timing<- get_dcm_values(cmdt, "Timing","")
+        
 
+        if(length(nrowSoil)>0 && nrowSoil>=1){
+          for(i in 1:nrowSoil){
+            insertRow_SOIL(i,timing,"","")
+          }
+          
+          delay(1500,lapply (1:nrow(soil_df),function(i){
+            type <- as.character(soil_df[i, 2])
+            create <- as.character(soil_df[i, 3])
+            
+            if (type == "textInput") {
+              updateTextInput(session,
+                              inputId = soil_df$inputId[i],
+                              value = soil_df$value[i])
+            }
+            
+            if (type == "dateRangeInput") {
+              if (uploaded_inputs[i, 4] != "") {
+                v <- getInputs(soil_df[i, 4], "")
+                x <- as.Date(v[1]) + 1
+                y <- as.Date(v[2]) + 1
+                updateAirDateInput(session,
+                                   inputId = soil_df$inputId[i],
+                                   value = c(x, y),
+                                   clear = T)
+              } else {
+                updateAirDateInput(session,
+                                   inputId = soil_df$inputId[i],
+                                   clear = T)
+              }
+            }
+            
+            if (type == "selectizeInput" && create == "n") {
+              delay(200,updateSelectizeInput(session,
+                                   inputId = soil_df$inputId[i],
+                                   selected = getInputs(soil_df[i, 4], "")))
+              
+              delay(200,Sys.sleep(0.5))
+            }
+            
+            if (type == "selectizeInput" && create == "y") {
+              
+              delay(200,updateSelectizeInput(session,
+                                   inputId = soil_df$inputId[i],
+                                   selected = getInputs(soil_df[i, 4], ""),
+                                   choices = getInputs(soil_df[i, 4], ""),
+                                   options = list('create' = TRUE)))
+              
+              delay(200,Sys.sleep(0.5))
+            }
+            
+            if (type == "textAreaInput") {
+              updateTextAreaInput(session,
+                                  inputId = soil_df$inputId[i],
+                                  value = soil_df$value[i])
+            }
+            
+            if (type == "numericInput") {
+              updateNumericInput(session,
+                                 inputId = soil_df$inputId[i],
+                                 value = soil_df$value[i])
+            }
+            
+            if (type == "checkboxInput") {
+              if (soil_df$value[i] == "FALSE") {
+                x <- FALSE
+              } else {
+                x <- TRUE
+              }
+              
+              updateCheckboxInput(session,
+                                  inputId = soil_df$inputId[i],
+                                  value = x)
+            }
+            
+            if (type == "dateInput") {
+              if (uploaded_inputs[i, 4] != "") {
+                v <- getInputs(soil_df[i, 4], "")
+                v <- as.Date(v) + 1
+                updateAirDateInput(session,
+                                   inputId = soil_df$inputId[i],
+                                   value = v,
+                                   clear = T)
+              } else {
+                updateAirDateInput(session,
+                                   inputId = soil_df$inputId[i],
+                                   clear = T)
+              }
+            }
+          }))
+          
+        }
+        
+       
+
+
+    
         for(i in 1:nrow(uploaded_inputs)) {
           type <- as.character(uploaded_inputs[i, 2])
           create <- as.character(uploaded_inputs[i, 3])
-          
+
           if (type == "textInput") {
             updateTextInput(session,
                             inputId = uploaded_inputs$inputId[i],
                             value = uploaded_inputs$value[i])
           }
-          
+
           if (type == "dateRangeInput") {
             if (uploaded_inputs[i, 4] != "") {
               v <- getInputs(uploaded_inputs[i, 4], "")
@@ -1285,45 +1492,46 @@ server_design_agrofims <- function(input, output, session, values){
                                  clear = T)
             }
           }
-          
+
           if (type == "selectizeInput" && create == "n") {
             updateSelectizeInput(session,
                                  inputId = uploaded_inputs$inputId[i],
                                  selected = getInputs(uploaded_inputs[i, 4], ""))
           }
-          
+
           if (type == "selectizeInput" && create == "y") {
+
             updateSelectizeInput(session,
                                  inputId = uploaded_inputs$inputId[i],
                                  selected = getInputs(uploaded_inputs[i, 4], ""),
                                  choices = getInputs(uploaded_inputs[i, 4], ""),
                                  options = list('create' = TRUE))
           }
-          
+
           if (type == "textAreaInput") {
             updateTextAreaInput(session,
                                 inputId = uploaded_inputs$inputId[i],
                                 value = uploaded_inputs$value[i])
           }
-          
+
           if (type == "numericInput") {
             updateNumericInput(session,
                                inputId = uploaded_inputs$inputId[i],
                                value = uploaded_inputs$value[i])
           }
-          
+
           if (type == "checkboxInput") {
             if (uploaded_inputs$value[i] == "FALSE") {
               x <- FALSE
             } else {
               x <- TRUE
             }
-            
+
             updateCheckboxInput(session,
                                 inputId = uploaded_inputs$inputId[i],
                                 value = x)
           }
-          
+
           if (type == "dateInput") {
             if (uploaded_inputs[i, 4] != "") {
               v <- getInputs(uploaded_inputs[i, 4], "")
@@ -1340,9 +1548,11 @@ server_design_agrofims <- function(input, output, session, values){
           }
         }
         
+        
+        
         delay(
           1500,
-          for(i in 1:nrow(uploaded_inputs)) {
+          lapply(1:nrow(uploaded_inputs),function(i){
             type <- as.character(uploaded_inputs[i, 2])
             create <- as.character(uploaded_inputs[i, 3])
             
@@ -1369,17 +1579,21 @@ server_design_agrofims <- function(input, output, session, values){
             }
             
             if (type == "selectizeInput" && create == "n") {
-              updateSelectizeInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
-                                   selected = getInputs(uploaded_inputs[i, 4], ""))
-            }
+                  
+              delay(i*40,updateSelectizeInput(session,
+                                       inputId = uploaded_inputs$inputId[i],
+                                       selected = getInputs(uploaded_inputs[i, 4], "") ))
+              delay(i*40,Sys.sleep(0.2))
+              }
+              
             
             if (type == "selectizeInput" && create == "y") {
-              updateSelectizeInput(session,
+              delay(i*40,updateSelectizeInput(session,
                                    inputId = uploaded_inputs$inputId[i],
                                    selected = getInputs(uploaded_inputs[i, 4], ""),
                                    choices = getInputs(uploaded_inputs[i, 4], ""),
-                                   options = list('create' = TRUE))
+                                   options = list('create' = TRUE)))
+              delay(i*40,Sys.sleep(0.2))
             }
             
             if (type == "textAreaInput") {
@@ -1420,9 +1634,86 @@ server_design_agrofims <- function(input, output, session, values){
                                    clear = T)
               }
             }
+          
           }
+          )
         )
         
+        if (type == "textInput") {
+          updateTextInput(session,
+                          inputId = uploaded_inputs$inputId[i],
+                          value = uploaded_inputs$value[i])
+        }
+        
+        if (type == "dateRangeInput") {
+          if (uploaded_inputs[i, 4] != "") {
+            v <- getInputs(uploaded_inputs[i, 4], "")
+            x <- as.Date(v[1]) + 1
+            y <- as.Date(v[2]) + 1
+            updateAirDateInput(session,
+                               inputId = uploaded_inputs$inputId[i],
+                               value = c(x, y),
+                               clear = T)
+          } else {
+            updateAirDateInput(session,
+                               inputId = uploaded_inputs$inputId[i],
+                               clear = T)
+          }
+        }
+        
+        if (type == "selectizeInput" && create == "n") {
+          updateSelectizeInput(session,
+                               inputId = uploaded_inputs$inputId[i],
+                               selected = getInputs(uploaded_inputs[i, 4], ""))
+        }
+        
+        if (type == "selectizeInput" && create == "y") {
+          
+          updateSelectizeInput(session,
+                               inputId = uploaded_inputs$inputId[i],
+                               selected = getInputs(uploaded_inputs[i, 4], ""),
+                               choices = getInputs(uploaded_inputs[i, 4], ""),
+                               options = list('create' = TRUE))
+        }
+        
+        if (type == "textAreaInput") {
+          updateTextAreaInput(session,
+                              inputId = uploaded_inputs$inputId[i],
+                              value = uploaded_inputs$value[i])
+        }
+        
+        if (type == "numericInput") {
+          updateNumericInput(session,
+                             inputId = uploaded_inputs$inputId[i],
+                             value = uploaded_inputs$value[i])
+        }
+        
+        if (type == "checkboxInput") {
+          if (uploaded_inputs$value[i] == "FALSE") {
+            x <- FALSE
+          } else {
+            x <- TRUE
+          }
+          
+          updateCheckboxInput(session,
+                              inputId = uploaded_inputs$inputId[i],
+                              value = x)
+        }
+        
+        if (type == "dateInput") {
+          if (uploaded_inputs[i, 4] != "") {
+            v <- getInputs(uploaded_inputs[i, 4], "")
+            v <- as.Date(v) + 1
+            updateAirDateInput(session,
+                               inputId = uploaded_inputs$inputId[i],
+                               value = v,
+                               clear = T)
+          } else {
+            updateAirDateInput(session,
+                               inputId = uploaded_inputs$inputId[i],
+                               clear = T)
+          }
+        }
         #output$text2 <- renderText({"Loaded successfully"})
         shinyalert("Loaded successfully", type = "success", timer = 1500, showConfirmButton = F)
       }
@@ -1431,6 +1722,9 @@ server_design_agrofims <- function(input, output, session, values){
         shinyalert("Oops!", "The session file does not exist", type = "error", timer = 1500, showConfirmButton = F)
       }
     }
+    
+    
+    
   }
   
   
@@ -5154,8 +5448,6 @@ server_design_agrofims <- function(input, output, session, values){
     design <- vars[1]
     index <- vars[3]
     
-    #Eliminar
-    
     num_levels <-  input[[input$levelsTimingESPid]]
     timingValue = input[[paste0(design,"_lvltiming_",index )]]
     #ocultar en desarrollo la siguiente linea "factores"
@@ -7379,18 +7671,19 @@ server_design_agrofims <- function(input, output, session, values){
                 selectizeInput(
                   paste0(crop, "_directSeeding_to_collect_field_", index), label = "To collect in the field", multiple = TRUE, 
                   options = list(maxItems = 12, placeholder = "Select one..."), 
-                  choices = c("Start date",
-                              "Seeding environment",
-                              "Seeding technique",
-                              "Seed treatment",
-                              "Type",
-                              "Traction",
-                              "Distance between rows",
-                              "Seeding rate",
-                              "Distance between plants",
-                              "Number of rows",
-                              "Plant density",
-                              "Distance between bunds")
+                  choices = magm_label$get("direct")
+                  # choices = c("Start date",
+                  #             "Seeding environment",
+                  #             "Seeding technique",
+                  #             "Seed treatment",
+                  #             "Type",
+                  #             "Traction",
+                  #             "Distance between rows",
+                  #             "Seeding rate",
+                  #             "Distance between plants",
+                  #             "Number of rows",
+                  #             "Plant density",
+                  #             "Distance between bunds")
                 ),
                 hr()
               )
@@ -7586,18 +7879,19 @@ server_design_agrofims <- function(input, output, session, values){
                 selectizeInput(
                   paste0(crop, "_transplanting_to_collect_field_", index), label = "To collect in the field", multiple = TRUE, 
                   options = list(maxItems = 12, placeholder = "Select one..."), 
-                  choices = c("Start date",
-                              "End date",
-                              "Age of seedling (days)",
-                              "Seedling environment",
-                              "Technique",
-                              "Seed treatment",
-                              "Traction",
-                              "Distance between rows",
-                              "Seedling density",
-                              "Number of rows",
-                              "Distance between plants",
-                              "Distance between bunds")
+                  choices = magm_label$get("transplanting")
+                  # choices = c("Start date",
+                  #             "End date",
+                  #             "Age of seedling (days)",
+                  #             "Seedling environment",
+                  #             "Technique",
+                  #             "Seed treatment",
+                  #             "Traction",
+                  #             "Distance between rows",
+                  #             "Seedling density",
+                  #             "Number of rows",
+                  #             "Distance between plants",
+                  #             "Distance between bunds")
                 ),
                 hr()
               )
@@ -8297,7 +8591,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     i<-1
     for (id in newids){
-      if(val[i] != ""){
+      if(val[i] != "" && !is.na(val[i])){
         val[i] <- paste0(cropType, "_harv_", id)
         
       }
@@ -8360,15 +8654,16 @@ server_design_agrofims <- function(input, output, session, values){
                   selectizeInput(
                     paste0(vals[i], "_harvest_to_collect_field_", i ), label = "To collect in the field", multiple = TRUE, 
                     options = list(maxItems = 5, placeholder = "Select one..."), 
-                    choices = c("Start date",
-                                "End date",
-                                "Harvest Method",
-                                "Crop component harvested",
-                                "Harvestable area",
-                                "Amount harvested",
-                                "Harvest cut height",
-                                "Type",
-                                "Traction")
+                    choices = magm_label$get("harvest")
+                    # choices = c("Start date",
+                    #             "End date",
+                    #             "Harvest Method",
+                    #             "Crop component harvested",
+                    #             "Harvestable area",
+                    #             "Amount harvested",
+                    #             "Harvest cut height",
+                    #             "Type",
+                    #             "Traction")
                   )#,
                   #hr()
                 )
@@ -9051,6 +9346,14 @@ server_design_agrofims <- function(input, output, session, values){
     index <- vars[3]
     
     vals <- getValuesCrop_MEA_PHE(cropType,"MEA")
+    
+    #Eliminar sesion
+    # print("===========================")
+    # print(id)
+    # print(vals)
+    # print("===========================")
+    
+    
     insertTabs_MEA_PHE(vals, cropType,"MEA")
     
     vals <- getValuesCrop_MEA_PHE(cropType,"PHE")
@@ -9218,7 +9521,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     i<-1
     for (id in newids){
-      if(val[i] != ""){
+      if(val[i] != ""  && !is.na(val[i])){
         val[i] <- paste0(cropType,"_",flag_MEA_PHE,"_", id)
         
       }
@@ -10001,6 +10304,7 @@ server_design_agrofims <- function(input, output, session, values){
   #####################################################################################
   ############################### START SERVER: WEATHER ###############################
   
+  wea_cmdt <- agdesign::dt_cmea
   weatherdt <- agdesign::dt_weather
   
   weatherVars <- reactiveValues()
@@ -10016,18 +10320,13 @@ server_design_agrofims <- function(input, output, session, values){
       column(
         width = 12,
         h2("Weather details"),
-        p(
-          class = "text-muted",
-          style = "text-align:justify",
-          paste("Please, select row by click.")
-        ),
         fluidRow(
           column(6,  
                  div(
                    style="display: inline-block;vertical-align:top;width:40%",
                    selectizeInput(
                      "weather_search", "", multiple = TRUE,
-                     options = list(maxItems = 1, placeholder = "Select..."),
+                     options = list(maxItems = 1, placeholder = "Search..."),
                      choices = c(msm)            
                    )
                  ),
@@ -10038,12 +10337,13 @@ server_design_agrofims <- function(input, output, session, values){
           ),
           column(6,"")
         ),
-        fluidRow(
-          column(4, h4("Measurement", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
-          column(3, h4("Unit", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
-          column(2, h4("Per season", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
-          column(2, h4("Per plot", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;"))
-        ),
+        # fluidRow(
+        #   column(3, h4("Measurement", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
+        #   column(2, h4("Unit", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
+        #   column(2, h4("Samples Per season", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
+        #   column(2, h4("Timing", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
+        #   column(2, h4("", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;"))
+        # ),
         fluidRow(id = "weather_fr")
       )
     )
@@ -10055,9 +10355,10 @@ server_design_agrofims <- function(input, output, session, values){
     id <- input$addRow_button_WEAid
     weatherValue <- input[["weather_search"]]
     index <- weatherVars$num 
+    timing<- get_dcm_values(wea_cmdt, "Timing","")
     
     if (!is.null(weatherValue)){
-      insertRow_WEA(index)
+      insertRow_WEA(index, timing)
     } 
   })
   
@@ -10072,20 +10373,147 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
   
+  # Funcion que se activa al cambiar num levels de timing
+  observeEvent(input$timingNumLevels_WEA,{
+    id <- input$timingNumLevels_WEAid
+    vars <- unlist(str_split(id,"_"))
+    numlvls <- input[[input$timingNumLevels_WEAid]]
+    index <- vars[3]
+    
+    timingValue = input[[paste0("weather_timing_", index )]]
+    
+    drawTimingLevelsRow_WEA(timingValue,index,numlvls)
+    
+  })
+  
+  # Funcion que se activa al cambiar tipo de Timing
+  observeEvent(input$timing_WEA,{
+    id <- input$timing_WEAid
+    
+    vars <- unlist(str_split(id,"_"))
+    index <- vars[3]
+    timingValue <- input[[id]]
+    
+    if (length(timingValue)>0 && timingValue == "Date")
+    {
+      removeUI(
+        selector = paste0("#","weather_timingNumLevels_row_", index),
+        immediate = T
+      )
+      
+      insertUI(
+        selector = paste0("#","weather_timingNumLevels_aux_", index),
+        where = "beforeBegin",
+        ui = fluidRow(id=paste0("weather_timingNumLevels_row_", index),
+                      column(12,
+                             selectizeInput(
+                               paste0("weather_timingNumLevels_", index), "Number of dates", multiple = TRUE,
+                               options = list(maxItems = 1,placeholder = "Select one..."),
+                               choices = c(1:10), selected = 1
+                             )
+                      )
+        )
+      )
+    }else{
+      removeUI(
+        selector = paste0("#","weather_timingNumLevels_row_", index),
+        immediate = T
+      )
+    }
+    
+    drawTimingLevelsRow_WEA(timingValue,index,1)
+  })
+  
+  # Funcion que dibuja input lvls para measurement
+  drawTimingLevelsRow_WEA <- function(timingValue,index,numlvls){
+    
+    removeUI(
+      selector = paste0("#","weather_levelTiming_",index),
+      immediate = T
+    )
+    
+    
+    if(length(timingValue)>0){
+      insertUI(
+        selector = paste0("#","weather_timing_row_aux_",index),
+        where = "beforeBegin",
+        ui = fluidRow(id = paste0("weather_levelTiming_",index))
+      )
+      
+      
+      for (i in 1:numlvls)
+      {
+        insertUI(
+          selector = paste0("#","weather_levelTiming_",index),
+          where = "beforeEnd",
+          ui = column(12,
+                      fluidRow(
+                        id = paste0("weather_timing_row_", index, "_", i),
+                        column(12,
+                               
+                               if(timingValue == "Date"){
+                                 airDatepickerInput(
+                                   inputId = paste0("weather_timingValue_",index,"_",i),
+                                   label = paste0("#",i, " Date"),
+                                   dateFormat = "yyyy-mm-dd",
+                                   value = Sys.Date(),
+                                   placeholder = "yyyy-mm-dd",
+                                   clearButton = TRUE,
+                                   position = "bottom right", addon = "none",
+                                   autoClose = T
+                                 )
+                               }else if(timingValue == "Frequency")
+                               {
+                                 textInput(paste0("weather_timingValue_",index,"_",i),
+                                           label = timingValue)
+                               }else if(timingValue == "Other")
+                               {
+                                 selectizeInput(inputId = paste0("weather_timingValue_",index,"_1"),
+                                                label = timingValue,
+                                                multiple = TRUE,
+                                                choices = c(),
+                                                options = list(
+                                                  maxItems = 20,
+                                                  placeholder = "Write..." ,
+                                                  'create' = TRUE,
+                                                  'persist' = FALSE
+                                                )
+                                 )
+                               }
+                               else{
+                                 selectizeInput(inputId = paste0("weather_timingValue_",index,"_1"),
+                                                label = timingValue,
+                                                multiple = TRUE,
+                                                choices = c(),
+                                                options = list(
+                                                  maxItems = 20,
+                                                  placeholder = "Write..." ,
+                                                  'create' = TRUE,
+                                                  'persist' = FALSE
+                                                )
+                                 )
+                               }
+                        )
+                      )
+          )
+        )
+      }
+    }
+  }
   
   # Funcion que dibuja las filas insertadas de weather
-  insertRow_WEA <- function(index) {
+  insertRow_WEA <- function(index,timing) {
     weatherVars$ids <- c(weatherVars$ids,paste0("weather_",index))
     insertUI(
       selector = "#weather_fr",
       where = "beforeBegin",
-      ui = getDesignUI_WEA(index)
+      ui = getDesignUI_WEA(index, timing)
     )
     weatherVars$num <- weatherVars$num + 1
   }
   
   # Funcion que tiene el disenno para las filas de weather
-  getDesignUI_WEA <- function(index) {
+  getDesignUI_WEA <- function(index,timing) {
     weather_measurement <- input[["weather_search"]]
     unit<- get_dweather_values(weatherdt, "TraitUnit",weather_measurement)
     
@@ -10093,31 +10521,75 @@ server_design_agrofims <- function(input, output, session, values){
     # timing<- get_dweather_values(cmdt, "Timing",crop)
     
     fluidRow(id = paste0("weather_fluidRow_", index),
-             #id = paste0(typeCrop, "_fluidRow_", index),
-             column(
-               4,
-               disabled(textInput(paste0("weather_mea_", index), "", value = input[["weather_search"]]))
-             ),
-             column(
-               3,
-               selectizeInput(
-                 paste0("weather_unit_", index), "", multiple = TRUE,
-                 options = list(maxItems = 1, placeholder = "Select one..."),
-                 choices = c(unit), selected = unit[1]           
+             box(
+               solidHeader = TRUE,
+               status = "warning",
+               width = 12,
+               column(
+                 3,
+                 disabled(textInput(paste0("weather_mea_", index), "Measurement", value = input[["weather_search"]]))
+               ),
+               column(
+                 2,
+                 selectizeInput(
+                   paste0("weather_unit_", index), "Unit", multiple = TRUE,
+                   options = list(maxItems = 1, placeholder = "Select one..."),
+                   choices = c(unit), selected = unit[1]           
+                 )
+               ),
+               column(
+                 2,
+                 textInput(paste0("weather_per_season_", index), "Samples Per Season", value = "1")
+               ),
+               column(
+                 2,
+                 selectizeInput(
+                   paste0("weather_timing_", index), "Timing", multiple = TRUE,
+                   options = list(maxItems = 1, placeholder = "Select one..."),
+                   choices = c(timing), 
+                   selected = "Days after planting"
+                 ),
+                 fluidRow(
+                   column(
+                     6
+                   ),
+                   column(
+                     6,
+                     # Auxiliar row to draw date pickers
+                     fluidRow(id=paste0("weather_timingNumLevels_aux_", index))
+                   )
+                 )
+               ),
+               column(
+                 2,
+                 fluidRow(
+                   id=paste0("weather_levelTiming_",index),
+                   column(12,
+                          fluidRow(
+                            id=paste0("weather_timing_row_",index,"_1"),
+                            column(12,
+                                   selectizeInput(inputId = paste0("weather_timingValue_",index,"_1"),
+                                                  label = "Days after planting",
+                                                  multiple = TRUE,
+                                                  choices = c(),
+                                                  options = list(
+                                                    maxItems = 20,
+                                                    placeholder = "Write..." ,
+                                                    'create' = TRUE,
+                                                    'persist' = FALSE
+                                                  )
+                                   )
+                            )
+                          )
+                   )
+                 ),
+                 fluidRow(id = paste0("weather_timing_row_aux_",index))
+               ),
+               column(
+                 1,
+                 br(),
+                 actionButton(paste0("weather_closeBox_", index), "", icon("close"))
                )
-             ),
-             column(
-               2,
-               textInput(paste0("weather_per_season_", index), "", value = "1")
-             ),
-             column(
-               2,
-               textInput(paste0("weather_per_plot_", index), "", value = "1")
-             ),
-             column(
-               1,
-               br(),
-               actionButton(paste0("weather_closeBox_", index), "", icon("close"))
              )
     )
   }
@@ -10132,8 +10604,6 @@ server_design_agrofims <- function(input, output, session, values){
       }else if(attribute == "TraitUnit"){
         out <- data_dictionary %>% filter(Measurement==value) %>% select_(attribute)
         out <- unique(na.omit(out[[1]]))
-        
-        print(out)
         
         out <- sort(unlist(strsplit(out,"\\|")),decreasing = F) #Regular expression we use \\
       }
@@ -10152,12 +10622,19 @@ server_design_agrofims <- function(input, output, session, values){
   #####################################################################################
   ############################### START SERVER: SOIL ###############################
   
+  soil_cmdt <- agdesign::dt_cmea
   soildt<- agdesign::dt_soil
   soilVars <- reactiveValues()
   soilVars$num <- 1
   soilVars$ids <- c()
   
+  output$uisoil <- renderUI({})
+  outputOptions(output, "uisoil", suspendWhenHidden = FALSE)
   
+
+  
+  
+
   # Funcion que crea el disenno de soil
   output$uisoil <- renderUI({
     #cropValue <- input[["cropCommonNameMono"]]
@@ -10167,18 +10644,13 @@ server_design_agrofims <- function(input, output, session, values){
       column(
         width = 12,
         h2("Soil details"),
-        p(
-          class = "text-muted",
-          style = "text-align:justify",
-          paste("Please, select row by click.")
-        ),
         fluidRow(
           column(6,  
                  div(
                    style="display: inline-block;vertical-align:top;width:40%",
                    selectizeInput(
                      "soil_search", "", multiple = TRUE,
-                     options = list(maxItems = 1, placeholder = "Select..."),
+                     options = list(maxItems = 1, placeholder = "Search..."),
                      choices = c(msm)            
                    )
                  ),
@@ -10189,31 +10661,50 @@ server_design_agrofims <- function(input, output, session, values){
           ),
           column(6,"")
         ),
-        fluidRow(
-          column(4, h4("Measurement", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
-          column(3, h4("Unit", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
-          column(2, h4("Per season", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
-          column(2, h4("Per plot", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;"))
-        ),
+        # fluidRow(
+        #   column(3, h4("Measurement", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
+        #   column(2, h4("Unit", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
+        #   column(2, h4("Samples Per season", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
+        #   column(2, h4("Timing", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;")),
+        #   column(2, h4("", style="font-weight: 600;color: #555;font-size: 16px;text-align: center;"))
+        # ),
         fluidRow(id = "soil_fr")
       )
     )
     
   })
   
+  # Funcion que actualiza el combobox segun measurement
+  observeEvent(input$measurement_SOIL,{
+    id <- input$measurement_SOILid
+    vars <- unlist(str_split(id,"_"))
+
+    measurement <- input[[paste0("soil_mea_",vars[3])]]
+    units <- get_dsoil_values(soildt, "TraitUnit",measurement)
+    depthvalue = input[[paste0("soil_unit_",vars[3])]]
+      
+    updateSelectizeInput(session,
+                           inputId = paste0("soil_unit_",vars[3]),
+                           choices = units,
+                           selected = depthvalue)
+  
+  })
+
   # Funcion general que agrega filas de soil
   observeEvent(input$addRow_button_SOIL,{
     id <- input$addRow_button_SOILid
+    soil_measurement <- input[["soil_search"]]
     index <- soilVars$num 
-    soilMeaValue <- input[["soil_search"]]
+    timing<- get_dcm_values(soil_cmdt, "Timing","")
+    unit<- get_dsoil_values(soildt, "TraitUnit",soil_measurement)
     
-    if(!is.null(soilMeaValue)){
-      insertRow_SOIL(index)
+    if(!is.null(soil_measurement)){
+      insertRow_SOIL(index,timing,soil_measurement,unit)
     }
     
   })
   
-  
+  # Funcion que elimina los boxes
   observeEvent(input$closeBox_SOIL,{
     id <- input$closeBox_SOILid
     vars <- unlist(str_split(id,"_"))
@@ -10224,52 +10715,245 @@ server_design_agrofims <- function(input, output, session, values){
     soilVars$ids <- soilVars$ids[!soilVars$ids %in% paste0("soil_",index)]
   })
   
+  # Funcion que se activa al cambiar num levels de timing
+  observeEvent(input$timingNumLevels_SOIL,{
+    id <- input$timingNumLevels_SOILid
+    vars <- unlist(str_split(id,"_"))
+    numlvls <- input[[input$timingNumLevels_SOILid]]
+    index <- vars[3]
+    
+    timingValue = input[[paste0("soil_timing_", index )]]
+    
+    drawTimingLevelsRow_SOIL(timingValue,index,numlvls)
+    
+  })
+  
+  # Funcion que se activa al cambiar tipo de Timing
+  observeEvent(input$timing_SOIL,{
+    
+    id <- input$timing_SOILid
+    
+    print("Eliminar sesion")
+    print(id)
+    
+    vars <- unlist(str_split(id,"_"))
+    index <- vars[3]
+    timingValue <- input[[id]]
+    
+    if (length(timingValue)>0 && timingValue == "Date")
+    {
+      removeUI(
+        selector = paste0("#","soil_timingNumLevels_row_", index),
+        immediate = T
+      )
+      
+      insertUI(
+        selector = paste0("#","soil_timingNumLevels_aux_", index),
+        where = "beforeBegin",
+        ui = fluidRow(id=paste0("soil_timingNumLevels_row_", index),
+                      column(12,
+                             selectizeInput(
+                               paste0("soil_timingNumLevels_", index), "Number of dates", multiple = TRUE,
+                               options = list(maxItems = 1,placeholder = "Select one..."),
+                               choices = c(1:10), selected = 1
+                             )
+                      )
+        )
+      )
+    }else{
+      removeUI(
+        selector = paste0("#","soil_timingNumLevels_row_", index),
+        immediate = T
+      )
+    }
+    
+    drawTimingLevelsRow_SOIL(timingValue,index,1)
+  })
+  
+  # Funcion que dibuja input lvls para measurement
+  drawTimingLevelsRow_SOIL <- function(timingValue,index,numlvls){
+    
+    removeUI(
+      selector = paste0("#","soil_levelTiming_",index),
+      immediate = T
+    )
+    
+    
+    if(length(timingValue)>0){
+      insertUI(
+        selector = paste0("#","soil_timing_row_aux_",index),
+        where = "beforeBegin",
+        ui = fluidRow(id = paste0("soil_levelTiming_",index))
+      )
+      
+      
+      for (i in 1:numlvls)
+      {
+        insertUI(
+          selector = paste0("#","soil_levelTiming_",index),
+          where = "beforeEnd",
+          ui = column(12,
+                      fluidRow(
+                        id = paste0("soil_timing_row_", index, "_", i),
+                        column(12,
+                               
+                               if(timingValue == "Date"){
+                                 airDatepickerInput(
+                                   inputId = paste0("soil_timingValue_",index,"_",i),
+                                   label = paste0("#",i, " Date"),
+                                   dateFormat = "yyyy-mm-dd",
+                                   value = Sys.Date(),
+                                   placeholder = "yyyy-mm-dd",
+                                   clearButton = TRUE,
+                                   position = "bottom right", addon = "none",
+                                   autoClose = T
+                                 )
+                               }else if(timingValue == "Frequency")
+                               {
+                                 textInput(paste0("soil_timingValue_",index,"_",i),
+                                           label = timingValue)
+                               }else if(timingValue == "Other")
+                               {
+                                 selectizeInput(inputId = paste0("soil_timingValue_",index,"_1"),
+                                                label = timingValue,
+                                                multiple = TRUE,
+                                                choices = c(),
+                                                options = list(
+                                                  maxItems = 20,
+                                                  placeholder = "Write..." ,
+                                                  'create' = TRUE,
+                                                  'persist' = FALSE
+                                                )
+                                 )
+                               }
+                               else{
+                                 selectizeInput(inputId = paste0("soil_timingValue_",index,"_1"),
+                                                label = timingValue,
+                                                multiple = TRUE,
+                                                choices = c(),
+                                                options = list(
+                                                  maxItems = 20,
+                                                  placeholder = "Write..." ,
+                                                  'create' = TRUE,
+                                                  'persist' = FALSE
+                                                )
+                                 )
+                               }
+                        )
+                      )
+          )
+        )
+      }
+    }
+  }
   
   # Funcion que dibuja las filas insertadas de soil
-  insertRow_SOIL <- function(index) {
+  insertRow_SOIL <- function(index, timing, soil_measurement, unit) {
     soilVars$ids <- c(soilVars$ids,paste0("soil_",index))
     
     insertUI(
       selector = "#soil_fr",
       where = "beforeBegin",
-      ui = getDesignUI_SOIL(index)
+      ui = getDesignUI_SOIL(index,timing, soil_measurement, unit)
     )
     soilVars$num <- soilVars$num + 1
   }
   
   # Funcion que tiene el disenno para las filas de soil
-  getDesignUI_SOIL <- function(index) {
-    soil_measurement <- input[["soil_search"]]
-    unit<- get_dsoil_values(soildt, "TraitUnit",soil_measurement)
+  getDesignUI_SOIL <- function(index, timing, soil_measurement, unit) {
+
     # parmea <- get_dsoil_values(cmdt, "Subgroup",crop)
     # timing<- get_dsoil_values(cmdt, "Timing",crop)
     
     fluidRow(id = paste0("soil_fluidRow_", index),
-             #id = paste0(typeCrop, "_fluidRow_", index),
-             column(
-               4,
-               disabled(textInput(paste0("soil_mea_", index), "", value = input[["soil_search"]]))
-             ),
-             column(
-               3,
-               selectizeInput(
-                 paste0("soil_unit_", index), "", multiple = TRUE,
-                 options = list(maxItems = 1, placeholder = "Select one..."),
-                 choices = c(unit), selected = c(unit)[1]          
+             box(
+               solidHeader = TRUE,
+               status = "warning",
+               width = 12,
+               column(
+                 2,
+                 disabled(textInput(paste0("soil_mea_", index), "Measurement", value = soil_measurement))
+               ),
+               column(
+                 1,
+                 selectizeInput(
+                   paste0("soil_unit_", index), "Unit", multiple = TRUE,
+                   options = list(maxItems = 1, placeholder = "Select one..."),
+                   choices = get_dsoil_values(soildt, "TraitUnit",soil_measurement), selected = get_dsoil_values(soildt, "TraitUnit",soil_measurement)[1]           
+                 )
+               ),
+               column(
+                 2,
+                 selectizeInput(
+                   inputId = paste0("soil_depth_", index), label = "Depth", 
+                   choices = c(), multiple = T, options = list('create' = TRUE)
+                 )
+               ),
+               column(
+                 1,
+                 selectizeInput(
+                   paste0("soil_depthunit_", index), "Depth Unit", multiple = TRUE,
+                   options = list(maxItems = 1, placeholder = "Select one..."),
+                   choices = c("mm","cm","m"), selected = "mm"       
+                 )
+               ),
+               column(
+                 1,
+                 textInput(paste0("soil_per_season_", index), "Samples Per Season", value = "1")
+               ),
+               column(
+                 1,
+                 textInput(paste0("soil_per_plot_", index), "Samples Per Plot", value = "1")
+               ),
+               column(
+                 1,
+                 selectizeInput(
+                   paste0("soil_timing_", index), "Timing", multiple = TRUE,
+                   options = list(maxItems = 1, placeholder = "Select one..."),
+                   choices = c(timing), 
+                   selected = "Days after planting"
+                 ),
+                 fluidRow(
+                   column(
+                     6
+                   ),
+                   column(
+                     6,
+                     # Auxiliar row to draw date pickers
+                     fluidRow(id=paste0("soil_timingNumLevels_aux_", index))
+                   )
+                 )
+               ),
+               column(
+                 2,
+                 fluidRow(
+                   id=paste0("soil_levelTiming_",index),
+                   column(12,
+                          fluidRow(
+                            id=paste0("soil_timing_row_",index,"_1"),
+                            column(12,
+                                   selectizeInput(inputId = paste0("soil_timingValue_",index,"_1"),
+                                                  label = "Days after planting",
+                                                  multiple = TRUE,
+                                                  choices = c(),
+                                                  options = list(
+                                                    maxItems = 20,
+                                                    placeholder = "Write..." ,
+                                                    'create' = TRUE,
+                                                    'persist' = FALSE
+                                                  )
+                                   )
+                            )
+                          )
+                   )
+                 ),
+                 fluidRow(id = paste0("soil_timing_row_aux_",index))
+               ),
+               column(
+                 1,
+                 br(),
+                 actionButton(paste0("soil_closeBox_", index), "", icon("close"))
                )
-             ),
-             column(
-               2,
-               textInput(paste0("soil_per_season_", index), "", value = "1")
-             ),
-             column(
-               2,
-               textInput(paste0("soil_per_plot_", index), "", value= "1")
-             ),
-             column(
-               1,
-               br(),
-               actionButton(paste0("soil_closeBox_", index), "", icon("close"))
              )
     )
   }
@@ -10830,6 +11514,28 @@ server_design_agrofims <- function(input, output, session, values){
     
     
   }) 
+  get_collectable_seedbed <- reactive({
+    
+    
+    if(isTRUE(input$landLevelling_checkbox)){
+      s1<- get_collectable_sblavl(allinputs = AllInputs())
+    } else{
+      s1 <- NULL  
+    }
+    
+    if(isTRUE(input$puddling_checkbox)){
+      s2 <- get_collectable_sbpud(allinputs = AllInputs())
+    } else{
+      s2 <- NULL 
+    }
+    
+    if(isTRUE(input$tillage_checkbox)){
+      s3 <- get_collectable_sbtill(allinputs = AllInputs())
+    } else {
+      s3 <- NULL 
+    }
+    out <- c(s1,s2,s3)
+  })
   
   ## Soil Fertility     #############################################################
   dt_soilFertility <- reactive({
@@ -11035,6 +11741,7 @@ server_design_agrofims <- function(input, output, session, values){
     }
     lbl
   }) 
+  
   
   
   #'TODO Mulching and residue ############################################################
@@ -12382,7 +13089,7 @@ server_design_agrofims <- function(input, output, session, values){
         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
         # x <- reactiveValuesToList(input)
         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-        # 
+
         # idpheno <<-  mea_phe_multicrop$var_PHE_int
         # print(idpheno)
         # 
@@ -12421,7 +13128,8 @@ server_design_agrofims <- function(input, output, session, values){
           if(ct=="Monocrop"){
             print(fbdesign_traits())
             fb  <- fbdesign_traits()
-          } else if(ct=="Intercrop" || ct=="Relay crop"){
+          } 
+          else if(ct=="Intercrop" || ct=="Relay crop"){
             print("fbdesign_mult_traits")
             print(fbdesign_mult_traits())
             fb<- fbdesign_mult_traits()
@@ -12443,9 +13151,9 @@ server_design_agrofims <- function(input, output, session, values){
           ########################################################################################################
           print("inicio 3 -1 ")
           ########################################## Protocol data  ##############################################
-          print("-protocol residual-")
-          #print(dt_prot_residual())
-          #print(dt_protocol_seedbed())
+          # print("-protocol residual-")
+          # print(dt_prot_residual())
+          # print(dt_protocol_seedbed())
           # print("residual")
           # print(dt_prot_residual())
           # print("seedbed")
@@ -12465,7 +13173,7 @@ server_design_agrofims <- function(input, output, session, values){
           # print(dt_harvest())
           # print(dt_protocol_harvest())
           # print("fin fin")
-          #protocol <- dt_prot_residual()
+         
           protocol<- list(dt_prot_residual(),dt_protocol_seedbed(),dt_protocol_plantrans(), 
                           dt_protocol_mulching(), dt_protocol_irrigation(),
                           dt_protocol_weeding(), dt_protocol_harvest())
@@ -12845,11 +13553,18 @@ server_design_agrofims <- function(input, output, session, values){
           print("inicio15")
           dt_kds<- ec_clean_header(dt_kds)
           
+          print("residue pt")
           if(is.element("Residue management",input$selectAgroFeature)){
             kds_resmgt<- magmtprac$resmgt
             #kds_resmgt <- kds_resmgt %>% dplyr::filter(Fieldbook_download %in% lbl_residual())#deprecated
+            #Filter labels
             kds_resmgt <- kds_resmgt %>% dplyr::filter(TraitName %in% lbl_residual())
-            
+            #Collectable inputs
+            if(length(get_collectable_resmgt(allinputs=AllInputs()))!=0){
+              collect_resmgt <- get_collectable_resmgt(allinputs=AllInputs())
+              kds_resmgt <-  kds_resmgt %>% dplyr::mutate(temp = paste0(Subgroup,"_",Measurement))
+              kds_resmgt <- kds_resmgt %>% dplyr::filter(temp %in% collect_resmgt)
+            }
             kds_resmgt <- data.table(kds_resmgt)
             dt_kds<-rbindlist(list(dt_kds,kds_resmgt),fill = TRUE)
             dt_kds<- ec_clean_header(dt_kds)
@@ -12860,6 +13575,13 @@ server_design_agrofims <- function(input, output, session, values){
             kds_sedbed <- ec_filter_data(kds_sedbed)
             #kds_sedbed <- kds_sedbed %>% dplyr::filter(Fieldbook_download %in% lbl_seedbed()) #deprecated
             kds_sedbed <- kds_sedbed %>% dplyr::filter(TraitName %in% lbl_seedbed())
+            #Collectable inputs------------------------------
+            if(length(get_collectable_seedbed()!=0)){
+              collect_seedbed <- get_collectable_seedbed()
+              kds_sedbed <-  kds_sedbed %>% dplyr::mutate(temp = paste0(Subgroup,"_",Measurement))
+              kds_sedbed <- kds_sedbed %>%  dplyr::filter(temp %in% collect_seedbed)
+            }
+            #end collectable inputs
             
             kds_sedbed <- data.table(kds_sedbed)
             dt_kds<-rbindlist(list(dt_kds,kds_sedbed),fill = TRUE)
@@ -12884,6 +13606,14 @@ server_design_agrofims <- function(input, output, session, values){
             #TODO :generalizar para intercrop
             if(ct=="Monocrop"){
               kds_platra <- kds_platra %>% dplyr::filter(TraitName %in% lbl_plantrans())
+              #Collectable inputs
+              if(length(get_collectable_plantrans(AllInputs(), ctype="monocrop"))!=0){
+                 collect_platra <- get_collectable_plantrans(AllInputs(),ctype="monocrop")
+                 kds_platra <- kds_platra %>% dplyr::mutate(temp=paste0(Group,"_",Measurement))
+                 kds_platra <- kds_platra %>% filter(temp %in% collect_platra)
+              }
+              #End collectablbe inputs
+              
             }
             else if(ct=="Intercrop") {
               
@@ -12896,6 +13626,15 @@ server_design_agrofims <- function(input, output, session, values){
                 }
               }
               kds_platra <- rbindlist(temp_platra,fill = TRUE)
+              #Collectable inputs ---------------------------
+              #lbbb <<- lbl_harvest()
+              if(length(get_collectable_plantrans(AllInputs(), ctype="intercrop",crop=circm, cropId=id_ic_rand)  )!=0){
+                collect_platra <- get_collectable_plantrans(AllInputs(),ctype="intercrop", crop=circm,cropId= id_ic_rand)
+                kds_platra <- kds_platra %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))
+                kds_platra <- kds_platra %>% filter(temp %in% collect_platra)
+              }
+              #end collectable inputs-------------------------
+              
             }
             else if(ct=="Relay crop"){
               
@@ -12912,6 +13651,13 @@ server_design_agrofims <- function(input, output, session, values){
                 }
               }
               kds_platra <- rbindlist(temp_platra,fill = TRUE)
+              #Collectable inputs -------------------------------
+              if(length(get_collectable_plantrans(AllInputs(), ctype="relay crop",crop=crecm, cropId=id_re_rand))!=0){
+                collect_platra <- get_collectable_plantrans(AllInputs(),ctype="relay crop", crop=crecm, cropId= id_re_rand)
+                kds_platra <- kds_platra %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))
+                kds_platra <- kds_platra %>% filter(temp %in% collect_platra)
+              }
+              #End collectable inputs-------------------------
             }
             
             kds_platra <- data.table(kds_platra)
@@ -12924,6 +13670,13 @@ server_design_agrofims <- function(input, output, session, values){
             kds_mulch <- magmtprac$mulch
             kds_mulch <- ec_filter_data(kds_mulch)
             kds_mulch <- kds_mulch %>% dplyr::filter(TraitName %in% lbl_mulching())
+            #Collectable ids -------------------------------------------------------------
+            if(length(get_collectable_mulching(AllInputs()))!=0){
+              collect_mulch <- get_collectable_mulching(AllInputs())
+              kds_mulch <-  kds_mulch %>% dplyr::mutate(temp = paste0(Group,"_",Measurement))
+              kds_mulch <- kds_mulch %>% dplyr::filter(temp %in% collect_mulch)
+            }
+            #end collectalbe ids
             
             kds_mulch <- data.table(kds_mulch)
             dt_kds<-rbindlist(list(dt_kds,kds_mulch),fill = TRUE)
@@ -12934,9 +13687,19 @@ server_design_agrofims <- function(input, output, session, values){
             
             kds_irri <- magmtprac$irri
             kds_irri <- ec_filter_data(kds_irri)
+            print("--irri1")
             kds_irri <-  kds_irri %>% dplyr::filter(TraitName %in% lbl_irrigation())
+            print("--irri2")
+            #Collectable ids -------------------------------------------------------------
+            if(length(get_collectable_irri(AllInputs()))!=0){
+              collect_irri <- get_collectable_irri(AllInputs())
+              kds_irri <-  kds_irri %>% dplyr::mutate(temp = paste0(Group,"_",Measurement))
+              kds_irri <- kds_irri %>%  dplyr::filter(temp %in% collect_irri)
+              print("--irri3")
+            }#end collectalbe ids
             
-            kds_irri$CropMeasurementPerSeason <- ns_irrigation()
+            kds_irri$NumberofMeasurementsPerSeason <- ns_irrigation()
+            print("--irri4")
             kds_irri <- data.table(kds_irri)
             dt_kds<-rbindlist(list(dt_kds,kds_irri),fill = TRUE)
             dt_kds<- ec_clean_header(dt_kds)
@@ -12947,8 +13710,17 @@ server_design_agrofims <- function(input, output, session, values){
             kds_weed <- magmtprac$weed
             kds_weed <- ec_filter_data(kds_weed)
             kds_weed <-  kds_weed %>% dplyr::filter(TraitName %in% lbl_weeding())
+            print("--wee1")
+            if(length(get_collectable_irri(AllInputs()))!=0){
+              collect_weed <- get_collectable_weed(AllInputs())
+              kds_weed <-  kds_weed %>% dplyr::mutate(temp = paste0(Group,"_",Measurement))
+              kds_weed <- kds_weed %>%  dplyr::filter(temp %in% collect_weed)
+              print("--wee2")
+            }
             
-            kds_weed$CropMeasurementPerSeason <- ns_weeding()
+            
+            #kds_weed$NumberofMeasurementsPerSeason <- ns_weeding()
+            print("--wee 3")
             kds_weed <- data.table(kds_weed)
             dt_kds<-rbindlist(list(dt_kds,kds_weed),fill = TRUE)
             dt_kds<- ec_clean_header(dt_kds)
@@ -12960,10 +13732,17 @@ server_design_agrofims <- function(input, output, session, values){
             kds_harv <- ec_filter_data(kds_harv)
             if(ct=="Monocrop" ){
               kds_harv <-  kds_harv %>% dplyr::filter(TraitName %in% lbl_harvest())
-            }else{
+              if(length(get_collectable_harvest(AllInputs(), ctype= "monocrop" ))!=0){
+                collect_harv <- get_collectable_harvest(AllInputs(),ctype="monocrop")
+                print(collect_harv)
+                kds_harv <- kds_harv  %>% dplyr::mutate(temp=paste0(Group,"_",Measurement))
+                kds_harv <- kds_harv  %>% filter(temp %in% collect_harv)
+              }
+            }
+            else{
               
               if(ct=="Intercrop"){
-                id_re_rand <- getAddInputId(relaycropVars$ids, "int_", "") 
+                id_re_rand <- getAddInputId(intercropVars$ids, "int_", "") 
                 crmult <- map_values(input, id_chr="int_cropCommonName_", id_re_rand, format = "vector", lbl= "Select crop")
                 #crop <- circm[i]
               }
@@ -12981,10 +13760,17 @@ server_design_agrofims <- function(input, output, session, values){
                 
               }
               kds_harv <- rbindlist(temp_harv,fill = TRUE)
+              #kop <- kds_harv 
+              #Collect Ids
+              if(length(get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=crmult, cropId= id_re_rand))!=0){
+                collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=crmult, cropId= id_re_rand)
+                kds_harv <- kds_harv %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))
+                kds_harv <- kds_harv %>% filter(temp %in% collect_harv)
+              }
+              
             }
-            
             kds_harv <- data.table(kds_harv)
-            kds_harv$CropMeasurementPerSeason <- ns_harvest()
+            #kds_harv$CropMeasurementPerSeason <- ns_harvest()
             dt_kds<-rbindlist(list(dt_kds,kds_harv),fill = TRUE)
             dt_kds<- ec_clean_header(dt_kds)
           }

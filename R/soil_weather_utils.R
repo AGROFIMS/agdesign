@@ -20,16 +20,19 @@ get_weather_variables <- function(allinputs,addId="1"){
     crop <- ""
     group<- "Weather"
     subgroup<-""
-    mea <-unit <- pseason <- pplot <- NULL
+    mea <-unit <- pseason <- pplot <-timing <-timValue<- NULL
     for( i in seq.int(addId)){
       mea[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"mea_",addId[i],"$") ))  %>% dplyr::nth(2)
       unit[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"unit_",addId[i],"$") ))  %>% dplyr::nth(2)
       pseason[i]<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"per_season_",addId[i],"$") ))  %>% dplyr::nth(2)
-      pplot[i]<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"per_plot_",addId[i],"$") ))  %>% dplyr::nth(2)
+      pplot[i]<-  "1" #allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"per_plot_",addId[i],"$") ))  %>% dplyr::nth(2)
+      timing[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timing_",addId[i],"$") ))  %>% dplyr::nth(2)
+      timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)
     }
     
-    dt<- tibble::tibble(crop, group, subgroup, mea, unit, as.numeric(pseason), as.numeric(pplot))
-    names(dt) <- c("Crop", "Group","Subgroup", "Measurement","TraitUnit",  "NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot")
+    dt<- tibble::tibble(crop, group, subgroup, mea, unit, as.numeric(pseason), as.numeric(pplot), timing, timValue)
+    names(dt) <- c("Crop", "Group","Subgroup", "Measurement","TraitUnit",  "NumberofMeasurementsPerSeason",
+                   "NumberofMeasurementsPerPlot","Timing","TimingValue")
     
     
   } 
@@ -80,16 +83,23 @@ get_soil_variables <- function(allinputs,addId="1"){
     crop <- ""
     group<- "Soil"
     subgroup<-""
-    mea <-unit <- pseason <- pplot <- NULL
+    mea <-unit <- pseason <- pplot <-depth <-depthUnit <- timing <-timValue<- NULL
     for( i in seq.int(addId)){
       mea[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"mea_",addId[i],"$") ))  %>% dplyr::nth(2)
       unit[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"unit_",addId[i],"$") ))  %>% dplyr::nth(2)
       pseason[i]<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"per_season_",addId[i],"$") ))  %>% dplyr::nth(2)
       pplot[i]<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"per_plot_",addId[i],"$") ))  %>% dplyr::nth(2)
+      depth[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"depth_",addId[i],"$") ))  %>% dplyr::nth(2)
+      depthUnit[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"depthunit_",addId[i],"$") ))  %>% dplyr::nth(2)
+      timing[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timing_",addId[i],"$") ))  %>% dplyr::nth(2)
+      timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)
+      
     }
     
-    dt<- tibble::tibble(crop, group, subgroup, mea, unit, as.numeric(pseason), as.numeric(pplot))
-    names(dt) <- c("Crop", "Group","Subgroup", "Measurement","TraitUnit",  "NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot")
+    dt<- tibble::tibble(crop, group, subgroup, mea, unit, as.numeric(pseason), as.numeric(pplot), depth, 
+                        as.numeric(depthUnit), timing,timValue)
+    names(dt) <- c("Crop", "Group","Subgroup", "Measurement","TraitUnit", "NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot",
+                   "Depth", "DepthUnit", "Timing","TimingValue")
     
   } 
   else {
@@ -112,16 +122,3 @@ get_dt_soil <- function(soil_variables,dt_soil){
   dt  
   
 }
-
-
-
-
-
-
-#Add
-#soilVars$num <- 1
-#add <- as.character(soilVars$num)
-#weatherVars$num <- 1
-#add <- as.character(weatherVars$num)
-#get_weather_variables(allinputs,addId = NULL)
-#get_soil_variables(allinputs,addId = NULL)

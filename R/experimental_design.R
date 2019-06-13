@@ -124,11 +124,11 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
                               dplyr::filter(!str_detect(id, "-selectized")) %>%  
                               dplyr::filter(str_detect(id, lookup))
         
-        #Arrange by order
-        dt <- arrange_by_pattern(dt, pattern = index)
+      #Arrange by order
+      dt <- arrange_by_pattern(dt, pattern = index)
       
-        out <- vector(mode="list",length = length(factors))
-        a<-u<-NULL
+      out <- vector(mode="list",length = length(factors))
+      a<-u<-NULL
         
         for(i in 1:length(factors)){
           
@@ -140,6 +140,15 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
                                               data_dictionary=data_dictionary)
               #}
           }
+          
+          else if(stringr::str_detect(factors[i],pattern="crop residue amount")){
+            
+            print("crop residue amount")
+            out[[i]] <- get_amountype_levels(allinputs, index= index[i], factors[i], design=design,
+                                             data_dictionary=data_dictionary)
+            
+          }
+          
           else if(stringr::str_detect(factors[i],pattern="type and amount")){
             
             print("type and amount factor")
@@ -204,6 +213,24 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
                     out[[i]]<- paste0(fert," ",out[[i]]) #quantity + whitespace + unit
                     
                   }
+                  
+                  
+                  if(nrow(allinputs %>% dplyr::filter(str_detect(id,  paste0("^",design,"factor","_crop_input",index[i],"$"))) )>=1)
+                  {
+                    print("crop in design")
+                    crop <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",design,"factor","_crop_input",index[i],"$"))) %>% 
+                                          dplyr::nth(2)
+                    print(crop)
+                    
+                    if( length(crop) && crop!=""){
+                      #crop <- crop$values
+                      out[[i]] <- paste0(crop,"_",out[[i]])
+                    }else{
+                      out[[i]] <- out[[i]]
+                    }
+                    
+                  }
+                    
                 }
                 
               } 
@@ -241,11 +268,11 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
           
         }
         
-        if(format=="data.frame"){
+      if(format=="data.frame"){
           print("tranform to data.frame")
-        }
+      }
         
-        out
+      out
   
 }
 

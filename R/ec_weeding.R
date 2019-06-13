@@ -1,4 +1,4 @@
-#Get management practicse for weeding experiments
+#Get management practicse for weeding experiments ####################################################
 get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     
     #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
@@ -66,7 +66,7 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     
 }
 
-#Get protocol table for weeding experiments
+#Get protocol table for weeding experiments  #########################################################
 get_protocol_weed <- function(allinputs, addId, ctype="monocrop"){
   
   out <- get_ec_weed(allinputs, addId, ctype="monocrop")$dt
@@ -75,4 +75,16 @@ get_protocol_weed <- function(allinputs, addId, ctype="monocrop"){
   out <- out %>% dplyr::filter(V1!="")
   names(out) <- c("TraitName","Value")
   out
+}
+
+
+#Get Collectable inputs for Weeding ###################################################################
+#allinputs: data frame with all the user's inputs 
+get_collectable_weed <- function(allinputs){
+  
+  weed <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","weeding_to_collect_field","$") )) %>% dplyr::nth(2)
+  out <- stringi::stri_split_regex(weed,",")[[1]] %>% stringr::str_trim(side = "both")  %>% setdiff("")
+  if(length(out)!=0){
+    out <- paste0("Weeding" ,"_", out)
+  }
 }

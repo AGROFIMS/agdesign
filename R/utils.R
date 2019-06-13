@@ -618,6 +618,7 @@ ec_clean_header <- function(dt){
   dt$`Factor?`<-dt$`Reorganisation of all the variables (see GitHub 112 for the mock-up)`<- NULL
   #dt$Fieldbook_download<-NULL
   dt$Measurement_2<-NULL
+  dt$temp<-NULL
   #dt <- dt %>% dplyr::select(-starts_with("NA."))
   dt
 }

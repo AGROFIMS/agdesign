@@ -126,7 +126,7 @@ get_ec_sbtill <- function(input){
 
 
 
-##### Protocols ############################################
+##### Protocols ################################################################################################
 
 # Get protocol for land levelling #######################
 get_protocol_sblavl <- function(input){
@@ -158,3 +158,43 @@ get_protocol_sbtill <- function(input){
   names(out) <- c("TraitName","Value")
   out
 }
+
+
+#### Collectable inputs #########################################################################################
+
+# Get collectable inputs from land levelling
+get_collectable_sblavl <- function(allinputs){
+  
+  la<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","land_levelling_to_collect_field","$") ))  %>% dplyr::nth(2)
+  out <- stringi::stri_split_regex(la,",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")
+  if(length(out)!=0){
+    out <- paste0("Land levelling" ,"_", out)
+  }
+  
+}
+
+# Get collectable inputs from puddling
+get_collectable_sbpud <- function(allinputs){
+  
+  pu<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","puddling_to_collect_field","$") ))  %>% dplyr::nth(2)
+  out <- stringi::stri_split_regex(pu,",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")
+  if(length(out)!=0){
+    out <- paste0("Puddling" ,"_", out)
+  }
+  
+}
+
+# Get collectable inputs from tillage
+get_collectable_sbtill <- function(allinputs){
+  
+    till <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","tillage_to_collect_field","$") ))  %>% dplyr::nth(2)
+    out <- stringi::stri_split_regex(till,",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")
+    if(length(out)!=0){
+      out <- paste0("Tillage" ,"_", out)
+    }
+    
+}
+
+
+
+

@@ -149,7 +149,7 @@ get_ec_resmgt <- function(input, lbl){
 
 
 
-## Protocols ############################################
+## Protocols ##########################################################################################################
 
 # Get protocol residual dsecription
 
@@ -163,7 +163,7 @@ get_protocol_resdesc <- function(input){
   out
 }
 
-# Get protocol residual management
+# Get protocol residual management 
 
 get_protocol_resmgt <- function(input){
 
@@ -176,14 +176,24 @@ get_protocol_resmgt <- function(input){
 }
 
 
+# Get collectable inputs from Residue Management #############################################################################
+# allinputs: data frame of all inputs derived from ReactiveValuesToList
+get_collectable_resmgt <- function(allinputs){
+
+  rd <- allinputs %>% dplyr::filter(stringr::str_detect(id,  paste0("^","residue_description_to_collect_field","$") )) %>% dplyr::nth(2)
+  rd <- stringi::stri_split_regex(rd,",")[[1]] %>%  stringr::str_trim(side = "both") %>%  setdiff("")
+  if(length(rd)!=0){
+    rd <- paste0("Residue description" ,"_", rd)
+  }
+  
+  rm <- allinputs %>% dplyr::filter(stringr::str_detect(id,  paste0("^","residue_management_to_collect_field","$") ))  %>% dplyr::nth(2)
+  rm <- stringi::stri_split_regex(rm,",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")  
+  if(length(rm)!=0){
+    rm <- paste0("Residue management" ,"_", rm)
+  }
+  out <- c(rd, rm)
+}
 
 
-## Get labels for management practices' user interface
-## choices = c("Plant part",
-# "Crop residue moisture",
-# "Crop residue thickness",
-# "Crop residue amount",
-# "Crop residue percent of coverage")
-# ),
-## 
-## 
+
+
