@@ -237,8 +237,8 @@ get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1
   #LABEL FOR TRAITLIST
   lbl <- str_replace_all(string = names(dt_harv), pattern = "__[:digit:]+$",replacement = "") %>% unique()
   
-  print("harv dt list")
-  print(dt_harv)
+  #print("harv dt list")
+  #print(dt_harv)
   
   #OUTPUT
   out<- list(dt=dt_harv, lbl = lbl)

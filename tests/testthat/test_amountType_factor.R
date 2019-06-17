@@ -41,3 +41,31 @@ test_that("Test type and amount factor (special factor)", {
   testthat::expect_equal(out[[2]], lvl2)
   testthat::expect_equal(length(out[[2]]), 3)
 })
+
+
+
+test_that("Test for factor named Crop residue amount", {
+  
+  fname <- rprojroot::find_testthat_root_file("userInput", "crop_residue_factor.rds")
+  allinputs<- readRDS(fname)
+  
+  #a2 <- get_levels_design(allinputs, "1", factors, design="frcbd",data_dictionary=NULL,format="list")
+  #a1 <- get_levels_design(allinputs, "2", factors="Crop residue amount", 
+  #                        design="frcbd",data_dictionary= agdesign::dt_factordesign)
+  
+  factors <- c("Crop residue amount","Intercrop arrangement")
+  index <- c("1","2")
+  
+  #index="1" ; factors="Crop residue amount" ;
+  design="frcbd"; data_dictionary=agdesign::dt_factordesign; crop <- ""
+  
+  # lvl <- get_levels_design(allinputs, "1", factors="Crop residue amount", 
+  #                         design="frcbd",data_dictionary= agdesign::dt_factordesign)
+  lvl <- get_levels_design(allinputs, index, factors=factors,
+                          design="frcbd",data_dictionary= agdesign::dt_factordesign)
+  
+  nr <- length(lvl)
+  nlvl_cramount <- length(lvl[[1]])
+  expect_equal(nr, 2)
+  expect_equal(nlvl_cramount, 6)
+})

@@ -415,12 +415,12 @@ map_level_values <- function(input, allinputs, isf=c("yes","no"), id_type_dt, #i
             
                 for(k in 1:numlvl){ 
                        if(is.null(input[[paste0(id_chr_s, id_rand[i],"_",k)]])){
-                         print("no pasa")
-                         print(input[[paste0(id_chr_s, id_rand[i],"_",k)]]) 
+                         #print("no pasa")
+                         #print(input[[paste0(id_chr_s, id_rand[i],"_",k)]]) 
                          datelevelVals[k] <- "-"
                        } else {
-                         print("pasa")
-                         print(input[[paste0(id_chr_s, id_rand[i],"_",k)]])
+                         #print("pasa")
+                         #print(input[[paste0(id_chr_s, id_rand[i],"_",k)]])
                          datelevelVals[k] <- as.character(input[[paste0(id_chr_s, id_rand[i],"_",k)]])
                        }
                 }
@@ -460,17 +460,17 @@ map_level_values <- function(input, allinputs, isf=c("yes","no"), id_type_dt, #i
         else if(id_type[i]=="date"){
           #id_chr<- "date_factor_treatment_"
           id_chr<-"input_factor_treatment_"
-          print(id_chr)
+          #print(id_chr)
         } 
         else if(id_type[i]=="text input"){
           #id_chr<- "input_NFF_"
           id_chr<-"input_factor_treatment_"
-          print(id_chr)
+          #print(id_chr)
         } 
         else if(id_type[i]=="combo box"){
           id_chr<-"input_factor_treatment_"
           #id_chr<- "select_factor_treatment_"
-          print(id_chr)
+          #print(id_chr)
         }
         
         if(is.null(input[[paste0(id_chr, id_rand[i], "_", j)]]) || is.null(id_chr) ){
@@ -643,11 +643,11 @@ ec_filter_data <- function(dt){
 }
 
 #Get number of evaluations per season for experiment conditions
-get_ns <- function(addId){
-  
-  n<- length(addId) 
-  n
-}
+# get_ns <- function(addId){
+#   
+#   n<- length(addId) 
+#   n
+# }
 
 #Change units in TraitList sheet
 changes_units <- function(ec, input, allinputs){

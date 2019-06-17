@@ -36,8 +36,8 @@ fbdesign_agrofims <- function(design, rep=2, block=2, trt=2, ntrt=NULL,
             }
             
             if (design == "frcbd") { ##factorial rcbd
-              print(fnames)
-              print(flevels)
+              #print(fnames)
+              #print(flevels)
               fb <- try(st4gi::cr.f(fnames = fnames, flevels = flevels, design = "rcbd", nrep = rep)$book)
               names(fb)[1:5] <- c("PLOT","BLOCK" ,"ROW","COL","TREATMENT")  #rename first 5 cols
             }
@@ -141,7 +141,7 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
               #}
           }
           
-          else if(stringr::str_detect(factors[i],pattern="crop residue amount")){
+          else if(factors[i]=="Crop residue amount"){
             
             print("crop residue amount")
             out[[i]] <- get_amountype_levels(allinputs, index= index[i], factors[i], design=design,
@@ -220,7 +220,7 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
                     print("crop in design")
                     crop <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",design,"factor","_crop_input",index[i],"$"))) %>% 
                                           dplyr::nth(2)
-                    print(crop)
+                    #print(crop)
                     
                     if( length(crop) && crop!=""){
                       #crop <- crop$values
@@ -405,7 +405,7 @@ get_amountype_levels <- function(allinputs, index, factors, design="fcrd",
     
     if(crop!=""){
       out[[j]] <- paste0(crop,"_",eleType,"_",lvl,unit)
-      print(out[j])
+      #print(out[j])
     } else {
       out[[j]] <- paste0(eleType,"_",lvl,unit)
     }

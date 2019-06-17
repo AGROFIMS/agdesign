@@ -875,7 +875,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       '$(document).on("click", "button[id*=\'soil_closeBox\']",  function(){
       Shiny.onInputChange("closeBox_SOIL", Math.random());
       Shiny.onInputChange("closeBox_SOILid", this.id);
-    })'
+      })'
     ),
     
     # When timing change
@@ -901,9 +901,12 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       Shiny.onInputChange("measurement_SOILid", this.id);
       })'
     ),
+
+    
     
     
     ###################### END: SOIL ######################
+
     
     ############################### END UI: JAVA SCRIPT ###############################
     ###################################################################################
