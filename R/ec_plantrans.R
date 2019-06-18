@@ -257,6 +257,8 @@ get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="
     ds <- stringi::stri_split_regex(ds, ",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")   
     if(length(ds)!=0){
       ds <- paste0("Direct seeding" ,"_", ds)
+    }else {
+      ds <-NULL
     }
     
     #transplanting
@@ -264,6 +266,8 @@ get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="
     tra <- stringi::stri_split_regex(tra, ",")[[1]]  %>% stringr::str_trim(side = "both") %>% setdiff("")
     if(length(tra)!=0){
       tra <- paste0("Transplanting" ,"_", tra)
+    } else {
+      tra <- NULL
     }
     out <- c(ds,tra)  
   }
@@ -278,31 +282,46 @@ get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="
       #direct seeding --------------------------------------------------------------------------------------------------------------------------
       ds <- lapply(X = cropId, function(x) allinputs %>% dplyr::filter(str_detect(id,  paste0("^", paste0(crop_pattern,"_pt_",x) ,"_directSeeding_to_collect_field_1","$") ))
                    %>% dplyr::nth(2) ) 
-      ds <- lapply(ds, function(x)stringi::stri_split_regex(x, ",")[[1]] )
       
-      for( i in seq.int(crop)){
-        ds[[i]] <- ds[[i]] %>% stringr::str_trim(side = "both") %>% setdiff("")
-        ds[[i]] <- paste0(crop[i],"_",ds[[i]])
+      if(all(unlist(ds)!="")){
+      
+        ds <- lapply(ds, function(x)stringi::stri_split_regex(x, ",")[[1]] )
+        
+        for( i in seq.int(crop)){
+          ds[[i]] <- ds[[i]] %>% stringr::str_trim(side = "both") %>% setdiff("")
+          ds[[i]] <- paste0(crop[i],"_",ds[[i]])  
+        }
+        ds <- unlist(ds)
+        if(length(ds)!=0){
+          ds <- paste0("Direct seeding" ,"_", ds)
+        }
+          
       }
-      ds <- unlist(ds)
-      if(length(ds)!=0){
-        ds <- paste0("Direct seeding" ,"_", ds)
+      else {
+        ds <-NULL
       }
+      
       
       #transplanting --------------------------------------------------------------------------------------------------------------------------
       tra <- lapply(X = cropId, function(x) allinputs %>% dplyr::filter(str_detect(id,  paste0("^",  paste0(crop_pattern,"_pt_",x) ,"_transplanting_to_collect_field_1","$") ))
                     %>% dplyr::nth(2))
       
-      tra <- lapply(tra, function(x)stringi::stri_split_regex(x, ",")[[1]] )
+      if(all(unlist(tra)!="")){
+        tra <- lapply(tra, function(x)stringi::stri_split_regex(x, ",")[[1]] )
+        
+        for( i in seq.int(crop)){
+          tra[[i]] <- tra[[i]] %>% stringr::str_trim(side = "both") %>% setdiff("")
+          tra[[i]] <- paste0(crop[i],"_",tra[[i]])
+        }
+        tra <- unlist(tra)
+        if(length(tra)!=0){
+          tra <- paste0("Transplanting" ,"_", tra)
+        }  
+        
+      } else {
+        tra <- NULL
+      }
       
-      for( i in seq.int(crop)){
-        tra[[i]] <- tra[[i]] %>% stringr::str_trim(side = "both") %>% setdiff("")
-        tra[[i]] <- paste0(crop[i],"_",tra[[i]])
-      }
-      tra <- unlist(tra)
-      if(length(tra)!=0){
-        tra <- paste0("Transplanting" ,"_", tra)
-      }
       
       #final ouput
       out <- c(ds, tra) 

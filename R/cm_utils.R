@@ -45,7 +45,7 @@ get_dtcmea_variables <- function(allinputs, ctype="monocrop", addId="1", crop="n
   #print(dt)
   
   if(nrow(dt)!=0 &&  length(addId)!=0 && length(cropId)!=0){
-    mea<-parmea <-unit <- pseason <- pplot<- timing<- timValue <- NULL
+    mea<-parmea <-unit <- pseason <- pplot<- timing<- timValue <- timNumLev <- NULL
     for( i in seq.int(addId) ){
       mea[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_measurement_",addId[i],"$") ))  %>% dplyr::nth(2)
       parmea[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_parmea_",addId[i],"$") ))  %>% dplyr::nth(2)
@@ -53,7 +53,16 @@ get_dtcmea_variables <- function(allinputs, ctype="monocrop", addId="1", crop="n
       pseason[i]<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_per_season_",addId[i],"$") ))  %>% dplyr::nth(2)
       pplot[i]<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_per_plot_",addId[i],"$") ))  %>% dplyr::nth(2)
       timing[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_timing_",addId[i],"$") ))  %>% dplyr::nth(2)
-      timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)
+      
+      if(timing[i]=="Date"){
+        timNumLev[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_timingNumLevels_",addId[i],"$") ))  %>% dplyr::nth(2)
+        for(j in seq.int(as.integer(timNumLev[i]))){
+          timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_timingValue_",addId[i],"_[[:digit:]]+","$") )) %>% dplyr::nth(2) %>% paste(., collapse = ",")
+        }
+        #mono_mea_1_timingValue_1_1 #mono_mea_1_timingValue_1_2 #mono_mea_1_timingValue_1_3
+      }else {
+        timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)        
+      }
     }
     
     dt<- tibble::tibble(crop, mea, parmea, unit, as.numeric(pseason), as.numeric(pplot), timing, timValue)

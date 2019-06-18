@@ -580,6 +580,197 @@ server_design_agrofims <- function(input, output, session, values){
     res
   }
   
+  # Funcion que crea lista de inputs a guardar de weather
+  inputsWeather <- function(){
+    df2 <- df3 <- df4 <- df5 <- data.frame()
+    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- c()
+    b1 <- b2 <- b3 <- b4 <- b5 <- b6 <- b7 <- b8 <- b9 <- c()
+    c1 <- c2 <- c3 <- c4 <- c5 <- c6 <- c7 <- c8 <- c9 <- c()
+    
+    # inputs para: Soil
+    id_rand_weather<-  getAddInputId(weatherVars$ids, "weather_", "") 
+    
+    #Variables auxiliares
+    aux1<-aux2<-aux3<-aux4<-aux5<- c()
+    for (i in 1:length(id_rand_weather)) {
+      
+      aux1[i] <- paste0("weather_mea_", id_rand_weather[i])
+      aux2[i] <- paste0("weather_unit_", id_rand_weather[i])
+      aux3[i] <- paste0("weather_per_season_", id_rand_weather[i])
+      aux4[i] <- paste0("weather_timing_", id_rand_weather[i])
+      aux5[i] <- paste0("weather_timingNumLevels_", id_rand_weather[i])
+      
+      # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
+      # 
+      # if(!is.na(numlvls) && numlvls != "" ){
+      #   for( j in 1:numlvls){
+      #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
+      #   }
+      # }
+      
+      a1[i] <- paste0("weather_mea_", i)
+      a2[i] <- paste0("weather_unit_", i)
+      a3[i] <- paste0("weather_per_season_", i)
+      a4[i] <- paste0("weather_timing_", i)
+      a5[i] <- paste0("weather_timingNumLevels_", i)
+
+      # if(!is.na(numlvls) && numlvls != "" ){
+      #   for( j in 1:numlvls){
+      #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
+      #   }
+      # }
+      
+      b1[i] <- "textInput"
+      b2[i] <- "selectizeInput"
+      b3[i] <- "textInput"
+      b4[i] <- "selectizeInput"
+      b5[i] <- "selectizeInput"
+
+      
+      # if(!is.na(numlvls) && numlvls != "" ){
+      #   for( j in 1:numlvls){
+      #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
+      #       b9[i] <- "dateInput"
+      #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
+      #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
+      #     {
+      #       b9[i] <- "selectizeInput"
+      #     }
+      #   }
+      # }
+      
+      
+      c1[i] <- "n"
+      c2[i] <- "n"
+      c3[i] <- "n" 
+      c4[i] <- "n"
+      c5[i] <- "n"
+      #c9[i] <- "n"
+      
+    }
+    df1 <- data.frame(originalInputId = c(aux1,aux2,aux3,aux4,aux5),
+                      inputId = c(a1, a2, a3, a4, a5),
+                      type = c(b1, b2, b3, b4, b5),
+                      create = c(c1, c2, c3, c4, c5),
+                      stringsAsFactors = F)
+    
+    res <- df1
+    res
+  }
+  
+  # Funcion que crea lista de inputs a guardar de Crop Measurement
+  inputsCropMeasurement <- function(){
+    df2 <- df3 <- df4 <- df5 <- data.frame()
+    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- c()
+    b1 <- b2 <- b3 <- b4 <- b5 <- b6 <- b7 <- b8 <- b9 <- c()
+    c1 <- c2 <- c3 <- c4 <- c5 <- c6 <- c7 <- c8 <- c9 <- c()
+    
+    prefix <- NULL
+    numCropVars <- NULL
+    id_rand_cropMeasurement <- NULL
+    
+    id_int_cropMeasurement_1 <- NULL 
+    id_int_cropMeasurement_2 <- NULL
+    id_int_cropMeasurement_3 <- NULL
+    id_int_cropMeasurement_4 <- NULL
+    id_int_cropMeasurement_5 <- NULL
+    
+    if(input$croppingType == "Monocrop"){
+      prefix <- "mono"
+      id_rand_cropMeasurement <-  getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
+    }else if(input$croppingType == "Intercrop"){
+      prefix <- "int"
+      numCropVars <- length(intercropVars$ids)
+      
+      for (i in 1:numCropVars){
+        id_int_cropMeasurement_1 <- getAddInputId(meaINT[i]$ids, paste0("int_mea_",i,"_fluidRow_", ""))
+        
+        print(id_int_cropMeasurement_1)
+      }
+      
+    }else if (input$croppingType == "Relay crop"){
+      prefix <- "rel"
+      numCropVars <- length(relaycropVars$ids)
+      id_rand_cropMeasurement <-  getAddInputId(meaMONO$ids, "mono_", "")
+    }else if (input$croppingType == "Rotation"){
+      prefix <- "rot"
+      numCropVars <- length(rotcropVars$ids)
+      id_rand_cropMeasurement <-  getAddInputId(meaMONO$ids, "mono_", "") 
+    }
+      
+    #Variables auxiliares
+    aux1<-aux2<-aux3<-aux4<-aux5<-aux6<- c()
+    for (i in 1:length(id_rand_cropMeasurement)) {
+      
+      aux1[i] <- paste0("mono_mea_1_measurement_", id_rand_cropMeasurement[i])
+      aux2[i] <- paste0("mono_mea_1_parmea_", id_rand_cropMeasurement[i])
+      aux3[i] <- paste0("mono_mea_1_unit_", id_rand_cropMeasurement[i])
+      aux4[i] <- paste0("mono_mea_1_per_season_", id_rand_cropMeasurement[i])
+      aux5[i] <- paste0("mono_mea_1_per_plot_", id_rand_cropMeasurement[i])
+      aux6[i] <- paste0("mono_mea_1_timing_", id_rand_cropMeasurement[i])
+      
+      # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
+      # 
+      # if(!is.na(numlvls) && numlvls != "" ){
+      #   for( j in 1:numlvls){
+      #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
+      #   }
+      # }
+      
+      a1[i] <- paste0("mono_mea_1_measurement_", i)
+      a2[i] <- paste0("mono_mea_1_parmea_", i)
+      a3[i] <- paste0("mono_mea_1_unit_", i)
+      a4[i] <- paste0("mono_mea_1_per_season_", i)
+      a5[i] <- paste0("mono_mea_1_per_plot_", i)
+      a6[i] <- paste0("mono_mea_1_timing_", i)
+      
+      # if(!is.na(numlvls) && numlvls != "" ){
+      #   for( j in 1:numlvls){
+      #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
+      #   }
+      # }
+      
+      b1[i] <- "textInput"
+      b2[i] <- "selectizeInput"
+      b3[i] <- "selectizeInput"
+      b4[i] <- "textInput"
+      b5[i] <- "textInput"
+      b6[i] <- "selectizeInput"
+      
+      
+      # if(!is.na(numlvls) && numlvls != "" ){
+      #   for( j in 1:numlvls){
+      #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
+      #       b9[i] <- "dateInput"
+      #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
+      #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
+      #     {
+      #       b9[i] <- "selectizeInput"
+      #     }
+      #   }
+      # }
+      
+      
+      c1[i] <- "n"
+      c2[i] <- "n"
+      c3[i] <- "n" 
+      c4[i] <- "n"
+      c5[i] <- "n"
+      c6[i] <- "n"
+      
+    }
+    df1 <- data.frame(originalInputId = c(aux1,aux2,aux3,aux4,aux5,aux6),
+                      inputId = c(a1, a2, a3, a4, a5, a6),
+                      type = c(b1, b2, b3, b4, b5, b6),
+                      create = c(c1, c2, c3, c4, c5, c6),
+                      stringsAsFactors = F)
+    
+    res <- df1
+    res
+    
+    
+  }
+  
   # Funcion que crea lista de inputs a guardar: Design
   inputsDesign <- function() {
     df2 <- df3 <- df4 <- data.frame()
@@ -1028,7 +1219,9 @@ server_design_agrofims <- function(input, output, session, values){
                               inputsPersonnel(),
                               inputsSite(),
                               inputsCrop(),
-                              inputsSoil())
+                              inputsSoil(),
+                              inputsWeather(),
+                              inputsCropMeasurement())
       #inputsDesign(),
       #inputsExpCon())
       
@@ -1122,15 +1315,17 @@ server_design_agrofims <- function(input, output, session, values){
       cropROT  <- cropROTRowsSaveSession()
       
       soilRow  <- soilRowsSaveSession()
+      weatherRow <- weatherRowsSaveSession()
       
       #Unimos todos los dataframe en uno solo
-      final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame, expRow, persRow, cropIC, cropREL, cropROT,soilRow)
+      final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame, 
+                              expRow, persRow, cropIC, cropREL, cropROT,soilRow, weatherRow)
       
       View(final_inputs_df)
 
       #Almacena archivos en 2 csv's
-      write.csv(final_inputs_df, paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
-      write.csv(final_inputs_df, paste0(sessionpathbk, input$uniqueId, ".csv"), row.names = FALSE)
+      #write.csv(final_inputs_df, paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
+      #write.csv(final_inputs_df, paste0(sessionpathbk, input$uniqueId, ".csv"), row.names = FALSE)
       
       updateTextInput(session,
                       inputId = "uniqueId",
@@ -1190,10 +1385,16 @@ server_design_agrofims <- function(input, output, session, values){
     nrowCropROT <- data.frame(inputId = "nrowCropROT", type = "", create = "", value = nrowCropROT)
   }
   
-  #Crop Measurement Rows SaveSession
+  #Soil Rows SaveSession
   soilRowsSaveSession <- function(){
     nrowSOIL <- as.character(length(soilVars$ids))
     nrowSOIL <- data.frame(inputId = "nrowSOIL", type = "", create = "", value = nrowSOIL)
+  }
+  
+  #Weather Rows SaveSession
+  weatherRowsSaveSession  <- function(){
+    nrowWEA <- as.character(length(weatherVars$ids))
+    nrowWEA <- data.frame(inputId = "nrowWEA", type = "", create = "", value = nrowWEA)
   }
   
   # Save session
@@ -12071,6 +12272,13 @@ server_design_agrofims <- function(input, output, session, values){
     wdt_vars
     
   })
+  
+  weather_list <- reactive({
+    addId <- getAddInputId(weatherVars$ids, "weather_", "") 
+    wdt_vars <- get_weather_variables(AllInputs(),addId= addId)
+    wdt_vars <-get_dt_weather(weather_variables = wdt_vars, dt_weather= dt_weather)
+  })
+  
   ################################ END: Reactive Weather DT   #######################################################
   
   
@@ -12109,6 +12317,14 @@ server_design_agrofims <- function(input, output, session, values){
       soil_vars <-cbind(fbdesign() ,soil_vars)
     }
     soil_vars 
+  })
+  
+  soil_list <- reactive({
+    
+    addId <- getAddInputId(soilVars$ids, "soil_", "") 
+    soil_vars <- get_soil_variables(AllInputs(),addId= addId)
+    soil_vars <-get_dt_soil(soil_variables = soil_vars, dt_soil=dt_soil)
+    
   })
   ################################ END Soil DT #####################################################################
   
@@ -12991,7 +13207,7 @@ server_design_agrofims <- function(input, output, session, values){
         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
         # x <- reactiveValuesToList(input)
         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-        
+        # 
         #design <- tolower(input$designFieldbook_agrofims) #lowercase
         #Get IDS from design inputs
         #IdDesignInputs <- getFactorIds(design)
@@ -13007,12 +13223,9 @@ server_design_agrofims <- function(input, output, session, values){
         ct <- map_singleform_values(input$croppingType,  type = "combo box", format = "vector",default = "Monocrop") 
         
         if(ct=="Monocrop"){
-          print(fbdesign_traits())
           fb  <- fbdesign_traits()
         } 
         else if(ct=="Intercrop" || ct=="Relay crop"){
-          print("fbdesign_mult_traits")
-          print(fbdesign_mult_traits())
           fb<- fbdesign_mult_traits()
         }
         
@@ -13342,7 +13555,10 @@ server_design_agrofims <- function(input, output, session, values){
         
         ############# START SOIL MEASUREMENT FOR TRAIT LIST  ###############################################################
         if(nrow(soil_dt())!=0){
-          soil_tl<- soil_dt()
+          
+          print(soil_list())
+          
+          soil_tl<- soil_list()
         }
         else{
           soil_tl <- data.frame()
@@ -13353,9 +13569,12 @@ server_design_agrofims <- function(input, output, session, values){
         
         ############# WEATHER TRAIT LIST SHEET #######################################################################
         print("Weather data frame")
-        print(weather_dt())
+        
         if(nrow(weather_dt())!=0){
-          wdt_tl<- weather_dt()
+          
+          print(weather_list())
+          
+          wdt_tl<- weather_list()
         }
         else{
           wdt_tl<- data.frame()
@@ -13480,7 +13699,8 @@ server_design_agrofims <- function(input, output, session, values){
             }
             kds_platra <- rbindlist(temp_platra,fill = TRUE)
             #Collectable inputs ---------------------------
-            #lbbb <<- lbl_harvest()
+            #lbbb <<- get_collectable_plantrans(AllInputs(), ctype="intercrop",crop=circm, cropId=id_ic_rand)
+            
             if(length(get_collectable_plantrans(AllInputs(), ctype="intercrop",crop=circm, cropId=id_ic_rand)  )!=0){
               collect_platra <- get_collectable_plantrans(AllInputs(),ctype="intercrop", crop=circm,cropId= id_ic_rand)
               kds_platra <- kds_platra %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))

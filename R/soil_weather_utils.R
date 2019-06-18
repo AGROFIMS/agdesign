@@ -20,18 +20,29 @@ get_weather_variables <- function(allinputs,addId="1"){
     crop <- ""
     group<- "Weather"
     subgroup<-""
-    mea <-unit <- pseason <- pplot <-timing <-timValue<- NULL
+    mea <-unit <- pseason <- pplot <-timing <-timValue<- timNumLev <- NULL
     for( i in seq.int(addId)){
       mea[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"mea_",addId[i],"$") ))  %>% dplyr::nth(2)
       unit[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"unit_",addId[i],"$") ))  %>% dplyr::nth(2)
       pseason[i]<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"per_season_",addId[i],"$") ))  %>% dplyr::nth(2)
       pplot[i]<-  "1" #allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"per_plot_",addId[i],"$") ))  %>% dplyr::nth(2)
       timing[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timing_",addId[i],"$") ))  %>% dplyr::nth(2)
-      timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)
+      
+      if(timing[i]=="Date"){
+        timNumLev[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingNumLevels_",addId[i],"$") ))  %>% dplyr::nth(2)
+        for(j in seq.int(as.integer(timNumLev[i]))){
+          timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_[[:digit:]]+","$") )) %>% dplyr::nth(2) %>% paste(., collapse = ",")
+        }
+      }else {
+        timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)        
+      }
+      
+      
+      #timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)
     }
     
     dt<- tibble::tibble(crop, group, subgroup, mea, unit, as.numeric(pseason), as.numeric(pplot), timing, timValue)
-    names(dt) <- c("Crop", "Group","Subgroup", "Measurement","TraitUnit",  "NumberofMeasurementsPerSeason",
+    names(dt) <- c("Crop", "Group","Subgroup", "Measurement", "TraitUnit",  "NumberofMeasurementsPerSeason",
                    "NumberofMeasurementsPerPlot","Timing","TimingValue")
     
     
@@ -83,7 +94,7 @@ get_soil_variables <- function(allinputs,addId="1"){
     crop <- ""
     group<- "Soil"
     subgroup<-""
-    mea <-unit <- pseason <- pplot <-depth <-depthUnit <- timing <-timValue<- NULL
+    mea <-unit <- pseason <- pplot <-depth <-depthUnit <- timing <- timValue <- timNumLev <- NULL
     for( i in seq.int(addId)){
       mea[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"mea_",addId[i],"$") ))  %>% dplyr::nth(2)
       unit[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"unit_",addId[i],"$") ))  %>% dplyr::nth(2)
@@ -92,7 +103,16 @@ get_soil_variables <- function(allinputs,addId="1"){
       depth[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"depth_",addId[i],"$") ))  %>% dplyr::nth(2)
       depthUnit[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"depthunit_",addId[i],"$") ))  %>% dplyr::nth(2)
       timing[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timing_",addId[i],"$") ))  %>% dplyr::nth(2)
-      timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)
+      
+      if(timing[i]=="Date"){
+        timNumLev[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingNumLevels_",addId[i],"$") ))  %>% dplyr::nth(2)
+        for(j in seq.int(as.integer(timNumLev[i]))){
+          timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_[[:digit:]]+","$") )) %>% dplyr::nth(2) %>% paste(., collapse = ",")
+        }
+      }else {
+        timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)        
+      }
+      #timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)
       
     }
     
