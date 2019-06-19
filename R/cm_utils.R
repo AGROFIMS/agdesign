@@ -1,15 +1,18 @@
 #Get measurement data from Crop Measurement Data Dictionary
 #
 #
-get_dcm_values <- function(data_dictionary=NULL, attribute = "Subgroup", crop="Potato"){
+get_dcm_values <- function(data_dictionary=NULL, attribute = "Subgroup", crop="Potato", subgroup=NULL, measurement= NULL){
   
   if (!is.null(data_dictionary) && !is.null(crop)) {
     
     if(attribute=="Timing"){
       out<- c("Day after planting", "Frequency","Date","Growth stage","Other")
-    } else {
-      out <-data_dictionary %>% filter(Crop==crop) %>% select_(attribute)  
+    } else if(is.null(measurement)) {
+      out <-data_dictionary %>% dplyr::filter(Crop==crop) %>% dplyr::select_(attribute)  
       out<- unique(out)
+    } else if(!is.null(measurement) && attribute=="TraitUnit"){
+      out <-data_dictionary %>% dplyr::filter(Crop==crop) %>% dplyr::filter(Measurement==measurement) %>% dplyr::select_(attribute)  
+      out<- out[,1] 
     }
     
   } else{
@@ -92,67 +95,6 @@ get_dt_trait <- function(dtcmea_variables, dt_cmea){
 }
 
   
-  
-  
-# cropId active Ids(number) of the crop in the CROP tab
-# ctype: croppping type
-#
-# get_cmea_multicrop_addId <- function(cropId, ctype= "intercrop"){
-#   
-#   if(ctype=="intercrop"){
-#     
-#     
-#     if( cropId=="1" ){
-#       v <- getAddInputId(meaINT1$ids, "int_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="2"){
-#       v <- getAddInputId(meaINT2$ids, "int_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="3"){
-#       v <- getAddInputId(meaINT3$ids ,"int_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="4"){
-#       v <- getAddInputId(meaINT4$ids ,"int_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="5"){
-#       v <- getAddInputId(meaINT5$ids ,"int_mea_[:digit:]+_fluidRow_","")
-#     } else{ 
-#       v <-NULL
-#     }
-#   } 
-#   else if(ctype=="relay crop"){
-#     
-#     if(cropId=="1"){#
-#       v <- getAddInputId(meaREL1$ids , "rel_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="2"){
-#       v <- getAddInputId(meaREL2$ids , "rel_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="3"){
-#       v <- getAddInputId(meaREL3$ids ,"rel_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="4"){
-#       v <- getAddInputId(meaREL4$ids ,"rel_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="5"){
-#       v <- getAddInputId(meaREL5$ids , "rel_mea_[:digit:]+_fluidRow_","")
-#     } else{ 
-#       v <-NULL
-#     }
-#     
-#   } 
-#   else if(ctype=="rotation"){
-#     
-#     if( cropId=="1" ){
-#       v <- getAddInputId(meaROT1$ids, "rot_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="2"){
-#       v <- getAddInputId(meaROT2$ids,"rot_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="3"){
-#       v <- getAddInputId(meaROT3$ids,"rot_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="4"){
-#       v <- getAddInputId(meaROT4$ids,"rot_mea_[:digit:]+_fluidRow_","")
-#     } else if (cropId=="5"){
-#       v <- getAddInputId(meaROT5$ids,"rot_mea_[:digit:]+_fluidRow_","")
-#     } else{ 
-#       v <-NULL
-#     }
-#     
-#   }
-#   
-#   out<- v 
-# }
 
 
 
