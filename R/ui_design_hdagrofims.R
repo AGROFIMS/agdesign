@@ -918,14 +918,14 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     fluidRow(
       column(6, style = "margin-top: -16px; margin-bottom: 16px;", h1("Experiment description")),
       column(
-        6, align = "right", style = "margin-top: 11px;",
-        actionButton("xtest", "Test"),
-        actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
-        actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('uisessionagrofims')"),
-        actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
-        actionButton("testsession", "test"),
-        htmlOutput("lastsaved"),
-        uiOutput("saveUI")
+        6, align = "right", style = "margin-top: 11px;"#,
+        # actionButton("xtest", "Test"),
+        # actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
+        # actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('uisessionagrofims')"),
+        # actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
+        # actionButton("testsession", "test"),
+        # htmlOutput("lastsaved"),
+        # uiOutput("saveUI")
       )
     ),
     

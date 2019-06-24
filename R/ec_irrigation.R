@@ -49,14 +49,14 @@ get_ec_irri <- function(allinputs, ctype="monocrop", addId ){
            
       }
         else if(technique[i,2]=="Localized"){
-           tech_local<- irri %>% filter(str_detect(id, paste0(ctype, "_irid_localized_irrigation_technique",addId[i],"$")))
+           tech_local<- irri %>% filter(str_detect(id, paste0(ctype, "_irid_localized_irrigation_technique_",addId[i],"$")))
            
            #Label  
            #lbl<-  paste("Irrigation_localized_irrigation_system", addId[i],sep="__")
            lbl<-  paste("Irrigation_localized_technique", addId[i],sep="__")
            
            if(tech_local[1,2]=="Other"){
-             local_other<- irri %>% filter(str_detect(id, paste0(ctype,"_irid_localized_irrigation_technique",addId[i],"_other", "$")))
+             local_other<- irri %>% filter(str_detect(id, paste0(ctype,"_irid_localized_irrigation_technique_",addId[i],"_other", "$")))
              tech_local <- dt_inputs(tech_local,local_other)
 
            }
@@ -117,12 +117,12 @@ get_ec_irri <- function(allinputs, ctype="monocrop", addId ){
     source_distance<- irri %>% dplyr::filter(str_detect(id, paste0("^",ctype,"_irid_irrigation_source_distance_[:digit:]+$"))) #%>%
                                  # filter(!str_detect(id, "unit"))
     #unit
-    source_distance_unit <- irri %>% dplyr::filter(str_detect(id,  paste0("^",ctype,"_irid_irrigation_source_distance_[:digit:]+unit")))
+    source_distance_unit <- irri %>% dplyr::filter(str_detect(id,  paste0("^",ctype,"_irid_irrigation_source_distance_[:digit:]+_unit")))
 
     #irrgation amount
     amount <- irri %>% dplyr::filter(str_detect(id,  paste0(ctype,"_irid_irrigation_amount_[:digit:]+$")))
     #unit
-    amount_unit <- irri %>% dplyr::filter(str_detect(id,  paste0(ctype,"_irid_irrigation_amount_[:digit:]+unit")))
+    amount_unit <- irri %>% dplyr::filter(str_detect(id,  paste0(ctype,"_irid_irrigation_amount_[:digit:]+_unit")))
 
     #irrigation notes
     notes<- irri %>% dplyr::filter(str_detect(id,  paste0(ctype,"_irid_irrigation_notes_[:digit:]+$")))

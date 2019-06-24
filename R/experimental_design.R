@@ -141,7 +141,7 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
               #}
           }
           
-          else if(factors[i]=="Crop residue amount"){
+          else if(factors[i]=="Crop residue amount" || factors[i]== "Irrigation amount"){
             
             print("crop residue amount")
             out[[i]] <- get_amountype_levels(allinputs, index= index[i], factors[i], design=design,
@@ -440,57 +440,6 @@ experimental_design_label <- function(abbr_design = "frcbd"){
   out
   
 }
-
-
-# ## Build experimental design table metadata
-# get_faclevdt <- function(design, allinputs){
-#   
-#   output <- try({  
-#   design <- tolower(design)
-#   dsg <- experimental_design_label(design)
-#   dsg_abbr <- design %>% toupper()
-# 
-#   #Get IDS from design inputs
-#   IdDesignInputs <- getFactorIds(design)
-#   #Get index from Design's IDs
-#   index <- get_index_design(IdDesignInputs, design)
-#   
-#   
-#   flbl<- get_factors_design(allinputs = allinputs, index, design = design,duplicate = FALSE)
-#   #Get list of labels
-#   flvl <- get_levels_design(allinputs = allinputs, data_dictionary= dtfactordesign,
-#                             index, factors = flbl, design=design, format="list")
-#   #out <- setDT(transpose(flvl))[]
-#   flvl <-  lapply(flvl, function(x)paste(x,collapse=", "))
-#   # Number of factors
-#   nf <- length(flvl)
-#   
-#   ## Labels
-#   flab<- paste("Factor", 1:length(flbl))
-#   levlab <- paste("Factor", 1:length(flbl), "- Levels")
-#   paramlab <- c(rbind(flab, levlab)) 
-#   #Ensemble as a data frame of factors and levels
-#   out<- data.frame()
-#   for( i in 1:length(flvl)){
-#     out <- rbind(out, rbind(flbl[i], flvl[[i]]) )
-#   }
-#   #Put as a table
-#   dsg_dt<- data.frame(Factor= c("Experimental design", "Experimental design abbreviation",
-#                                    "Number of factors"), 
-#                       Value = c(dsg,dsg_abbr, nf),stringsAsFactors = FALSE)
-#   out<- data.frame(Factor= paramlab, Value= out$V1)
-#   out<-rbind(dsg_dt, out) 
-# 
-#   out 
-#   })
-#   
-#   if(class(output)=="try-error"){
-#     out<- data.frame(Factor=NULL, Value= NULL)
-#   }else{
-#     out<- output
-#   }
-#   out
-# }
 
 
 ## Get index from ID (provided by the statistical design prefix)

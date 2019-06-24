@@ -6,7 +6,7 @@ get_dcm_values <- function(data_dictionary=NULL, attribute = "Subgroup", crop="P
   if (!is.null(data_dictionary) && !is.null(crop)) {
     
     if(attribute=="Timing"){
-      out<- c("Day after planting", "Frequency","Date","Growth stage","Other")
+      out<- c("Days after planting", "Frequency","Date","Growth stage","Other")
     } else if(is.null(measurement)) {
       out <-data_dictionary %>% dplyr::filter(Crop==crop) %>% dplyr::select_(attribute)  
       out<- unique(out)
