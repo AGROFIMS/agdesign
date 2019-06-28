@@ -19,6 +19,12 @@ server_design_agrofims <- function(input, output, session, values){
   ##########################################################################################
   ############################### START SERVER: SAVE SESSION ###############################
   
+  
+  
+  ########################################################################################################################################
+  ################################################# START CODIGO A ELIMINAR #############################################################
+  ########################################################################################################################################
+  
   # observeEvent(input$load_inputs, {
   #   n <- 5
   #   for (i in 1:n) {
@@ -135,10 +141,10 @@ server_design_agrofims <- function(input, output, session, values){
     write.csv(resall, paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
   })
   
-  
-  
-  
-  
+  ########################################################################################################################################
+  ################################################# END CODIGO A ELIMINAR #############################################################
+  ########################################################################################################################################
+
   
   #################### START: PATHS GENERALES ####################
   # path global para lectura de RDS's
@@ -148,7 +154,9 @@ server_design_agrofims <- function(input, output, session, values){
   templatepath <- "/home/obenites/AGROFIMS/template/"
   #################### END: PATHS GENERALES ####################
   
-  #################### START: GUARDAR SESION DEL FIELDBOOK ####################
+  #################################################################################################
+  #################### START: GUARDAR SESION DEL FIELDBOOK ########################################
+  #################################################################################################
   
   # GLOBAL PATH donde se aloja las sessiones y backups
   sessionpath <- "/home/obenites/AGROFIMS/savesession/"
@@ -303,13 +311,15 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Funcion que crea lista de inputs a guardar: Personnel
   inputsPersonnel <- function() {
-    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- a13 <- a14 <- a15 <- a16 <- a17 <- a18 <- a19 <- a20 <- a21 <- a22 <- a23 <- a24 <- a25 <- a26 <- a27 <- c()
+    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- c()
+    b1 <- b2 <- b3 <- b4 <- b5 <- b6 <- b7 <- b8 <- b9 <- b10 <- c()
+    c1 <- c2 <- c3 <- c4 <- c5 <- c6 <- c7 <- c8 <- c9 <- c10 <- c()
     
     # inputs para: Personnel
     id_rand_pers <-  getAddInputId(personnelVars$ids_PERS, "PERS_", "") 
     
     #Variables auxiliares
-    aux1<-aux2<-aux3<-aux4<-aux5<-aux6<-aux7<-aux8<-aux9 <- c()
+    aux1<-aux2<-aux3<-aux4<-aux5<-aux6<-aux7<-aux8<-aux9<-aux10 <- c()
     for (i in 1:length(id_rand_pers)) {
 
       aux1[i] <- paste0("personnel_type_", id_rand_pers[i])
@@ -321,6 +331,7 @@ server_design_agrofims <- function(input, output, session, values){
       aux7[i] <- paste0("person_center_", id_rand_pers[i])
       aux8[i] <- paste0("person_affiliation_", id_rand_pers[i], "_other")
       aux9[i] <- paste0("person_orcid_", id_rand_pers[i])
+      aux10[i] <- paste0("affiliation_name_", id_rand_pers[i])
       
       a1[i] <- paste0("personnel_type_", i)
       a2[i] <- paste0("personnel_type_", i, "_other")
@@ -331,31 +342,34 @@ server_design_agrofims <- function(input, output, session, values){
       a7[i] <- paste0("person_center_", i)
       a8[i] <- paste0("person_affiliation_", i, "_other")
       a9[i] <- paste0("person_orcid_", i)
+      a10[i] <- paste0("affiliation_name_", i)
       
-      a10[i] <- "selectizeInput"
-      a11[i] <- "textInput"
-      a12[i] <- "textInput"
-      a13[i] <- "textInput"
-      a14[i] <- "textInput"
-      a15[i] <- "selectizeInput"
-      a16[i] <- "selectizeInput"
-      a17[i] <- "textInput"
-      a18[i] <- "textInput"
+      b1[i] <- "selectizeInput"
+      b2[i] <- "textInput"
+      b3[i] <- "textInput"
+      b4[i] <- "textInput"
+      b5[i] <- "textInput"
+      b6[i] <- "selectizeInput"
+      b7[i] <- "selectizeInput"
+      b8[i] <- "textInput"
+      b9[i] <- "textInput"
+      b10[i] <- "textInput"
       
-      a19[i] <- "n"
-      a20[i] <- "n"
-      a21[i] <- "n"
-      a22[i] <- "n"
-      a23[i] <- "n"
-      a24[i] <- "n"
-      a25[i] <- "n"
-      a26[i] <- "n"
-      a27[i] <- "n"
+      c1[i] <- "n"
+      c2[i] <- "n"
+      c3[i] <- "n"
+      c4[i] <- "n"
+      c5[i] <- "n"
+      c6[i] <- "n"
+      c7[i] <- "n"
+      c8[i] <- "n"
+      c9[i] <- "n"
+      c10[i] <- "n"
     }
-    df1 <- data.frame(originalInputId = c(aux1,aux2,aux3,aux4,aux5,aux6,aux7,aux8,aux9),
-                      inputId = c(a1, a2, a3, a4, a5, a6, a7, a8, a9),
-                      type = c(a10, a11, a12, a13, a14, a15, a16, a17, a18),
-                      create = c(a19, a20, a21, a22, a23, a24, a25, a26, a27),
+    df1 <- data.frame(originalInputId = c(aux1,aux2,aux3,aux4,aux5,aux6,aux7,aux8,aux9,aux10),
+                      inputId = c(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10),
+                      type = c(b1, b2, b3, b4, b5, b6, b7, b8, b9, b10),
+                      create = c(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10),
                       stringsAsFactors = F)
     
     res <- df1
@@ -510,14 +524,6 @@ server_design_agrofims <- function(input, output, session, values){
       aux6[i] <- paste0("soil_per_plot_", id_rand_soil[i])
       aux7[i] <- paste0("soil_timing_", id_rand_soil[i])
       aux8[i] <- paste0("soil_timingNumLevels_", id_rand_soil[i])
-      
-      # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
-      # 
-      # if(!is.na(numlvls) && numlvls != "" ){
-      #   for( j in 1:numlvls){
-      #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
-      #   }
-      # }
 
       a1[i] <- paste0("soil_mea_", i)
       a2[i] <- paste0("soil_unit_", i)
@@ -528,12 +534,6 @@ server_design_agrofims <- function(input, output, session, values){
       a7[i] <- paste0("soil_timing_", i)
       a8[i] <- paste0("soil_timingNumLevels_", i)
 
-      # if(!is.na(numlvls) && numlvls != "" ){
-      #   for( j in 1:numlvls){
-      #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
-      #   }
-      # }
-
       b1[i] <- "textInput"
       b2[i] <- "selectizeInput"
       b3[i] <- "selectizeInput"
@@ -542,19 +542,6 @@ server_design_agrofims <- function(input, output, session, values){
       b6[i] <- "textInput"
       b7[i] <- "selectizeInput"
       b8[i] <- "selectizeInput"
-      
-      # if(!is.na(numlvls) && numlvls != "" ){
-      #   for( j in 1:numlvls){
-      #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
-      #       b9[i] <- "dateInput"
-      #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
-      #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
-      #     {
-      #       b9[i] <- "selectizeInput"
-      #     }
-      #   }
-      # }
-
 
       c1[i] <- "n"
       c2[i] <- "n"
@@ -596,53 +583,24 @@ server_design_agrofims <- function(input, output, session, values){
       aux3[i] <- paste0("weather_per_season_", id_rand_weather[i])
       aux4[i] <- paste0("weather_timing_", id_rand_weather[i])
       aux5[i] <- paste0("weather_timingNumLevels_", id_rand_weather[i])
-      
-      # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
-      # 
-      # if(!is.na(numlvls) && numlvls != "" ){
-      #   for( j in 1:numlvls){
-      #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
-      #   }
-      # }
-      
+
       a1[i] <- paste0("weather_mea_", i)
       a2[i] <- paste0("weather_unit_", i)
       a3[i] <- paste0("weather_per_season_", i)
       a4[i] <- paste0("weather_timing_", i)
       a5[i] <- paste0("weather_timingNumLevels_", i)
 
-      # if(!is.na(numlvls) && numlvls != "" ){
-      #   for( j in 1:numlvls){
-      #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
-      #   }
-      # }
-      
       b1[i] <- "textInput"
       b2[i] <- "selectizeInput"
       b3[i] <- "textInput"
       b4[i] <- "selectizeInput"
       b5[i] <- "selectizeInput"
 
-      
-      # if(!is.na(numlvls) && numlvls != "" ){
-      #   for( j in 1:numlvls){
-      #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
-      #       b9[i] <- "dateInput"
-      #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
-      #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
-      #     {
-      #       b9[i] <- "selectizeInput"
-      #     }
-      #   }
-      # }
-      
-      
       c1[i] <- "n"
       c2[i] <- "n"
       c3[i] <- "n" 
       c4[i] <- "n"
       c5[i] <- "n"
-      #c9[i] <- "n"
       
     }
     df1 <- data.frame(originalInputId = c(aux1,aux2,aux3,aux4,aux5),
@@ -908,49 +866,21 @@ server_design_agrofims <- function(input, output, session, values){
         aux4[i] <- paste0("mono_mea_1_per_season_", id_rand_cropMeasurement[i])
         aux5[i] <- paste0("mono_mea_1_per_plot_", id_rand_cropMeasurement[i])
         aux6[i] <- paste0("mono_mea_1_timing_", id_rand_cropMeasurement[i])
-        
-        # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
-        # 
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
-        #   }
-        # }
-        
+
         a1[i] <- paste0("mono_mea_1_measurement_", i)
         a2[i] <- paste0("mono_mea_1_parmea_", i)
         a3[i] <- paste0("mono_mea_1_unit_", i)
         a4[i] <- paste0("mono_mea_1_per_season_", i)
         a5[i] <- paste0("mono_mea_1_per_plot_", i)
         a6[i] <- paste0("mono_mea_1_timing_", i)
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
-        #   }
-        # }
-        
+
         b1[i] <- "textInput"
         b2[i] <- "selectizeInput"
         b3[i] <- "selectizeInput"
         b4[i] <- "textInput"
         b5[i] <- "textInput"
         b6[i] <- "selectizeInput"
-        
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
-        #       b9[i] <- "dateInput"
-        #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
-        #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
-        #     {
-        #       b9[i] <- "selectizeInput"
-        #     }
-        #   }
-        # }
-        
-        
+
         c1[i] <- "n"
         c2[i] <- "n"
         c3[i] <- "n" 
@@ -976,49 +906,21 @@ server_design_agrofims <- function(input, output, session, values){
         aux4[i] <- paste0("int_mea_1_per_season_", id_int_cropMeasurement_1[i])
         aux5[i] <- paste0("int_mea_1_per_plot_", id_int_cropMeasurement_1[i])
         aux6[i] <- paste0("int_mea_1_timing_", id_int_cropMeasurement_1[i])
-        
-        # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
-        # 
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
-        #   }
-        # }
-        
+
         a1[i] <- paste0("int_mea_1_measurement_", i)
         a2[i] <- paste0("int_mea_1_parmea_", i)
         a3[i] <- paste0("int_mea_1_unit_", i)
         a4[i] <- paste0("int_mea_1_per_season_", i)
         a5[i] <- paste0("int_mea_1_per_plot_", i)
         a6[i] <- paste0("int_mea_1_timing_", i)
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
-        #   }
-        # }
-        
+
         b1[i] <- "textInput"
         b2[i] <- "selectizeInput"
         b3[i] <- "selectizeInput"
         b4[i] <- "textInput"
         b5[i] <- "textInput"
         b6[i] <- "selectizeInput"
-        
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
-        #       b9[i] <- "dateInput"
-        #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
-        #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
-        #     {
-        #       b9[i] <- "selectizeInput"
-        #     }
-        #   }
-        # }
-        
-        
+
         c1[i] <- "n"
         c2[i] <- "n"
         c3[i] <- "n" 
@@ -1042,14 +944,6 @@ server_design_agrofims <- function(input, output, session, values){
         aux5[i] <- paste0("int_mea_2_per_plot_", id_int_cropMeasurement_2[i])
         aux6[i] <- paste0("int_mea_2_timing_", id_int_cropMeasurement_2[i])
         
-        # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
-        # 
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
-        #   }
-        # }
-        
         a1[i] <- paste0("int_mea_2_measurement_", i)
         a2[i] <- paste0("int_mea_2_parmea_", i)
         a3[i] <- paste0("int_mea_2_unit_", i)
@@ -1057,33 +951,13 @@ server_design_agrofims <- function(input, output, session, values){
         a5[i] <- paste0("int_mea_2_per_plot_", i)
         a6[i] <- paste0("int_mea_2_timing_", i)
         
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
-        #   }
-        # }
-        
         b1[i] <- "textInput"
         b2[i] <- "selectizeInput"
         b3[i] <- "selectizeInput"
         b4[i] <- "textInput"
         b5[i] <- "textInput"
         b6[i] <- "selectizeInput"
-        
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
-        #       b9[i] <- "dateInput"
-        #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
-        #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
-        #     {
-        #       b9[i] <- "selectizeInput"
-        #     }
-        #   }
-        # }
-        
-        
+
         c1[i] <- "n"
         c2[i] <- "n"
         c3[i] <- "n" 
@@ -1109,13 +983,6 @@ server_design_agrofims <- function(input, output, session, values){
         aux5[i] <- paste0("int_mea_3_per_plot_", id_int_cropMeasurement_3[i])
         aux6[i] <- paste0("int_mea_3_timing_", id_int_cropMeasurement_3[i])
         
-        # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
-        # 
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
-        #   }
-        # }
         
         a1[i] <- paste0("int_mea_3_measurement_", i)
         a2[i] <- paste0("int_mea_3_parmea_", i)
@@ -1123,12 +990,7 @@ server_design_agrofims <- function(input, output, session, values){
         a4[i] <- paste0("int_mea_3_per_season_", i)
         a5[i] <- paste0("int_mea_3_per_plot_", i)
         a6[i] <- paste0("int_mea_3_timing_", i)
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
-        #   }
-        # }
+
         
         b1[i] <- "textInput"
         b2[i] <- "selectizeInput"
@@ -1136,21 +998,7 @@ server_design_agrofims <- function(input, output, session, values){
         b4[i] <- "textInput"
         b5[i] <- "textInput"
         b6[i] <- "selectizeInput"
-        
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
-        #       b9[i] <- "dateInput"
-        #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
-        #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
-        #     {
-        #       b9[i] <- "selectizeInput"
-        #     }
-        #   }
-        # }
-        
-        
+
         c1[i] <- "n"
         c2[i] <- "n"
         c3[i] <- "n" 
@@ -1175,48 +1023,20 @@ server_design_agrofims <- function(input, output, session, values){
         aux4[i] <- paste0("int_mea_4_per_season_", id_int_cropMeasurement_4[i])
         aux5[i] <- paste0("int_mea_4_per_plot_", id_int_cropMeasurement_4[i])
         aux6[i] <- paste0("int_mea_4_timing_", id_int_cropMeasurement_4[i])
-        
-        # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
-        # 
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
-        #   }
-        # }
-        
+
         a1[i] <- paste0("int_mea_4_measurement_", i)
         a2[i] <- paste0("int_mea_4_parmea_", i)
         a3[i] <- paste0("int_mea_4_unit_", i)
         a4[i] <- paste0("int_mea_4_per_season_", i)
         a5[i] <- paste0("int_mea_4_per_plot_", i)
         a6[i] <- paste0("int_mea_4_timing_", i)
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
-        #   }
-        # }
-        
+
         b1[i] <- "textInput"
         b2[i] <- "selectizeInput"
         b3[i] <- "selectizeInput"
         b4[i] <- "textInput"
         b5[i] <- "textInput"
         b6[i] <- "selectizeInput"
-        
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
-        #       b9[i] <- "dateInput"
-        #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
-        #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
-        #     {
-        #       b9[i] <- "selectizeInput"
-        #     }
-        #   }
-        # }
-        
         
         c1[i] <- "n"
         c2[i] <- "n"
@@ -1242,15 +1062,7 @@ server_design_agrofims <- function(input, output, session, values){
         aux4[i] <- paste0("int_mea_5_per_season_", id_int_cropMeasurement_5[i])
         aux5[i] <- paste0("int_mea_5_per_plot_", id_int_cropMeasurement_5[i])
         aux6[i] <- paste0("int_mea_5_timing_", id_int_cropMeasurement_5[i])
-        
-        # numlvls <- input[[paste0("soil_timingNumLevels_", id_rand_pers[i])]]
-        # 
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     aux9[j] <- paste0("soil_timingValue_", id_rand_pers[j],"_",j)
-        #   }
-        # }
-        
+
         a1[i] <- paste0("int_mea_5_measurement_", i)
         a2[i] <- paste0("int_mea_5_parmea_", i)
         a3[i] <- paste0("int_mea_5_unit_", i)
@@ -1258,31 +1070,12 @@ server_design_agrofims <- function(input, output, session, values){
         a5[i] <- paste0("int_mea_5_per_plot_", i)
         a6[i] <- paste0("int_mea_5_timing_", i)
         
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     a9[j] <- paste0("soil_timingValue_", id_rand_pers[i],"_",j)
-        #   }
-        # }
-        
         b1[i] <- "textInput"
         b2[i] <- "selectizeInput"
         b3[i] <- "selectizeInput"
         b4[i] <- "textInput"
         b5[i] <- "textInput"
         b6[i] <- "selectizeInput"
-        
-        
-        # if(!is.na(numlvls) && numlvls != "" ){
-        #   for( j in 1:numlvls){
-        #     if(input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Date"){
-        #       b9[i] <- "dateInput"
-        #     }else if (input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Day after planting" ||
-        #               input[[paste0("soil_timingValue_", id_rand_pers[i])]]=="Growth stage")
-        #     {
-        #       b9[i] <- "selectizeInput"
-        #     }
-        #   }
-        # }
         
         
         c1[i] <- "n"
@@ -1312,6 +1105,7 @@ server_design_agrofims <- function(input, output, session, values){
     
   }
   
+  # Funcion que crea lista de inputs a guardar de Residue Managment
   inputsResidueManagement <- function(){
     #Residue Managment
     b1 <- c("residue_description_to_collect_field","rmgt_residue_plantPart","rmgt_crop_residue_moisture",
@@ -1778,9 +1572,6 @@ server_design_agrofims <- function(input, output, session, values){
 
     id_rand_harv <-  getAddInputId(expconHARVmonocrop$ids, "mono_harv_", "")
     
-    #Eliminar sesion
-    print(expconHARVmonocrop$ids)
-    
     for (i in 1:length(expconHARVmonocrop$ids))
     {
       a1[i]  <- paste0("monocrop_hahd_harvest_start_date_",id_rand_harv[i])
@@ -1867,6 +1658,7 @@ server_design_agrofims <- function(input, output, session, values){
     res
   }
 
+  
   ######################################################################
   ############ START SEVER: CODIGO A ELIMINAR #############
   ######################################################################
@@ -2145,134 +1937,12 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   ######################################################################
-  ############ END SEVER: CODIGO A ELIMINAR #############
+  ############ END SEVER: CODIGO A ELIMINAR ############################
   ######################################################################
   
+  ######################################################################
   
-  # Boton para hacer test
-  # observeEvent(input$xtest, {
-  #   print(inputsExpConHarvest())
-  # })
-  
-  # Funcion que guarda la session del usuario [old]
-  # savesession <- function() {
-  #   if(session$userData$logged){
-  #     expid <- input$uniqueId
-  #     
-  #     if (file.exists(isolate(paste0(sessionpath, expid, ".csv")))) {
-  #       x <- read.csv(paste0(sessionpath, expid, ".csv"))
-  #       datecreate <- as.character(x[2, 4])
-  #       datemodified <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
-  #     } else {
-  #       datecreate <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
-  #       datemodified <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
-  #     }
-  #     
-  #     inputs1 <- inputs2 <- inputs3 <- NULL
-  #     
-  #     inputs_to_save <- rbind(inputsExperiment())#,
-  #                             #inputsPersonnel(),
-  #                             #inputsSite(),
-  #                             #inputsCrop(),
-  #                             #inputsDesign(),
-  #                             #inputsExpCon())
-  #     
-  #     case1p <- dplyr::filter(inputs_to_save, type == "textInput" |
-  #                               type == "numericInput" |
-  #                               type == "textAreaInput" |
-  #                               type == "checkboxInput" |
-  #                               type == "dateInput")
-  #     case1 <- case1p[[1]]
-  #     case1_type <- case1p[[2]]
-  #     case1_create <- case1p[[3]]
-  #     
-  #     case2p <- dplyr::filter(inputs_to_save, type == "dateRangeInput")
-  #     case2 <- case2p[[1]]
-  #     case2_type <- case2p[[2]]
-  #     case2_create <- case2p[[3]]
-  #     
-  #     case3p <- dplyr::filter(inputs_to_save, type == "selectizeInput" | type == "selectInput")
-  #     case3 <- case3p[[1]]
-  #     case3_type <- case3p[[2]]
-  #     case3_create <- case3p[[3]]
-  #     
-  #     for (i in 1:length(case1)) {
-  #       # textInput && numericInput && textAreaInput && checkboxInput && dateinput
-  #       if (is.null(input[[paste0(case1[i])]]) || is.na(input[[paste0(case1[i])]])) {
-  #         inputs1[i] <- ""
-  #       } else {
-  #         inputs1[i] <- as.character(input[[paste0(case1[i])]])
-  #       }
-  #     }
-  #     inputs_data_frame1 <- data.frame(inputId = case1, type = case1_type, create = case1_create, value = inputs1)
-  #     
-  #     # for (i in 1:length(case2)) {
-  #     #   # dateRangeInput
-  #     #   if (is.null(input[[paste0(case2[i])]]) || is.na( input[[paste0(case2[i])]])) {
-  #     #     inputs2[i] <- ""
-  #     #   } else {
-  #     #     inputs2[i] <- paste(input[[paste0(case2[i])]], collapse = "&")
-  #     #   }
-  #     # }
-  #     # inputs_data_frame2 <- data.frame(inputId = case2, type = case2_type, create = case2_create, value = inputs2)
-  #     
-  #     for (i in 1:length(case3)) {
-  #       # selectizeInput && selectInput
-  #       if (is.null(input[[paste0(case3[i])]]) || is.na( input[[paste0(case3[i])]])) {
-  #         inputs3[i] <- ""
-  #       } else {
-  #         inputs3[i] <- paste(input[[paste0(case3[i])]], collapse = "&")
-  #       }
-  #     }
-  #     inputs_data_frame3 <- data.frame(inputId = case3, type = case3_type, create = case3_create, value = inputs3)
-  #     
-  #     #inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame2, inputs_data_frame3)
-  #     inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame3)
-  #     nr <- data.frame(inputId = "user", type = "", create = "", value = session$userData$userMail)
-  #     nr2 <- data.frame(inputId = "datec", type = "", create = "", value = datecreate)
-  #     nr3 <- data.frame(inputId = "datem", type = "", create = "", value = datemodified)
-  #     final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame)
-  #     
-  #     write.csv(final_inputs_df, paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
-  #     write.csv(final_inputs_df, paste0(sessionpathbk, input$uniqueId, ".csv"), row.names = FALSE)
-  #     
-  #     updateTextInput(session,
-  #                     inputId = "uniqueId",
-  #                     value = "")
-  #     updateTextInput(session,
-  #                     inputId = "uniqueId",
-  #                     value = expid)
-  #     
-  #     shinyalert("Saved successfully", type = "success", timer = 1500, showConfirmButton = F)
-  #   } else {
-  #     shinyalert("Sorry", "You must login to save avance", type = "info", timer = 1500, showConfirmButton = F)
-  #   }
-  # }
-  
-  # dinamicInputs <- function() {
-  #   a <- b <- c <- d <- c()
-  #   
-  #   id_rand_fa <- getAddInputId(experimentVars$ids_FA, "FA_", "")
-  #   print(id_rand_fa)
-  #   
-  #   for (i in 1:length(id_rand_fa)) {
-  #     a[i] <- paste0("designFieldbook_fundAgencyType_", id_rand_fa[i])
-  #     b[i] <- paste0("designFieldbook_fundAgencyType_", id_rand_fa[i], "_other")
-  #     # c[i] <- paste0("designFieldbook_fundAgencyType_name_", id_rand_fa[i])
-  #     # d[i] <- paste0("designFieldbook_fundAgencyType_cgiar_", id_rand_fa[i])
-  #   }
-  #   
-  #   #z <- data.frame(id = c(a, b, c, d), values = "", stringsAsFactors = F)
-  #   z <- data.frame(id = c(a, b), values = "", stringsAsFactors = F)
-  #   #print(z)
-  #   
-  #   zz <- AllInputs() %>% dplyr::filter(id %in% z$id)
-  #   #print(zz)
-  #   
-  #   resall <- arrange_by_pattern(zz, id_rand_fa)
-  #   print(resall)
-  # }
-  
+ 
   # Funcion que guarda la session del usuario
   savesession <- function() {
     if(session$userData$logged){
@@ -2300,88 +1970,78 @@ server_design_agrofims <- function(input, output, session, values){
                               inputsWeather()
                               )
 
-      #inputsExpCon())
       
-      View(inputs_to_save)
+      # case1p <- dplyr::filter(inputs_to_save, type == "textInput" |
+      #                           type == "numericInput" |
+      #                           type == "textAreaInput" |
+      #                           type == "checkboxInput" |
+      #                           type == "dateInput")
       
-      case1p <- dplyr::filter(inputs_to_save, type == "textInput" |
-                                type == "numericInput" |
-                                type == "textAreaInput" |
-                                type == "checkboxInput" |
-                                type == "dateInput")
-      
-      
+      case1p <- inputs_to_save
       case1InputAux <- case1p[[1]]
       case1 <- case1p[[2]]
       case1_type <- case1p[[3]]
       case1_create <- case1p[[4]]
       
-      case2p <- dplyr::filter(inputs_to_save, type == "dateRangeInput")
-      case2 <- case2p[[1]]
-      case2_type <- case2p[[2]]
-      case2_create <- case2p[[3]]
+      # case2p <- dplyr::filter(inputs_to_save, type == "dateRangeInput")
+      # case2 <- case2p[[1]]
+      # case2_type <- case2p[[2]]
+      # case2_create <- case2p[[3]]
       
-      case3p <- dplyr::filter(inputs_to_save, type == "selectizeInput" | type == "selectInput")
+      # case3p <- dplyr::filter(inputs_to_save, type == "selectizeInput" | type == "selectInput")
+      # 
+      # case3InputAux <- case3p[[1]]
+      # case3 <- case3p[[2]]
+      # case3_type <- case3p[[3]]
+      # case3_create <- case3p[[4]]
       
-      case3InputAux <- case3p[[1]]
-      case3 <- case3p[[2]]
-      case3_type <- case3p[[3]]
-      case3_create <- case3p[[4]]
+      
       
       for (i in 1:length(case1)) {
-        # Fill values for textInput && numericInput && textAreaInput && checkboxInput && dateinput
-        if (is.null(input[[paste0(case1InputAux[i])]]) || is.na(input[[paste0(case1InputAux[i])]])) {
-          inputs1[i] <- ""
-        } else {
-          inputs1[i] <- as.character(input[[paste0(case1InputAux[i])]])
+        
+        type <- case1_type[i]
+        
+        if(type == "textInput" | type == "numericInput" | type == "textAreaInput" | type == "checkboxInput" | type == "dateInput"){
+          
+          if (is.null(input[[paste0(case1InputAux[i])]]) || is.na(input[[paste0(case1InputAux[i])]])) {
+            inputs1[i] <- ""
+          } else {
+            inputs1[i] <- as.character(input[[paste0(case1InputAux[i])]])
+          }
+          
         }
+        
+        if(type == "selectizeInput" | type == "selectInput" ){
+          if (is.null(input[[paste0(case1InputAux[i])]]) || is.na( input[[paste0(case1InputAux[i])]])) {
+            inputs1[i] <- ""
+          } else {
+            inputs1[i] <- paste(input[[paste0(case1InputAux[i])]], collapse = "&")
+          }
+        }
+        
       }
       
       #Crea el dataframe con los valores capturados para text, numeric, textArea, checkBox y date Input
-      inputs_data_frame1 <- data.frame(inputId = case1, type = case1_type, create = case1_create, value = inputs1)
+      inputs_data_frame <- data.frame(inputId = case1, type = case1_type, create = case1_create, value = inputs1)
       
-      
-      # for (i in 1:length(case2)) {
-      #   # dateRangeInput
-      #   if (is.null(input[[paste0(case2[i])]]) || is.na( input[[paste0(case2[i])]])) {
-      #     inputs2[i] <- ""
+      # for (i in 1:length(case3)) {
+      #   #  Fill values for selectizeInput && selectInput
+      #   if (is.null(input[[paste0(case3InputAux[i])]]) || is.na( input[[paste0(case3InputAux[i])]])) {
+      #     inputs3[i] <- ""
       #   } else {
-      #     inputs2[i] <- paste(input[[paste0(case2[i])]], collapse = "&")
+      #     inputs3[i] <- paste(input[[paste0(case3InputAux[i])]], collapse = "&")
       #   }
       # }
-      # inputs_data_frame2 <- data.frame(inputId = case2, type = case2_type, create = case2_create, value = inputs2)
-      
-      
-      for (i in 1:length(case3)) {
-        #  Fill values for selectizeInput && selectInput
-        if (is.null(input[[paste0(case3InputAux[i])]]) || is.na( input[[paste0(case3InputAux[i])]])) {
-          inputs3[i] <- ""
-        } else {
-          inputs3[i] <- paste(input[[paste0(case3InputAux[i])]], collapse = "&")
-        }
-      }
       #Crea el dataframe con los valores capturados para selectize y select Input
-      inputs_data_frame3 <- data.frame(inputId = case3, type = case3_type, create = case3_create, value = inputs3)
-      
-      
-      #Eliminar sesion
-      # print("no sale")
-      # print(paste(input[["fbDesign_inSiteVegetation_other"]],collapse="$"))
-      # 
-      # print("correcto")
-      # print(paste(input[["fbDesign_inSiteVegetation"]],collapse="$"))
-      
-      
-      #inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame2, inputs_data_frame3)
+      #inputs_data_frame3 <- data.frame(inputId = case3, type = case3_type, create = case3_create, value = inputs3)
       
       #Une los dataframe y los consolida en uno.
-      inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame3)
+      #inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame3)
       
       #Agrega 3 filas adicionales con información sobre log (usuario,creacion,modificacion)
       nr <- data.frame(inputId = "user", type = "", create = "", value = session$userData$userMail)
       nr2 <- data.frame(inputId = "datec", type = "", create = "", value = datecreate)
       nr3 <- data.frame(inputId = "datem", type = "", create = "", value = datemodified)
-      
 
       #Agregamos información de inputs dinamicos
       expRow   <- experimentRowsSaveSession()
@@ -2398,16 +2058,14 @@ server_design_agrofims <- function(input, output, session, values){
       soilRow  <- soilRowsSaveSession()
       weatherRow <- weatherRowsSaveSession()
       
-      crop_INT1_MEA <- crop_INT1_MEARowsSaveSession()
-      crop_INT2_MEA <- crop_INT2_MEARowsSaveSession()
-      
+      crop_MONO1_MEA <- crop_MONO1_MEARowsSaveSession()
 
       #Unimos todos los dataframe en uno solo
       final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame, 
                               expRow, persRow, cropIC, cropREL, cropROT,
                               MPIrrigation,MPWeeding,MPHarvest,
-                              soilRow, weatherRow,
-                              crop_INT1_MEA,crop_INT2_MEA)
+                              crop_MONO1_MEA,
+                              soilRow, weatherRow)
       
       View(final_inputs_df)
 
@@ -2503,16 +2161,10 @@ server_design_agrofims <- function(input, output, session, values){
     nrowWEA <- data.frame(inputId = "nrowWEA", type = "", create = "", value = nrowWEA)
   }
   
-  #Crop Measurement Intercrop 1 Rows SaveSession
-  crop_INT1_MEARowsSaveSession  <- function(){
-    nrowINT1_MEA <- as.character(length(meaINT1$ids))
-    nrowINT1_MEA <- data.frame(inputId = "nrowINT1_MEA", type = "", create = "", value = nrowINT1_MEA)
-  }
-  
-  #Crop Measurement Intercrop 2 Rows SaveSession
-  crop_INT2_MEARowsSaveSession  <- function(){
-    nrowINT2_MEA <- as.character(length(meaINT2$ids))
-    nrowINT2_MEA <- data.frame(inputId = "nrowINT2_MEA", type = "", create = "", value = nrowINT2_MEA)
+  #Crop Measurement Monocrop Rows SaveSession
+  crop_MONO1_MEARowsSaveSession  <- function(){
+    nrowMONO1_MEA <- as.character(length(meaMONO$ids))
+    nrowMONO1_MEA <- data.frame(inputId = "nrowMONO1_MEA", type = "", create = "", value = nrowMONO1_MEA)
   }
   
   # Save session
@@ -2535,38 +2187,25 @@ server_design_agrofims <- function(input, output, session, values){
     datemodified
   })
   
-  # Funcion reactiva que muestra el id del fieldbook para generar qr
-  # idExp <- reactive({
-  #   expid <- input$experimentId
-  #   expid
-  # })
-  
   # Renderiza el mensaje de guardado de sesion
   output$lastsaved <- renderText({
     paste0("Last modified: ", timeExp())
   })
   #################### END: GUARDAR SESION DEL FIELDBOOK ####################
-  
-  ##################################
-  ##################################
-  
-  
+  #################################################################################################
+
   
   ###########################################################################################
   ################################ START: LOAD SESSION JOSE #################################
+  ###########################################################################################
   
   ##### Start Modulo: Render session list in DT #####
   output$dtsession <- DT::renderDataTable({
     DT::datatable(
       sessionVals$aux, 
-      #iris,
-      #refreshDT(),
       selection = 'single',
       options = list(
-        pageLength = 5#,
-        #columnDefs = list(list(visible=FALSE, targets=c(1, 7)))
-        #list(width = '30%', targets = c(1)),
-        #list(className = 'dt-center', targets = c(7,8))
+        pageLength = 5
       )
     )
   })
@@ -2589,6 +2228,197 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   
+  loadInputsFundingAgency <- function(uploaded_inputs){
+    #Funding Agency
+    nrowFundingAgency <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowFundingAgency") %>% select_("value")
+    nrowFundingAgency <- as.numeric(as.character(nrowFundingAgency[[1]]))
+    
+    if(length(nrowFundingAgency)>0 && nrowFundingAgency>=2){
+      for(i in 2:nrowFundingAgency){
+        insertBoxFundingAgency(i)
+      }
+    }
+  }
+  
+  loadInputsProjectManagmentEntities <- function(uploaded_inputs){
+    #Project Managment Entities
+    nrowProjectEntities <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowProjectEntities") %>% select_("value")
+    nrowProjectEntities <- as.numeric(as.character(nrowProjectEntities[[1]]))
+    if(length(nrowProjectEntities)>0 && nrowProjectEntities>=2){
+      for(i in 2:nrowProjectEntities){
+        insertBoxManagEntity(i)
+      }
+    }
+  }
+  
+  loadInputsExperimentLeads <- function(uploaded_inputs){
+    #Experiment Leads
+    nrowExperimentLeads <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowExperimentLeads") %>% select_("value")
+    nrowExperimentLeads <- as.numeric(as.character(nrowExperimentLeads[[1]]))
+    if(length(nrowExperimentLeads)>0 && nrowExperimentLeads>=2){
+      for(i in 2:nrowExperimentLeads){
+        insertBoxExperimentLead(i)
+      }
+    }
+  }
+  
+  loadInputsPersonnel <- function(uploaded_inputs){
+    #Personnel
+    nrowPersonnel <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowPersonnel") %>% select_("value")
+    nrowPersonnel <- as.numeric(as.character(nrowPersonnel[[1]]))
+    
+    if(length(nrowPersonnel)>0 && nrowPersonnel>=2){
+      for(i in 2:nrowPersonnel){
+        insertBoxPersonnel(i)
+      }
+    }
+  }
+  
+  loadInputsCrop <- function(uploaded_inputs) {
+    #Crop
+    croppingType <- as.data.frame(uploaded_inputs) %>% filter(inputId == "croppingType") %>% select_("value")
+    croppingType <- as.character(croppingType[[1]])
+    
+    if(croppingType != "Monocrop" && length(croppingType)>0){
+      updateSelectizeInput(session,
+                           inputId = "croppingType",
+                           selected = croppingType)
+      
+      if (croppingType == "Intercrop"){
+        nrowCropIC <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowCropIC") %>% select_("value")
+        nrowCropIC <- as.numeric(as.character(nrowCropIC[[1]]))
+        
+        if(nrowCropIC>=3){
+          for(i in 3:nrowCropIC){
+            insertBoxcrop(i,"int")
+          }
+        }
+      }else if (croppingType == "Relay crop"){
+        nrowCropREL <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowCropREL") %>% select_("value")
+        nrowCropREL <- as.numeric(as.character(nrowCropREL[[1]]))
+        
+        if(nrowCropREL>=3){
+          for(i in 3:nrowCropREL){
+            insertBoxcrop(i,"rel")
+          }
+        }
+      }else if (croppingType == "Rotation"){
+        nrowCropROT <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowCropROT") %>% select_("value")
+        nrowCropROT <- as.numeric(as.character(nrowCropROT[[1]]))
+        
+        
+        if(nrowCropROT>=3){
+          for(i in 3:nrowCropROT){
+            insertBoxcrop(i,"rot")
+          }
+        }
+      }
+    }
+  }
+  
+  loadInputsCropMeasurement <- function(uploaded_inputs) {
+    
+    #Crop Measurement Monocrop
+    nrowMONO1_MEA <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowMONO1_MEA") %>% select_("value")
+    nrowMONO1_MEA <- as.numeric(as.character(nrowMONO1_MEA[[1]]))
+    cropMeasurement <- as.data.frame(uploaded_inputs) %>% filter(str_detect(inputId, "measurement")) %>% select_("value")
+    cropMeasurement <- as.character(cropMeasurement[[1]])
+    crop <- as.data.frame(uploaded_inputs) %>% filter(inputId == "cropCommonNameMono") %>% select_("value")
+    crop <- as.character(crop[[1]])
+    
+    
+    if(length(nrowMONO1_MEA)>0)
+    {
+      for (i in 1:nrowMONO1_MEA)
+      {
+        insertRow_MEA("mono_mea_1",1,crop,cropMeasurement[i])
+      }
+    }
+  }
+  
+  loadInputsCropManagement <- function(uploaded_inputs) {
+    #Crop Managment Practices - Irrigation
+    nrowMPIrrigation <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowMPIrrigation") %>% select_("value")
+    nrowMPIrrigation <- as.numeric(as.character(nrowMPIrrigation[[1]]))
+    
+    if(length(nrowMPIrrigation)>0 && nrowMPIrrigation>=2){
+      delay(1000,for(i in 2:nrowMPIrrigation){
+        insertRow_IRRI(crop = "monocrop",i)
+      })
+    }
+    
+    #Crop Managment Practices - Weeding
+    nrowMPWeeding <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowMPWeeding") %>% select_("value")
+    nrowMPWeeding <- as.numeric(as.character(nrowMPWeeding[[1]]))
+    
+    if(length(nrowMPWeeding)>0 && nrowMPWeeding>=2){
+      delay(1000,for(i in 2:nrowMPWeeding){
+        insertRow_WEE(crop = "monocrop",i)
+      })
+    }
+    
+    #Crop Managment Practices - Harvest
+    nrowMPHarvest <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowMPHarvest") %>% select_("value")
+    nrowMPHarvest <- as.numeric(as.character(nrowMPHarvest[[1]]))
+    
+    if(length(nrowMPHarvest)>0 && nrowMPHarvest>=2){
+      delay(1000,for(i in 2:nrowMPHarvest){
+        insertRow_HARV(crop = "monocrop",i)
+      })
+    }
+  }
+  
+  loadInputsSoil <- function(uploaded_inputs){
+    #Soil 
+    nrowSoil <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowSOIL") %>% select_("value")
+    nrowSoil <- as.numeric(as.character(nrowSoil[[1]]))
+    soilMeasurement <- as.data.frame(uploaded_inputs) %>% filter(str_detect(inputId, "soil_mea")) %>% select_("value")
+    soilMeasurement <- as.character(soilMeasurement[[1]])
+    
+    
+    timing<- get_dcm_values(cmdt, "Timing","")
+    
+    if(length(nrowSoil)>0 && nrowSoil>=1){
+      for(i in 1:nrowSoil){
+        insertRow_SOIL(i,timing,soilMeasurement[i])
+      }
+    }
+  }
+  
+  loadInputsWeather <- function(uploaded_inputs){
+    #Weather 
+    nrowWEA <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowWEA") %>% select_("value")
+    nrowWEA <- as.numeric(as.character(nrowWEA[[1]]))
+    weatherMeasurement <- as.data.frame(uploaded_inputs) %>% filter(str_detect(inputId, "weather_mea")) %>% select_("value")
+    weatherMeasurement <- as.character(weatherMeasurement[[1]])
+    
+    timing<- get_dcm_values(cmdt, "Timing","")
+    
+    if(length(nrowWEA)>0 && nrowWEA>=1){
+      for(i in 1:nrowWEA){
+        insertRow_WEA(i,timing,weatherMeasurement[i])
+      }
+    }
+  }
+  
+  onRestore(function(state){
+    print("acacaca")
+  
+    # uploaded_inputs <- read.csv(paste0(sessionpath, selectedRow(), ".csv"))
+    # 
+    # 
+    # loadInputsFundingAgency(uploaded_inputs)
+    # loadInputsProjectManagmentEntities(uploaded_inputs)
+    # loadInputsExperimentLeads(uploaded_inputs)
+    # loadInputsPersonnel(uploaded_inputs)
+    # loadInputsCrop(uploaded_inputs)
+    # 
+    # loadInputsCropManagement(uploaded_inputs)
+    # loadInputsSoil(uploaded_inputs)
+    # loadInputsWeather(uploaded_inputs)
+  })
+
+  
   loadsession2 <- function() {
     
 
@@ -2599,181 +2429,23 @@ server_design_agrofims <- function(input, output, session, values){
         #Eliminar Sesion
         View(uploaded_inputs)
         
-        #uploaded_inputs <- uploaded_inputs[order(uploaded_inputs$inputId),]
+        loadInputsFundingAgency(uploaded_inputs)
+        loadInputsProjectManagmentEntities(uploaded_inputs)
+        loadInputsExperimentLeads(uploaded_inputs)
+        loadInputsPersonnel(uploaded_inputs)
+        loadInputsCrop(uploaded_inputs)
         
-
-        #soil_df <- as.data.frame(uploaded_inputs) %>% filter(inputId %like% "soil")
-        #View(soil_df)
-        
-        #uploaded_inputs <- uploaded_inputs #%>% filter(!str_detect(inputId,"soil"))
-          #%>% filter(!str_detect(id, "-selectized")) %>%
-        
-        #View(as.data.frame(uploaded_inputs))
-        
-        #Funding Agency
-        nrowFundingAgency <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowFundingAgency") %>% select_("value")
-        nrowFundingAgency <- as.numeric(as.character(nrowFundingAgency[[1]]))
-        
-        if(length(nrowFundingAgency)>0 && nrowFundingAgency>=2){
-          for(i in 2:nrowFundingAgency){
-            insertBoxFundingAgency(i)
-          }
-        }
-        
-        #Project Managment Entities
-        nrowProjectEntities <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowProjectEntities") %>% select_("value")
-        nrowProjectEntities <- as.numeric(as.character(nrowProjectEntities[[1]]))
-        if(length(nrowProjectEntities)>0 && nrowProjectEntities>=2){
-          for(i in 2:nrowProjectEntities){
-            insertBoxManagEntity(i)
-          }
-        }
-        
-        #Experiment Leads
-        nrowExperimentLeads <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowExperimentLeads") %>% select_("value")
-        nrowExperimentLeads <- as.numeric(as.character(nrowExperimentLeads[[1]]))
-        if(length(nrowExperimentLeads)>0 && nrowExperimentLeads>=2){
-          for(i in 2:nrowExperimentLeads){
-            insertBoxExperimentLead(i)
-          }
-        }
-        
-        #Personnel
-        nrowPersonnel <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowPersonnel") %>% select_("value")
-        nrowPersonnel <- as.numeric(as.character(nrowPersonnel[[1]]))
-
-        if(length(nrowPersonnel)>0 && nrowPersonnel>=2){
-          for(i in 2:nrowPersonnel){
-            insertBoxPersonnel(i)
-          }
-        }
-        
-        #Crop
-        croppingType <- as.data.frame(uploaded_inputs) %>% filter(inputId == "croppingType") %>% select_("value")
-        croppingType <- as.character(croppingType[[1]])
-        
-        if(croppingType != "Monocrop" && length(croppingType)>0){
-          updateSelectizeInput(session,
-                               inputId = "croppingType",
-                               selected = croppingType)
-
-          if (croppingType == "Intercrop"){
-            nrowCropIC <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowCropIC") %>% select_("value")
-            nrowCropIC <- as.numeric(as.character(nrowCropIC[[1]]))
-            
-            if(nrowCropIC>=3){
-              for(i in 3:nrowCropIC){
-                insertBoxcrop(i,"int")
-              }
-            }
-          }else if (croppingType == "Relay crop"){
-            nrowCropREL <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowCropREL") %>% select_("value")
-            nrowCropREL <- as.numeric(as.character(nrowCropREL[[1]]))
-            
-            if(nrowCropREL>=3){
-              for(i in 3:nrowCropREL){
-                insertBoxcrop(i,"rel")
-              }
-            }
-           }else if (croppingType == "Rotation"){
-              nrowCropROT <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowCropROT") %>% select_("value")
-              nrowCropROT <- as.numeric(as.character(nrowCropROT[[1]]))
-
-  
-              if(nrowCropROT>=3){
-                for(i in 3:nrowCropROT){
-                  insertBoxcrop(i,"rot")
-                }
-              }
-          }
-        }
-        
-        #Crop Managment Practices - Irrigation
-        nrowMPIrrigation <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowMPIrrigation") %>% select_("value")
-        nrowMPIrrigation <- as.numeric(as.character(nrowMPIrrigation[[1]]))
-        
-        if(length(nrowMPIrrigation)>0 && nrowMPIrrigation>=2){
-          delay(1000,for(i in 2:nrowMPIrrigation){
-            insertRow_IRRI(crop = "monocrop",i)
-          })
-        }
-        
-        #Crop Managment Practices - Weeding
-        nrowMPWeeding <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowMPWeeding") %>% select_("value")
-        nrowMPWeeding <- as.numeric(as.character(nrowMPWeeding[[1]]))
-        
-        if(length(nrowMPWeeding)>0 && nrowMPWeeding>=2){
-          delay(1000,for(i in 2:nrowMPWeeding){
-            insertRow_WEE(crop = "monocrop",i)
-          })
-        }
-        
-        #Crop Managment Practices - Harvest
-        nrowMPHarvest <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowMPHarvest") %>% select_("value")
-        nrowMPHarvest <- as.numeric(as.character(nrowMPHarvest[[1]]))
-        
-        if(length(nrowMPHarvest)>0 && nrowMPHarvest>=2){
-          delay(1000,for(i in 2:nrowMPHarvest){
-            insertRow_HARV(crop = "monocrop",i)
-          })
-        }
-        
-        #Soil 
-        nrowSoil <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowSOIL") %>% select_("value")
-        nrowSoil <- as.numeric(as.character(nrowSoil[[1]]))
-        crop <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowSOIL") %>% select_("value")
-        soilMeasurement <- as.data.frame(uploaded_inputs) %>% filter(str_detect(inputId, "soil_mea")) %>% select_("value")
-        soilMeasurement <- as.character(soilMeasurement[[1]])
-     
-        
-        timing<- get_dcm_values(cmdt, "Timing","")
-
-        if(length(nrowSoil)>0 && nrowSoil>=1){
-          for(i in 1:nrowSoil){
-            insertRow_SOIL(i,timing,soilMeasurement[i])
-          }
-        }
-        
-        #Weather 
-        nrowWEA <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowWEA") %>% select_("value")
-        nrowWEA <- as.numeric(as.character(nrowWEA[[1]]))
-        weatherMeasurement <- as.data.frame(uploaded_inputs) %>% filter(str_detect(inputId, "weather_mea")) %>% select_("value")
-        weatherMeasurement <- as.character(weatherMeasurement[[1]])
-        
-        timing<- get_dcm_values(cmdt, "Timing","")
-        
-        if(length(nrowWEA)>0 && nrowWEA>=1){
-          for(i in 1:nrowWEA){
-            insertRow_WEA(i,timing,weatherMeasurement[i])
-          }
-        }
-        
-
-        #Crop Measurement Intercrop 1
-        nrowINT1_MEA <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowINT1_MEA") %>% select_("value")
-        nrowINT1_MEA <- as.numeric(as.character(nrowINT1_MEA[[1]]))
-        
-        if(length(nrowINT1_MEA)>0)
-        {
-          # for (i in 1:1)
-          # {
-          # 
-          #   cropValue <- input[[paste0("int_cropCommonName_",i)]]
-          #   insertRow_MEA("int_mea_1",1,"Cassava")
-          # }
-        }
+        loadInputsCropManagement(uploaded_inputs)
+        loadInputsSoil(uploaded_inputs)
+        loadInputsWeather(uploaded_inputs)
         
         
-        #Crop Measurement Intercrop 2
-        nrowINT2_MEA <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowINT2_MEA") %>% select_("value")
-        nrowINT2_MEA <- as.numeric(as.character(nrowINT2_MEA[[1]]))
-        
-        # if(length(nrowINT2_MEA)>0){
-          for (i in 1:1)
-          {
-
-          }
-        # }
+        #Creamos un nuevo dataframe para actualizar los inputs faltantes
+        uploaded_inputs2 <- uploaded_inputs  %>% filter(!str_detect(inputId, "croppingType")) %>%
+                                                 filter(!str_detect(inputId, "cropCommonName")) %>%
+                                                 filter(!str_detect(inputId, "selectAgroFeature")) %>%
+                                                 filter(!str_detect(inputId, "designFieldbook_typeExperiment")) 
+                                                 
         
         # Actualizacion de Inputs
         
@@ -2782,6 +2454,7 @@ server_design_agrofims <- function(input, output, session, values){
           create <- as.character(uploaded_inputs[i, 3])
 
           if (type == "textInput") {
+            
             updateTextInput(session,
                             inputId = uploaded_inputs$inputId[i],
                             value = uploaded_inputs$value[i])
@@ -2807,6 +2480,10 @@ server_design_agrofims <- function(input, output, session, values){
             updateSelectizeInput(session,
                                  inputId = uploaded_inputs$inputId[i],
                                  selected = getInputs(uploaded_inputs[i, 4], ""))
+            
+            if(uploaded_inputs$inputId[i]=="cropCommonNameMono"){
+              delay(1000,loadInputsCropMeasurement(uploaded_inputs))
+            }
           }
 
           if (type == "selectizeInput" && create == "y") {
@@ -2817,14 +2494,23 @@ server_design_agrofims <- function(input, output, session, values){
                                  choices = getInputs(uploaded_inputs[i, 4], ""),
                                  options = list('create' = TRUE))
           }
-          
+
           if (type == "selectInput"  && create == "n") {
-            
+
             updateSelectInput(session,
                               inputId = uploaded_inputs$inputId[i],
                               selected = getInputs(uploaded_inputs[i, 4], ""))
           }
-
+          
+          if (type == "selectInput"  && create == "y") {
+            
+            updateSelectInput(session,
+                              inputId = uploaded_inputs$inputId[i],
+                              selected = getInputs(uploaded_inputs[i, 4], ""),
+                              choices = getInputs(uploaded_inputs[i, 4], ""))
+                              #options = list('create' = TRUE))
+          }
+        
           if (type == "textAreaInput") {
             updateTextAreaInput(session,
                                 inputId = uploaded_inputs$inputId[i],
@@ -2851,11 +2537,7 @@ server_design_agrofims <- function(input, output, session, values){
 
           if (type == "dateInput") {
             if (uploaded_inputs[i, 4] != "") {
-              
-              if(uploaded_inputs$inputId[i] == "rmgt_residue_start_date"){
-                print("acacaca")
-              }
-              
+
               v <- getInputs(uploaded_inputs[i, 4], "")
               v <- as.Date(v) + 1
               updateAirDateInput(session,
@@ -2863,10 +2545,7 @@ server_design_agrofims <- function(input, output, session, values){
                                  value = v,
                                  clear = T)
             } else {
-              
-              if(uploaded_inputs$inputId[i] == "rmgt_residue_start_date"){
-                print("aca tambien aca")
-              }
+
               updateAirDateInput(session,
                                  inputId = uploaded_inputs$inputId[i],
                                  clear = T)
@@ -2874,114 +2553,111 @@ server_design_agrofims <- function(input, output, session, values){
           }
         }
         
-        # Eliminar sesion
-        #Sys.sleep(0.5)
-        delay(500,insertRow_MEA("int_mea_1",1,"Cassava"))
-        delay(500,insertRow_MEA("int_mea_2",1,"Cassava"))
         
-        delay(
-          2000,
-          lapply(1:nrow(uploaded_inputs),function(i){
-            type <- as.character(uploaded_inputs[i, 2])
-            create <- as.character(uploaded_inputs[i, 3])
-            
+        delay(3000,lapply(1:nrow(uploaded_inputs2),function(i){
+            type <- as.character(uploaded_inputs2[i, 2])
+            create <- as.character(uploaded_inputs2[i, 3])
+
             if (type == "textInput") {
               updateTextInput(session,
-                              inputId = uploaded_inputs$inputId[i],
-                              value = uploaded_inputs$value[i])
+                              inputId = uploaded_inputs2$inputId[i],
+                              value = uploaded_inputs2$value[i])
             }
-            
+
             if (type == "dateRangeInput") {
-              if (uploaded_inputs[i, 4] != "") {
-                v <- getInputs(uploaded_inputs[i, 4], "")
+              if (uploaded_inputs2[i, 4] != "") {
+                v <- getInputs(uploaded_inputs2[i, 4], "")
                 x <- as.Date(v[1]) + 1
                 y <- as.Date(v[2]) + 1
                 updateAirDateInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
+                                   inputId = uploaded_inputs2$inputId[i],
                                    value = c(x, y),
                                    clear = T)
               } else {
                 updateAirDateInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
+                                   inputId = uploaded_inputs2$inputId[i],
                                    clear = T)
               }
             }
-            
+
             if (type == "selectizeInput"  && create == "n") {
-                  
+
               updateSelectizeInput(session,
-                                       inputId = uploaded_inputs$inputId[i],
-                                       selected = getInputs(uploaded_inputs[i, 4], ""))
-              
-              }
-              
-            
+                                       inputId = uploaded_inputs2$inputId[i],
+                                       selected = getInputs(uploaded_inputs2[i, 4], ""))
+            }
+
             if (type == "selectizeInput" && create == "y") {
-              
               updateSelectizeInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
-                                   selected = getInputs(uploaded_inputs[i, 4], ""),
-                                   choices = getInputs(uploaded_inputs[i, 4], ""),
+                                   inputId = uploaded_inputs2$inputId[i],
+                                   selected = getInputs(uploaded_inputs2[i, 4], ""),
+                                   choices = getInputs(uploaded_inputs2[i, 4], ""),
                                    options = list('create' = TRUE))
 
             }
-            
+
             if (type == "selectInput"  && create == "n") {
+              updateSelectInput(session,
+                                   inputId = uploaded_inputs2$inputId[i],
+                                   selected = getInputs(uploaded_inputs2[i, 4], ""))
+
+            }
+            
+            if (type == "selectInput"  && create == "y") {
               
               updateSelectInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
-                                   selected = getInputs(uploaded_inputs[i, 4], ""))
+                                inputId = uploaded_inputs$inputId[i],
+                                selected = getInputs(uploaded_inputs[i, 4], ""),
+                                choices = getInputs(uploaded_inputs[i, 4], ""))
+                                #options = list('create' = TRUE))
             }
-            
+
             if (type == "textAreaInput") {
               updateTextAreaInput(session,
-                                  inputId = uploaded_inputs$inputId[i],
-                                  value = uploaded_inputs$value[i])
+                                  inputId = uploaded_inputs2$inputId[i],
+                                  value = uploaded_inputs2$value[i])
             }
-            
+
             if (type == "numericInput") {
               updateNumericInput(session,
-                                 inputId = uploaded_inputs$inputId[i],
-                                 value = uploaded_inputs$value[i])
+                                 inputId = uploaded_inputs2$inputId[i],
+                                 value = uploaded_inputs2$value[i])
             }
-            
+
             if (type == "checkboxInput") {
-              if (uploaded_inputs$value[i] == "FALSE") {
+              if (uploaded_inputs2$value[i] == "FALSE") {
                 x <- FALSE
               } else {
                 x <- TRUE
               }
-              
+
               updateCheckboxInput(session,
-                                  inputId = uploaded_inputs$inputId[i],
+                                  inputId = uploaded_inputs2$inputId[i],
                                   value = x)
             }
-            
+
             if (type == "dateInput") {
-              if (uploaded_inputs[i, 4] != "") {
-                v <- getInputs(uploaded_inputs[i, 4], "")
+              if (uploaded_inputs2[i, 4] != "") {
+                v <- getInputs(uploaded_inputs2[i, 4], "")
                 v <- as.Date(v) + 1
                 updateAirDateInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
+                                   inputId = uploaded_inputs2$inputId[i],
                                    value = v,
                                    clear = T)
               } else {
                 updateAirDateInput(session,
-                                   inputId = uploaded_inputs$inputId[i],
+                                   inputId = uploaded_inputs2$inputId[i],
                                    clear = T)
               }
             }
-          
+            
           }
           )
         )
-        
-
-        #output$text2 <- renderText({"Loaded successfully"})
         shinyalert("Loaded successfully", type = "success", timer = 1500, showConfirmButton = F)
       }
       else{
-        #output$text <- renderText({"The session file does not exist"})
+
         shinyalert("Oops!", "The session file does not exist", type = "error", timer = 1500, showConfirmButton = F)
       }
     }
@@ -3016,7 +2692,6 @@ server_design_agrofims <- function(input, output, session, values){
         e[i] <- as.character(fl[2, 4])
         
         # Date modified
-        #e[i] <- as.character(file.info(paste0(sessionpath, my_files()[i]))$mtime)
         f[i] <- as.character(fl[3, 4])
         
         # User
@@ -3031,36 +2706,27 @@ server_design_agrofims <- function(input, output, session, values){
       
       df <- dplyr::filter(as.data.frame(df), g == userM)
       df <- df %>% dplyr::arrange(desc(f))
-      #print(df)
+
       sessionVals$aux <- data.frame(df)
       colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
-      #colnames(df) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
-      #print(df)
+
     } else {
       
       sessionVals$aux <- data.frame()
-      #df <- data.frame()
     }
   }
   
   
   observeEvent(input$refreshsession1, {
-    #print("uno")
     refreshDT()
   })
 
-  #Boton load session
-  #Ejemplo
   observeEvent(input$load_inputNew1, {
     loadsession2()
 
-    # for (i in 1:4) {
-    #   insertBoxFundingAgency(i)
-    # }
-    
   })
   
-  
+  ###########################################################################################
   ################################ END: LOAD SESSION JOSE #################################
   ###########################################################################################
   
@@ -3360,16 +3026,6 @@ server_design_agrofims <- function(input, output, session, values){
     }
     inputs_data_frame1 <- data.frame(inputId = case1, type = case1_type, create = case1_create, value = inputs1)
     
-    # for (i in 1:length(case2)) {
-    #   # dateRangeInput
-    #   if (is.null(input[[paste0(case2[i])]]) || is.na( input[[paste0(case2[i])]])) {
-    #     inputs2[i] <- ""
-    #   } else {
-    #     inputs2[i] <- paste(input[[paste0(case2[i])]], collapse = "&")
-    #   }
-    # }
-    # inputs_data_frame2 <- data.frame(inputId = case2, type = case2_type, create = case2_create, value = inputs2)
-    
     for (i in 1:length(case3)) {
       # selectizeInput && selectInput
       if (is.null(input[[paste0(case3[i])]]) || is.na( input[[paste0(case3[i])]])) {
@@ -3380,10 +3036,8 @@ server_design_agrofims <- function(input, output, session, values){
     }
     inputs_data_frame3 <- data.frame(inputId = case3, type = case3_type, create = case3_create, value = inputs3)
     
-    #inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame2, inputs_data_frame3)
     inputs_data_frame <- rbind(inputs_data_frame1, inputs_data_frame3)
-    ######
-    
+
     nr <- data.frame(inputId = "user", type = "", create = "", value = "")
     nr2 <- data.frame(inputId = "datec", type = "", create = "", value = "")
     nr3 <- data.frame(inputId = "datem", type = "", create = "", value = "")
@@ -4096,10 +3750,7 @@ server_design_agrofims <- function(input, output, session, values){
       shinyalert("Sorry", "You must login to create new fieldbook", type = "info", timer = 1500, showConfirmButton = F)
     }
   })
-  
-  
-  
-  
+
   observeEvent(input$load_inputNew11, {
     
     
@@ -5283,6 +4934,10 @@ server_design_agrofims <- function(input, output, session, values){
   })
 
   # Country ###################################################################################
+  
+  output$fbDesign_country <- renderUI({})
+  outputOptions(output, "fbDesign_country", suspendWhenHidden = FALSE)
+  
   output$fbDesign_country <- shiny::renderUI({
     #sites_data <- fbsites::get_site_table() #before
     # sites_data <- site_table #data from package fbdesign as an internal data BEFORE
@@ -5307,8 +4962,12 @@ server_design_agrofims <- function(input, output, session, values){
     fbsites::get_filter_locality_agrofims(sites_data = sites_data, country_input= input$fbDesign_countryTrial)
   })
 
-
+    
   # Country_site_select #####################################################################################
+  
+  output$fbDesign_countrySite <- renderUI({})
+  outputOptions(output, "fbDesign_countrySite", suspendWhenHidden = FALSE)
+  
   output$fbDesign_countrySite <- shiny::renderUI({
 
     req(input$fbDesign_countryTrial)
@@ -8411,6 +8070,7 @@ server_design_agrofims <- function(input, output, session, values){
   
   ## Residue management
   # residue_start_date 
+  
   output$res_start_date <- renderUI({
     if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
       airDatepickerInput("rmgt_residue_start_date",
@@ -8434,6 +8094,8 @@ server_design_agrofims <- function(input, output, session, values){
       )
     }
   })
+  
+  outputOptions(output, "res_start_date", suspendWhenHidden = FALSE)
   
   ###################### END: RESIDUE MANAGEMENT ######################
   
@@ -9915,7 +9577,7 @@ server_design_agrofims <- function(input, output, session, values){
                   12,
                   selectizeInput(
                     paste0(vals[i], "_harvest_to_collect_field_", i ), label = "To collect in the field", multiple = TRUE, 
-                    options = list(maxItems = 5, placeholder = "Select one..."), 
+                    options = list(maxItems = 20, placeholder = "Select one..."), 
                     choices = magm_label$get("harvest")
                     # choices = c("Start date",
                     #             "End date",
@@ -10889,6 +10551,9 @@ server_design_agrofims <- function(input, output, session, values){
   meaROT5$num <- 0
   meaROT5$ids <- c()
   
+  output$uiCropMeaMono <- renderUI({})
+  outputOptions(output, "uiCropMeaMono", suspendWhenHidden = FALSE)
+  
   # Funcion que crea el disenno de measurement --> solo Monocrop
   output$uiCropMeaMono <- renderUI({
     cropValue <- input[["cropCommonNameMono"]]
@@ -10942,15 +10607,16 @@ server_design_agrofims <- function(input, output, session, values){
     index <- vars[3]
     typeCrop <- vars[1]
     cropValue <- NULL
-    
+    measurement <- input[[paste0(typeCrop,"_mea_",index,"_search")]]
+      
     if(typeCrop=="mono"){
       cropValue = input[["cropCommonNameMono"]]
     }else{
       cropValue <- input[[paste0(typeCrop,"_cropCommonName_",index)]]
     }
     
-    if (!is.null(input[[paste0(typeCrop,"_mea_",index,"_search")]])){
-      insertRow_MEA(typeCrop = paste0(typeCrop,"_mea_", index ) , 1,cropValue)
+    if (!is.null(measurement)){
+      insertRow_MEA(typeCrop = paste0(typeCrop,"_mea_", index ) , 1,cropValue,measurement)
     }
   })
   
@@ -11086,7 +10752,7 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   # Funcion que dibuja las filas insertadas de measurement
-  insertRow_MEA <- function(typeCrop, index,crop) {
+  insertRow_MEA <- function(typeCrop, index,crop,measurement) {
     # monocrop Measurement
     if (typeCrop == "mono_mea_1") {
       meaMONO$num <- meaMONO$num + index
@@ -11094,7 +10760,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#mono_mea_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaMONO$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaMONO$num,crop,measurement)
       )
     }
     # inter Measurement crop 1
@@ -11105,7 +10771,7 @@ server_design_agrofims <- function(input, output, session, values){
         selector = "#int_mea_1_fr_measurement",
         where = "beforeBegin",
         ## Teting ##
-        ui = getDesignUI_MEA(typeCrop, meaINT1$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaINT1$num,crop,measurement)
       )
     }
     # inter Measurement crop 2
@@ -11116,7 +10782,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#int_mea_2_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaINT2$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaINT2$num,crop,measurement)
       )
     }
     # inter Measurement crop 3
@@ -11126,7 +10792,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#int_mea_3_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaINT3$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaINT3$num,crop,measurement)
       )
     }
     # inter Measurement crop 4
@@ -11136,7 +10802,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#int_mea_4_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaINT4$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaINT4$num,crop,measurement)
       )
     }
     # inter Measurement crop 5
@@ -11146,7 +10812,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#int_mea_5_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaINT5$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaINT5$num,crop,measurement)
       )
     }
     # relay Measurement crop 1
@@ -11157,7 +10823,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rel_mea_1_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaREL1$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaREL1$num,crop,measurement)
       )
     }
     # relay Measurement crop 2
@@ -11167,7 +10833,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rel_mea_2_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaREL2$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaREL2$num,crop,measurement)
       )
       
     }
@@ -11178,7 +10844,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rel_mea_3_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaREL3$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaREL3$num,crop,measurement)
       )
     }
     # relay Measurement crop 4
@@ -11188,7 +10854,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rel_mea_4_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaREL4$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaREL4$num,crop,measurement)
       )
     }
     # relay Measurement crop 5
@@ -11198,7 +10864,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rel_mea_5_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaREL5$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaREL5$num,crop,measurement)
       )
     }
     # rotation Measurement crop 1
@@ -11209,7 +10875,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rot_mea_1_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaROT1$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaROT1$num,crop,measurement)
       )
     }
     # rotation Measurement crop 2
@@ -11219,7 +10885,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rot_mea_2_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaROT2$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaROT2$num,crop,measurement)
       )
       
     }
@@ -11230,7 +10896,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rot_mea_3_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaROT3$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaROT3$num,crop,measurement)
       )
     }
     # rotation Measurement crop 4
@@ -11240,7 +10906,7 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rot_mea_4_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaROT4$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaROT4$num,crop,measurement)
       )
     }
     # rotation Measurement crop 5
@@ -11250,17 +10916,17 @@ server_design_agrofims <- function(input, output, session, values){
       insertUI(
         selector = "#rot_mea_5_fr_measurement",
         where = "beforeBegin",
-        ui = getDesignUI_MEA(typeCrop, meaROT5$num,crop)
+        ui = getDesignUI_MEA(typeCrop, meaROT5$num,crop,measurement)
       )
     }
   }
   
   # Funcion que tiene el disenno del cuerpo para measurement
-  getDesignUI_MEA <- function(typeCrop, index, crop) {
+  getDesignUI_MEA <- function(typeCrop, index, crop,measurement) {
     parmea <- get_dcm_values(cmdt, "Subgroup",crop)
-    unit<- get_dcm_values(cmdt, "TraitUnit",crop, measurement =  input[[paste0(typeCrop,"_search")]] )#, subgroup =  input[[paste0(typeCrop, "_parmea_", index)]])
+    unit<- get_dcm_values(cmdt, "TraitUnit",crop,measurement )#, subgroup =  input[[paste0(typeCrop, "_parmea_", index)]])
     timing<- get_dcm_values(cmdt, "Timing",crop)
-    
+
     fluidRow(id = paste0(typeCrop, "_fluidRow_", index),
              box(
                solidHeader = TRUE,
@@ -11270,7 +10936,7 @@ server_design_agrofims <- function(input, output, session, values){
                  #id = paste0(typeCrop, "_fluidRow_", index),
                  column(
                    2,
-                   disabled(textInput(paste0(typeCrop, "_measurement_", index), "Measurement", value = input[[paste0(typeCrop,"_search")]]))
+                   disabled(textInput(paste0(typeCrop, "_measurement_", index), "Measurement", value = measurement))
                  ),
                  column(
                    2,
