@@ -69,3 +69,31 @@ test_that("Test for factor named Crop residue amount", {
   expect_equal(nr, 2)
   expect_equal(nlvl_cramount, 6)
 })
+
+test_that("UI test when user remove element from the first levels - first evaluation- in the second factor", {
+  
+  fname <- rprojroot::find_testthat_root_file("userInput", "nutrient_removelevel_test.rds")
+  allinputs<- readRDS(fname)
+  
+  allinputs[allinputs$id=="crd_lvl_2_1",2] <- "12"
+  
+  
+  factors <- c("Nutrient element type and amount","Nutrient element type and amount")
+  index <- c("1","2")
+  
+  data_dictionary <- agdesign::dtfactordesign
+  
+  lvl<-NULL
+  
+  #for(i in 2){
+  i <- 2
+  lvl <- get_amountype_levels(allinputs, index=index[i], factors[i], design="crd", 
+                                data_dictionary=data_dictionary)
+  #}
+  
+  testthat::expect_equal(length(lvl),3)
+  
+  
+})
+
+

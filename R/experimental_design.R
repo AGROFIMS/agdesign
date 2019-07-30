@@ -384,7 +384,8 @@ get_amountype_levels <- function(allinputs, index, factors, design="fcrd",
   numEval<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",design, "_numLevelsESP_",index,"$"))) %>% nth(2)
   numEval <- as.integer(numEval)
   
-  eleType <- unit <- out <- NULL
+  eleType <- unit <-NULL
+  out <- list()
   lvl <- NULL
   for(j in seq.int(numEval)){
     
@@ -402,6 +403,10 @@ get_amountype_levels <- function(allinputs, index, factors, design="fcrd",
     ##  input strcucture: design_lvl_unit_index_numEval 
     unit <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_unit_",index,"_", j,"$")))  %>% nth(2)
     #print(unit[j])
+    # 
+    print(eleType)
+    print(lvl)
+    print(unit)
     
     if(crop!=""){
       out[[j]] <- paste0(crop,"_",eleType,"_",lvl,unit)
@@ -409,6 +414,7 @@ get_amountype_levels <- function(allinputs, index, factors, design="fcrd",
     } else {
       out[[j]] <- paste0(eleType,"_",lvl,unit)
     }
+    print(out[[j]])
     
   }
   out <- unlist(out)

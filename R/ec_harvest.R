@@ -171,7 +171,7 @@ get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1
     #Amount
     amount <- rbind(amount, harv  %>% filter(str_detect(id,  paste0(lookup,"_hahd_amount_harvested_",addId[i],"$")))  )
     amount_unit <- rbind(amount_unit, harv  %>% filter(str_detect(id,  paste0(lookup,"_hahd_amount_harvested_unit_",addId[i],"$"))) )
-    
+    #monocrop_hahd_amount_harvested_1
     cut<-rbind(cut, harv  %>% filter(str_detect(id,  paste0(lookup,"_hahd_harvest_cut_height_",addId[i],"$"))) )
     cut_unit <-rbind(cut_unit, harv  %>% filter(str_detect(id,paste0(lookup,"_hahd_harvest_cut_height_unit_",addId[i],"$"))) )
     
@@ -206,13 +206,13 @@ get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1
   lbl_comph <- paste("Crop_component_harvested",1:length(addId),sep = "__")
   lbl_ha_area <-  paste("Harvestable_area", 1:length(addId),sep = "__")
   
-  lbl_amount <- paste(paste("Harvest_amount", amount_unit$values, sep="_"),  1:length(addId),sep = "__")
+  lbl_amount <- paste(paste("Amount_harvested", amount_unit$values, sep="_"),  1:length(addId),sep = "__")
   lbl_cut <- paste(paste("Harvest_cut_height", cut_unit$values, sep="_"),  1:length(addId),sep = "__")
   
   
-  lbl_type<- paste("Harvest_implement_type", 1:length(addId),sep = "__")
+  lbl_type<- paste("Harvest_implement_type", 1:length(addId), sep = "__")
   #lbl_traction<- paste("Harvest_implement_traction", 1:length(addId),sep = "__") #deprecated
-  lbl_traction<- paste("Harvest_traction_type", 1:length(addId),sep = "__")
+  lbl_traction<- paste("Harvest_traction_type", 1:length(addId), sep = "__")
   
   
   lbl_notes<- paste("Harvest_notes", 1:length(addId),sep = "__")
@@ -236,9 +236,6 @@ get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1
   
   #LABEL FOR TRAITLIST
   lbl <- str_replace_all(string = names(dt_harv), pattern = "__[:digit:]+$",replacement = "") %>% unique()
-  
-  #print("harv dt list")
-  #print(dt_harv)
   
   #OUTPUT
   out<- list(dt=dt_harv, lbl = lbl)
@@ -311,7 +308,7 @@ get_protocol_harv <- function(allinputs, input, ctype="monocrop", cropId="1", ad
   if(nrow(out)!=0){
   names(out) <- stringr::str_replace_all(names(out),"__1","")
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
-  out <- out %>% dplyr::filter(V1!="")
+  out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
   names(out) <- c("TraitName","Value")
   out <- out
   }else {
@@ -323,7 +320,7 @@ get_protocol_harv <- function(allinputs, input, ctype="monocrop", cropId="1", ad
 
 
 # Get Collectable inputs for Harvest ###########################################################3
-get_collectable_harvest <- function(allinputs, ctype="monocrop",crop, cropId="1"){
+get_collectable_harvest <- function(allinputs, ctype="monocrop",crop, cropId="1",ver="default"){
   
   if(ctype=="monocrop"){
     lookup<- "mono"
@@ -333,7 +330,12 @@ get_collectable_harvest <- function(allinputs, ctype="monocrop",crop, cropId="1"
     out <- stringi::stri_split_regex(ha, ",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("") 
     
     if(length(out)!=0){
-      out <- paste0("Harvest" ,"_", out) 
+      if(ver=="default"){
+        out <- paste0("Harvest" ,"_", out) 
+      }
+      else if(ver=="export"){
+        out <- out #ifelse(str_detect(string = out,pattern = "Harvestable|Harvest"), out, paste0("Harvest_",out))
+      }
     }
     
   } 
@@ -348,8 +350,7 @@ get_collectable_harvest <- function(allinputs, ctype="monocrop",crop, cropId="1"
     else if(cytpe=="rotation"){
       crop_pattern <- "rot"
     }  
-      #direct seeding
-      #int_harv_2_harvest_to_collect_field_1
+      #iExample: nt_harv_2_harvest_to_collect_field_1
       ha <- lapply(X = cropId, function(x) allinputs %>% 
                      dplyr::filter(str_detect(id,  paste0("^", paste0(crop_pattern,"_harv_",x) ,"_harvest_to_collect_field_1","$") ))%>% 
                      dplyr::nth(2)) 
@@ -362,7 +363,12 @@ get_collectable_harvest <- function(allinputs, ctype="monocrop",crop, cropId="1"
       }
       out <- unlist(ha)
       if(length(out)!=0){
-        out <- paste0("Harvest" ,"_", out) #%>% stringr::str_replace_all(" ","_")
+        if(ver=="default"){
+          out <- paste0("Harvest" ,"_", out) 
+        }
+        else if(ver=="export"){
+          out <- out #ifelse(str_detect(string = out,pattern = "Harvestable|Harvest"), out, paste0("Harvest_",out))
+        }
       }
   } 
  

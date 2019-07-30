@@ -72,7 +72,7 @@ get_protocol_weed <- function(allinputs, addId, ctype="monocrop"){
   out <- get_ec_weed(allinputs, addId, ctype="monocrop")$dt
   names(out) <- stringr::str_replace_all(names(out),"__1","")
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
-  out <- out %>% dplyr::filter(V1!="")
+  out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
   names(out) <- c("TraitName","Value")
   out
 }
@@ -80,11 +80,17 @@ get_protocol_weed <- function(allinputs, addId, ctype="monocrop"){
 
 #Get Collectable inputs for Weeding ###################################################################
 #allinputs: data frame with all the user's inputs 
-get_collectable_weed <- function(allinputs){
+get_collectable_weed <- function(allinputs, ver ="default"){
   
   weed <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","weeding_to_collect_field","$") )) %>% dplyr::nth(2)
   out <- stringi::stri_split_regex(weed,",")[[1]] %>% stringr::str_trim(side = "both")  %>% setdiff("")
   if(length(out)!=0){
-    out <- paste0("Weeding" ,"_", out)
+    if(ver=="default"){
+      out <- paste0("Weeding" ,"_", out)
+    }
+    else if(ver=="export"){
+      out <- ifelse(str_detect(string = out,pattern = "technique"), paste0("weeding technique"), out)
+    }
   }
+  out
 }

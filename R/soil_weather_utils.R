@@ -62,7 +62,10 @@ get_dt_weather <- function(weather_variables,dt_weather){
   dt_weather$Crop <- ""
   dt_weather$Subgroup <-""
   if(nrow(weather_variables)!=0){
-    dt <- dplyr::left_join(weather_variables, dplyr::select(dt_weather,-starts_with("Number")))
+    #Remove 4 unnecesary columns for left join: Number per plot/season and Timing/TImingValue
+    dt_weather <- dt_weather[,-grep("Number|Timing", colnames(dt_weather))]
+    #dt_weather <- dplyr::select(dt_weather,-starts_with("Timing"))
+    dt <- dplyr::left_join(weather_variables, dt_weather)
   } else {
     dt <- data.frame()
   }
@@ -119,7 +122,7 @@ get_soil_variables <- function(allinputs,addId="1"){
     dt<- tibble::tibble(crop, group, subgroup, mea, unit, as.numeric(pseason), as.numeric(pplot), depth, 
                         as.numeric(depthUnit), timing,timValue)
     names(dt) <- c("Crop", "Group","Subgroup", "Measurement","TraitUnit", "NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot",
-                   "Depth", "DepthUnit", "Timing","TimingValue")
+                   "SoilDepth", "DepthUnit", "Timing","TimingValue")
     
   } 
   else {
@@ -135,7 +138,9 @@ get_dt_soil <- function(soil_variables,dt_soil){
   dt_soil$Crop <- ""
   dt_soil$Subgroup <-""
   if(nrow(soil_variables)!=0){
-    dt <- dplyr::left_join(soil_variables, dplyr::select(dt_soil,-starts_with("Number")))
+    #Remove 6 unnecesary columns for left join: Number per plot/season and Timing/TImingValue
+    dt_soil <- dt_soil[,-grep("Number|Timing|Soil|Depth", colnames(dt_soil))]
+    dt <- dplyr::left_join(soil_variables, dt_soil )
   } else {
     dt <- data.frame()
   }

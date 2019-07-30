@@ -104,7 +104,7 @@ get_protocol_mulching <- function(allinputs){
     out<- get_ec_mulching(allinputs)$dt 
     names(out) <- stringr::str_replace_all(names(out),"__1","")
     out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
-    out <- out %>% dplyr::filter(V1!="")
+    out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
     names(out) <- c("TraitName","Value")
     out
 }
@@ -113,12 +113,19 @@ get_protocol_mulching <- function(allinputs){
 
 # Get collectable inputs from Mulching #############################################################################
 # allinputs: data frame of all inputs derived from ReactiveValuesToList
-get_collectable_mulching <- function(allinputs){
+get_collectable_mulching <- function(allinputs, ver="default"){
   
   mu <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","mulch_management_to_collect_field","$") )) %>% dplyr::nth(2)
   out <- stringi::stri_split_regex(mu,",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")
   if(length(out)!=0){
-    out <- paste0("Mulch management" ,"_", out)
+    
+    if(ver=="default"){
+      out <- paste0("Mulch management" ,"_", out)
+    }
+    else if(ver=="export"){
+      out <- ifelse(str_detect(string = out,pattern = "Mulch" ), out, paste0("Mulching_",out))
+    }
   }
+  out
 }
 

@@ -158,7 +158,7 @@ get_protocol_resdesc <- function(input){
   out<- get_ec_resdesc(input)$dt 
   names(out) <- stringr::str_replace_all(names(out),"__1","")
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
-  out <- out %>% dplyr::filter(V1!="")
+  out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
   names(out) <- c("TraitName","Value")
   out
 }
@@ -170,7 +170,7 @@ get_protocol_resmgt <- function(input){
   out<- get_ec_resmgt(input)$dt
   names(out) <- stringr::str_replace_all(names(out),"__1","")
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
-  out <- out %>% dplyr::filter(V1!="")
+  out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
   names(out) <- c("TraitName","Value")
   out
 }

@@ -42,7 +42,7 @@ get_ec_irri <- function(allinputs, ctype="monocrop", addId ){
            }
            #Label
            #lbl<- paste("Irrigation_splinkler_irrigation_system", addId[i],sep="__")
-           lbl<- paste("Irrigation_splinkler_technique", addId[i],sep="__")
+           lbl<- paste("Irrigation_sprinkler_technique", addId[i],sep="__")
            
            #Table
            dt_irri_system <- tech_splin
@@ -170,18 +170,31 @@ get_protocol_irri <- function(allinputs, ctype="monocrop", addId ){
   out <- get_ec_irri(allinputs, ctype, addId)$dt
   names(out) <- stringr::str_replace_all(names(out),"__1","")
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
-  out <- out %>% dplyr::filter(V1!="")
+  out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
   names(out) <- c("TraitName","Value")
   out
 }
 
 
 # Get Collectable Irrigation inputs #################################################################
-get_collectable_irri <- function(allinputs){
+get_collectable_irri <- function(allinputs, ver="default"){
   
   irri <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","irrigation_to_collect_field","$") )) %>% dplyr::nth(2)
   out <- stringi::stri_split_regex(irri,",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")
   if(length(out)!=0){
-    out <- paste0("Irrigation" ,"_", out)
+    if(ver=="default"){
+      out <- paste0("Irrigation" ,"_", out)
+    }
+    else if(ver=="export"){
+      out <- ifelse(str_detect(string = out,pattern = "Source|Irrigation|Localized|Surface"), out, paste0("Irrigation_",out))
+      #Special cases 1: Localized trait is collected
+      out <- ifelse(str_detect(string = out,pattern = "Localized"), paste0("localized technique"), out)
+      #Special cases 2: 
+      out <- ifelse(str_detect(string = out,pattern = "Surface"), paste0("surface technique"), out)
+      #Special cases 3: Localized trait is collected
+      out <- ifelse(str_detect(string = out,pattern = "sprinkler"), paste0("sprinkler technique"), out)
+    }
+    
   }
+  out
 }

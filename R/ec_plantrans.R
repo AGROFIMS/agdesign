@@ -2,7 +2,7 @@
 #input<- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
 
 # Get management practices for planting and transplanting experiments ########################
-get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="1"){
+get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="1", ver = "default"){
   
   #allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
   #input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
@@ -22,28 +22,28 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
   if(isTRUE(input[[paste0(lookup,"_directSeeding_checkbox_",addId)]])){
     
     #direct seedling -------------------------------------------------------------
-    ptdi <- allinputs %>%  filter(!str_detect(id, "button")) %>%
-                          filter(!str_detect(id, "-selectized")) %>%
-                          filter(str_detect(id, paste0(lookup,"_ptdi")))
+    ptdi <- allinputs %>%  dplyr::filter(!str_detect(id, "button")) %>%
+                            dplyr::filter(!str_detect(id, "-selectized")) %>%
+                            dplyr::filter(str_detect(id, paste0(lookup,"_ptdi")))
     
     #start date
     startD <- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_planting_start_date_[:digit:]+$")  ) )
     
     #environment
-    env <- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_environment_[:digit:]+$" )))
-    env_other <- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_environment_[:digit:]+_other$")))
+    env <- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_environment_[:digit:]+$" )))
+    env_other <- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_environment_[:digit:]+_other$")))
     env <- dt_inputs(env, env_other)
     
     #seeding technique
-    tech<- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_technique_[:digit:]+$" )))
+    tech<- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_technique_[:digit:]+$" )))
     #<- ptdi %>% filter(str_detect(id,  "ptdi_seeding_technique_[:digit:]+_other"))
     
     #treatment
     treat <- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_seed_treatment_[:digit:]+$"  )))
     
     #implement type
-    imp_type<- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_implement_type_[:digit:]+$")))
-    imp_type_other <- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_implement_type_[:digit:]+_other$")))
+    imp_type<- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_implement_type_[:digit:]+$")))
+    imp_type_other <- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_implement_type_[:digit:]+_other$")))
     imp_type <- dt_inputs(imp_type, imp_type_other) 
     
     #implement traction
@@ -52,27 +52,27 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
     imp_trac <- dt_inputs(imp_trac, imp_trac_other)
     
     #distance rows
-    row<- ptdi %>% filter(str_detect(id,  paste0(lookup, "_ptdi_distance_rows_[:digit:]+$"  ) ))
-    row_unit <- ptdi %>% filter(str_detect(id,  paste0(lookup, "_ptdi_distance_rows_unit_[:digit:]+$" )))
+    row<- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup, "_ptdi_distance_rows_[:digit:]+$"  ) ))
+    row_unit <- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup, "_ptdi_distance_rows_unit_[:digit:]+$" )))
     
     #seeding rate
-    rate <- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_rate_[:digit:]$")))
-    rate_unit <- ptdi %>% filter(str_detect(id, paste0(lookup,"_ptdi_seeding_rate_unit_[:digit:]+$" )))
+    rate <- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_rate_[:digit:]$")))
+    rate_unit <- ptdi %>% dplyr::filter(str_detect(id, paste0(lookup,"_ptdi_seeding_rate_unit_[:digit:]+$" )))
     
     #distance plants
-    plan<- ptdi %>% filter(str_detect(id,  paste0(lookup, "_ptdi_distance_plants_[:digit:]+$"   ))  )
-    plan_unit<- ptdi %>% filter(str_detect(id,   paste0(lookup,"_ptdi_distance_plants_unit_[:digit:]+$")))
+    plan<- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup, "_ptdi_distance_plants_[:digit:]+$"   ))  )
+    plan_unit<- ptdi %>% dplyr::filter(str_detect(id,   paste0(lookup,"_ptdi_distance_plants_unit_[:digit:]+$")))
     
     #number of rows
-    numrow <- ptdi %>% filter(str_detect(id, paste0(lookup, "_ptdi_seeding_density_number_rows_[:digit:]+$")))
+    numrow <- ptdi %>% dplyr::filter(str_detect(id, paste0(lookup, "_ptdi_seeding_density_number_rows_[:digit:]+$")))
     
     #plan density
-    plden<- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_plant_density_[:digit:]+$"       )))
-    plden_unit <- ptdi %>% filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_plant_density_unit_[:digit:]+$"  )))  
+    plden<- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_plant_density_[:digit:]+$")))
+    plden_unit <- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_plant_density_unit_[:digit:]+$"  )))  
     
     #bund
-    bund<- ptdi %>% filter(str_detect(id, paste0(lookup, "_ptdi_seeding_distance_bunds_[:digit:]+$"      )))
-    bund_unit<- ptdi %>% filter(str_detect(id, paste0(lookup, "_ptdi_seeding_distance_bunds_unit_[:digit:]+$" )))
+    bund<- ptdi %>% dplyr::filter(str_detect(id, paste0(lookup, "_ptdi_seeding_distance_bunds_[:digit:]+$")))
+    bund_unit<- ptdi %>% dplyr::filter(str_detect(id, paste0(lookup, "_ptdi_seeding_distance_bunds_unit_[:digit:]+$" )))
     
     #notes
     notes <- ptdi %>% filter(str_detect(id, paste0(lookup, "_ptdi_direct_seeding_notes_[:digit:]+$")))
@@ -96,12 +96,12 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
                 "Seeding_technique",
                 "Seeding_seed_treatment", "Seeding_implement_type", 
                 "Seeding_implement_traction" ,  
-                paste("Seeding_density_distance_between_rows","/",row_unit$values,sep=""),
+                paste("Seeding_density_distance_between_rows","_",row_unit$values,sep=""),
                 paste("Seeding_seed_rate","_",rate_unit$values,sep=""),  
                 paste("Seeding_density_distance_between_plants","/",plan_unit$values,sep=""),
                 "Seeding_density_number_of_rows",  ##Check with Celine #74  Direct seeding
                 paste("Seeding_plant_density","_",plden_unit$values,sep=""),
-                paste("Seeding_density_distance_between_bunds","/",bund_unit$values,sep=""),
+                paste("Seeding_density_distance_between_bunds","_",bund_unit$values,sep=""),
                 "Seeding_notes"
     )
     
@@ -229,7 +229,7 @@ get_protocol_plantrans <- function(allinputs, input, ctype="monocrop", cropId, a
   if(nrow(out)!=0){
     names(out) <- stringr::str_replace_all(names(out),"__1","")
     out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
-    out <- out %>% dplyr::filter(V1!="")
+    out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
     names(out) <- c("TraitName","Value")
     out <- out
   }else {
@@ -245,8 +245,8 @@ get_protocol_plantrans <- function(allinputs, input, ctype="monocrop", cropId, a
 #allinputs: data.frame with all the mapped inputs
 #cytpe: cropping type
 #cropdid: vector ids
-#
-get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="1"){
+#ver: default(Group) or export
+get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="1", ver="default"){
   
   if(ctype=="monocrop"){
     lookup<- ctype
@@ -256,8 +256,13 @@ get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="
     ds <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^", lookup,"_directSeeding_to_collect_field_1","$") )) %>% dplyr::nth(2)
     ds <- stringi::stri_split_regex(ds, ",")[[1]] %>% stringr::str_trim(side = "both") %>% setdiff("")   
     if(length(ds)!=0){
-      ds <- paste0("Direct seeding" ,"_", ds)
-    }else {
+      if(ver=="default"){
+        ds <- paste0("Direct seeding" ,"_", ds)  
+      }
+      else if(ver=="export"){
+        ds <- ifelse(str_detect(string = ds,pattern = "Seeding" ), ds, paste0("Seeding_",ds))
+      }
+    } else {
       ds <-NULL
     }
     
@@ -282,7 +287,7 @@ get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="
       #direct seeding --------------------------------------------------------------------------------------------------------------------------
       ds <- lapply(X = cropId, function(x) allinputs %>% dplyr::filter(str_detect(id,  paste0("^", paste0(crop_pattern,"_pt_",x) ,"_directSeeding_to_collect_field_1","$") ))
                    %>% dplyr::nth(2) ) 
-      
+      #ds is a list
       if(all(unlist(ds)!="")){
       
         ds <- lapply(ds, function(x)stringi::stri_split_regex(x, ",")[[1]] )
@@ -293,7 +298,18 @@ get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="
         }
         ds <- unlist(ds)
         if(length(ds)!=0){
-          ds <- paste0("Direct seeding" ,"_", ds)
+          
+          if(ver=="default"){
+            ds <- paste0("Direct seeding" ,"_", ds)  
+          }
+          else if(ver=="export"){
+            ds <- ifelse(str_detect(string = ds,pattern = "Seeding" ), ds, paste0("Seeding_",ds))
+            ds <- ifelse(str_detect(string = ds, pattern = crop), 
+                         stringr::str_replace(string = ds, pattern = paste0(crop,"_"),replacement = "") , ds) 
+          }
+          
+          
+          #ds <- paste0("Direct seeding" ,"_", ds)
         }
           
       }
@@ -305,6 +321,7 @@ get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="
       #transplanting --------------------------------------------------------------------------------------------------------------------------
       tra <- lapply(X = cropId, function(x) allinputs %>% dplyr::filter(str_detect(id,  paste0("^",  paste0(crop_pattern,"_pt_",x) ,"_transplanting_to_collect_field_1","$") ))
                     %>% dplyr::nth(2))
+      #tra is a list
       
       if(all(unlist(tra)!="")){
         tra <- lapply(tra, function(x)stringi::stri_split_regex(x, ",")[[1]] )
@@ -315,7 +332,17 @@ get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="
         }
         tra <- unlist(tra)
         if(length(tra)!=0){
-          tra <- paste0("Transplanting" ,"_", tra)
+          
+          
+          if(ver=="default"){
+            tra <- paste0("Transplanting" ,"_", tra)
+          }
+          else if(ver=="export"){
+            #tra <- tra
+            tra <- ifelse(str_detect(string = tra, pattern = crop), 
+                         stringr::str_replace(string = tra, pattern = paste0(crop,"_"),replacement = "") , tra) 
+          }
+          
         }  
         
       } else {

@@ -8,39 +8,120 @@
 #' @param name a reference name
 #' @export
 
+##################################################################################################################
+############################################# START: KDSMART JOSE ##################################################
+##################################################################################################################
+
 server_mobile_agrofims <- function(input, output, session, values){
+  sessionVals <- reactiveValues()
+  sessionVals$dtkdsmartaux <- data.frame()
   
+  sessionpath <- "/home/obenites/AGROFIMS/kdsmart"
+  
+  
+  conexionDB <- function(){
+    
+    return(dbConnect(MySQL(), user='agrofims', password='cnReOdGjS851TTR140318', dbname='agrofims', host='176.34.248.121'))
+  }
   
   selectfbDB <- function() {
     #statusfb <- "subido"
     
-    mydb = dbConnect(MySQL(), user='agrofims', password='cnReOdGjS851TTR140318', dbname='agrofims', host='176.34.248.121')
+    mydb = conexionDB()
     
     query <- paste0("SELECT * FROM `kdsmart`")
-    
-    #print(query)
+
     res <- dbSendQuery(mydb, query)
     res <- fetch(res, n = -1)
+    colnames(res) <- c("ID", "Experiment ID", "Fieldbook ID", "User" ,"Date created", "Date modified", "Status")
+    
+    sessionVals$dtkdsmartaux <- data.frame(res)
+    
+    return(sessionVals$dtkdsmartaux)
   }
   
   
   ##### Start Modulo: Render KDSmart list in DT #####
   output$dtkdsmart <- DT::renderDataTable({
     DT::datatable(
-      #sessionVals$aux,
+      #sessionVals$dtkdsmartaux,
       selectfbDB(),
       selection = 'single',
       options = list(
-        pageLength = 5#,
-        #columnDefs = list(list(visible=FALSE, targets=c(1, 7)))
-        #list(width = '30%', targets = c(1)),
-        #list(className = 'dt-center', targets = c(7,8))
+        pageLength = 5
       )
     )
   })
   ##### End Modulo: Render KDSmart list in DT ######
   
   
+  # Metodo que duplica csv e inserta en la base de datos
+  observeEvent(input$duplicate_file2,{
+    
+    id <- selectedRow()
+    
+    newid <- idgenerator()
+    
+    listOfFiles <- list.files(sessionpath, paste0(id,".csv"),full.names=T)
+    file.copy(listOfFiles, paste0(sessionpath,"/",newid,".csv"))
+    
+    mydb = conexionDB()
+    
+    query <- paste0("INSERT INTO kdsmart SELECT '",newid,
+                    "' , experimentId, fieldbookId, user, registered, modified, status, '", id ,"' from kdsmart", 
+                    " WHERE uniqueId = '",  id,"'" )
+
+    
+    ## Start: Modificamos experiment ID ##
+    
+    print(paste0(sessionpath,"/",id,'.xlsx'))
+    wb <- loadWorkbook(paste0(sessionpath,"/",id,'.xlsx'))
+    print("Cargo el libro correctamente.")
+    
+    c1 <- "A1B21562997519"
+
+    writeData(wb = wb, sheet = "Metadata",  startCol ="B", startRow = 2,  x = c1 )
+    
+    saveWorkbook(wb, file = paste0(sessionpath,"/",newid,".xlsx"), overwrite = TRUE)
+    
+    
+    # Testing to save directory files in array to pass then as parameter to system lines writing below.
+    # files <- c(paste0("/home/obenites/AGROFIMS/kdsmart/",id,".csv"),"/home/obenites/AGROFIMS/kdsmart/Y38UDGXH.xlsx")
+    # filesToCompress <- paste(files, collapse = " ")
+    
+    ## End: Modificamos experiment ID ##    
+
+    system("java -jar /home/ubuntu/agrofims2kdx-0.8.9.jar -outdir /home/obenites/AGROFIMS/kdsmart /home/ubuntu/fileNameBook1.xlsx -nogui", FALSE)
+    print("Java executed")
+    
+    
+    #Compress more than one file.
+    system(paste0("tar -zcvf /var/www/html/kdsmart/",newid,".tar.gz /home/obenites/AGROFIMS/kdsmart/",id,".csv /home/obenites/AGROFIMS/kdsmart/ZH6ORTVG.xlsx" ), TRUE)
+    
+    print(query)
+    dbSendQuery(mydb, query)
+    
+    #Compress one file.
+    #system(paste0("tar -zcvf /var/www/html/kdsmart/",newid,".tar.gz /home/obenites/AGROFIMS/kdsmart/",id,".csv" ), TRUE)
+
+  })
+  
+  
+  #Evento reactivo que captura id de la fila seleccionada 
+  selectedRow <- eventReactive(input$duplicate_file2, {
+    id <- input$dtkdsmart_rows_selected
+    sessionVals$dtkdsmartaux[id, 1]
+  })
+  
+  
+  idgenerator <- function() {
+    id <- stri_rand_strings(1, 8,  '[A-Z0-9]')
+    id
+  }
+  
+  ##################################################################################################################
+  ############################################# END: KDSMART JOSE ##################################################
+  ##################################################################################################################
   
   
   
