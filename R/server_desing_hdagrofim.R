@@ -4566,6 +4566,13 @@ server_design_agrofims <- function(input, output, session, values){
             )
           ),
           conditionalPanel(
+            paste0("input.projEntity_", index, " != 'CGIAR center'"),
+            column(
+              4,
+              textInput( inputId = paste0("projEntity_name_",index),label ="Project management entity name")
+            )
+          ),
+          conditionalPanel(
             paste0("input.projEntity_", index, " == 'CGIAR center'"),
             column(
               width = 4,
@@ -4609,7 +4616,13 @@ server_design_agrofims <- function(input, output, session, values){
                                  "CGIAR Research Program on Wheat"))
               )
             )
-          ),
+          )
+          # column(
+          #   width =4,style="padding-top: 5px;",
+          #   hidden(textInput(paste0("projEntity_", index, "_other"), "", value = ""))
+          # )
+        ),
+        fluidRow(
           column(
             width =4,style="padding-top: 5px;",
             hidden(textInput(paste0("projEntity_", index, "_other"), "", value = ""))
@@ -14396,13 +14409,13 @@ server_design_agrofims <- function(input, output, session, values){
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
-         #ai <- AllInputs()
-         #saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         #x <- reactiveValuesToList(input)
-         #saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         
-         #trait2 <<- trait_dt()
-         
+         # ai <- AllInputs()
+         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         # x <- reactiveValuesToList(input)
+         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         # 
+         # trait2 <<- trait_dt()
+         # 
          ##### Eliminar Start: Testing by Jose ######
          print("Entro al método.")
          #savefb()

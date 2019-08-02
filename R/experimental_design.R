@@ -159,7 +159,7 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
           #General cases
           else {
                  
-            out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i] )))
+            out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i])))
             if(factors[i]==""){
               out[[i]] <- c("","","")
             }
@@ -178,6 +178,9 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
                   out[[i]] <-  out[[i]]$values
                 } 
                 else { 
+                  #Avoid _1_1 ---> "$"
+                  out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i],"$")))
+                  
                   out[[i]] <- out[[i]] %>%  dplyr::filter(!str_detect(id,  "date" ))
                   out[[i]] <-  out[[i]]$values
                   out[[i]] <- strsplit(out[[i]],split= ",")[[1]]
@@ -195,20 +198,20 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
                   }
                   
                   #Detect Units
-                  if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i] ))))>=1 ){
+                  if( nrow(allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"unit_", index[i],"$" ))))>=1 ){
                     
                     u<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
-                      dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i] ) ))
+                      dplyr::filter(str_detect(id,  paste0(lookup, "unit_",index[i],"$" ) ))
                     u<- u$values
                     out[[i]]<- paste0(out[[i]]," ",u) #quantity + whitespace + unit
                   }
                   
-                  #We place underscore in `pattern` because factors include underscore
+                  #We place underscore in `pattern` because the factor's names include underscore
                   if(stringr::str_detect(factors[i],pattern="_application_rate")){ #special case for product, nutrient and oxidzed
                     # 95, 96 y 97 from FACTOR_V10-DRAFT
                     print("application rate")
                     fert<- allinputs %>% dplyr::filter(!str_detect(id, "-selectized")) %>%
-                      dplyr::filter(str_detect(id,  paste0(lookup, "fert_",index[i]) ))
+                    dplyr::filter(str_detect(id,  paste0(lookup, "fert_",index[i]) ))
                     fert<- fert$values
                     out[[i]]<- paste0(fert," ",out[[i]]) #quantity + whitespace + unit
                     
