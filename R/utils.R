@@ -624,6 +624,7 @@ ec_clean_header <- function(dt){
   dt$Var.8 <- NULL
   dt$X17<- dt$X19 <-  dt$X20 <- dt$X21 <- dt$X22 <- dt$X23 <-NULL
   dt$Measurement_3 <- NULL
+  
   #dt <- dt %>% dplyr::select(-starts_with("NA."))
   dt
 }
@@ -666,33 +667,38 @@ add_season_numplot_prefix<- function(dt){
         if(length(nplot_idx)>0){
           dt$NumberofMeasurementsPerPlot[nplot_idx]<- 1
         }
-        out <- list()
+        out <- vector(mode="list", length = nrow(dt))
         
-        #Number of instaces per seasons
         for(i in 1:nrow(dt)) {
           out[[i]]<- paste(dt$TraitName[i],1:dt$NumberofMeasurementsPerSeason[i],sep="__") 
         }
-    
-        if(all(dt$NumberofMeasurementsPerPlot==1L)){
-          
-          out<- unlist(out)
-          
-        } else{
-          
-          out2<- list()
-          for( i in 1:nrow(dt)){
-            
-            if(dt$NumberofMeasurementsPerPlot[i]==1L){
-              out2[[i]] <- out[[i]]
-            }else{
-              out2[[i]]<- sort( as.vector(outer(out[[i]], 1:dt$NumberofMeasurementsPerPlot[i], paste, sep="#")))
-            }
-          }
-          
-          out<- unlist(out2)
-          
-        }
-
+        
+        out<- unlist(out)
+        
+        ## Number of instaces per seasons ####################
+        # if(all(dt$NumberofMeasurementsPerPlot==1L)){
+        #   
+        #   out<- unlist(out)
+        #   
+        # } 
+        # else{
+        #   
+        #   out2<- list()
+        #   for( i in 1:nrow(dt)){
+        #     
+        #     if(dt$NumberofMeasurementsPerPlot[i]==1L){
+        #       out2[[i]] <- out[[i]]
+        #     }else{
+        #       out2[[i]]<- sort( as.vector(outer(out[[i]], 1:dt$NumberofMeasurementsPerPlot[i], paste, sep="#")))
+        #     }
+        #   }
+        #   
+        #   out<- unlist(out2)
+        #   
+        # }
+        ## End NUmber of instaces per seasons ################
+        
+        
   } else {
     
     out<-NULL
