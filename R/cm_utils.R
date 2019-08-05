@@ -11,7 +11,10 @@ get_dcm_values <- function(data_dictionary=NULL, attribute = "Subgroup", crop="P
       out <-data_dictionary %>% dplyr::filter(Crop==crop) %>% dplyr::select_(attribute)  
       out<- unique(out)
     } else if(!is.null(measurement) && attribute=="TraitUnit"){
-      out <-data_dictionary %>% dplyr::filter(Crop==crop) %>% dplyr::filter(Measurement==measurement) %>% dplyr::select_(attribute)  
+      out <-data_dictionary %>% dplyr::filter(Crop==crop) %>% 
+                                dplyr::filter(Subgroup==subgroup) %>% 
+                                dplyr::filter(Measurement==measurement) %>% 
+                                dplyr::select_(attribute)  
       out<- out[,1] 
     }
     
@@ -82,15 +85,16 @@ get_dtcmea_variables <- function(allinputs, ctype="monocrop", addId="1", crop="n
 
 #Get trait data
 # trait_variables: variables selected in the Crop Measurement interface 
-get_dt_trait <- function(dtcmea_variables, dt_cmea){
+get_trait_dt <- function(dtcmea_variables, dt_cmea){
 
  if(nrow(dtcmea_variables)!=0){
-   dt <- dplyr::left_join(dtcmea_variables, dplyr::select(dt_cmea,-starts_with("Number")))
-   dt <- dt %>% dplyr::mutate(TraitName = paste(Crop, Subgroup, Measurement, TraitUnit, sep="_"))
+   trait_dt <- dplyr::left_join(dtcmea_variables, 
+                          dplyr::select(dt_cmea, -c("NumberofMeasurementsPerSeason",	"NumberofMeasurementsPerPlot",	"Timing",	"TimingValue")))
+   trait_dt <- trait_dt %>% dplyr::mutate(TraitName = paste(Crop, Subgroup, Measurement, TraitUnit, sep="_"))
  } else {
-   dt <- data.frame()
+   trait_dt <- data.frame()
  }
- dt  
+  trait_dt  
 
 }
 

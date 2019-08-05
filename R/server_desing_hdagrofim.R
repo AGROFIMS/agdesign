@@ -11034,7 +11034,7 @@ server_design_agrofims <- function(input, output, session, values){
   # Funcion que tiene el disenno del cuerpo para measurement
   getDesignUI_MEA <- function(typeCrop, index, crop,measurement) {
     parmea <- get_dcm_values(cmdt, "Subgroup",crop)
-    unit<- get_dcm_values(cmdt, "TraitUnit",crop,measurement )#, subgroup =  input[[paste0(typeCrop, "_parmea_", index)]])
+    unit<- get_dcm_values(cmdt, "TraitUnit",crop = crop, subgroup= parmea[[1,1]], measurement=measurement )
     timing<- get_dcm_values(cmdt, "Timing",crop)
 
     fluidRow(id = paste0(typeCrop, "_fluidRow_", index),
@@ -13564,9 +13564,13 @@ server_design_agrofims <- function(input, output, session, values){
     # Project entity
     id_rand_pe <- getAddInputId(experimentVars$ids_PE, "PE_", "")
     pe <- map_values(input, id_chr="projEntity_", id_rand_pe, format = "data.frame", lbl= "Project management entity")
+    pename <- map_values(input, id_chr="projEntity_name_", id_rand_pe, format = "data.frame", lbl= "Project management entity name")
+    ##Filter project name entitity for non-cgiar centers
+    pename <- pename %>% dplyr::filter(label!="")
+    ## end filter #####################################
     pec <- map_values(input, id_chr="contCenter_", id_rand_pe, format = "data.frame", lbl= "Project management center")
     pecrp <- map_values(input, id_chr="contCRP_", id_rand_pe, format = "data.frame", lbl= "Project management contributor")
-    out<- rbind(pe, pec, pecrp)
+    out<- rbind(pe,pename, pec, pecrp)
     names(out) <- c("Factor", "Value")
     out
   })
@@ -14113,7 +14117,7 @@ server_design_agrofims <- function(input, output, session, values){
       dt_measurements <- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 
                                               addId=addId, crop=crop, cropId= "1")
    
-      list_dt_cmeasurements <- get_dt_trait(dtcmea_variables=dt_measurements, dt_cmea=dt_cmea)    #dplyr::left_join(dt_measurements, dt_cmea)
+      list_dt_cmeasurements <- get_trait_dt(dtcmea_variables=dt_measurements, dt_cmea=dt_cmea)    #dplyr::left_join(dt_measurements, dt_cmea)
       #class(list_dt_cmeasurements) <- "monocrop"
       
     } 
@@ -14128,7 +14132,7 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in seq.int(crop)){
         list_dt_cmeasurements[[i]] <- get_dtcmea_variables(allinputs=AllInputs(), ctype="intercrop",  
                                                            addId=addId[[i]], crop=crop[i], cropId= cropId[i])
-        list_dt_cmeasurements[[i]] <- get_dt_trait(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea)
+        list_dt_cmeasurements[[i]] <- get_trait_dt(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea)
       }
       names(list_dt_cmeasurements) <- crop
     } 
@@ -14141,7 +14145,7 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in seq.int(crop)){
         list_dt_cmeasurements[[i]] <- get_dtcmea_variables(allinputs=AllInputs(), ctype="relay crop",  
                                                            addId=addId[[i]], crop=crop[i], cropId= cropId[i])
-        list_dt_cmeasurements[[i]] <- get_dt_trait(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea)
+        list_dt_cmeasurements[[i]] <- get_trait_dt(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea)
         
       }
       names(list_dt_cmeasurements) <- crop
@@ -14156,7 +14160,7 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in seq.int(crop)){
         list_dt_cmeasurements[[i]] <- get_dtcmea_variables(allinputs=AllInputs(), ctype="rotation",  
                                                            addId=addId[[i]], crop=crop[i], cropId= cropId[i])
-        list_dt_cmeasurements[[i]] <- get_dt_trait(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea)
+        list_dt_cmeasurements[[i]] <- get_trait_dt(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea)
         
       }
       names(list_dt_cmeasurements) <- crop
@@ -14409,12 +14413,17 @@ server_design_agrofims <- function(input, output, session, values){
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
-         # ai <- AllInputs()
-         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         # x <- reactiveValuesToList(input)
-         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+          ai <- AllInputs()
+          saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+          x <- reactiveValuesToList(input)
+          saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
          # 
-         # trait2 <<- trait_dt()
+          crop <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector",label = "Crop")
+          addId <- getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
+          dt_measurements <<- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 
+                                                  addId=addId, crop=crop, cropId= "1")
+          
+          trait2 <<- trait_dt()
          # 
          ##### Eliminar Start: Testing by Jose ######
          print("Entro al método.")
