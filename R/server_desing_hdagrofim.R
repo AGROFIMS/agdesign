@@ -14413,18 +14413,18 @@ server_design_agrofims <- function(input, output, session, values){
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
-          ai <- AllInputs()
-          saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-          x <- reactiveValuesToList(input)
-          saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         # 
-          crop <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector",label = "Crop")
-          addId <- getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
-          dt_measurements <<- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 
-                                                  addId=addId, crop=crop, cropId= "1")
-          
-          trait2 <<- trait_dt()
-         # 
+         #  ai <- AllInputs()
+         #  saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         #  x <- reactiveValuesToList(input)
+         #  saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         # # 
+         #  crop <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector",label = "Crop")
+         #  addId <- getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
+         #  dt_measurements <<- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 
+         #                                          addId=addId, crop=crop, cropId= "1")
+         #  
+         #  trait2 <<- trait_dt()
+         # # 
          ##### Eliminar Start: Testing by Jose ######
          print("Entro al método.")
          #savefb()
