@@ -10,13 +10,10 @@ get_ec_sblalv<- function(input){
   ll_type <-  map_singleform_values(input$land_impl_type, type = "select", format = "vector", label = "Factor")
   ll_traction <-  map_singleform_values(input$land_traction, input$land_traction_other, type = "select", format = "vector", label = "Factor")
   
-  dt<- data.frame(ll_start_date, ll_npasses, ll_notes, ll_type, ll_traction)
+  dt<- data.frame(ll_start_date, ll_npasses, ll_notes, ll_type, ll_traction, stringsAsFactors = FALSE)
+  #dt[1,] <- "" #Fill the templates with empty values 
   
   #BASE FORM OF HEADERS
-  # lbl<- c("Land_levelling_start_date_(yyyy/mm/dd)", 
-  #             "Land_levelling_total_number_of_levelling_passes", "Land_levelling_notes",
-  #             "Land_levelling_implement_type", "Land_levelling_implement_traction")
-  
   lbl<- c("Land_levelling_start_date", 
           "Land_levelling_total_number_passes", "Land_levelling_notes",
           "Land_levelling_implement_type", "Land_levelling_implement_traction")
@@ -52,14 +49,10 @@ get_ec_sbpud <- function(input){
   lp_traction <- map_singleform_values(input$pud_traction, input$pud_traction_other, 
                                        type = "select", format = "vector", label = "Factor")
   
-  dt <- data.frame(lp_start_date, lp_depth_val, lp_npasses, lp_notes, lp_type, lp_traction) 
+  dt <- data.frame(lp_start_date, lp_depth_val, lp_npasses, lp_notes, lp_type, lp_traction, stringsAsFactors = FALSE) 
+  #dt[1,] <- "" #Fill the templates with empty values 
   
   #Labels / headers
-  # lbl <- c("Puddling_start_date_(yyyy/mm/dd)", 
-  #              paste0("Puddling_depth_",lp_depth_unit),
-  #              "Puddling_total_number_of_puddling_passes",
-  #              "Puddling_notes", "Puddling_implement_type", "Puddling_implement_traction")
-  
   lbl <- c("Puddling_start_date", 
            paste0("Puddling_depth_",lp_depth_unit),
            "Puddling_total_number_passes",
@@ -112,7 +105,7 @@ get_ec_sbtill <- function(input){
   
   dt <- data.frame(lt_start_date, lt_technique,
                      lt_depth, lt_npasses ,lt_notes, lt_type, lt_traction,stringsAsFactors = FALSE )
-  
+  #dt[1,] <- "" #Fill the templates with empty values 
   
   #Label for spreadsheet and kdsmart headers
   lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__")

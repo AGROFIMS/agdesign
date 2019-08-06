@@ -54,10 +54,6 @@ get_ec_resdesc <- function(input, lbl){
   lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
   
   dt <- data.frame(plantp, cmoi, r_thick, r_amount, r_cov,  r_notes, stringsAsFactors = FALSE)
-   
-  #dt<- rbind(plantp, cmoi, r_thick, r_amount, r_cov)
-  #dt <- data.frame(matrix(ncol = length(lbl), nrow = 1))
-  #dt[1,] <- dt_res
   names(dt) <- lbl_dt
   #TODO: IN CASE NOT CHECKBOX else not select dt<-NULL
   
@@ -115,14 +111,7 @@ get_ec_resmgt <- function(input, lbl){
                                                  type = "select", format = "vector", label = "Factor") #unit
       
       dt <- data.frame(r_start_date, r_technique, rb_incordepth, r_traction, r_notes, stringsAsFactors = FALSE)
-      
-      #LABEL BASE FORM
-      # lbl <-   c("Residue_management_description_start_date", 
-      #            "Residue_management_description_technique",
-      #            paste0("Residue_management_residue_incorporation_depth_",rb_incordepthunit),
-      #            "Residue_management_description_traction",
-      #            "Residue_management_description_notes")
-      # 
+      #dt[1,] <- "" #Fill the templates with empty values 
       
       lbl <-   c("Residue_management_start_date", 
                  "Residue_management_technique",
@@ -138,7 +127,7 @@ get_ec_resmgt <- function(input, lbl){
       
     } 
     else {
-      dt <- data.frame(r_start_date, r_technique, r_traction, r_notes)
+      dt <- data.frame(r_start_date, r_technique, r_traction, r_notes, stringsAsFactors = FALSE)
       names(dt) <- lbl_dt
     }
     

@@ -596,14 +596,14 @@ arrange_by_pattern <- function(data, pattern){
 
 
 #Smart Bind data frames by columns
-
+# ... data frames to bind them in one data.frame 
 smart_colbind <- function(...){
   
  dt_list<- list(...)
  # #Remove/Clean all the list (or clean) that are equal to zero
  dt_list<- rlist::list.clean(dt_list, function(x) length(x) == 0)
- dt <- bind_cols(dt_list)
- 
+ dt <- dplyr::bind_cols(dt_list)
+ dt<- dt %>%  dplyr::mutate_all(as.character)
 }
 
 #Clean header for experiment conditions data frames

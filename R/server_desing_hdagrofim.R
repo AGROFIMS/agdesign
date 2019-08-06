@@ -12379,10 +12379,12 @@ server_design_agrofims <- function(input, output, session, values){
       dt2 <- data.frame()
     }
     dt <- smart_colbind(dt1,dt2) #column bind of two sub tabs (description and management)
+    
     if(nrow(fbdesign())==0 &&  length(dt)>0){
       dt <- dt
     } 
     else if(nrow(fbdesign())>0 &&  length(dt)>0 ) {
+      dt[1,] <- ""
       
       if(length(get_collectable_resmgt(allinputs=AllInputs()))!=0){
         collect_resmgt <- get_collectable_resmgt(allinputs=AllInputs())
@@ -12390,10 +12392,7 @@ server_design_agrofims <- function(input, output, session, values){
         kds_resmgt <- kds_resmgt %>% dplyr::filter(temp %in% collect_resmgt) 
         #detect headers based on collectable trait
         mpra_trait <- kds_resmgt$TraitName[!is.na(kds_resmgt$TraitName)]
-        # print("residue mag dt")
-        # print(names(dt))
         index <- which(stringr::str_detect(names(dt), paste(mpra_trait, collapse = '|'))==TRUE)
-        print(index)
         dt <- dt[index]
         dt <- cbind(fbdesign(), dt)
       }
@@ -12481,12 +12480,15 @@ server_design_agrofims <- function(input, output, session, values){
     }
     
     dt<- smart_colbind(land,pud,till)
-    
+   
     if(nrow(fbdesign())==0 && length(dt)>0){
       dt <- dt
     } 
     else if( nrow(fbdesign())>0 && length(dt)>0 ) {
       ###############
+      print(str(dt))
+      dt[1,] <- ""
+      
       if(length(get_collectable_seedbed()!=0)){
         collect_seedbed <- get_collectable_seedbed()
         kds_sedbed <-  magmtprac$seedbed %>% dplyr::mutate(temp = paste0(Subgroup,"_",Measurement))
@@ -12634,7 +12636,9 @@ server_design_agrofims <- function(input, output, session, values){
       if(nrow(fbdesign())==0 && length(dt)>0){
         dt <- dt
       } else if( nrow(fbdesign())>0 && length(dt)>0 ) {
-        ###
+        #Fill with empty cells the dt table (Celine's suggestions)
+        dt[1,] <- ""
+        
         if(length(get_collectable_plantrans(AllInputs(), ctype="monocrop"))!=0){
           #collectable inputs
           collect_platra <- get_collectable_plantrans(AllInputs(),ctype="monocrop",ver = "export")
@@ -12683,6 +12687,9 @@ server_design_agrofims <- function(input, output, session, values){
           lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
           #select only columns from collect input
           ptdt_list[[i]] <-  ptdt_list[[i]][which(lgl==TRUE)]
+          #Fill with empty cells the dt table (Celine's suggestions)
+          ptdt_list[[i]][1,] <- ""
+          #Bind the field design + plant_traitdt_list
           dt <- cbind(fbdesign(),ptdt_list[[i]])
         } 
         else {
@@ -12730,6 +12737,7 @@ server_design_agrofims <- function(input, output, session, values){
           lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
           #select only columns from collect input
           ptdt_list[[i]] <-  ptdt_list[[i]][which(lgl==TRUE)]
+          ptdt_list[[i]][1,] <- ""
           dt <- cbind(fbdesign(),ptdt_list[[i]])
         } 
         else {
@@ -12872,6 +12880,9 @@ server_design_agrofims <- function(input, output, session, values){
     }
     else if(nrow(fbdesign())>0 &&  length(dt)>0){
       
+      #Fill with empty cells the dt table (Celine's suggestions)
+      dt[1,] <- ""
+      
       if(length(get_collectable_mulching(AllInputs()))!=0){
         collect_mulch <- get_collectable_mulching(AllInputs(),ver="export")
         collect_mulch <- stringr::str_replace_all(tolower(collect_mulch), pattern = "_+", replacement = " ")
@@ -12921,8 +12932,11 @@ server_design_agrofims <- function(input, output, session, values){
     if(nrow(fbdesign())==0){
       dt <- dt
     } else if(nrow(fbdesign())>0 && nrow(dt)>0) {
+      #Fill with empty cells the dt table (Celine's suggestions)
+      dt[1,] <- ""
       
       if(length(get_collectable_irri(AllInputs()) )!=0){
+        
         collect_irri <- get_collectable_irri(AllInputs(), ver="export")
         collect_irri <- stringr::str_replace_all(tolower(collect_irri), pattern = "_+", replacement = " ")
         #management practices
@@ -12976,6 +12990,8 @@ server_design_agrofims <- function(input, output, session, values){
       dt <- dt
     }
     else if(nrow(fbdesign())>0 && nrow(dt)>0) {
+      #Fill with empty cells the dt table (Celine's suggestions)
+      dt[1,] <- ""
       if(length(get_collectable_weed(AllInputs()))!=0){
         #management practices collected values
         collect_weed <- get_collectable_weed(AllInputs(), ver="export")
@@ -13035,7 +13051,7 @@ server_design_agrofims <- function(input, output, session, values){
       if(nrow(fbdesign())==0){
         dt <- dt
       } else if(nrow(fbdesign())>0 && nrow(dt)>0){
-
+         
         if(length(get_collectable_harvest(AllInputs(), ctype="monocrop",ver="export"))>0){
           
           mpra_trait <- stringr::str_replace_all(names(dt) , pattern = "__[0-9]+", replacement = "")
@@ -13045,6 +13061,8 @@ server_design_agrofims <- function(input, output, session, values){
           #Detect headers
           lgl<- grepl(pattern = paste0(kds_harv$TraitName, collapse="|"),x = names(dt))
           dt <- dt[which(lgl==TRUE)]
+          #Fill with empty cells the dt table (Celine's suggestions)
+          dt[1,] <- ""
           dt <- cbind(fbdesign(), dt)
         } 
         else {
@@ -13088,16 +13106,9 @@ server_design_agrofims <- function(input, output, session, values){
           collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames[j], cropId= cropId, 
                                                   ver="export")
           
-          print("collect harv")
-          print(collect_harv)
-          
           collect_harv <- collect_harv[stringr::str_detect(string = collect_harv, pattern = cropnames[j])]
           collect_harv <- stringr::str_replace_all(string = collect_harv,pattern = paste0(cropnames[j],"_"),
                                                    replacement = "")
-       
-          print("collect harv 2")
-          print(collect_harv)
-          
           
           #match in trait_table
           kds_harv <- magmtprac$harv %>% dplyr::filter(Measurement %in% collect_harv)
@@ -13105,6 +13116,10 @@ server_design_agrofims <- function(input, output, session, values){
           #Detect and subset headers
           lgl<- grepl(pattern = paste0(kds_harv$TraitName, collapse="|"),x = names(dt[[ cropnames[j] ]]))
           dt[[ cropnames[j] ]]  <- dt[[ cropnames[j] ]] [which(lgl==TRUE)]
+          
+          #Fill with empty cells the dt table (Celine's suggestions)
+          dt[[ cropnames[j] ]][1,] <- ""
+          
           dt[[ cropnames[j] ]]  <- cbind(fbdesign(), dt[[ cropnames[j] ]] )
           } else {
             dt[[ cropnames[j] ]] <- fbdesign()
@@ -13154,6 +13169,8 @@ server_design_agrofims <- function(input, output, session, values){
             #Detect and subset headers
             lgl<- grepl(pattern = paste0(kds_harv$TraitName, collapse="|"),x = names(dt[[ cropnames[j] ]]))
             dt[[ cropnames[j] ]]  <- dt[[ cropnames[j] ]] [which(lgl==TRUE)]
+            #Fill with empty cells the dt table (Celine's suggestions)
+            dt[[ cropnames[j] ]][1,] <- ""
             dt[[ cropnames[j] ]]  <- cbind(fbdesign(), dt[[ cropnames[j] ]] )
           } else {
             dt[[ cropnames[j] ]] <- fbdesign()
@@ -13348,7 +13365,7 @@ server_design_agrofims <- function(input, output, session, values){
                                 TraitName = "",TraitUnit="",
                                 CropMeasurementPerSeason="",  CropMeasurementPerPlot="",
                                 TraitAlias="", TraitDataType="",TraitValidation="", 
-                                VariableId="")
+                                VariableId="", stringsAsFactors = FALSE)
         }
       }
       names(dt) <- crop
@@ -13421,18 +13438,23 @@ server_design_agrofims <- function(input, output, session, values){
     for(i in 1:length(cropnames)){
       
       dt <- pheno_multicrop_vars()[[cropnames[i]]]
-      lbl <- dt$TraitName
-      print("label multicrop")
-      print(lbl)
       
-      if(length(lbl)==0 && nrow(dt)==0){
+      print("label multicrop header")
+      print(dt)
+      
+      lbl <- dt$TraitName
+     
+      if(all(dt[,1]=="")){
+        dt <- data.frame()
+      }
+      else if(length(lbl)==0 && nrow(dt)==0){
         dt <- data.frame()
       } 
-      else if(nrow(fbdesign())==0 && length(lbl)>=1){
+      else if(nrow(fbdesign())==0 && length(lbl)>=1 ){
         dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
         names(dt) <- lbl
       } 
-      else if(nrow(fbdesign())>0 && length(lbl)>=1) {
+      else if(nrow(fbdesign())>0 && length(lbl)>=1 ) {
         dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
         names(dt) <- lbl
         dt <-cbind(fbdesign() ,dt)
@@ -14433,15 +14455,6 @@ server_design_agrofims <- function(input, output, session, values){
          
          ##### Elminar End: Testing by Jose ######
          
-        # 
-        #design <- tolower(input$designFieldbook_agrofims) #lowercase
-        #Get IDS from design inputs
-        #IdDesignInputs <- getFactorIds(design)
-        #id_rand <<- getAddInputId(intercropVars$ids, "int_", "")
-        #cropId<<- id_rand
-        #cropnames <<- map_values(input = input, id_chr="int_cropCommonName_",id_rand, format = "vector", lbl= "Select crop")
-        #addId <<- lapply(cropId , function(x) get_addId_multiharvest(x))
-        
         print("-1-") 
          
         gmetadata <- globalMetadata()
@@ -14537,8 +14550,6 @@ server_design_agrofims <- function(input, output, session, values){
         ######################### Residue management ###############################################################
         if(is.element("Residue management",input$selectAgroFeature)){
           print("Adding residue management")
-          
-          #print(dt_residual())
           
           if(nrow(dt_residual())!=0){
             incProgress(7/20,message = "Adding residue management")
@@ -14714,6 +14725,7 @@ server_design_agrofims <- function(input, output, session, values){
           print("ENTRO A INTERROP")
           for(i in 1:length(cropnames)){
             print(i)
+            
             if(nrow(pheno_mult_dt()[[ cropnames[i] ]])!=0 && !is.element("Measurement_3", names(pheno_mult_dt()[[ cropnames[i] ]]) )){
               incProgress(7/20,message = "Adding Phenology data...")
               openxlsx::addWorksheet(wb, paste0("Phenology-",cropnames[i]), gridLines = TRUE)

@@ -407,9 +407,9 @@ get_amountype_levels <- function(allinputs, index, factors, design="fcrd",
     unit <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_unit_",index,"_", j,"$")))  %>% nth(2)
     #print(unit[j])
     # 
-    print(eleType)
-    print(lvl)
-    print(unit)
+    #print(eleType)
+    #print(lvl)
+    #print(unit)
     
     if(crop!=""){
       out[[j]] <- paste0(crop,"_",eleType,"_",lvl,unit)

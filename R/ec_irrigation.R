@@ -152,9 +152,11 @@ get_ec_irri <- function(allinputs, ctype="monocrop", addId ){
     dt <- arrange_by_pattern(dt, as.character(1:length(addId))) %>% 
           dplyr::filter(!stringr::str_detect(id,"NoLabel__"))  
     
-    #transpose data as rows   
+    #transpose data as rows and create table  
     dt_irri<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
-    names(dt_irri) <- dt$id
+    #Fill the templates with empty values 
+    dt_irri<- dt_irri %>%  dplyr::mutate_all(as.character)
+    names(dt_irri) <- dt$id #changes names
    
     #LABEL FOR TRAITLIST
     lbl <- stringr::str_replace_all(string = names(dt_irri), pattern = "__[:digit:]+$",replacement = "") %>% unique()

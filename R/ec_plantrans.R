@@ -209,10 +209,10 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
     dt_ta <- data.frame()
   }
   
-  #dt_plantrans <- cbind(dt_di, dt_ta)
+  #Bind table
   dt_plantrans<- smart_colbind(dt_di,dt_ta)
   
-  #LABEL FOR TRAITLIST
+  #Assign label to dt_plantrans
   lbl<- str_replace_all(string = names(dt_plantrans), pattern = "__[:digit:]+$", replacement = "") %>% unique()
   
   out <- list(dt= dt_plantrans, lbl=lbl)

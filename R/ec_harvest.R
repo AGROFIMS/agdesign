@@ -194,7 +194,7 @@ get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1
   traction <- dt_inputs(traction, traction_other)
   #Bind tables
   dt<- rbind(startD, endD, method,comph, ha_area, ha_area_sp, amount, cut,type, traction, notes )
-  print(dt)
+  #print(dt)
   
   #dt<- arrange_by_pattern(dt, addId)
   
@@ -229,10 +229,11 @@ get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1
   #Remove NoLabel or NonData rows
   #dt <- arrange_by_pattern(dt, as.character(1:length(addId)))
   
-  #transpose data as rows   
+  #transpose data as rows  and create table 
   dt_harv<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
-  names(dt_harv) <- dt$id
-  #dt_harv
+  # dt_harv <- dt_harv %>%  dplyr::mutate_all(as.character)
+  # dt_harv[1,] <- "" #Assign empty values in dt_harv
+  names(dt_harv) <- dt$id #changes names
   
   #LABEL FOR TRAITLIST
   lbl <- str_replace_all(string = names(dt_harv), pattern = "__[:digit:]+$",replacement = "") %>% unique()

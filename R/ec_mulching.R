@@ -62,20 +62,9 @@ get_ec_mulching <- function(allinputs){
   
   dt<- rbind(startD,type1,mthick, mamount, mcolor, mper, mrstarD,mrendD, notes, type2, traction)
   dt<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
+  dt<- dt %>%  dplyr::mutate_all(as.character)
   
   #BASE LABELS
-  # lbl <- c("Mulch_start_date", "Mulch_type", 
-  #          paste0("Mulch_thickness_", mthick_unit$values),
-  #          paste0("Mulch_amount_",mamount_unit$values),
-  #          "Mulch_color", 
-  #          paste0("Mulch_percentage_of_coverage_",mper_unit$values),
-  #          "Mulch_removal_start_date", 
-  #          "Mulch_removal_end_date",
-  #          "Mulch_notes",
-  #          "Mulch_implement_type",
-  #          "Mulch_implement_traction"
-  #          )
-  
   lbl <- c("Mulching_start_date", "Mulching_type", 
            paste0("Mulch_thickness_", mthick_unit$values),
            paste0("Mulch_amount_",mamount_unit$values),
@@ -93,7 +82,7 @@ get_ec_mulching <- function(allinputs){
   lbl_dt<- paste(lbl, rep("1", length(lbl)) ,sep="__") 
   
   #TODO : AGREGAR END DATE "Mulch_end_date"
-  names(dt) <- lbl_dt
+  names(dt) <- lbl_dt #changes names
   
   out<- list(dt = dt, lbl=lbl)
   
@@ -108,8 +97,6 @@ get_protocol_mulching <- function(allinputs){
     names(out) <- c("TraitName","Value")
     out
 }
-
-
 
 # Get collectable inputs from Mulching #############################################################################
 # allinputs: data frame of all inputs derived from ReactiveValuesToList
