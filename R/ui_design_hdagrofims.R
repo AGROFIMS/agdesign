@@ -541,9 +541,10 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 
     ),
     
-
+    # Mensaje de alerta para cuando quieran salir de la pagina.
+    tags$script(' window.onbeforeunload = function() { return "Si sales de la página se perdera tu información."; };'),
     
-    
+   
     
             
     ###################### END: GENERALES ######################

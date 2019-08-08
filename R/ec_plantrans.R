@@ -95,11 +95,12 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
     lbl_di <- c("Seeding_start_date", "Seeding_environment",
                 "Seeding_technique",
                 "Seeding_seed_treatment", "Seeding_implement_type", 
-                "Seeding_implement_traction" ,  
+                "Seeding_traction" ,  
+                #"Seeding_implement_traction" ,  
                 paste("Seeding_density_distance_between_rows","_",row_unit$values,sep=""),
-                paste("Seeding_seed_rate","_",rate_unit$values,sep=""),  
-                paste("Seeding_density_distance_between_plants","/",plan_unit$values,sep=""),
-                "Seeding_density_number_of_rows",  ##Check with Celine #74  Direct seeding
+                paste("Seeding_rate","_",rate_unit$values,sep=""),  
+                paste("Seeding_density_distance_between_plants","_",plan_unit$values,sep=""),
+                "Seeding_density_number_of_rows/plot",  ##Check with Celine #74  Direct seeding
                 paste("Seeding_plant_density","_",plden_unit$values,sep=""),
                 paste("Seeding_density_distance_between_bunds","_",bund_unit$values,sep=""),
                 "Seeding_notes"
@@ -191,9 +192,9 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
                 "Transplanting_age_of_seedling","Transplanting_seedling_environment",
                 "Transplanting_technique","Transplanting_seed_treatment",
                 "Transplanting_traction",
-                paste0("Transplanting_distance_between_rows","_",ta_drow_unit$values,sep=""),
+                paste0("Transplanting_density_distance_between_rows","_",ta_drow_unit$values,sep=""),
                 paste0("Transplanting_seedling_density","_",ta_sden_unit$values,sep=""),
-                "Transplanting_density_number_of_rows", ##Check with Celine #87 Transplanting
+                "Transplanting_density_number_of_rows/plot", ##Check with Celine #87 Transplanting
                 paste0("Transplanting_density_distance_between_plants","_",ta_dplan_unit$values,sep=""),
                 paste0("Transplanting_density_distance between_bunds","_",ta_bunds_unit$values,sep=""),
                 "Transplanting_notes") 

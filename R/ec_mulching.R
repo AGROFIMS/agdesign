@@ -69,12 +69,12 @@ get_ec_mulching <- function(allinputs){
            paste0("Mulch_thickness_", mthick_unit$values),
            paste0("Mulch_amount_",mamount_unit$values),
            "Mulch_color", 
-           paste0("Mulch_percentage_of_coverage_","_%"),
+           paste0("Mulch_percent_coverage","_%"),
            "Mulch_removal_start_date", 
            "Mulch_removal_end_date",
            "Mulching_notes",
            "Mulching_implement_type",
-           "Mulching_implement_traction"
+           "Mulching_traction_type"
   )
   
   

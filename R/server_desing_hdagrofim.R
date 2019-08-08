@@ -2223,7 +2223,10 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   
+  
   loadInputsFundingAgency <- function(uploaded_inputs){
+    
+    View(as.data.frame(uploaded_inputs))
     #Funding Agency
     nrowFundingAgency <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowFundingAgency") %>% select_("value")
     nrowFundingAgency <- as.numeric(as.character(nrowFundingAgency[[1]]))
@@ -9007,7 +9010,7 @@ server_design_agrofims <- function(input, output, session, values){
                   paste0(crop, "_ptta_trans_traction_", index), label = "Traction", 
                   multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                   choices = c("Animal",
-                              "Traction",
+                              "Manual",
                               "2 wheel tractor",
                               "4 wheel tractor",
                               "Other")
@@ -12512,25 +12515,21 @@ server_design_agrofims <- function(input, output, session, values){
     #read data
     kds_seedbed <- magmtprac$seedbed  #  readxl::read_excel(paste0(globalpath, ecname),sheet = "Seedbed preparation")
     
-    
     if(isTRUE(input$landLevelling_checkbox)){
       land <- get_protocol_sblavl(input=input)
-    } 
-    else{
+    } else{
       land <- data.frame()  
     }
     
     if(isTRUE(input$puddling_checkbox)){
       pud<- get_protocol_sbpud(input= input)
-    } 
-    else{
+    } else{
       pud<- data.frame()
     }
     
     if(isTRUE(input$tillage_checkbox)){
       till<- get_protocol_sbtill(input=input)
-    } 
-    else {
+    } else {
       till<- data.frame()
     }
     
@@ -12542,7 +12541,6 @@ server_design_agrofims <- function(input, output, session, values){
       dt<- data.frame()
     }
     #print(dt)
-    #dt<- ec_clean_header(dt)
     dt   
     
   })
@@ -14439,7 +14437,7 @@ server_design_agrofims <- function(input, output, session, values){
          #  saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
          #  x <- reactiveValuesToList(input)
          #  saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         # # 
+         # #
          #  crop <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector",label = "Crop")
          #  addId <- getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
          #  dt_measurements <<- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 

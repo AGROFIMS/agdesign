@@ -16,7 +16,7 @@ get_ec_sblalv<- function(input){
   #BASE FORM OF HEADERS
   lbl<- c("Land_levelling_start_date", 
           "Land_levelling_total_number_passes", "Land_levelling_notes",
-          "Land_levelling_implement_type", "Land_levelling_implement_traction")
+          "Land_levelling_implement_type", "Land_levelling_traction_type")
   
   
   #Label for spreadsheet and kdsmart headers
@@ -134,7 +134,7 @@ get_protocol_sblavl <- function(input){
 
 # Get protocol for puddling ###########################
 get_protocol_sbpud <- function(input){
-  out<- get_ec_sbtill(input)$dt 
+  out<- get_ec_sbpud(input)$dt 
   names(out) <- stringr::str_replace_all(names(out),"__1","")
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
   out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
