@@ -485,26 +485,11 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     # Local Storage
     tags$script('$(document).on("click", "[id*=\'btnlocalstorage\']",  function(){
   
-                    $(\'input[type="text"]\').each(function(){    
-                            $(this).val("");
-                    
-                        }); 
-
-                     $(\'select\').each(function(){    
-                            $(this).val("");
-
-                        }); 
-
-                     $(\'div\').each(function(){    
-                            $(this).val("");
-
-                        }); 
-
-                      $(\'.item\').each(function(){   
-                            console.log($(this).val())
-                            $(this).val("");
-
-                        }); 
+                    $(\'input\').each(function(){    
+                            var id = $(this).attr("id");
+                            var value = $(this).val();
+                           localStorage.setItem(id, value);
+                                            }); 
 
                         alert("Se guardo satisfactoriamente la sesión.");
                        
@@ -519,7 +504,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                      document.getElementById("fbDesignNav").innerHTML = "";
 
                      document.getElementById("fbDesignNav").innerHTML =  localStorage.getItem("fbDesignNav");
-                        $(\'input[type="text"]\').each(function(){    
+                        $(\'input\').each(function(){    
                           var id = $(this).attr(\'id\');
                           var value = localStorage.getItem(id);
 
@@ -1182,11 +1167,11 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   ),
                   column(
                     6, style = "margin-top: 68px;",
-                    hidden(textInput(paste0("soil_class_system_other"), "", value = "")),
+                    hidden(textInput(paste0("soil_class_system_other"), label = "Soil Group", value = "")),
                     conditionalPanel(
                       "input.soil_class_system == 'FAO'",
                       selectizeInput(
-                        "soil_class_fao", label = "", multiple = TRUE,
+                        "soil_class_fao", label = "Soil Group", multiple = TRUE,
                         choices = c("Acrisols",
                                     "Andosol",
                                     "Arenosols",
@@ -1209,7 +1194,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     conditionalPanel(
                       "input.soil_class_system == 'USDA'",
                       selectizeInput(
-                        "soil_class_usda", label = "", multiple = TRUE,
+                        "soil_class_usda", label = "Soil Group", multiple = TRUE,
                         choices = c("Alfisols",
                                     "Andisols",
                                     "Aridisols",

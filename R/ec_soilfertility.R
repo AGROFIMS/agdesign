@@ -1,10 +1,10 @@
 #' Get exp conditions , soil and fertilkity tab
-#'@description get all input values related to the experiment conditions \code{soil and fertility} experiment condition tab, 
-#'provided by users when type in AGROFIMS.
-#'@param allinputs shiny reactiveValuesList provided by AGROFIMS
-#'@param napp \code{numeric} number of applications
-#'@author Omar Benites
-
+#' @description get all input values related to the experiment conditions \code{soil and fertility} experiment condition tab, 
+#' provided by users when type in AGROFIMS.
+#' @param allinputs shiny reactiveValuesList provided by AGROFIMS
+#' @param napp \code{numeric} number of applications
+#' @author Omar Benites
+#'
 get_ec_sf <- function(allinputs, napp ){
   
   #allinputs$id<-as.character(allinputs$id)
@@ -85,4 +85,14 @@ get_ec_sf <- function(allinputs, napp ){
   
   
 }
+
+#' Get fertilizer product names from Fertilizer and Nutrient dataset
+#' @description Get fertilizer's names from Fertilizer and Nutrient dataset
+#' @param .data Fertilizer and Nutrient dataset
+#' @author Omar Benites
+#' 
+get_fertilizer <- function(.data){
+   .data$name
+}
+
 

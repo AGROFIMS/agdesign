@@ -90,7 +90,9 @@ server_mobile_agrofims <- function(input, output, session, values){
     # filesToCompress <- paste(files, collapse = " ")
     
     ## End: Modificamos experiment ID ##    
-
+    
+    
+    #Convierte a formato kdx
     system("java -jar /home/ubuntu/agrofims2kdx-0.8.9.jar -outdir /home/obenites/AGROFIMS/kdsmart /home/ubuntu/fileNameBook1.xlsx -nogui", FALSE)
     print("Java executed")
     
@@ -98,7 +100,6 @@ server_mobile_agrofims <- function(input, output, session, values){
     #Compress more than one file.
     system(paste0("tar -zcvf /var/www/html/kdsmart/",newid,".tar.gz /home/obenites/AGROFIMS/kdsmart/",id,".csv /home/obenites/AGROFIMS/kdsmart/ZH6ORTVG.xlsx" ), TRUE)
     
-    print(query)
     dbSendQuery(mydb, query)
     
     #Compress one file.
@@ -117,6 +118,12 @@ server_mobile_agrofims <- function(input, output, session, values){
   idgenerator <- function() {
     id <- stri_rand_strings(1, 8,  '[A-Z0-9]')
     id
+  }
+  
+  convertKDX <- function(fileString){
+    
+    system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.8.9.jar -outdir /home/obenites/AGROFIMS/kdsmart ", filestring, " -nogui"), FALSE)
+    
   }
   
   ##################################################################################################################

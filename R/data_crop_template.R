@@ -238,3 +238,28 @@ NULL
 #' @format data.frame
 #' @source CGIAR Big Data Platform, Bioversity, International Potato Center, CIAT,  CGIAR
 NULL
+
+
+#' @name fertCombo
+#' @title fertCombo
+#' @docType data
+#' @aliases fertCombo
+#' @description fertilizer technique, timing and implement combo values in AGROFIMS
+#' @references This data is related to AGROFIMS Fertility Module
+#' @usage fertCombo
+#' @format List/Map
+#' @source CGIAR Big Data Platform, Bioversity, International Potato Center, CIAT,  CGIAR
+NULL
+
+
+#' @name dt_fernut
+#' @title dt_fernut
+#' @docType data
+#' @aliases dt_fernut
+#' @description fertilizer and nutrient dataset
+#' @references A set of data related to AGROFIMS Fertility Module
+#' @usage dt_fernut
+#' @format List/Map
+#' @source CGIAR Big Data Platform, Bioversity, International Potato Center, CIAT,  CGIAR
+NULL
+

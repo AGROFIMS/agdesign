@@ -14035,8 +14035,20 @@ server_design_agrofims <- function(input, output, session, values){
     c38 <- c('Vegetation surrounding the experimental site', vSiteVegetation)
     c39 <- c('Site description notes', input$inSiteDescNotes)
     c40 <- c("Soil classification system", input$soil_class_system)
-    
-    out <- data.frame(c26,	c27,	c28,	c29,	c30,	c31,	c32,	c33,	c34,	c35,	c36,	c37,	c38,	c39, c40)
+    ## Soil group combo
+    if(is.null(input$soil_class_system)){
+      sgroup <- "" 
+    } else if(input$soil_class_system=="FAO") {
+      sgroup <- paste0(input$soil_class_fao) 
+    } else if(input$soil_class_system=="USDA") {
+      sgroup <- paste0(input$soil_class_usda)
+    } else if(input$soil_class_system=="Other") {
+      sgroup <- paste0(input$soil_class_system_other)
+    }
+    c41 <- c("Soil classification group", sgroup )
+    ## end soil group combo
+    out <- data.frame(c26,	c27,	c28,	c29,	c30,	c31,	c32,	c33,
+                      c34,	c35,	c36,	c37,	c38,	c39, c40, c41)
     out<- as.data.frame(t(out), stringsAsFactors=FALSE)
     names(out)<- c("Factor", "Value")
     out
