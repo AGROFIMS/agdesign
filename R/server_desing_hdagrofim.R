@@ -13046,17 +13046,25 @@ server_design_agrofims <- function(input, output, session, values){
     if(ct=="Monocrop"){
       addId <- getAddInputId(addId = expconHARVmonocrop$ids, "mono_harv_", "")
       dt <- get_ec_harv(allinputs=AllInputs(), input, ctype="monocrop", addId=addId)$dt
+      print("--harvest---")
+      print(names(dt))
       if(nrow(fbdesign())==0){
         dt <- dt
       } else if(nrow(fbdesign())>0 && nrow(dt)>0){
          
         if(length(get_collectable_harvest(AllInputs(), ctype="monocrop",ver="export"))>0){
           
+          #---mgm practices trait (header's harvest table) 
           mpra_trait <- stringr::str_replace_all(names(dt) , pattern = "__[0-9]+", replacement = "")
           collect_harv <- get_collectable_harvest(AllInputs(), ctype="monocrop",ver="export")
+          #---Filter collectable trait in Mgm. Practices (Harves sheet)
           kds_harv <- magmtprac$harv %>% dplyr::filter(Measurement %in% collect_harv)
+          ##---inputs derived from harvestable area combo
+          kds_harv_harea <- magmtprac$harv %>% dplyr::filter(Measurement_3 %in% collect_harv)
+          kds_harv <- rbind(kds_harv, kds_harv_harea)
+          ##---Look mpra_trait into kds_harv
           kds_harv <- kds_harv %>% dplyr::filter(TraitName %in% mpra_trait )
-          #Detect headers
+          #----Detect headers
           lgl<- grepl(pattern = paste0(kds_harv$TraitName, collapse="|"),x = names(dt))
           dt <- dt[which(lgl==TRUE)]
           #Fill with empty cells the dt table (Celine's suggestions)
@@ -13089,6 +13097,8 @@ server_design_agrofims <- function(input, output, session, values){
       names(dt)<- cropnames
 
       #Join fbdesign with harvest header of each crop for intercrop trials
+      collect_harv <- vector(mode = "list",length = length(cropnames)) 
+      
       for(j in 1:length(dt)){
         if(nrow(fbdesign())==0){
           dt[[ cropnames[j] ]] <- dt[[ cropnames[j] ]]
@@ -13098,27 +13108,32 @@ server_design_agrofims <- function(input, output, session, values){
           #If user collect inputs, detect them:
           if(length(get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames[j], cropId= cropId, 
                                             ver="export"))>0){
-          #Havest's fieldbook headers
-          mpra_trait <- stringr::str_replace_all(names(dt[[ cropnames[j] ]]) , pattern = "__[0-9]+", replacement = "")
-          #collect inputs
-          collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames[j], cropId= cropId, 
-                                                  ver="export")
-          
-          collect_harv <- collect_harv[stringr::str_detect(string = collect_harv, pattern = cropnames[j])]
-          collect_harv <- stringr::str_replace_all(string = collect_harv,pattern = paste0(cropnames[j],"_"),
-                                                   replacement = "")
-          
-          #match in trait_table
-          kds_harv <- magmtprac$harv %>% dplyr::filter(Measurement %in% collect_harv)
-          kds_harv <- kds_harv %>% dplyr::filter(TraitName %in% mpra_trait )
-          #Detect and subset headers
-          lgl<- grepl(pattern = paste0(kds_harv$TraitName, collapse="|"),x = names(dt[[ cropnames[j] ]]))
-          dt[[ cropnames[j] ]]  <- dt[[ cropnames[j] ]] [which(lgl==TRUE)]
-          
-          #Fill with empty cells the dt table (Celine's suggestions)
-          dt[[ cropnames[j] ]][1,] <- ""
-          
-          dt[[ cropnames[j] ]]  <- cbind(fbdesign(), dt[[ cropnames[j] ]] )
+            #Havest's fieldbook headers
+            mpra_trait <- stringr::str_replace_all(names(dt[[ cropnames[j] ]]) , pattern = "__[0-9]+", replacement = "")
+            #collect inputs
+            collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames, cropId= cropId, 
+                                                    ver="export")
+ 
+            collect_harv <- collect_harv[stringr::str_detect(string = collect_harv, pattern = cropnames[j])]
+            collect_harv <- stringr::str_replace_all(string = collect_harv,pattern = paste0(cropnames[j],"_"),
+                                                     replacement = "")
+            
+            #match in trait_table
+            kds_harv <- magmtprac$harv %>% dplyr::filter(Measurement %in% collect_harv)
+            
+            ##---inputs derived from harvestable area combo
+            kds_harv_harea <- magmtprac$harv %>% dplyr::filter(Measurement_3 %in% collect_harv)
+            kds_harv <- rbind(kds_harv, kds_harv_harea)
+            
+            kds_harv <- kds_harv %>% dplyr::filter(TraitName %in% mpra_trait )
+            #Detect and subset headers
+            lgl<- grepl(pattern = paste0(kds_harv$TraitName, collapse="|"),x = names(dt[[ cropnames[j] ]]))
+            dt[[ cropnames[j] ]]  <- dt[[ cropnames[j] ]] [which(lgl==TRUE)]
+            
+            #Fill with empty cells the dt table (Celine's suggestions)
+            dt[[ cropnames[j] ]][1,] <- ""
+            
+            dt[[ cropnames[j] ]]  <- cbind(fbdesign(), dt[[ cropnames[j] ]] )
           } else {
             dt[[ cropnames[j] ]] <- fbdesign()
           }
@@ -13153,17 +13168,36 @@ server_design_agrofims <- function(input, output, session, values){
           #If user collect inputs, detect them:
           if(length(get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames[j], cropId= cropId, 
                                             ver="export"))>0){
+            # #Havest's fieldbook headers
+            # mpra_trait <- stringr::str_replace_all(names(dt[[ cropnames[j] ]]) , pattern = "__[0-9]+", replacement = "")
+            # #collect inputs
+            # collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames, cropId= cropId, 
+            #                                         ver="export")
+            # collect_harv <- collect_harv[stringr::str_detect(string = collect_harv, pattern = cropnames[j])]
+            # collect_harv <- stringr::str_replace_all(string = collect_harv,pattern = paste0(cropnames[j],"_"),
+            #                                          replacement = "")
+            # #match in trait_table
+            # kds_harv <- magmtprac$harv %>% dplyr::filter(Measurement %in% collect_harv)
+            # kds_harv <- kds_harv %>% dplyr::filter(TraitName %in% mpra_trait )
+            
             #Havest's fieldbook headers
             mpra_trait <- stringr::str_replace_all(names(dt[[ cropnames[j] ]]) , pattern = "__[0-9]+", replacement = "")
             #collect inputs
             collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames, cropId= cropId, 
                                                     ver="export")
+            
             collect_harv <- collect_harv[stringr::str_detect(string = collect_harv, pattern = cropnames[j])]
             collect_harv <- stringr::str_replace_all(string = collect_harv,pattern = paste0(cropnames[j],"_"),
                                                      replacement = "")
+            
             #match in trait_table
             kds_harv <- magmtprac$harv %>% dplyr::filter(Measurement %in% collect_harv)
+            
+            ##---inputs derived from harvestable area combo
+            kds_harv_harea <- magmtprac$harv %>% dplyr::filter(Measurement_3 %in% collect_harv)
+            kds_harv <- rbind(kds_harv, kds_harv_harea)
             kds_harv <- kds_harv %>% dplyr::filter(TraitName %in% mpra_trait )
+            
             #Detect and subset headers
             lgl<- grepl(pattern = paste0(kds_harv$TraitName, collapse="|"),x = names(dt[[ cropnames[j] ]]))
             dt[[ cropnames[j] ]]  <- dt[[ cropnames[j] ]] [which(lgl==TRUE)]
@@ -14445,11 +14479,11 @@ server_design_agrofims <- function(input, output, session, values){
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
-         #  ai <- AllInputs()
-         #  saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         #  x <- reactiveValuesToList(input)
-         #  saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         # #
+          ai <- AllInputs()
+          saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+          x <- reactiveValuesToList(input)
+          saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         #
          #  crop <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector",label = "Crop")
          #  addId <- getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
          #  dt_measurements <<- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 
@@ -14697,8 +14731,6 @@ server_design_agrofims <- function(input, output, session, values){
               id_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
               circm <- map_values(input = input, id_chr="rel_cropCommonName_",id_rand, format = "vector", lbl= "Select crop")
             }
-            
-            #hrv<<- dt_harvest()
             
             for(i in 1:length(circm)){
               incProgress(7/20,message = "Adding harvest" )##paste("Adding", circm[i] , "harvest sheet",sep=""))
@@ -15066,9 +15098,16 @@ server_design_agrofims <- function(input, output, session, values){
           if(ct=="Monocrop" ){
             kds_harv <-  kds_harv %>% dplyr::filter(TraitName %in% lbl_harvest())
             if(length(get_collectable_harvest(AllInputs(), ctype= "monocrop"))!=0){
-              collect_harv <- get_collectable_harvest(AllInputs(),ctype="monocrop")
-              kds_harv <- kds_harv  %>% dplyr::mutate(temp=paste0(Group,"_",Measurement))
-              kds_harv <- kds_harv  %>% dplyr::filter(temp %in% collect_harv)
+              #collect_harv <- get_collectable_harvest(AllInputs(),ctype="monocrop")
+              #kds_harv <- kds_harv  %>% dplyr::mutate(temp=paste0(Group,"_",Measurement))
+              #kds_harv_harea <- magmtprac$harv %>% dplyr::filter(Measurement_3 %in% collect_harv)
+              #kds_harv <- rbind(kds_harv, kds_harv_harea)
+              #collect_harv<- names(dt_harvest())
+              #kds_harv <- kds_harv  %>% dplyr::filter(temp %in% collect_harv)
+              
+              mpra_trait <- stringr::str_replace_all(names(dt_harvest()) , pattern = "__[0-9]+", replacement = "")
+              kds_harv <- kds_harv  %>% dplyr::filter(TraitName %in% mpra_trait)
+              
             }
             #Add number of evaluation per seasons
             kds_harv$NumberofMeasurementsPerSeason <- ns_harvest()
@@ -15095,13 +15134,34 @@ server_design_agrofims <- function(input, output, session, values){
               temp_harv[[i]]$NumberofMeasurementsPerSeason <- length(ns_harvest()[[i]])
             }
             
-            #Bind all lists in one data.table
+            #Bind all lists (from multiple crops) in one data.table
             kds_harv <- data.table::rbindlist(temp_harv,fill = TRUE)
             #Collect Ids
             if(length(get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=crmult, cropId= id_re_rand))!=0){
-              collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=crmult, cropId= id_re_rand)
-              kds_harv <- kds_harv %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))
+              
+              collect_harv <- vector(mode = "list",length = length(crmult))
+              for(i in seq.int(crmult)){
+                # print("-dt harves ttrait list")
+                # print(names(dt_harvest()[[crmult[i]]]))
+                
+               collect_harv[[i]] <-stringr::str_replace_all(names(dt_harvest()[[crmult[i]]]) , pattern = "__[0-9]+", replacement = "")  
+               collect_harv[[i]] <- paste("Harvest",crmult[i],collect_harv[[i]], sep="_")
+              }
+              collect_harv <- unlist(collect_harv)
+              
+              #collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=crmult, cropId= id_re_rand)
+              kds_harv <- kds_harv %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",TraitName))
               kds_harv <- kds_harv %>% dplyr::filter(temp %in% collect_harv)
+              
+              
+              # collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=crmult, cropId= id_re_rand)
+              # kds_harv <- kds_harv %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))
+              # kds_harv <- kds_harv %>% dplyr::filter(temp %in% collect_harv)
+              
+              
+              
+              #kds_harv <- kds_harv  %>% dplyr::filter(TraitName %in% mpra_trait)
+              
             }
           }
           #Transform, bind and clean harvest trait data

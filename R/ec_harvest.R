@@ -320,7 +320,9 @@ get_protocol_harv <- function(allinputs, input, ctype="monocrop", cropId="1", ad
 }
 
 
-# Get Collectable inputs for Harvest ###########################################################3
+# Get Collectable inputs for Harvest ###########################################################
+# Output: Monocrop: vector of collectable inputs 
+# Ouput : Multicrop: vector of collectable inputs concatenated with the respectively crop (ex. Cassava_Start_date, Maize_Start_date) 
 get_collectable_harvest <- function(allinputs, ctype="monocrop",crop, cropId="1",ver="default"){
   
   if(ctype=="monocrop"){
@@ -371,6 +373,7 @@ get_collectable_harvest <- function(allinputs, ctype="monocrop",crop, cropId="1"
           out <- out #ifelse(str_detect(string = out,pattern = "Harvestable|Harvest"), out, paste0("Harvest_",out))
         }
       }
+      
   } 
  
   out 
