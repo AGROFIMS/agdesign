@@ -671,30 +671,35 @@ add_season_numplot_prefix<- function(dt){
     
     #Number of instaces per seasons
     for(i in 1:nrow(dt)) {
-      out[[i]]<- paste(dt$TraitName[i],1:dt$NumberofMeasurementsPerPlot[i],sep="__") 
+      
+      if(dt$NumberofMeasurementsPerPlot[i]==1L){
+        out[[i]] <- dt$TraitName[i]
+      } else {
+        out[[i]]<- paste(dt$TraitName[i],1:dt$NumberofMeasurementsPerPlot[i],sep="__")   
+      }
+      
     }
     
     if(all(dt$NumberofMeasurementsPerSeason==1L)){
-      
       out<- unlist(out)
-      
-    } else{
+    } 
+    else{
       
       out2<- list()
       for( i in 1:nrow(dt)){
-        
-        #if(dt$NumberofMeasurementsPerPlot[i]==1L){
-        #  out2[[i]] <- out[[i]]
-        #}else{
-        out2[[i]]<- sort( as.vector(outer(1:dt$NumberofMeasurementsPerSeason[i], out[[i]], paste, sep="#")))
-        #}
+        if(dt$NumberofMeasurementsPerSeason[i]==1L){
+          out2[[i]] <- out[[i]]
+        } else {
+          out2[[i]]<- sort( as.vector(outer(1:dt$NumberofMeasurementsPerSeason[i], out[[i]], paste, sep="#")))
+        }
       }
       
       out<- unlist(out2)
       
     }
     
-  } else {
+  } 
+  else {
     
     out<-NULL
     
