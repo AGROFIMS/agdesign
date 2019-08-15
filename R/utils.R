@@ -661,44 +661,39 @@ add_season_numplot_prefix<- function(dt){
     nplot_idx <-  which(dt$NumberofMeasurementsPerPlot<=0)
     #out2<- list()
     
-        if(length(season_idx)>0){
-          dt$NumberofMeasurementsPerSeason[season_idx]<- 1
-        }
-        if(length(nplot_idx)>0){
-          dt$NumberofMeasurementsPerPlot[nplot_idx]<- 1
-        }
-        out <- vector(mode="list", length = nrow(dt))
+    if(length(season_idx)>0){
+      dt$NumberofMeasurementsPerSeason[season_idx]<- 1
+    }
+    if(length(nplot_idx)>0){
+      dt$NumberofMeasurementsPerPlot[nplot_idx]<- 1
+    }
+    out <- list()
+    
+    #Number of instaces per seasons
+    for(i in 1:nrow(dt)) {
+      out[[i]]<- paste(dt$TraitName[i],1:dt$NumberofMeasurementsPerPlot[i],sep="__") 
+    }
+    
+    if(all(dt$NumberofMeasurementsPerSeason==1L)){
+      
+      out<- unlist(out)
+      
+    } else{
+      
+      out2<- list()
+      for( i in 1:nrow(dt)){
         
-        for(i in 1:nrow(dt)) {
-          out[[i]]<- paste(dt$TraitName[i],1:dt$NumberofMeasurementsPerSeason[i],sep="__") 
-        }
-        
-        out<- unlist(out)
-        
-        ## Number of instaces per seasons ####################
-        # if(all(dt$NumberofMeasurementsPerPlot==1L)){
-        #   
-        #   out<- unlist(out)
-        #   
-        # } 
-        # else{
-        #   
-        #   out2<- list()
-        #   for( i in 1:nrow(dt)){
-        #     
-        #     if(dt$NumberofMeasurementsPerPlot[i]==1L){
-        #       out2[[i]] <- out[[i]]
-        #     }else{
-        #       out2[[i]]<- sort( as.vector(outer(out[[i]], 1:dt$NumberofMeasurementsPerPlot[i], paste, sep="#")))
-        #     }
-        #   }
-        #   
-        #   out<- unlist(out2)
-        #   
-        # }
-        ## End NUmber of instaces per seasons ################
-        
-        
+        #if(dt$NumberofMeasurementsPerPlot[i]==1L){
+        #  out2[[i]] <- out[[i]]
+        #}else{
+        out2[[i]]<- sort( as.vector(outer(1:dt$NumberofMeasurementsPerSeason[i], out[[i]], paste, sep="#")))
+        #}
+      }
+      
+      out<- unlist(out2)
+      
+    }
+    
   } else {
     
     out<-NULL

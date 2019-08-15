@@ -67,6 +67,7 @@ server_mobile_agrofims <- function(input, output, session, values){
     
     mydb = conexionDB()
     
+    #Agregamos el registro del archivo duplicado a la BD
     query <- paste0("INSERT INTO kdsmart SELECT '",newid,
                     "' , experimentId, fieldbookId, user, registered, modified, status, '", id ,"' from kdsmart", 
                     " WHERE uniqueId = '",  id,"'" )
@@ -94,8 +95,7 @@ server_mobile_agrofims <- function(input, output, session, values){
     
     #Convierte a formato kdx
     system("java -jar /home/ubuntu/agrofims2kdx-0.8.9.jar -outdir /home/obenites/AGROFIMS/kdsmart /home/ubuntu/fileNameBook1.xlsx -nogui", FALSE)
-    print("Java executed")
-    
+
     
     #Compress more than one file.
     system(paste0("tar -zcvf /var/www/html/kdsmart/",newid,".tar.gz /home/obenites/AGROFIMS/kdsmart/",id,".csv /home/obenites/AGROFIMS/kdsmart/ZH6ORTVG.xlsx" ), TRUE)
@@ -107,6 +107,47 @@ server_mobile_agrofims <- function(input, output, session, values){
 
   })
   
+  
+  output$downloadKDX <- downloadHandler(
+    
+    filename  = function() {
+      paste(sessionVals$dtkdsmartaux[input$dtkdsmart_rows_selected,1],".kdx",sep="")
+    },
+    content = function(file) {
+      
+      id = input$dtkdsmart_rows_selected
+
+      newid = sessionVals$dtkdsmartaux[id, 1]
+      
+      
+      print("------------------")
+      #print(newid)
+      #newid = "P4KAIN29"
+      
+      listOfFiles <- list.files(sessionpath, paste0(newid,".xlsx"),full.names=T)
+      
+      wb <- loadWorkbook(paste0(sessionpath,"/",id,'.xlsx'))
+      experimentId = read_excel(path = paste0(sessionpath,"/",id,'.xlsx'), range = "B2")
+      
+      print("------------------")
+      print(experimentId)
+      
+      system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.8.9.jar -outdir /home/obenites/AGROFIMS/kdsmart ", listOfFiles ," -nogui"), FALSE)
+      
+      file.copy("/home/obenites/AGROFIMS/kdsmart/XXXX1565757129.kdx", file)
+      
+    }
+  )
+
+  # output$downloadKDX <- downloadHandler(
+  #   filename = function() {
+  #     paste("data-", Sys.Date(), ".csv", sep="")
+  #   },
+  #   content = function(file) {
+  #     write.csv(iris, file)
+  #   }
+  # )
+
   
   #Evento reactivo que captura id de la fila seleccionada 
   selectedRow <- eventReactive(input$duplicate_file2, {

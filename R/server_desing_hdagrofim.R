@@ -12631,6 +12631,10 @@ server_design_agrofims <- function(input, output, session, values){
     
     if(ct=="Monocrop"){
       dt<- get_ec_plantrans(allinputs=AllInputs(), input, ctype="monocrop", cropId= "1", addId="1")$dt
+      
+      print("monocrop plantrsans header")
+      print(names(dt))
+      
       if(nrow(fbdesign())==0 && length(dt)>0){
         dt <- dt
       } else if( nrow(fbdesign())>0 && length(dt)>0 ) {
@@ -12640,11 +12644,15 @@ server_design_agrofims <- function(input, output, session, values){
         if(length(get_collectable_plantrans(AllInputs(), ctype="monocrop"))!=0){
           #collectable inputs
           collect_platra <- get_collectable_plantrans(AllInputs(),ctype="monocrop",ver = "export")
+          
+          print("collect platra")
+          print(collect_platra)
+          
           collect_platra <- stringr::str_replace_all(tolower(collect_platra), pattern = "_", replacement = " ")
           #management practices
           mpra_trait <- names(dt)
           mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "_|//*", replacement = " ")
-          mpra_trait<- stringr::str_replace_all(mpra_trait, pattern = "density ", replacement= "")
+          #mpra_trait<- stringr::str_replace_all(mpra_trait, pattern = "density ", replacement= "")
           lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
           #select only columns from collect input
           dt <- dt[which(lgl==TRUE)]
@@ -13500,7 +13508,7 @@ server_design_agrofims <- function(input, output, session, values){
   })
   ################### END: Phenology Fieldbook#### ########################################################
   
-
+  
   
   ################################ START: Reactive Weather DT   #####################################################
   weather_dt <- reactive({
@@ -14092,7 +14100,7 @@ server_design_agrofims <- function(input, output, session, values){
   
   ################################### START  TRAIT TABLE #############################################################
   
-  #Get ADD Ids for multi crop trials in CROP MEASUREMENT
+  # Get ADD Ids for multi crop trials in CROP MEASUREMENT
   get_cmea_multicrop_addId <- function(cropId, ctype= "intercrop"){
     
     if(ctype=="intercrop"){
@@ -14154,7 +14162,7 @@ server_design_agrofims <- function(input, output, session, values){
     out<- v 
   }
   
-  #Reactive for in CROP MEASUREMENT to get actives ADD Ids according to cropping type inputs
+  # Reactive for in CROP MEASUREMENT to get actives ADD Ids according to cropping type inputs
   cmea_multicrop_add <- reactive({
     
     if(input$croppingType=="Intercrop"){
@@ -14341,8 +14349,8 @@ server_design_agrofims <- function(input, output, session, values){
       id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
       crop <- map_values(input = input, id_chr="rel_cropCommonName_",id_re_rand, format = "vector", lbl= "Select crop")
     }
-    
     if(ct!="Monocrop"){
+    #if(ct=="Intercrop" || ct=="Relay crop"|| ct=="Rotation"){
       fb <- fbdesign()
       trait <- trait_dt()
       fb_list <- list()
@@ -14479,11 +14487,11 @@ server_design_agrofims <- function(input, output, session, values){
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
-          ai <- AllInputs()
-          saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-          x <- reactiveValuesToList(input)
-          saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         #
+         #  ai <- AllInputs()
+         #  saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         #  x <- reactiveValuesToList(input)
+         #  saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         # #
          #  crop <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector",label = "Crop")
          #  addId <- getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
          #  dt_measurements <<- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 
@@ -14766,7 +14774,7 @@ server_design_agrofims <- function(input, output, session, values){
           
           print("ENTRO A INTERROP")
           for(i in 1:length(cropnames)){
-            print(i)
+            #print(i)
             
             if(nrow(pheno_mult_dt()[[ cropnames[i] ]])!=0 && !is.element("Measurement_3", names(pheno_mult_dt()[[ cropnames[i] ]]) )){
               incProgress(7/20,message = "Adding Phenology data...")
@@ -14814,7 +14822,7 @@ server_design_agrofims <- function(input, output, session, values){
         ############# END WEATHER SHEET ##########################################################################
         
         print("inicio10")
-        print(soil_dt())
+        #print(soil_dt())
         ############# SOIL SHEET ################################################################################### 
         if(nrow(soil_dt())!=0){
           openxlsx::addWorksheet(wb, "Soil", gridLines = TRUE)
@@ -14847,7 +14855,7 @@ server_design_agrofims <- function(input, output, session, values){
         ############# START SOIL MEASUREMENT FOR TRAIT LIST  ###############################################################
         if(nrow(soil_dt())!=0){
           
-          print(soil_list())
+          #print(soil_list())
           
           soil_tl<- soil_list()
         }
@@ -14863,7 +14871,7 @@ server_design_agrofims <- function(input, output, session, values){
         
         if(nrow(weather_dt())!=0){
           
-          print(weather_list())
+          #print(weather_list())
           
           wdt_tl<- weather_list()
         }
@@ -14884,8 +14892,8 @@ server_design_agrofims <- function(input, output, session, values){
             dt <- ec_clean_header(dt)
             ph_tl <- dt
             #ph_tl$CropMeasurementPerSeason <- ph_tl$CropMeasurementPerPlot <- 1
-            print("---pheno mono trial list")
-            print(names(ph_tl))
+            #print("---pheno mono trial list")
+            #print(names(ph_tl))
             # ph_tl <- data.table::setnames(x = ph_tl, old = c("CropMeasurementPerSeason","CropMeasurementPerPlot"),
             #                               new = c("NumberofMeasurementsPerSeason","NumberofMeasurementsPerPlot"))
             ph_tl$NumberofMeasurementsPerSeason <- ph_tl$NumberofMeasurementsPerPlot <- 1
@@ -14896,8 +14904,8 @@ server_design_agrofims <- function(input, output, session, values){
         }
         else {
           ph_tl <- rbindlist(pheno_multicrop_vars(),fill = TRUE)
-          print("---pheno MULTICROP trial list")
-          print(names(ph_tl))
+          #print("---pheno MULTICROP trial list")
+          #print(names(ph_tl))
           ph_tl$CropMeasurementPerSeason <- pheno_vars$CropMeasurementPerPlot <- 1
           ph_tl <- data.table::setnames(ph_tl, c("CropMeasurementPerSeason","CropMeasurementPerPlot"),
                                                c("NumberofMeasurementsPerSeason","NumberofMeasurementsPerPlot"))
@@ -15061,8 +15069,8 @@ server_design_agrofims <- function(input, output, session, values){
             kds_irri <- kds_irri %>%  dplyr::filter(temp %in% collect_irri)
             print("--irri3")
           }#end collectalbe ids
-          print("irri names")
-          names(kds_irri)
+          #print("irri names")
+          #names(kds_irri)
           
           kds_irri$NumberofMeasurementsPerSeason <- ns_irrigation()
           print("--irri4")
