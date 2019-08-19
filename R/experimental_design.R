@@ -54,8 +54,8 @@ fbdesign_agrofims <- function(design, rep=2, block=2, trt=2, ntrt=NULL,
             }
             
             if (design == "strip") { #strip plot
-              fb <- try(st4gi::cr.strd(A = ,B = ,nb = )$book )
-              names(fb)[1:4] <- c("PLOT", "BLOCK", "ROW","COL")
+              fb <- try(st4gi::cr.strd(A = flevels[[1]],B = flevels[[2]],nb = block)$book )
+              names(fb)[1:7] <- c("PLOT", "BLOCK", "ROW","COL",fnames[1],fnames[2],"TREATMENT")
             }
             #print(fb)
             fb
@@ -106,8 +106,8 @@ get_factors_design <- function(allinputs, index=NULL, design="fcrd",duplicate= T
 # factors: vector of factors
 # design: design
 # data dictionary: data dictionary for FACTOR_V10
-# format: format
-get_levels_design <- function(allinputs, index, factors, design="fcrd", 
+# format: list (default)
+get_levels_design <- function(allinputs, index, indexEspLvl=NULL, factors, design="fcrd", 
                               data_dictionary=NULL, format=c("list","data.frame")){
   
   format<- match.arg(format)
@@ -144,7 +144,7 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
           else if(factors[i]=="Crop residue amount" || factors[i]== "Irrigation amount"){
             
             print("crop residue amount")
-            out[[i]] <- get_amountype_levels(allinputs, index= index[i], factors[i], design=design,
+            out[[i]] <- get_amountype_levels(allinputs, index= index[i], indexEspLvl = indexEspLvl,  factors[i], design=design,
                                              data_dictionary=data_dictionary)
             
           }
@@ -152,7 +152,8 @@ get_levels_design <- function(allinputs, index, factors, design="fcrd",
           else if(stringr::str_detect(factors[i],pattern="type and amount")){
             
             print("type and amount factor")
-            out[[i]] <- get_amountype_levels(allinputs, index= index[i], factors[i], design=design,
+            
+            out[[i]] <- get_amountype_levels(allinputs, index= index[i], indexEspLvl = indexEspLvl,  factors[i], design=design,
                                               data_dictionary=data_dictionary)
             
           }
@@ -357,15 +358,26 @@ get_timing_levels <- function(allinputs, index="1", factors, design="fcrd",
 
 # Get levels for amount and type factors
 # ADVICE: NOT VECTORIZED, should be included in the main class get_levels_design
-get_amountype_levels <- function(allinputs, index, factors, design="fcrd", 
+# allinputs: All input values from AGROFIMS sessions
+# index: design-factor index. Only one value is allowed.
+# indexLvl: index's levels 
+# factors: factor names
+# design: design 
+# data_dictionary: data dictionary from AGROFIMS
+# 
+get_amountype_levels <- function(allinputs, index, indexEspLvl=NULL, factors, design="fcrd", 
                                  data_dictionary=NULL){
   
+  #Factor's name
   factors <- stringr::str_replace_all(string = factors,pattern = "_f[:digit:]",replacement = "")
   factors <- stringr::str_replace_all(string = factors,pattern = "_",replacement = " ")
   
-  #lookup<- paste0("^",design,"_lvltiming") #Timing factor case : _lvltiming_
-  lookup <- paste0("^",design,"_")
+  #Filter index from special factors and levels
+  indexEspLvl <- filter_index_espLvl_design(index = index, indexEspLvl= indexEspLvl, design=design, designEspflvl="_lvl_espType_")
+  indexEspLvl <- get_index_espLvl_design(indexEspLvl, paste0(design,"_lvl_espType_",index,"_"))  #"frcbd_lvl_espType_2_")
   
+  #Lookup design pattern
+  lookup <- paste0("^",design,"_")
   dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
                       dplyr::filter(!str_detect(id, "button")) %>%
                       #dplyr::filter(!str_detect(id, "unit")) %>%  ##Contemplate Unit case
@@ -384,8 +396,9 @@ get_amountype_levels <- function(allinputs, index, factors, design="fcrd",
   
   ## number of evaluation for each element -----------------------------------------------------------
   ## input structure: design_numLevelsESP_index
-  numEval<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",design, "_numLevelsESP_",index,"$"))) %>% nth(2)
-  numEval <- as.integer(numEval)
+  #numEval<- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",design, "_numLevelsESP_",index,"$"))) %>% nth(2)
+  #numEval <- length(indexEspLvl)
+  numEval <- as.integer(length(indexEspLvl))
   
   eleType <- unit <-NULL
   out <- list()
@@ -394,22 +407,19 @@ get_amountype_levels <- function(allinputs, index, factors, design="fcrd",
     
     ## level values. 
     ## input structure: design_lvl_espType_index_numEval------------------------------------------------------------------------------
-    eleType <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_espType_",index,"_", j,"$"))) %>% nth(2) 
-    #print(eleType[j]) 
-                                  
+    eleType <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_espType_",index,"_", indexEspLvl[j],"$"))) %>% nth(2) 
+    print(eleType) 
+    
     ## levels + unit -----------------------------------------------------------------------------------------------
     ## input structure:  #design_lvl_index_numEval
-    lvl <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup, "lvl_",index,"_", j,"$")))  %>% nth(2)
+    lvl <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup, "lvl_espLvl_",index,"_", indexEspLvl[j],"$")))  %>% nth(2)
     lvl <-  strsplit(lvl,",")[[1]] %>% stringi::stri_trim_both()
-  
+    print(lvl)
     #unit  ----------------------------------------------------------------------------------------
     ##  input strcucture: design_lvl_unit_index_numEval 
-    unit <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_unit_",index,"_", j,"$")))  %>% nth(2)
-    #print(unit[j])
-    # 
-    #print(eleType)
-    #print(lvl)
-    #print(unit)
+    unit <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_espUnit_",index,"_", indexEspLvl[j],"$")))  %>% nth(2)
+    print(unit)
+    
     
     if(crop!=""){
       out[[j]] <- paste0(crop,"_",eleType,"_",lvl,unit)
@@ -417,7 +427,7 @@ get_amountype_levels <- function(allinputs, index, factors, design="fcrd",
     } else {
       out[[j]] <- paste0(eleType,"_",lvl,unit)
     }
-    print(out[[j]])
+    #print(out[[j]])
     
   }
   out <- unlist(out)
@@ -452,10 +462,44 @@ experimental_design_label <- function(abbr_design = "frcbd"){
 
 
 ## Get index from ID (provided by the statistical design prefix)
+#id: character vector. Ids generated by agrofims during user's session
+#design: character vector. Statistical design abbreviation provided by Shiny
+#
 get_index_design<- function(id, design){
   
- out<- str_replace_all(id, paste0(design,"_"),"")
+ out<- stringr::str_replace_all(string = id,pattern =  paste0(design,"_"),replacement = "")
  
 }
 
+## Get index level from given ID (provided by the statistical design prefix)
+#indexEspLvl: character vector (one or multiple values). Statistical design abbreviation + especial level prefix provided by Shiny. Ex "frcbd_lvl_espType_2_1"
+#designEspflvl: statistical design abbreviation + especial level prefix: "frcbd_lvl_espType_"
+get_index_espLvl_design<- function(indexEspLvl, designEspflvl=NULL){
+  
+  if(!is.null(designEspflvl)){
+    out<- stringr::str_replace_all(string = indexEspLvl, pattern = designEspflvl, replacement = "")
+  } else {
+    out <- NULL
+  }
+
+}
+
+#index: one-value character vector. Index provided by the factor id. Ex. index="1"
+#indexEspLvl: character vector (one or multiple values). Ex.: "frcbd_lvl_espType_2_1"
+#design: character. Statistical design abbreviation. Ex.: design="crd".
+#designEspflvl: especial level prefix. Ex. designEspflvl="frcbd_lvl_espType_"
+#Example:
+#lvlIds <- c("frcbd_lvl_espType_1_1", "frcbd_lvl_espType_2_1" ,"frcbd_lvl_espType_2_2")
+#index<- "1"
+#res<-filter_index_espLvl_design(index ="2",lvlIds= lvlIds, design="frcbd", designEspflvl="_lvl_espType_")
+filter_index_espLvl_design <- function(index="1", indexEspLvl=NULL, design="frcbd", designEspflvl="_lvl_espType_"){
+  
+  if(!is.null(indexEspLvl)){
+    out <- indexEspLvl[str_detect(indexEspLvl,paste0(design,"_lvl_espType_",index))]
+  }
+  else {
+    out <- NULL
+  }  
+ 
+}
 

@@ -16,8 +16,8 @@ design_choices_agrofims <- c(
   #"Split Plot with Plots in CRD (SPCRD)" = "SPCRD",
   #"Strip-Split-Plot Design" = "STRIP",
   "Split Plot Design" = "SPRCBD", #R.Eyzaguirre recommends just one Split Design
-  "Split-Split Plot Design"="SPSP"
-  #"Strip Plot Design"= "STRIP"
+  "Split-Split Plot Design"="SPSP",
+  "Strip Plot Design"= "STRIP"
   #"Split Plot with Plots Design" = "SPRCBD", #
   #"Split Plot with Plots in LSD (SPLSD)" = "SPLSD",
   #"Strip Plot Design (STRIP)" = "STRIP"
@@ -428,6 +428,16 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     }
                     ")),
     
+    #Width for input-group and modal 
+    tags$style("
+                .input-group { width: 100%; }
+                .modal-lg{ width:90% !important }
+                  
+               "),
+    
+    # Style for calendar to work inside modal
+    tags$style(".datepicker{z-index:999999 !important}"),
+    
     ############################### END UI: CSS ###############################
     ###########################################################################
     
@@ -529,9 +539,6 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     # Mensaje de alerta para cuando quieran salir de la pagina.
     tags$script(' window.onbeforeunload = function() { return "Si sales de la página se perdera tu información."; };'),
     
-   
-    
-            
     ###################### END: GENERALES ######################
     
     ###################### START: EXPERIMENT, PERSONNEL & SITE ######################
@@ -644,9 +651,44 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       })'
     ),
     
-    # Levels CASOS ESPECIALES
+    # Timing Levels CASOS ESPECIALES SOIL (NUTRIENT - MODAL)
     tags$script(
-      '$(document).on("change", "select[id*=\'_numLevelsESP_\']",  function(){
+      '$(document).on("change", "[id*=\'_mNutTiming_\']",  function(){
+      Shiny.onInputChange("mNutTiming", Math.random());
+      Shiny.onInputChange("mNutTimingid", this.id);
+      })'
+    ),
+    
+    # Timing Levels CASOS ESPECIALES SOIL (FERTILIZER - MODAL)
+    tags$script(
+      '$(document).on("change", "[id*=\'_mFerTiming_\']",  function(){
+      Shiny.onInputChange("mFerTiming", Math.random());
+      Shiny.onInputChange("mFerTimingid", this.id);
+      })'
+    ),
+    
+    
+    
+    
+    # Levels CASOS ESPECIALES
+    # tags$script(
+    #   '$(document).on("change", "select[id*=\'_numLevelsESP_\']",  function(){
+    #   Shiny.onInputChange("levelsESP", Math.random());
+    #   Shiny.onInputChange("levelsESPid", this.id);
+    #   })'
+    # ),
+    
+    # Levels CASOS ESPECIALES MODAL FERTILIZER
+    tags$script(
+      '$(document).on("click", "button[id*=\'_numLevelsESPModal_\']",  function(){
+      Shiny.onInputChange("levelsESPModal", Math.random());
+      Shiny.onInputChange("levelsESPModalid", this.id);
+})'
+    ),
+    
+    # Levels CASOS ESPECIALES ADD
+    tags$script(
+      '$(document).on("click", "button[id*=\'_numLevelsESP_\']",  function(){
       Shiny.onInputChange("levelsESP", Math.random());
       Shiny.onInputChange("levelsESPid", this.id);
       })'
@@ -660,13 +702,21 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       })'
     ),
     
+    #Levels Close Button lEVEL
+    tags$script(
+      '$(document).on("click", "button[id*=\'_closelevel_\']",  function(){
+      Shiny.onInputChange("closeLevelBox", Math.random());
+      Shiny.onInputChange("closeLevelBoxid", this.id);
+      })'
+    ),
+    
     
     # Other de Factor GENERAL
     tags$script(
       '$(document).on("change", "select[id*=\'_lvl_\']",  function(){
       Shiny.onInputChange("otherGEN", Math.random());
       Shiny.onInputChange("otherGENid", this.id);
-})'
+      })'
     ),
     # Duplicate GENERAL
     tags$script(
@@ -689,6 +739,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       Shiny.onInputChange("otherOthGENid", this.id);
       })'
     ),
+    
     # Levels Inputs CRD
     tags$script(
       '$(document).on("change", "select[id*=\'crd_lvl_\']:not([id$=\'_dateinput\'])",  function(){
@@ -732,6 +783,31 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       })'
     ),
     
+    # Level changing  #ELIMINAR
+    tags$script(
+      '$(document).on("change", "[id*=\'_lvl_espLvl_\']",  function(){
+      Shiny.onInputChange("lvlInputModal", Math.random());
+      Shiny.onInputChange("lvlInputModalid", this.id);
+      })'
+    ),
+    
+    # Level changing
+    tags$script(
+      '$(document).on("click", "[id*=\'_btnRefresh_\']",  function(){
+      Shiny.onInputChange("refreshModal", Math.random());
+      Shiny.onInputChange("refreshModalid", this.id);
+      })'
+    ),
+    
+    # Timing Change Nutrient Modal
+    tags$script(
+      '$(document).on("change", "select[id*=\'_mNutProduct_\']",  function(){
+      Shiny.onInputChange("mProductNutModal", Math.random());
+      Shiny.onInputChange("mProductNutModalid", this.id);
+      })'
+    ),
+    
+
     ###################### END: DESIGN ######################
     
     ###################### START: MANAGEMENT PRACTICES ######################
@@ -1373,6 +1449,9 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
               
               column(
                 6,
+                
+                
+                actionButton("btnViewLevelsFactor","Ver arreglo level factors."),
                 h2("Experimental design"),
                 shiny::selectInput(
                   "designFieldbook_agrofims", "", 
@@ -1608,7 +1687,66 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                       )
                     )
                   )
+                ),
+                
+                ### START STRIP 
+                conditionalPanel(
+                  "input.designFieldbook_agrofims == 'STRIP'",
+                  h2("Information on experimental unit"),
+                  fluidRow(
+                    column(
+                      12, 
+                      h4("Information on main plot")
+                    )
+                  ),
+                  fluidRow(
+                    column(3, textInput("strip_main_expt_plot_length", label="Length", value="")),
+                    column(
+                      3,
+                      selectizeInput(
+                        "strip_main_expt_plot_length_unit", label="Unit", multiple = TRUE,
+                        options = list(maxItems =1, placeholder ="Select one..."),
+                        choices = c("m", "ft")
+                      )
+                    ),
+                    column(3, textInput("strip_main_expt_plot_width", label="Width", value="")),
+                    column(
+                      3,
+                      selectizeInput(
+                        "strip_main_expt_plot_width_unit", label="Unit", multiple = TRUE,
+                        options = list(maxItems =1, placeholder ="Select one..."),
+                        choices = c("m", "ft")
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      12, 
+                      h4("Information on sub plot")
+                    )
+                  ),
+                  fluidRow(
+                    column(3, textInput("strip_sub_expt_plot_length", label="Length", value="")),
+                    column(
+                      3,
+                      selectizeInput(
+                        "strip_sub_expt_plot_length_unit", label="Unit", multiple = TRUE,
+                        options = list(maxItems =1, placeholder ="Select one..."),
+                        choices = c("m", "ft")
+                      )
+                    ),
+                    column(3, textInput("strip_sub_expt_plot_width", label="Width", value="")),
+                    column(
+                      3,
+                      selectizeInput(
+                        "strip_sub_expt_plot_width_unit", label="Unit", multiple = TRUE,
+                        options = list(maxItems =1, placeholder ="Select one..."),
+                        choices = c("m", "ft")
+                      )
+                    )
+                  )
                 )
+                ### END STRIP 
               ),
               column(
                 12,
@@ -1747,9 +1885,19 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 ),
                 conditionalPanel(
                   "input.designFieldbook_agrofims == 'STRIP'",
-                  #selectInput("strip_block","Block", choices = 2:10000,selected = 2),
-                  h1("STRIP"),
-                  h2("Under construction")
+                  #h1("SPRCBD"),
+                  fluidRow(column(
+                    6,
+                    selectInput(
+                      "strip_block",
+                      "Block",
+                      choices = 2:100,
+                      selected = 2
+                    )
+                  )),
+                  fluidRow(id = "strip_boxes"),
+                  fluidRow(id = "strip_boxes")#,
+                  #actionButton("sprcbd_add", "Add factor")
                 )
               ),
               sidebarPanel(

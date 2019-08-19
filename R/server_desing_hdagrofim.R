@@ -5784,11 +5784,14 @@ server_design_agrofims <- function(input, output, session, values){
   ############################### END SERVER: CROP ###############################
   ################################################################################
   
-  ##################################################################################
   ############################### START SERVER: DESIGN #############################
   
   factores <- agdesign::dt_factordesign
   dt <- factores %>% mutate(fchoices = FACTOR)
+  
+  factorlevel <- reactiveValues();
+  factorlevel$ids <- c()
+  
   
   ###################### START: CRD ######################
   
@@ -5797,6 +5800,7 @@ server_design_agrofims <- function(input, output, session, values){
   factorCRD$num <- 0
   factorCRD$DEFAULT <- 1
   factorCRD$ids <- c()
+  factorCRD$numlvl <- 1
   
   # CRD: Treatments
   factorCRD$currNumReplications <- 2
@@ -5836,6 +5840,7 @@ server_design_agrofims <- function(input, output, session, values){
   factorRCBD$num <- 0
   factorRCBD$DEFAULT <- 1
   factorRCBD$ids <- c()
+  factorRCBD$numlvl <- 1
   
   # RCBD: Treatments
   factorRCBD$currNumReplications <- 2
@@ -5875,6 +5880,7 @@ server_design_agrofims <- function(input, output, session, values){
   factorFCRD$num <- 0
   factorFCRD$DEFAULT <- 2
   factorFCRD$ids <- c()
+  factorFCRD$numlvl <- 1
   
   # FCRD: Inserta por defecto un row
   observe({
@@ -5903,6 +5909,7 @@ server_design_agrofims <- function(input, output, session, values){
   factorFRCBD$num <- 0
   factorFRCBD$DEFAULT <- 2
   factorFRCBD$ids <- c()
+  factorFRCBD$numlvl <- 1
   
   # FRCBD: Inserta por defecto un row
   observe({
@@ -5931,6 +5938,8 @@ server_design_agrofims <- function(input, output, session, values){
   factorSPRCBD$num <- 0
   factorSPRCBD$DEFAULT <- 2
   factorSPRCBD$ids <- c()
+  factorSPRCBD$numlvl <- 1
+  
   # SPRCBD: Inserta por defecto un row
   observe({
     if (factorSPRCBD$num == 0) {
@@ -5958,6 +5967,7 @@ server_design_agrofims <- function(input, output, session, values){
   factorSPSP$num <- 0
   factorSPSP$DEFAULT <- 3
   factorSPSP$ids <- c()
+  factorSPSP$numlvl <- 1
   
   # SPSP: Inserta por defecto un row
   observe({
@@ -5978,6 +5988,36 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   ###################### END: SPSP ######################
+  
+  ###################### START: STRIP ######################
+  
+  # STRIP: Asigna variables reactivas
+  factorSTRIP <- reactiveValues()
+  factorSTRIP$num <- 0
+  factorSTRIP$DEFAULT <- 2
+  factorSTRIP$ids <- c()
+  factorSTRIP$numlvl <- 1
+  
+  # STRIP: Inserta por defecto un row
+  observe({
+    if (factorSTRIP$num == 0) {
+      defaultSTRIP <- factorSTRIP$DEFAULT
+      
+      for (i in 1:defaultSTRIP) {
+        insertRow_GEN(i, design = "strip")
+      }
+    }
+  })
+  
+  # STRIP: Agrega un row al hacer clic en el boton "Add factor"
+  observeEvent(input$strip_add, {
+    if (factorSTRIP$num >= 1) {
+      insertRow_GEN(factorSTRIP$num + 1, design = "strip")
+    }
+  })
+  
+  ###################### END: STRIP ######################
+  
   
   ###################### START: FUNCIONES GENERALES CRD/RCBD/FCRD/FRCBD/SPRCBD/SPSP ######################
   
@@ -6025,10 +6065,11 @@ server_design_agrofims <- function(input, output, session, values){
       factorSPRCBD$ids
     } else if (design == "spsp") {
       factorSPSP$ids
+    } else if (design == "strip") {
+      factorSTRIP$ids
     }
+    
   }
-  
-  
   
   # Funcion GENERAL que inserta el UI dependiendo del diseno
   insertRow_GEN <- function(index, design) {
@@ -6097,6 +6138,18 @@ server_design_agrofims <- function(input, output, session, values){
       )
       factorSPSP$num <- factorSPSP$num + 1
     }
+    
+    
+    # STRIP
+    if (design == "strip") {
+      factorSTRIP$ids <- c(factorSTRIP$ids, paste0(design, "_", index))
+      insertUI(
+        selector = "#strip_boxes",
+        where = "beforeBegin",
+        ui = getDesignUI_GEN(index, design)
+      )
+      factorSTRIP$num <- factorSTRIP$num + 1
+    }
   }
   
   #Funcion que dibuja el titulo de SPRCBD/SPSP dependiendo del diseno
@@ -6127,6 +6180,14 @@ server_design_agrofims <- function(input, output, session, values){
       } else if (index >= 4) {
         title <- "Factor"
       }
+    } else if (design == "strip"){
+      if( index == 1 ){
+        title <- "Factor #1"
+      } else if (index == 2){
+        title <- "Factor #2"
+      } else if (index == 3){
+        title <- "Factor"
+      }
     }
   }
   
@@ -6136,6 +6197,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     fluidRow(
       id = paste0(design, "_full_factor_box_", index),
+      
       box(
         solidHeader = TRUE,
         status = "warning",
@@ -6155,73 +6217,86 @@ server_design_agrofims <- function(input, output, session, values){
             )
           )
           ),
-        column(
-          12,
-          fluidRow(
-            column(
-              6,
-              fluidRow(
-                column(
-                  10,
-                  selectizeInput(
-                    paste0(design, "_sel_factor_", index), "",
-                    multiple = TRUE,
-                    options = list(placeholder = "Search...", maxItems = 1),
-                    choices = c(dt$fchoices),
-                    selected = value
-                  ),
-                  fluidRow(id = paste0(design, "_sel_factorOth_aux_", index)),
-                  fluidRow(id = paste0(design, "_factor_crop_aux_", index))
+        #column(
+        #  12,
+        fluidRow(
+          column(
+            6,
+            fluidRow(
+              column(
+                10,
+                selectizeInput(
+                  paste0(design, "_sel_factor_", index), "",
+                  multiple = TRUE,
+                  options = list(placeholder = "Search...", maxItems = 1),
+                  choices = dt$fchoices,
+                  selected = value
+                ),
+                fluidRow(id = paste0(design, "_sel_factorOth_aux_", index)),
+                fluidRow(id = paste0(design, "_factor_crop_aux_", index))
+              )
+            )
+          ),
+          column(
+            6,
+            fluidRow(
+              column(
+                7,
+                fluidRow(
+                  id = paste0(design, "_fl_title_factor_aux_", index)
                 )
+              ),
+              column(
+                5,
+                hidden(
+                  selectInput(
+                    paste0(design, "_numLevels_", index),
+                    "Number of dates",
+                    choices = 2:10,
+                    selected = 2
+                  )
+                )
+                
+                #hidden(
+                # selectInput(
+                #   paste0(design, "_numLevelsESP_", index),
+                #   "Number of evaluations",
+                #   choices = 1:10,
+                #   selected = 1
+                # )
+                
+                #)
+              )
+            ),           
+            fluidRow(id = paste0(design, "_type_input_aux_", index)),
+            fluidRow(id = paste0(design, "_levelSelection_aux_", index)),
+            
+            
+            fluidRow(
+              column(12,
+                     column(12,
+                            style='padding:0px; text-align:right;',
+                            hidden(actionButton(inputId = paste0(design,"_numLevelsESP_",index), "Add level",icon("plus-circle"), class = "btn", style="background:#f2dede;color: #red;")),
+                            hidden(actionButton(inputId = paste0(design,"_numLevelsESPModal_",index), "Fertilizer application details",icon("plus-circle"), class = "btn", style="background:#f2dede;color: #red;"))
+                     )
               )
             ),
-            column(
-              6,
-              fluidRow(
-                column(
-                  7,
-                  fluidRow(
-                    id = paste0(design, "_fl_title_factor_aux_", index)
-                  )
-                ),
-                column(
-                  5,
-                  hidden(
-                    selectInput(
-                      paste0(design, "_numLevels_", index),
-                      "Number of dates",
-                      choices = 2:10,
-                      selected = 2
-                    )
-                  ),
-                  hidden(
-                    selectInput(
-                      paste0(design, "_numLevelsESP_", index),
-                      "Number of evaluations",
-                      choices = 1:10,
-                      selected = 1
-                    )
-                  )
-                )
-              ),           
-              fluidRow(id = paste0(design, "_type_input_aux_", index)),
-              fluidRow(id = paste0(design, "_levelSelection_aux_", index)),
-              fluidRow(id = paste0(design, "_levelSelOther_aux_", index)),
-              fluidRow(id = paste0(design, "_note_aux_", index))
-            )
-          )#,
-          # column(
-          #   12,
-          #   style = "text-align:right",
-          #   conditionalPanel(
-          #     "input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD' ||
-          #     input.designFieldbook_agrofims == 'FCRD' || input.designFieldbook_agrofims == 'FRCBD'",
-          #     fluidRow(
-          #       actionButton(paste0(design, "_btDuplicate_", index), "Duplicate")
-          #     )
-          #   )
-          # )
-        )
+            fluidRow(id = paste0(design, "_levelSelOther_aux_", index)),
+            fluidRow(id = paste0(design, "_note_aux_", index))
+          )
+        )#,
+        # column(
+        #   12,
+        #   style = "text-align:right",
+        #   conditionalPanel(
+        #     "input.designFieldbook_agrofims == 'CRD' || input.designFieldbook_agrofims == 'RCBD' ||
+        #     input.designFieldbook_agrofims == 'FCRD' || input.designFieldbook_agrofims == 'FRCBD'",
+        #     fluidRow(
+        #       actionButton(paste0(design, "_btDuplicate_", index), "Duplicate")
+        #     )
+        #   )
+        # )
+        #)
         )
       )
   }
@@ -6235,6 +6310,7 @@ server_design_agrofims <- function(input, output, session, values){
     value <-  input[[input$selectGENid]]
     value <- get_dfa_values(dt = dt, choice = value, attribute = "FACTOR")
     
+    cleanLevelsIds(design,index)
     
     isolate(updateLevelSelectionGEN(index, value, design))
     
@@ -6305,6 +6381,13 @@ server_design_agrofims <- function(input, output, session, values){
     }
   })
   
+  
+  # Funcion que limpia el arreglo de LEVELS ID's cuando hay un cambio de factor
+  cleanLevelsIds <- function(design, index){
+    factorlevel$ids <- factorlevel$ids[!str_detect(factorlevel$ids,paste0(design,"_lvl_espType_",index))]
+  }
+  
+  
   # Funcion GENERAL que activa "OTHER" de "FACTOR" dependiendo del diseno
   updateSelectOtherGEN <- function(index, choises, design, value = NULL) {
     if (any(choises == "Other") == T) {
@@ -6334,9 +6417,6 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Funcion GENERAL que activa "CROP" de "FACTOR" dependiendo del diseno
   updateSelectCropGEN <- function(index, choices, design) {
-    
-    
-    
     if (!is.null(choices)) {
       
       cropType<- input[["croppingType"]]
@@ -6390,8 +6470,8 @@ server_design_agrofims <- function(input, output, session, values){
     num_levels <-  input[[input$levelsGENid]]
     
     # ocultar en desarrollo la siguiente linea "factores"
-    factores <- agdesign::dt_factordesign
-    dt <- factores %>% mutate(fchoices = FACTOR)
+    #factores <- agdesign::dt_factordesign
+    #dt <- factores %>% mutate(fchoices = FACTOR)
     
     drawDateComboLevelGEN(
       order = index,
@@ -6448,25 +6528,118 @@ server_design_agrofims <- function(input, output, session, values){
   })
   
   # Funcion GENERAL que responde a CASOS ESPECIALES "LEVELS"
+  # observeEvent(input$levelsESP, {
+  #   vars <- unlist(strsplit(input$levelsESPid, "_"))
+  #   design <- vars[1]
+  #   index <- vars[3]
+  #   
+  #   num_levels <-  input[[input$levelsESPid]]
+  #   
+  #   #ocultar en desarrollo la siguiente linea "factores"
+  #   factores <- agdesign::dt_factordesign
+  #   dt <- factores %>% mutate(fchoices = FACTOR)
+  #   
+  #   print(vars)
+  #   print(design)
+  #   print(index)
+  #   
+  #   drawSpecialCasesLevelGEN(
+  #     order = index,
+  #     dt = dt,
+  #     design,
+  #     input_choice = input[[paste0(design, "_sel_factor_", index)]],
+  #     num_levels
+  #   )
+  #   shinyjs::show(id = paste0(design, "_numLevelsESP_", index))
+  #   shinyjs::show(id = paste0(design,"_numLevelsESPAdd_",index))
+  # })
+  
+  
+  # Testing Button
+  observeEvent(input$btnViewLevelsFactor,{
+    print(factorlevel$ids)
+  })
+  
+  # Funcion GENERAL que responde a CASOS ESPECIALES "LEVELS ADD" 
   observeEvent(input$levelsESP, {
+    
     vars <- unlist(strsplit(input$levelsESPid, "_"))
     design <- vars[1]
     index <- vars[3]
+    num <- 1
     
-    num_levels <-  input[[input$levelsESPid]]
+    if(design == "frcbd")
+    {
+      ## Arranca en 2 porque el 1 ya esta por default
+      factorFRCBD$numlvl <- num + factorFRCBD$numlvl 
+      print(paste0("factor lvl: ", factorFRCBD$numlvl))
+      
+      num <- factorFRCBD$numlvl
+      print(paste0("Num: ", num))
+    }
+    if(design == "fcrd")
+    {
+      factorFCRD$numlvl <- num + factorFCRD$numlvl
+      num <- factorFCRD$numlvl
+    }
+    if(design == "rcbd")
+    {
+      factorRCBD$numlvl <- num + factorRCBD$numlvl
+      num <- factorRCBD$numlvl
+    }
+    if(design == "crd")
+    {
+      factorCRD$numlvl <- num + factorCRD$numlvl
+      num <- factorCRD$numlvl
+    }
+    if(design == "sprcbd")
+    {
+      factorSPRCBD$numlvl <- num + factorSPRCBD$numlvl
+      num <- factorSPRCBD$numlvl
+    }
+    if(design == "spsp")
+    {
+      factorSPSP$numlvl <- num + factorSPSP$numlvl
+      num <- factorSPSP$numlvl
+    }
+    if(design == "strip")
+    {
+      factorSTRIP$numlvl <- num + factorSTRIP$numlvl
+      num <- factorSTRIP$numlvl
+    }
     
     #ocultar en desarrollo la siguiente linea "factores"
-    factores <- agdesign::dt_factordesign
-    dt <- factores %>% mutate(fchoices = FACTOR)
+    #factores <- agdesign::dt_factordesign
+    #dt <- factores %>% mutate(fchoices = FACTOR)
     
-    drawSpecialCasesLevelGEN(
+    factorlevel$ids <- c(factorlevel$ids,paste0(design, "_lvl_espType_", index,"_",num))
+    
+    drawSpecialCasesLevelGENADD(
       order = index,
       dt = dt,
       design,
       input_choice = input[[paste0(design, "_sel_factor_", index)]],
-      num_levels
+      num
     )
+    
     shinyjs::show(id = paste0(design, "_numLevelsESP_", index))
+    #shinyjs::show(id = paste0(design,"_numLevelsESPAdd_",index))
+  })
+  
+  # Funcion GENERAL que responde a CASOS ESPECIALES ELIMINAR "LEVELS" 
+  observeEvent(input$closeLevelBox,{
+    vars <- unlist(strsplit(input$closeLevelBoxid, "_"))
+    design <- vars[1]
+    order <- vars[3]
+    index <- vars[4]
+    
+    factorlevel$ids <- factorlevel$ids[!factorlevel$ids %in% paste0(design, "_lvl_espType_", order,"_",index)]  
+    
+    removeUI(
+      selector = paste0("#", design, "_levelSelection_", order, "_", index),
+      immediate = T
+    )
+    
   })
   
   # Funcion que responde a los CASOS ESPECIALES TIMING "LEVELS"
@@ -6475,11 +6648,12 @@ server_design_agrofims <- function(input, output, session, values){
     design <- vars[1]
     index <- vars[3]
     
+    
     num_levels <-  input[[input$levelsTimingESPid]]
     timingValue = input[[paste0(design,"_lvltiming_",index )]]
     #ocultar en desarrollo la siguiente linea "factores"
-    factores <- agdesign::dt_factordesign
-    dt <- factores %>% mutate(fchoices = FACTOR)
+    #factores <- agdesign::dt_factordesign
+    #dt <- factores %>% mutate(fchoices = FACTOR)
     
     drawTimingSpecialCasesLevelGEN_BODY(design,timingValue, index,num_levels)
     
@@ -6488,8 +6662,8 @@ server_design_agrofims <- function(input, output, session, values){
   # Funcion GENERAL que activa "LEVELS" dependiendo del diseno
   updateLevelSelectionGEN <- function(index, value, design) {
     # ocultar en desarrollo la siguiente linea "factores"
-    factores <- agdesign::dt_factordesign
-    dt <- factores %>% mutate(fchoices = FACTOR)
+    #factores <- agdesign::dt_factordesign
+    #dt <- factores %>% mutate(fchoices = FACTOR)
     
     removeUI(selector = paste0("#", design, "_fl_title_factor_", index), immediate = T)
     removeUI(selector = paste0("#", design, "_note_", index), immediate = T)
@@ -6499,10 +6673,13 @@ server_design_agrofims <- function(input, output, session, values){
     
     shinyjs::hide(id = paste0(design, "_numLevels_", index))
     shinyjs::hide(id = paste0(design, "_numLevelsESP_", index))
+    shinyjs::hide(id = paste0(design, "_numLevelsESPModal_", index))
     
     
     num_levels <- input[[paste0(design, "_numLevels_", index)]]
-    num_levels_esp <- input[[paste0(design, "_numLevelsESP_", index)]]
+    #num_levels_esp <- input[[paste0(design, "_numLevelsESP_", index)]]
+    
+    num_levels_esp <- 1
     
     
     if (value != "") {
@@ -6535,23 +6712,52 @@ server_design_agrofims <- function(input, output, session, values){
     if (!is.null(value)) {
       type_form <- get_dfa_values(dt, choice = input[[paste0(design, "_sel_factor_", index)]], attribute = "FORM")
       
-      
-      ### Agregado ###
+      ### Capturamos el valor del factor
       input_choice = input[[paste0(design, "_sel_factor_", index)]]
-      ### Agregado ###
+      
       
       if (!is.null(type_form) && type_form == "combo box") {
         
         if (input_choice == "Fertilizer type and amount" && AINFO == "yes"){
           
-          drawSpecialCasesLevelGEN(
+          ### Por defecto agregamos el numero 1
+          factorlevel$ids <- c(factorlevel$ids,paste0(design, "_lvl_espType_", index,"_",1))
+          
+          drawSpecialCasesLevelGENADD(
             order = index,
             dt = dt,
             design,
             input_choice = input[[paste0(design, "_sel_factor_", index)]],
-            num_levels_esp
+            1
           )
           shinyjs::show(id = paste0(design, "_numLevelsESP_", index))
+          shinyjs::show(id = paste0(design, "_numLevelsESPModal_", index))
+          ## TODO: START: Transcribir todas estas lineas a una funcion 
+          insertUI(
+            selector = paste0("#", design, "_levelSelection_aux_", index),
+            where = "afterEnd",
+            ui = fluidRow(
+              column(
+                12,
+                
+                bsModal(paste0(design, "_soilModal_", index), "Fertilizer application details", paste0(design, "_numLevelsESPModal_", index), size = "large",
+                        
+                        fluidRow(
+                          column(
+                            12,
+                            style="margin-bottom:5px; text-align: right;",
+                            actionButton(inputId = paste0(design,"_btnRefresh_",index), label = "Refresh",style="color:white" , class="btn btn-info")
+                          )
+                        ),
+                        fluidRow(
+                          id=paste0(design,"_modalAux_",index)
+                        )
+                )
+              )
+              
+            ))
+          ## TODO: END:  Transcribir todas estas lineas a una funcion 
+          
         } else{
           drawComboBoxLevelGEN(
             order = index,
@@ -6565,22 +6771,52 @@ server_design_agrofims <- function(input, output, session, values){
         
         if ((input_choice %in%  c("Mulch type and amount",
                                   "Crop residue amount",
-                                  "Fertilizer type and amount",
                                   "Nutrient element type and amount",
                                   "Irrigation amount",
                                   "Biotic stress type and amount",
                                   "Biotic stress control product type and amount"))
             && AINFO == "yes"){
           
-          drawSpecialCasesLevelGEN(
+          factorlevel$ids <- c(factorlevel$ids,paste0(design, "_lvl_espType_", index,"_",1))
+          drawSpecialCasesLevelGENADD(
             order = index,
             dt = dt,
             design,
             input_choice = input[[paste0(design, "_sel_factor_", index)]],
-            num_levels_esp
+            1
           )
           
           shinyjs::show(id = paste0(design, "_numLevelsESP_", index))
+          
+          if(input_choice == "Nutrient element type and amount"){
+            
+            shinyjs::show(id = paste0(design, "_numLevelsESPModal_", index))
+            
+            insertUI(
+              selector = paste0("#", design, "_levelSelection_aux_", index),
+              where = "afterEnd",
+              ui = fluidRow(
+                column(
+                  12,
+                  
+                  ## TODO: START: Transcribir todas estas lineas a una funcion 
+                  bsModal(paste0(design, "_soilModal_", index), "Fertilizer application details", paste0(design, "_numLevelsESPModal_", index), size = "large",
+                          
+                          fluidRow(
+                            column(
+                              12,
+                              style="margin-bottom:5px; text-align: right;",
+                              actionButton(inputId = paste0(design,"_btnRefresh_",index), label = "Refresh",style="color:white" , class="btn btn-info")
+                            )
+                          ),
+                          fluidRow(
+                            id=paste0(design,"_modalAux_",index)
+                          )
+                  )
+                  ## TODO: END:  Transcribir todas estas lineas a una funcion 
+                )
+              ))
+          }
           
         } 
         else {
@@ -6667,6 +6903,740 @@ server_design_agrofims <- function(input, output, session, values){
       }
     }
   }
+  
+  # Funcion GENERAL que responde a CASOS ESPECIALES "LEVELS ADD"
+  
+  flgM <- reactiveValues()
+  
+  flgM$n1 <- flgM$n2 <- flgM$n3 <- flgM$n3 <- flgM$n4 <- flgM$n5 <- flgM$n6 <- flgM$n7 <- flgM$n8 <- flgM$n9 <- flgM$n10 <- 0
+  
+  ferdt <- reactive({
+    ferdt <- agdesign::dt_fernut[,-1] #Load dataset from agdesign package
+  })
+  
+  # Button to open Modal
+  observeEvent(input$levelsESPModal, {
+    
+    
+    vars <- unlist(strsplit(input$levelsESPModalid, "_"))
+    
+    design <- vars[1]
+    modalLevel <- vars[3]
+    
+    descriptionId <- NULL
+    dfAll <- data.frame(level=NULL,type=NULL,levels=NULL,unit=NULL,stringsAsFactors = FALSE)
+    
+    descriptionId <- c()
+    
+    #Input capturamos valor de Factor
+    factor <- input[[paste0(design,"_sel_factor_",modalLevel)]]
+    
+    if(modalLevel == 1 && flgM$n1 == 0 ){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      }
+      flgM$n1 <- 1
+    }else if (modalLevel == 2 && flgM$n2 == 0){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      }
+      flgM$n2 <- 1
+    }else if (modalLevel == 3 && flgM$n3 == 0){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      }
+      flgM$n3 <- 1
+    }else if (modalLevel == 4 && flgM$n4 == 0){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      }
+      flgM$n4 <- 1
+    }else if (modalLevel == 5 && flgM$n5 == 0){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      }
+      flgM$n5 <- 1
+    }else if (modalLevel == 6 && flgM$n6 == 0){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      }
+      flgM$n6 <- 1
+    }else if (modalLevel == 7 && flgM$n7 == 0){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      }
+      flgM$n7 <- 1
+    }else if (modalLevel == 8 && flgM$n8 == 0){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      }
+      flgM$n8 <- 1
+    }else if (modalLevel == 9 && flgM$n9 == 0){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      }
+      flgM$n9 <- 1
+    }else if (modalLevel == 10 && flgM$n10 == 0){
+      
+      if(factor == "Fertilizer type and amount"){
+        fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      }else if(factor == "Nutrient element type and amount"){
+        nutrientTAModal(modalLevel,descriptionId,dfAll)
+      } 
+      flgM$n10 <- 1
+    }
+  })
+  
+  # Button to refresh Modal
+  observeEvent(input$refreshModal,{
+    
+    vars <- unlist(strsplit(input$refreshModalid, "_"))
+    design <- vars[1]
+    modalLevel <- vars[3]
+    
+    
+    descriptionId <- NULL
+    dfAll <- data.frame(level=NULL,type=NULL,levels=NULL,unit=NULL,stringsAsFactors = FALSE)
+    
+    descriptionId <- c()
+    
+    #Input capturamos valor de Factor
+    factor <- input[[paste0(design,"_sel_factor_",modalLevel)]]
+    
+    if(factor == "Fertilizer type and amount"){
+      fertilizerTAModal(modalLevel,descriptionId,dfAll)
+      
+    }else if(factor == "Nutrient element type and amount"){
+      nutrientTAModal(modalLevel,descriptionId,dfAll)
+      
+    }
+    
+  })
+  
+  
+  
+  
+  # Fertilizer Type and Amount Modal
+  fertilizerTAModal <- function(modalLevel,descriptionId,dfAll){
+    
+    for (i in factorlevel$ids){
+      
+      value <- c(input[[i]])
+      vars <- unlist(strsplit(i, "_"))
+      design <- vars[1]
+      level <- vars[4]
+      indexlevel <- vars[5]
+      
+      levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
+      unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
+      
+      df <- data.frame(   level = rep(level,length(levels)),
+                          type = rep(value,length(levels)),
+                          levels = levels,
+                          unit = rep(unit,length(levels)),
+                          index = rep(indexlevel, length(levels)),
+                          stringsAsFactors = FALSE
+      )
+      
+      dfAll <- rbind(dfAll,df)
+    }
+    
+    dfAll <- dfAll[dfAll$level == modalLevel,]
+    
+    removeUI(
+      selector = paste0("#",design,"_modalContainer_",modalLevel),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#", design, "_modalAux_", modalLevel),
+      where = "beforeBegin",
+      ui=fluidRow(id=paste0(design,"_modalContainer_",modalLevel)
+                  # column(
+                  #   12,
+                  #   style="margin-bottom:5px; text-align: right;",
+                  #   actionButton(inputId = paste0(design,"_btnRefresh_",modalLevel), label = "Refresh",style="color:white" , class="btn btn-info")
+                  # )
+      )
+    )
+    
+    levelNumber <- 0
+    
+    #print("Dataframe Fertilizer")
+    #View(dfAll)
+    
+    for (i in 1:nrow(dfAll)){
+      
+      levelNumber <- levelNumber + 1
+      
+      level <- dfAll[i,1]
+      type <- dfAll[i,2]
+      levels <- dfAll[i,3]
+      unit <- dfAll[i,4]
+      index <- dfAll[i,5]
+      
+      #Loading Dataframe
+      #DF <- loadDataFrame()
+      
+      insertUI(
+        selector = paste0("#",design,"_modalContainer_",modalLevel),
+        where = "beforeEnd",
+        ui = fluidRow(
+          column(
+            12,
+            box(
+              solidHeader = TRUE,
+              status = "warning",
+              width = 12,
+              column(12,
+                     HTML(paste0("<div style='font-weight: bold'>  Factor level ",levelNumber, " </div>")),
+                     HTML("<div style='text-align:center'> Nutrient content in product (%) </div>"),
+                     
+                     column(
+                       12,
+                       column(
+                         3,
+                         disabled(textInput(inputId = paste0(design,"_factorType_",level,"_",index,"_",i),value = type, label = " " ))
+                       ),
+                       column(
+                         9,
+                         loadDataFrame(type)
+                       )
+                     )
+              ),
+              column(
+                12,
+                column(
+                  2,
+                  textInput(inputId = paste0(design,"_mFerProductAmount_",level,"_",index,"_",i),
+                            value = levels,
+                            label = paste0("Product amount ",unit)
+                  )
+                ),
+                column(
+                  2,
+                  selectizeInput(inputId = paste0(design,"_mFerTiming_",level,"_",index,"_",i),
+                                 multiple = TRUE,
+                                 options = list(maxItems = 1, placeholder = "Select one..."),
+                                 label = "Timing",
+                                 choices = fertCombo$get("ferTiming")
+                  )
+                ),
+                column(
+                  2,
+                  fluidRow(id=paste0(design,"_mFerTimingAux_",level,"_",index,"_",i))
+                ),
+                column(
+                  4,
+                  selectizeInput(inputId = paste0(design,"_mFerTechnique_",level,"_",index,"_",i),
+                                 label = "Technique",
+                                 multiple = TRUE,
+                                 options = list(maxItems = 1, placeholder = "Select one..."),
+                                 choices = fertCombo$get("ferTech")
+                  )
+                ),
+                column(
+                  2,
+                  selectizeInput(inputId = paste0(design,"_mFerImplement_",level,"_",index,"_",i),
+                                 label = "Implement",
+                                 multiple = TRUE,
+                                 options = list(maxItems = 1, placeholder = "Select one..."),
+                                 choices = fertCombo$get("ferImple")
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    }
+    
+    insertUI(
+      selector = paste0("#",design,"_modalContainer_",modalLevel),
+      where = "beforeEnd",
+      ui = fluidRow(
+        column(
+          12,
+          box(solidHeader = TRUE,
+              status = "warning",
+              width = 12,
+              column(
+                12,
+                align="center",
+                actionButton(inputId = paste0(design,"_btnmFer_",modalLevel),"Calculate Nutrient Amount",class = "btn btn-primary", style="color:white")
+              ),
+              column(12,
+                     paste0("Nutrient: amount ",unit)
+              ),
+              column(
+                12,
+                loadDataFrame(type)
+              )
+          )
+        )
+      )
+    )
+  }
+  
+  # Nutrient Type and Amount Modal 
+  nutrientTAModal <- function(modalLevel,descriptionId,dfAll){
+    
+    for (i in factorlevel$ids){
+      
+      value <- c(input[[i]])
+      vars <- unlist(strsplit(i, "_"))
+      design <- vars[1]
+      level <- vars[4]
+      indexlevel <- vars[5]
+      levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
+      unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
+      
+      df <- data.frame(   level = rep(level,length(levels)),
+                          type = rep(value,length(levels)),
+                          levels = levels,
+                          unit = rep(unit,length(levels)),
+                          index = rep(indexlevel, length(levels)),
+                          stringsAsFactors = FALSE
+      )
+      
+      dfAll <- rbind(dfAll,df)
+    }
+    
+    #View(dfAll)
+    dfAll <- dfAll[dfAll$level == modalLevel,]
+    
+    removeUI(
+      selector = paste0("#",design,"_modalContainer_",modalLevel),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#", design, "_modalAux_", modalLevel),
+      where = "beforeBegin",
+      ui=fluidRow(id=paste0(design,"_modalContainer_",modalLevel)
+                  # column(
+                  #   12,
+                  #   style="margin-bottom:5px; text-align: right;",
+                  #   actionButton(inputId = paste0(design,"_btnRefresh_",modalLevel), label = "Refresh",style="color:white" , class="btn btn-info")
+                  # )
+      )
+    )
+    
+    levelNumber <- 0
+    
+    for (i in 1:nrow(dfAll)){
+      
+      levelNumber <- levelNumber + 1
+      
+      level <- dfAll[i,1]
+      type <- dfAll[i,2]
+      levels <- dfAll[i,3]
+      unit <- dfAll[i,4]
+      index <- dfAll[i,5]
+      
+      removeUI(
+        selector = paste0(design,"_outputNutDT_",level,"_",index,"_",i),
+        immediate = T
+      )
+      
+      #Loading and filling values in data frame
+      #DF <- loadDataFrame()
+      #DF2 <- loadDataFrame("nutrient")
+      DF <- fillValuesDFNutrient(type,levels)
+      
+      
+      
+      insertUI(
+        selector = paste0("#",design,"_modalContainer_",modalLevel),
+        where = "beforeEnd",
+        ui = fluidRow(
+          column(
+            12,
+            box(
+              solidHeader = TRUE,
+              status = "warning",
+              width = 12,
+              column(12,
+                     column(2,
+                            HTML(paste0("<div style='font-weight: bold'>  Factor level ",levelNumber," ",unit," </div>"))
+                     ),
+                     column(
+                       10,
+                       rhandsontable(DF)
+                     )
+              ),
+              column(
+                12,
+                column(
+                  2
+                ),
+                column(
+                  2,
+                  selectizeInput(inputId = paste0(design,"_mNutTiming_",level,"_",index,"_",i),
+                                 label = "Timing",
+                                 multiple = TRUE,
+                                 options = list(maxItems = 1, placeholder = "Select one..."),
+                                 choices = fertCombo$get("ferTiming")
+                  )
+                ),
+                column(
+                  2,
+                  fluidRow(id=paste0(design,"_mNutTimingAux_",level,"_",index,"_",i))
+                ),
+                column(
+                  4,
+                  selectizeInput(inputId = paste0(design,"_mNutTechnique_",level,"_",index,"_",i),
+                                 label = "Technique",
+                                 multiple = TRUE,
+                                 options = list(maxItems = 1, placeholder = "Select one..."),
+                                 choices = fertCombo$get("ferTech")
+                  )
+                ),
+                column(
+                  2,
+                  selectizeInput(inputId = paste0(design,"_mNutImplement_",level,"_",index,"_",i),
+                                 label = "Implement",
+                                 multiple = TRUE,
+                                 options = list(maxItems = 1, placeholder = "Select one..."),
+                                 choices = fertCombo$get("ferImple")
+                  )
+                )
+              ),
+              column(
+                12,
+                column(
+                  3,
+                  selectizeInput(inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i),
+                                 label = "Choose Product",
+                                 multiple = TRUE,
+                                 options = list(maxItems = 1, placeholder = "Select one..."),
+                                 choices = ferdt()$name
+                  )
+                )
+              ),
+              column(
+                12,
+                column(
+                  12,
+                  rHandsontableOutput(paste0(design,"_outputNutDT_",level,"_",index,"_",i))
+                )
+              )
+            )
+          )
+        )
+      )
+      
+    }
+    
+    insertUI(
+      selector = paste0("#",design,"_modalContainer_",modalLevel),
+      where = "beforeEnd",
+      ui = fluidRow(
+        column(
+          12,
+          box(solidHeader = TRUE,
+              status = "warning",
+              width = 12,
+              column(
+                12,
+                align="center",
+                actionButton(inputId = paste0(design,"_btnmNut_",modalLevel),"Calculate Nutrient Amount",class = "btn btn-primary", style="color:white")
+              ),
+              column(12,
+                     paste0("Nutrient: amount ",unit)
+              ),
+              column(
+                12,
+                HTML("<div> Aca viene un rhandsometable. </div>")
+                #rhandsontable::rHandsontableOutput("output_nutDT")
+              )
+          )
+        )
+      )
+    )
+    
+    
+  }
+  
+  # Select for timing inside fertilizer modal
+  observeEvent(input$mFerTiming,{
+    
+    vars <- unlist(strsplit(input$mFerTimingid, "_"))
+    design <- vars[1]
+    level <- vars[3]
+    index <- vars[4]
+    i <- vars[5]
+    
+    timingValue = input[[input$mFerTimingid]]
+    
+    ### Eliminar Print
+    print(timingValue)
+    
+    removeUI(
+      selector = paste0("#",design, "_mFerTimingContainerValue_",level,"_",index,"_",i),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#", design, "_mFerTimingAux_",level,"_",index,"_",i),
+      where = "beforeBegin",
+      ui =
+        fluidRow(
+          id = paste0(design, "_mFerTimingContainerValue_",level,"_",index,"_",i),
+          column(
+            12,
+            if(timingValue == "Date"){
+              airDatepickerInput(
+                inputId = paste0(design, "_FerTimingValue_",level,"_",index,"_",i),
+                label = "Date",
+                dateFormat = "yyyy-mm-dd",
+                value = Sys.Date(),
+                placeholder = "yyyy-mm-dd",
+                addon = "none",
+                clearButton = TRUE,
+                autoClose = TRUE
+              )
+            }else if(timingValue == "Frequency"){
+              textInput(paste0(design, "_FerTimingValue_",level,"_",index,"_",i),
+                        label = timingValue)
+            }else if(timingValue == "Other"){
+              selectizeInput(inputId = paste0(design, "_FerTimingValue_",level,"_",index,"_",i),
+                             label = timingValue,
+                             multiple = TRUE,
+                             choices = c(),
+                             options = list(
+                               maxItems = 20,
+                               placeholder = "Write..." ,
+                               'create' = TRUE,
+                               'persist' = FALSE
+                             )
+              )
+            }else{
+              selectizeInput(inputId = paste0(design, "_FerTimingValue_",level,"_",index,"_",i),
+                             label = timingValue,
+                             multiple = TRUE,
+                             choices = c(),
+                             options = list(
+                               maxItems = 20,
+                               placeholder = "Write..." ,
+                               'create' = TRUE,
+                               'persist' = FALSE
+                             )
+              )
+            }
+          )
+        )
+    )
+  })
+  
+  # Select for timing inside nutrient modal
+  observeEvent(input$mNutTiming,{
+    
+    vars <- unlist(strsplit(input$mNutTimingid, "_"))
+    design <- vars[1]
+    level <- vars[3]
+    index <- vars[4]
+    i <- vars[5]
+    
+    timingValue = input[[input$mNutTimingid]]
+    
+    ### Eliminar print
+    print(timingValue)
+    
+    removeUI(
+      selector = paste0("#",design, "_mNutTimingContainerValue_",level,"_",index,"_",i),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#", design, "_mNutTimingAux_",level,"_",index,"_",i),
+      where = "beforeBegin",
+      ui =
+        fluidRow(
+          id = paste0(design, "_mNutTimingContainerValue_",level,"_",index,"_",i),
+          column(
+            12,
+            if(timingValue == "Date"){
+              airDatepickerInput(
+                inputId = paste0(design, "_NutTimingValue_",level,"_",index,"_",i),
+                label = "Date",
+                dateFormat = "yyyy-mm-dd",
+                value = Sys.Date(),
+                placeholder = "yyyy-mm-dd",
+                addon = "none",
+                clearButton = TRUE,
+                autoClose = TRUE
+              )
+            }else if(timingValue == "Frequency"){
+              textInput(paste0(design, "_NutTimingValue_",level,"_",index,"_",i),
+                        label = timingValue)
+            }else if(timingValue == "Other"){
+              selectizeInput(inputId = paste0(design, "_NutTimingValue_",level,"_",index,"_",i),
+                             label = timingValue,
+                             multiple = TRUE,
+                             choices = c(),
+                             options = list(
+                               maxItems = 20,
+                               placeholder = "Write..." ,
+                               'create' = TRUE,
+                               'persist' = FALSE
+                             )
+              )
+            }else{
+              selectizeInput(inputId = paste0(design, "_NutTimingValue_",level,"_",index,"_",i),
+                             label = timingValue,
+                             multiple = TRUE,
+                             choices = c(),
+                             options = list(
+                               maxItems = 20,
+                               placeholder = "Write..." ,
+                               'create' = TRUE,
+                               'persist' = FALSE
+                             )
+              )
+            }
+          )
+        )
+    )
+  })
+  
+  #Product change nutrient modal
+  observeEvent(input$mProductNutModal,{
+    vars <- unlist(strsplit(input$mProductNutModalid, "_"))
+    design <- vars[1]
+    level <- vars[3]
+    index <- vars[4]
+    i <- vars[5]
+    
+    value <- input[[paste0(design,"_mNutProduct_",level,"_",index,"_",i)]]
+    
+    output[[paste0(design,"_outputNutDT_",level,"_",index,"_",i)]] <- rhandsontable::renderRHandsontable({
+      if (!is.null(value)){
+        ferdt <- ferdt()
+        ferdt <- ferdt %>% dplyr::filter(name==value)
+        rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+      }
+    })
+  })
+  
+  
+  # LoadDataFrame
+  loadDataFrame <- function(param = NULL){
+    
+    if (!is.null(param)){
+
+      ferdt <- ferdt()
+      ferdt <- ferdt %>% dplyr::filter(name==param)
+      
+      rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+        hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+      
+    }
+    
+    
+    
+    # if(param == "nutrient" && length(param) >0){
+    # 
+    #   DF = data.frame( Product = 0,
+    #                    Factors = 0,
+    #                    Calculated = 0,
+    #                   stringsAsFactors = FALSE)
+    # 
+    # }
+    
+    
+    
+  }
+  
+  # Fill Values for columns in data frame nutrient 
+  fillValuesDFNutrient <- function(type, value){
+    print("method > fillValuesDFNutrient")
+    print(type)
+    print(value)
+    
+    DF = data.frame(
+      Nitrogen = 0,
+      Phosphorus = 0,
+      Potassium = 0,
+      Calcium = 0,
+      Magnesium = 0,
+      Sulfur = 0,
+      Copper = 0,
+      Iron = 0,
+      Manganese = 0,
+      Moldbenum = 0,
+      Boron = 0,
+      Zinc = 0,
+      stringsAsFactors = FALSE)
+    
+    if(type == "Nitrogen" ){
+      DF$Nitrogen = value
+      
+    }else if(type == "Phosphorus"){
+      DF$Phosphorus = value
+      
+    }else if(type == "Potassium"){
+      DF$Potassium = value
+      
+    }else if(type == "Calcium"){
+      DF$Calcium = value
+      
+    }else if(type == "Magnesium"){
+      DF$Magnesium = value
+      
+    }else if(type == "Sulfur"){
+      DF$Sulfur = value
+      
+    }else if(type == "Copper"){
+      DF$Copper = value
+      
+    }else if(type == "Iron"){
+      DF$Iron = value
+      
+    }else if(type == "Manganese"){
+      DF$Manganese = value
+      
+    }else if(type == "Moldbenum"){
+      DF$Moldbenum = value
+      
+    }else if(type == "Boron"){
+      DF$Boron = value
+      
+    }else if(type == "Zinc"){
+      DF$Zinc = value
+      
+    }
+    return(DF)
+  }
+  
   
   # Funcion GENERAL que responde a "OTHER" de "LEVELS"
   observeEvent(input$otherGEN, {
@@ -6921,9 +7891,11 @@ server_design_agrofims <- function(input, output, session, values){
   
   #Get design-factor values from design_factor table
   get_dfa_values <- function(dt, choice = "Abiotic stress Abiotic stress End date", attribute = "LEVEL") {
+    
     if (!is.null(choice)) {
       out <- dt %>% filter(fchoices == choice)
       out <- out[, attribute][[1]]
+      
     } else{
       out <-  ""
     }
@@ -7039,8 +8011,8 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
   
-  # Funcion GENERAL que dibuja CASOS ESPECIALES dependiendo del diseno
-  drawSpecialCasesLevelGEN <- function(order,dt, design, input_choice, num_levels) {
+  # Funcion GENERAL que dibuja CASOS ESPECIALES ADD dependiendo del diseno
+  drawSpecialCasesLevelGENADD <- function(order,dt, design, input_choice, num) {
     
     flevel <- get_dfa_values(dt, choice = input_choice, attribute = "LEVEL")
     unit <- get_dfa_values(dt, choice = input_choice, attribute = "UNIT")
@@ -7050,81 +8022,17 @@ server_design_agrofims <- function(input, output, session, values){
     #Units
     choices_unit <- strsplit(unit, ",")[[1]]
     
-    removeUI(
-      selector = paste0("#", design, "_levelSelection_", order),
-      immediate = T
-    )
-    
-    insertUI(
-      selector = paste0("#", design, "_levelSelection_aux_", order),
-      where = "afterEnd",
-      ui = fluidRow(
-        id = paste0(design, "_levelSelection_", order),
-        fluidRow(
-          id= paste0(design, "_levelSelection_", order,"_1"),
-          column(
-            12,
-            box(
-              solidHeader = TRUE,
-              status = "info",
-              width = 12,
-              column(
-                12,
-                fluidRow(
-                  column(
-                    12,
-                    selectizeInput(
-                      inputId = paste0(design, "_lvl_espType_", order,"_1"),
-                      label = "Type",
-                      multiple = F,
-                      options = list(placeholder = "Select..."),
-                      choices = c(choices_level)
-                    )
-                  )
-                ),
-                fluidRow(id=paste0(design,"_lvl_espType_aux_",order,"_1"))
-              ),
-              column(
-                6,
-                selectizeInput(
-                  paste0(design, "_lvl_", order,"_1"),
-                  label = "Enter levels",
-                  multiple = T,
-                  choices = c(),
-                  options = list(
-                    maxItems = 20,
-                    placeholder = "Write..." ,
-                    'create' = TRUE,
-                    'persist' = FALSE
-                  )
-                )
-              ),
-              column(
-                6,
-                selectInput(
-                  inputId = paste0(design, "_lvl_unit_", order,"_1"),
-                  label = "Unit",
-                  choices = c(choices_unit),
-                  selected = 2
-                )
-              )
-            )
-          )
+    if(num == 1)
+    {
+      insertUI(
+        selector = paste0("#", design, "_levelSelection_aux_", order),
+        where = "afterEnd",
+        ui = fluidRow(
+          id = paste0(design, "_levelSelection_", order),
           
-        )
-      )
-    )
-    
-    num_levels <- as.integer(num_levels)
-    
-    if (num_levels > 1) {
-      for (i in 2:num_levels) {
-        
-        insertUI(
-          selector = paste0("#", design, "_levelSelection_", order, "_", i - 1),
-          where = "afterEnd",
-          ui = fluidRow(
-            id = paste0(design, "_levelSelection_", order, "_", i),
+          fluidRow(
+            id= paste0(design, "_levelSelection_", order,"_",num),
+            
             column(
               12,
               box(
@@ -7134,10 +8042,16 @@ server_design_agrofims <- function(input, output, session, values){
                 column(
                   12,
                   fluidRow(
+                    column(12,
+                           style='padding:0px; text-align:right;',
+                           actionButton(paste0(design,"_closelevel_",order,"_", num), "", icon("close"),style="background:#f2dede;")
+                    )
+                  ),
+                  fluidRow(
                     column(
                       12,
                       selectizeInput(
-                        inputId = paste0(design, "_lvl_espType_", order,"_",i),
+                        inputId = paste0(design, "_lvl_espType_", order,"_",num),
                         label = "Type",
                         multiple = F,
                         options = list(placeholder = "Select..."),
@@ -7145,12 +8059,12 @@ server_design_agrofims <- function(input, output, session, values){
                       )
                     )
                   ),
-                  fluidRow(id=paste0(design,"_lvl_espType_aux_",order,"_",i))
+                  fluidRow(id=paste0(design,"_lvl_espType_aux_",order,"_",num))
                 ),
                 column(
                   6,
                   selectizeInput(
-                    paste0(design, "_lvl_", order,"_",i),
+                    paste0(design, "_lvl_espLvl_", order,"_",num),
                     label = "Enter levels",
                     multiple = T,
                     choices = c(),
@@ -7165,20 +8079,90 @@ server_design_agrofims <- function(input, output, session, values){
                 column(
                   6,
                   selectInput(
-                    inputId = paste0(design, "_lvl_unit_", order,"_",i),
+                    inputId = paste0(design, "_lvl_espUnit_", order,"_",num),
                     label = "Unit",
                     choices = c(choices_unit),
                     selected = 2
                   )
                 )
-                
               )
+            )
+            
+          )
+        )
+      )
+    }
+    
+    
+    if (num > 1) {
+      
+      
+      insertUI(
+        selector = paste0("#", design, "_levelSelection_", order),
+        where = "beforeEnd",
+        ui = fluidRow(
+          id = paste0(design, "_levelSelection_", order, "_", num),
+          column(
+            12,
+            box(
+              solidHeader = TRUE,
+              status = "info",
+              width = 12,
+              column(
+                12,
+                fluidRow(
+                  column(12,
+                         style='padding:0px; text-align:right;',
+                         actionButton(paste0(design,"_closelevel_",order , "_", num), "", icon("close"),style="background:#f2dede;")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    12,
+                    selectizeInput(
+                      inputId = paste0(design, "_lvl_espType_", order,"_",num),
+                      label = "Type",
+                      multiple = F,
+                      options = list(placeholder = "Select..."),
+                      choices = c(choices_level)
+                    )
+                  )
+                ),
+                fluidRow(id=paste0(design,"_lvl_espType_aux_",order,"_",num))
+              ),
+              column(
+                6,
+                selectizeInput(
+                  paste0(design, "_lvl_espLvl_", order,"_",num),
+                  label = "Enter levels",
+                  multiple = T,
+                  choices = c(),
+                  options = list(
+                    maxItems = 20,
+                    placeholder = "Write..." ,
+                    'create' = TRUE,
+                    'persist' = FALSE
+                  )
+                )
+              ),
+              column(
+                6,
+                selectInput(
+                  inputId = paste0(design, "_lvl_espUnit_", order,"_",num),
+                  label = "Unit",
+                  choices = c(choices_unit),
+                  selected = 2
+                )
+              )
+              
             )
           )
         )
-      }
+      )
+      
     }
   }
+  
   
   # Funcion GENERAL que dibuja CASOS ESPECIALES TIMING HEADER dependiendo del diseno
   drawTimingSpecialCasesLevelGEN_HEA <- function(order,dt, design, input_choice, num_levels) {
@@ -7635,41 +8619,45 @@ server_design_agrofims <- function(input, output, session, values){
       IdDesignInputs <- getFactorIds(design)
       index <- get_index_design(IdDesignInputs, design)
       allinputs<-AllInputs()
-      
+  
+      #Get factor's labels
       flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
-      flvl<- get_levels_design(allinputs = AllInputs(),index=index, data_dictionary=dt,
-                               factors = flbl, design=design, format="list")
-   
       
+      #Get especial levels
+      indexEspLvl <- factorlevel$ids 
+      #Get levels
+      flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+                                index, factors = flbl, design=design, format="list")
       
       fvalues$flbl_crd <- flbl #get_factors_design(allinputs = AllInputs(),  design = design)
       fvalues$flvl_crd <- flvl #get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl, design=design, format="list")
-      #fvalues$flbl_crd <- get_factors_design(allinputs = AllInputs(),  design = designFactor)
-      #fvalues$flvl_crd <-get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl_crd, design = designFactor, format = "list")
-      
+ 
       #Eliminar
       print ("######################### START:VALORES VALORES  ##########################")
       
       print(fvalues$flvl_crd)
       
-      
       print ("######################### END:VALORES VALORES  ############################")
       
       fill_CRD_RCBD_ValuesInput(designFactor)
       
-    } else if (designFactor == "rcbd") {
+    } 
+    else if (designFactor == "rcbd") {
       design <- tolower(input$designFieldbook_agrofims)
       IdDesignInputs <- getFactorIds(design)
       index <- get_index_design(IdDesignInputs, design)
       allinputs<-AllInputs()
       flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
-      flvl<- get_levels_design(allinputs = AllInputs(),index=index, data_dictionary=dt,
-                               factors = flbl, design=design, format="list")
+      
+      #Get especial levels
+      indexEspLvl <- factorlevel$ids 
+      #Get levels
+      flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+                                index, factors = flbl, design=design, format="list")
+      
       fvalues$flbl_rcbd <- flbl #get_factors_design(allinputs = AllInputs(),  design = design)
       fvalues$flvl_rcbd <- flvl #get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl, design=design, format="list")
-      #fvalues$flbl_rcbd <- get_factors_design(allinputs = AllInputs(),  design = designFactor)
-      #fvalues$flvl_rcbd <-get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl_rcbd, design = designFactor, format = "list")
-      
+ 
       fill_CRD_RCBD_ValuesInput(designFactor)
     }
   })
@@ -7902,15 +8890,12 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Funcion que dibuja inputs treatment summary para CRD-RCBD
   insertSummaryEntry <- function(treat_num,designFactor) {
-    
-    print(designFactor)
-    
     if(designFactor == "crd") {
       cn <- length(designVarsCRD$ids_NFULL)
     } else if(designFactor=="rcbd") {
       cn <- length(designVarsRCBD$ids_NFULL)
     }
-
+    
     if (!is.null(cn) && cn > 0) {
       repl <- rep("-", cn)
       xvalue <- paste(repl, collapse = " / ")
@@ -8141,6 +9126,7 @@ server_design_agrofims <- function(input, output, session, values){
   
   ##################################################################################
   ############################### END SERVER: DESIGN ###############################
+  
   
   ##################################################################################################
   
@@ -13870,6 +14856,40 @@ server_design_agrofims <- function(input, output, session, values){
       out <- rbind(out_main, out_sub,out_subsub)
       
     }
+    else if(input$designFieldbook_agrofims=="STRIP"){
+      
+      ## Main ##
+      wi_main <- map_singleform_values(input = input$strip_main_expt_plot_width, type = "text",format = "vector", label = "Factor") 
+      wunit_main <- map_singleform_values(input = input$strip_main_expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
+      len_main <- map_singleform_values(input = input$strip_main_expt_plot_length   , type = "text",format = "vector", label = "Factor") 
+      lunit_main <-  map_singleform_values(input = input$strip_main_expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
+      wif_main <- paste(wi_main, wunit_main)
+      lenf_main <-  paste(len_main, lunit_main)
+      
+      iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
+      ow_main<- data.frame(Factor = "Experimental plot width", Value = wif_main )
+      ol_main<- data.frame(Factor = "Experimental plot length",Value = lenf_main )
+      
+      ## Sub plot ##
+      
+      wi_sub <- map_singleform_values(input = input$strip_sub_expt_plot_width, type = "text",format = "vector", label = "Factor") 
+      wunit_sub <- map_singleform_values(input = input$strip_sub_expt_plot_width_unit, type = "combo box",format = "vector", label = "Factor")
+      len_sub <- map_singleform_values(input = input$strip_sub_expt_plot_length   , type = "text",format = "vector", label = "Factor") 
+      lunit_sub <-  map_singleform_values(input = input$strip_sub_expt_plot_length_unit, type = "combo box",format = "vector", label = "Factor")
+      wif_sub <- paste(wi_sub, wunit_sub)
+      lenf_sub <-  paste(len_sub, lunit_sub)
+      
+      iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
+      ow_sub<- data.frame(Factor = "Experimental plot width", Value = wif_sub )
+      ol_sub<- data.frame(Factor = "Experimental plot length",Value = lenf_sub )
+      
+      ## Consolidation of all main, sub plot
+      out_main <- rbind(iou_main, ow_main, ol_main)
+      out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      out<- rbind(out_main, out_sub)
+      
+      
+    }
     
     out
   })
@@ -13958,6 +14978,8 @@ server_design_agrofims <- function(input, output, session, values){
     IdDesignInputs <- getFactorIds(design)
     #Get index from Design's IDs
     index <- get_index_design(IdDesignInputs, design)
+    #Get index for especial factors and levels (espLvl) //IN CASE OF SPECIAL FACTORS
+    indexEspLvl <- factorlevel$ids 
     
     try({
       
@@ -13969,7 +14991,8 @@ server_design_agrofims <- function(input, output, session, values){
         flvl<- get_nonfactorial_levels(input,"crd")
         fb<- fbdesign_agrofims(design=design, rep=rep,trt=flvl) 
         
-      } else if(design =="rcbd"){
+      } 
+      else if(design =="rcbd"){
         block<- as.integer(input$rcbd_rep)
         
         #flbl<- get_factors_design(allinputs = AllInputs(), index, design = "fcrd")
@@ -13979,33 +15002,61 @@ server_design_agrofims <- function(input, output, session, values){
       } else if(design=="fcrd"){
         rep <- as.integer(input$fcrd_rep)
         flbl<- get_factors_design(allinputs = AllInputs(), index, design = "fcrd")
-        flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dtfactordesign,
-                                 index, factors = flbl, design="fcrd", format="list")
+        
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+                                  index, factors = flbl, design="fcrd", format="list")
+        
+        # flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dtfactordesign,
+        #                          index, factors = flbl, design="fcrd", format="list")
+        
         fb<- fbdesign_agrofims(design=design, rep=rep,  fnames= flbl, flevels= flvl) 
       } 
       else if(design=="frcbd"){
         block<- as.integer(input$frcbd_block)
         flbl<- get_factors_design(allinputs = AllInputs(),index,  design = "frcbd")
-        print(flbl)
-        flvl <- get_levels_design(allinputs = AllInputs(),data_dictionary=dtfactordesign, 
+        #Get index from special factors and levels
+        #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
+        #Get levels
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
                                   index, factors = flbl, design="frcbd", format="list")
-        print(flvl)
+
         fb<- fbdesign_agrofims(design=design, rep=block,  fnames= flbl, flevels= flvl) 
       } else if(design =="sprcbd"){
         
         block <- as.integer(input$sp1_block)
         flbl<- get_factors_design(allinputs = AllInputs(), index, design = "sprcbd")
-        flvl<- get_levels_design(allinputs = AllInputs(),data_dictionary=dtfactordesign,
-                                 index, factors = flbl, design="sprcbd", format="list")
+        #Get index from special factors and levels
+        #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
+        #Get levels
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+                                  index, factors = flbl, design="sprcbd", format="list")
+        
+        
         fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl) 
         
       } else if(design =="spsp"){
         block<- as.integer(input$spsp2_block)
         flbl<- get_factors_design(allinputs = AllInputs(), index, design = "spsp")
-        flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dtfactordesign,
-                                 index, factors = flbl, design="spsp", format="list")
+        #Get index from special factors and levels
+        #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
+        #Get levels
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+                                  index, factors = flbl, design="spsp", format="list")
+        
+        fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl)
+      
+      } else if(design =="strip"){
+        block<- as.integer(input$strip_block)
+        flbl<- get_factors_design(allinputs = AllInputs(), index, design = "strip")
+        #Get index from special factors and levels
+        #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
+        #Get levels
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+                                  index, factors = flbl, design="strip", format="list")
         fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl)
       }
+      
+      
       
       fb
     }) #end try
@@ -14487,11 +15538,11 @@ server_design_agrofims <- function(input, output, session, values){
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
-         #  ai <- AllInputs()
-         #  saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-         #  x <- reactiveValuesToList(input)
-         #  saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         # #
+        #ai <- AllInputs()
+        #saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+        #x <- reactiveValuesToList(input)
+        #saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         #
          #  crop <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector",label = "Crop")
          #  addId <- getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
          #  dt_measurements <<- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 

@@ -119,22 +119,19 @@ server_mobile_agrofims <- function(input, output, session, values){
 
       newid = sessionVals$dtkdsmartaux[id, 1]
       
-      
-      print("------------------")
-      #print(newid)
-      #newid = "P4KAIN29"
-      
       listOfFiles <- list.files(sessionpath, paste0(newid,".xlsx"),full.names=T)
       
-      wb <- loadWorkbook(paste0(sessionpath,"/",id,'.xlsx'))
-      experimentId = read_excel(path = paste0(sessionpath,"/",id,'.xlsx'), range = "B2")
+      # START: Save in targz format
+      system(paste0("tar -zcvf /var/www/html/kdsmart/",newid,".tar.gz /home/obenites/AGROFIMS/kdsmart/",newid,".xlsx" ), TRUE)
+      # END: Save in targz format
       
-      print("------------------")
-      print(experimentId)
+      # START: Export in kdx format
+      wb = loadWorkbook(paste0(sessionpath,"/",newid,'.xlsx'))
+      experimentId = readxl::read_xlsx(path = paste0(sessionpath,"/",newid,'.xlsx'),sheet = 1,col_names=FALSE, range="B2")[[1]]
       
       system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.8.9.jar -outdir /home/obenites/AGROFIMS/kdsmart ", listOfFiles ," -nogui"), FALSE)
-      
-      file.copy("/home/obenites/AGROFIMS/kdsmart/XXXX1565757129.kdx", file)
+      file.copy(paste0("/home/obenites/AGROFIMS/kdsmart/",experimentId,".kdx"), file)
+      # END: Export in kdx format
       
     }
   )
