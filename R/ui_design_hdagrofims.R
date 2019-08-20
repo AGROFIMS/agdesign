@@ -1451,7 +1451,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 6,
                 
                 
-                actionButton("btnViewLevelsFactor","Ver arreglo level factors."),
+                actionButton("btnViewLevelsFactor","Ver arreglo de factores"),
                 h2("Experimental design"),
                 shiny::selectInput(
                   "designFieldbook_agrofims", "", 

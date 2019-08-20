@@ -374,7 +374,7 @@ get_amountype_levels <- function(allinputs, index, indexEspLvl=NULL, factors, de
   
   #Filter index from special factors and levels
   indexEspLvl <- filter_index_espLvl_design(index = index, indexEspLvl= indexEspLvl, design=design, designEspflvl="_lvl_espType_")
-  indexEspLvl <- get_index_espLvl_design(indexEspLvl, paste0(design,"_lvl_espType_",index,"_"))  #"frcbd_lvl_espType_2_")
+  indexEspLvl <- get_index_espLvl_design(indexEspLvl, paste0("^",design,"_lvl_espType_",index,"_"))  #"frcbd_lvl_espType_2_")
   
   #Lookup design pattern
   lookup <- paste0("^",design,"_")
@@ -495,7 +495,7 @@ get_index_espLvl_design<- function(indexEspLvl, designEspflvl=NULL){
 filter_index_espLvl_design <- function(index="1", indexEspLvl=NULL, design="frcbd", designEspflvl="_lvl_espType_"){
   
   if(!is.null(indexEspLvl)){
-    out <- indexEspLvl[str_detect(indexEspLvl,paste0(design,"_lvl_espType_",index))]
+    out <- indexEspLvl[str_detect(indexEspLvl,paste0("^",design,"_lvl_espType_",index))]
   }
   else {
     out <- NULL

@@ -6276,8 +6276,18 @@ server_design_agrofims <- function(input, output, session, values){
               column(12,
                      column(12,
                             style='padding:0px; text-align:right;',
-                            hidden(actionButton(inputId = paste0(design,"_numLevelsESP_",index), "Add level",icon("plus-circle"), class = "btn", style="background:#f2dede;color: #red;")),
-                            hidden(actionButton(inputId = paste0(design,"_numLevelsESPModal_",index), "Fertilizer application details",icon("plus-circle"), class = "btn", style="background:#f2dede;color: #red;"))
+                            
+                            hidden(actionButton(inputId = paste0(design,"_numLevelsESP_",index), 
+                                                "Add level",
+                                                icon("plus-circle"), 
+                                                class = "btn", 
+                                                style="background:#f2dede;color: #red;")),
+                            
+                            hidden(actionButton(inputId = paste0(design,"_numLevelsESPModal_",index), 
+                                                "Fertilizer application details",
+                                                icon("plus-circle"), 
+                                                class = "btn", 
+                                                style="background:#f2dede;color: #red;"))
                      )
               )
             ),
@@ -6572,10 +6582,7 @@ server_design_agrofims <- function(input, output, session, values){
     {
       ## Arranca en 2 porque el 1 ya esta por default
       factorFRCBD$numlvl <- num + factorFRCBD$numlvl 
-      print(paste0("factor lvl: ", factorFRCBD$numlvl))
-      
       num <- factorFRCBD$numlvl
-      print(paste0("Num: ", num))
     }
     if(design == "fcrd")
     {
@@ -6633,13 +6640,20 @@ server_design_agrofims <- function(input, output, session, values){
     order <- vars[3]
     index <- vars[4]
     
-    factorlevel$ids <- factorlevel$ids[!factorlevel$ids %in% paste0(design, "_lvl_espType_", order,"_",index)]  
+    # We filter factors and check if the array have more than 1 element, in that case delete 
+    factorFiltered <- factorlevel$ids[str_detect(factorlevel$ids,paste0(design,"_lvl_espType_", order ,"_"))]
     
-    removeUI(
-      selector = paste0("#", design, "_levelSelection_", order, "_", index),
-      immediate = T
-    )
+    print(factorFiltered)
     
+    if(length(factorFiltered)>1)
+    {
+      factorlevel$ids <- factorlevel$ids[!factorlevel$ids %in% paste0(design, "_lvl_espType_", order,"_",index)]
+      removeUI(
+        selector = paste0("#", design, "_levelSelection_", order, "_", index),
+        immediate = T
+      )
+      
+    }
   })
   
   # Funcion que responde a los CASOS ESPECIALES TIMING "LEVELS"
@@ -6897,6 +6911,10 @@ server_design_agrofims <- function(input, output, session, values){
             1
           )
           
+          if (input_choice == "Irrigation timing"){
+            shinyjs::show(id = paste0(design, "_numLevelsESPModal_", index))
+          }
+          
           #shinyjs::show(id = paste0(design, "_numLevelsTimingESP_", index))
           
         }
@@ -7055,6 +7073,9 @@ server_design_agrofims <- function(input, output, session, values){
       indexlevel <- vars[5]
       
       levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
+      
+      if(length(levels)==0){return()}
+      
       unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
       
       df <- data.frame(   level = rep(level,length(levels)),
@@ -7088,9 +7109,6 @@ server_design_agrofims <- function(input, output, session, values){
     )
     
     levelNumber <- 0
-    
-    #print("Dataframe Fertilizer")
-    #View(dfAll)
     
     for (i in 1:nrow(dfAll)){
       
@@ -7216,6 +7234,9 @@ server_design_agrofims <- function(input, output, session, values){
       level <- vars[4]
       indexlevel <- vars[5]
       levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
+      
+      if(length(levels)==0){return()}
+      
       unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
       
       df <- data.frame(   level = rep(level,length(levels)),
@@ -7229,7 +7250,6 @@ server_design_agrofims <- function(input, output, session, values){
       dfAll <- rbind(dfAll,df)
     }
     
-    #View(dfAll)
     dfAll <- dfAll[dfAll$level == modalLevel,]
     
     removeUI(
@@ -7266,11 +7286,7 @@ server_design_agrofims <- function(input, output, session, values){
         immediate = T
       )
       
-      #Loading and filling values in data frame
-      #DF <- loadDataFrame()
-      #DF2 <- loadDataFrame("nutrient")
       DF <- fillValuesDFNutrient(type,levels)
-      
       
       
       insertUI(
@@ -7289,6 +7305,7 @@ server_design_agrofims <- function(input, output, session, values){
                      ),
                      column(
                        10,
+                       #rHandsontableOutput(paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i))
                        rhandsontable(DF)
                      )
               ),
@@ -7352,7 +7369,7 @@ server_design_agrofims <- function(input, output, session, values){
           )
         )
       )
-      
+
     }
     
     insertUI(
@@ -7381,7 +7398,6 @@ server_design_agrofims <- function(input, output, session, values){
         )
       )
     )
-    
     
   }
   
@@ -7552,7 +7568,6 @@ server_design_agrofims <- function(input, output, session, values){
   loadDataFrame <- function(param = NULL){
     
     if (!is.null(param)){
-
       ferdt <- ferdt()
       ferdt <- ferdt %>% dplyr::filter(name==param)
       
@@ -7577,8 +7592,8 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   # Fill Values for columns in data frame nutrient 
-  fillValuesDFNutrient <- function(type, value){
-    print("method > fillValuesDFNutrient")
+  fillValuesDFNutrient <- function(type, value=0){
+    
     print(type)
     print(value)
     
@@ -8173,11 +8188,12 @@ server_design_agrofims <- function(input, output, session, values){
     choices_level <- strsplit(flevel, split = ";")[[1]] %>% stringi::stri_trim_both()
     #choices_unit <- strsplit(unit, ",")[[1]]
     
-    
     # removeUI(
     #   selector = paste0("#", design, "_levelSelection_", order),
     #   immediate = T
     # )
+    
+    
     
     removeUI(
       selector = paste0("#", design, "_levelSelectionTiming_", order),
@@ -8229,6 +8245,7 @@ server_design_agrofims <- function(input, output, session, values){
                    )
             )
           ),
+          
           fluidRow(id=paste0(design, "_levelSelectionTiming_aux_", order))
         )
       )
@@ -8617,21 +8634,25 @@ server_design_agrofims <- function(input, output, session, values){
     if (designFactor == "crd") {
       design <- tolower(input$designFieldbook_agrofims)
       IdDesignInputs <- getFactorIds(design)
-      index <- get_index_design(IdDesignInputs, design)
+      index <<- get_index_design(IdDesignInputs, design)
       allinputs<-AllInputs()
-  
-      #Get factor's labels
-      flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
       
+      flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
       #Get especial levels
       indexEspLvl <- factorlevel$ids 
       #Get levels
-      flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+      flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                 index, factors = flbl, design=design, format="list")
+      
+      # flvl<- get_levels_design(allinputs = AllInputs(),index=index, data_dictionary=dt,
+      #                          factors = flbl, design=design, format="list")
+      
       
       fvalues$flbl_crd <- flbl #get_factors_design(allinputs = AllInputs(),  design = design)
       fvalues$flvl_crd <- flvl #get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl, design=design, format="list")
- 
+      #fvalues$flbl_crd <- get_factors_design(allinputs = AllInputs(),  design = designFactor)
+      #fvalues$flvl_crd <-get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl_crd, design = designFactor, format = "list")
+      
       #Eliminar
       print ("######################### START:VALORES VALORES  ##########################")
       
@@ -8641,8 +8662,7 @@ server_design_agrofims <- function(input, output, session, values){
       
       fill_CRD_RCBD_ValuesInput(designFactor)
       
-    } 
-    else if (designFactor == "rcbd") {
+    } else if (designFactor == "rcbd") {
       design <- tolower(input$designFieldbook_agrofims)
       IdDesignInputs <- getFactorIds(design)
       index <- get_index_design(IdDesignInputs, design)
@@ -8652,12 +8672,17 @@ server_design_agrofims <- function(input, output, session, values){
       #Get especial levels
       indexEspLvl <- factorlevel$ids 
       #Get levels
-      flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+      flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                 index, factors = flbl, design=design, format="list")
+      # flvl<- get_levels_design(allinputs = AllInputs(),index=index, data_dictionary=dt,
+      #                          factors = flbl, design=design, format="list")
+      
       
       fvalues$flbl_rcbd <- flbl #get_factors_design(allinputs = AllInputs(),  design = design)
       fvalues$flvl_rcbd <- flvl #get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl, design=design, format="list")
- 
+      #fvalues$flbl_rcbd <- get_factors_design(allinputs = AllInputs(),  design = designFactor)
+      #fvalues$flvl_rcbd <-get_levels_design(allinputs = AllInputs(), factors = fvalues$flbl_rcbd, design = designFactor, format = "list")
+      
       fill_CRD_RCBD_ValuesInput(designFactor)
     }
   })
@@ -14909,7 +14934,7 @@ server_design_agrofims <- function(input, output, session, values){
       
       flbl<- get_factors_design(allinputs = allinputs, index, design = design,duplicate = FALSE)
       #Get list of labels
-      flvl <- get_levels_design(allinputs = allinputs, data_dictionary= dtfactordesign,
+      flvl <- get_levels_design(allinputs = allinputs, data_dictionary= dt_factordesign,
                                 index, factors = flbl, design=design, format="list")
       #out <- setDT(transpose(flvl))[]
       flvl <-  lapply(flvl, function(x)paste(x,collapse=", "))
@@ -15003,10 +15028,13 @@ server_design_agrofims <- function(input, output, session, values){
         rep <- as.integer(input$fcrd_rep)
         flbl<- get_factors_design(allinputs = AllInputs(), index, design = "fcrd")
         
-        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+        print("indexEspLvl")
+        print(indexEspLvl)
+        
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                   index, factors = flbl, design="fcrd", format="list")
         
-        # flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dtfactordesign,
+        # flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dt_factordesign,
         #                          index, factors = flbl, design="fcrd", format="list")
         
         fb<- fbdesign_agrofims(design=design, rep=rep,  fnames= flbl, flevels= flvl) 
@@ -15017,7 +15045,7 @@ server_design_agrofims <- function(input, output, session, values){
         #Get index from special factors and levels
         #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
         #Get levels
-        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                   index, factors = flbl, design="frcbd", format="list")
 
         fb<- fbdesign_agrofims(design=design, rep=block,  fnames= flbl, flevels= flvl) 
@@ -15028,7 +15056,7 @@ server_design_agrofims <- function(input, output, session, values){
         #Get index from special factors and levels
         #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
         #Get levels
-        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                   index, factors = flbl, design="sprcbd", format="list")
         
         
@@ -15040,7 +15068,7 @@ server_design_agrofims <- function(input, output, session, values){
         #Get index from special factors and levels
         #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
         #Get levels
-        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                   index, factors = flbl, design="spsp", format="list")
         
         fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl)
@@ -15051,7 +15079,7 @@ server_design_agrofims <- function(input, output, session, values){
         #Get index from special factors and levels
         #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
         #Get levels
-        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dtfactordesign, 
+        flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                   index, factors = flbl, design="strip", format="list")
         fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl)
       }
@@ -15539,6 +15567,7 @@ server_design_agrofims <- function(input, output, session, values){
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
         #ai <- AllInputs()
+        #fesplvl <<- factorlevel$ids
         #saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
         #x <- reactiveValuesToList(input)
         #saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
@@ -16295,6 +16324,11 @@ server_design_agrofims <- function(input, output, session, values){
         
         #}################# END ######################
         
+        ###############  START : SEND FIELDBOOK DATA TO KDSMART TABLE IN DATABASE #############
+        sendFieldBookToDB()
+        
+        ###############  END : SEND FIELDBOOK DATA TO KDSMART TABLE IN DATABASE #############
+        
       })
       
     },
@@ -16307,6 +16341,30 @@ server_design_agrofims <- function(input, output, session, values){
     toggleState("downloadData", !is.null(input$croppingType)
     )
   })
+  
+
+  
+  sendFieldBookToDB <- function(){
+    
+    mydb <- conexionDB()
+    #Use "ignore" to avoid mistakes when trying to insert a row with an ID that already exists in the database.
+    query <- paste0("INSERT IGNORE INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `user`, `registered`, `modified`, `status`) VALUES ('",
+                                 input$uniqueId,"','",
+                                 input$experimentId,"','",
+                                 input$fieldbookId,"','",
+                                 session$userData$userMail,"','",
+                                 Sys.Date(),"','",
+                                 Sys.Date(),"','",
+                                 "subido","')")
+
+    dbSendQuery(mydb, query)
+  }
+  
+  conexionDB <- function(){
+    
+    return(dbConnect(MySQL(), user='agrofims', password='cnReOdGjS851TTR140318', dbname='agrofims', host='176.34.248.121'))
+  }
+  
   
   
 }
