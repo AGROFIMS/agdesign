@@ -32,7 +32,7 @@ get_ec_resdesc <- function(input, lbl){
   r_cov_unit <- map_singleform_values(input =input$rmgt_crop_residue_perc_cov_unit, 
                                       type = "select", format = "vector", label = "Factor")  #unit
   #r_thick<- paste0(r_cov,r_cov_unit)
-  r_notes <- input$rmgt_residue_management_notes
+  r_notes <- input$rmgt_residue_description_notes
   
   #BASE FORM OF HEADERS
   # lbl <-  c("Residue_management_plant_part",
@@ -96,6 +96,7 @@ get_ec_resmgt <- function(input, lbl){
     
     r_traction <-  map_singleform_values(input =input$rmgt_residue_traction, input$rmgt_residue_traction_other,
                                          type = "select",format = "vector", label = "Factor")#dates
+    
     r_notes <- input$rmgt_residue_management_notes
     
     

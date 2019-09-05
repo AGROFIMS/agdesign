@@ -583,7 +583,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     tags$script('$(document).on("change", "select[id*=\'_cropCommonName_\']",  function(){
                 Shiny.onInputChange("cropBoxInterVar", Math.random());
                 Shiny.onInputChange("cropBoxInterVarId", this.id);
-    })
+})
                 '),
     
     # When 'other crop' name is filled multicrop
@@ -615,6 +615,15 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     })
                 '
     ),
+    
+    # Crop change
+    tags$script(
+      '$(document).on("change", "[id*=\'cropCommonNameMono\']",  function(){
+      Shiny.onInputChange("cropMonoChange", Math.random());
+      Shiny.onInputChange("cropMonoChangeId", this.id);
+      })'
+    ),
+    
     
     ###################### END: CROP ######################
     
@@ -807,6 +816,25 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       })'
     ),
     
+    # Trigger calculate product amount for fertilizer
+    tags$script(
+      '$(document).on("click", "[id*=\'_btnmFer_\']",  function(){
+      Shiny.onInputChange("calculateProdAmountFertilizer", Math.random());
+      Shiny.onInputChange("calculateProdAmountFertilizerid", this.id);
+    })'
+    ),
+    
+    
+    # Trigger calculate product amount for nutrient
+    tags$script(
+      '$(document).on("click", "[id*=\'_btnmNut_\']",  function(){
+      Shiny.onInputChange("calculateProdAmountNutrient", Math.random());
+      Shiny.onInputChange("calculateProdAmountNutrientid", this.id);
+    })'
+    ),
+    
+    
+    
 
     ###################### END: DESIGN ######################
     
@@ -945,6 +973,25 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       Shiny.onInputChange("levelsTiming_MEAid", this.id);
       })'
     ),
+    
+    
+    # Delete GENERAL para PHE
+    tags$script(
+      '$(document).on("click", "button[id*=\'_closeBox_phe_\']",  function(){
+      Shiny.onInputChange("closeBox_button_PHE", Math.random());
+      Shiny.onInputChange("closeBox_button_PHEid", this.id);
+      })'
+    ),
+    
+    # Add row phenology 
+    tags$script(
+      '$(document).on("click", "button[id*=\'_phe_\'][id$=\'add\']",  function(){
+      Shiny.onInputChange("addRow_button_PHE", Math.random());
+      Shiny.onInputChange("addRow_button_PHEid", this.id);
+})'
+    ),
+    
+    
     
     ###################### END: MEASUREMENT AND PHENOLOGY ######################
     
@@ -1243,11 +1290,11 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   ),
                   column(
                     6, style = "margin-top: 68px;",
-                    hidden(textInput(paste0("soil_class_system_other"), label = "Soil Group", value = "")),
+                    hidden(textInput(paste0("soil_class_system_other"), label = "Soil group", value = "")),
                     conditionalPanel(
                       "input.soil_class_system == 'FAO'",
                       selectizeInput(
-                        "soil_class_fao", label = "Soil Group", multiple = TRUE,
+                        "soil_class_fao", label = "Soil group", multiple = TRUE,
                         choices = c("Acrisols",
                                     "Andosol",
                                     "Arenosols",
@@ -1270,7 +1317,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     conditionalPanel(
                       "input.soil_class_system == 'USDA'",
                       selectizeInput(
-                        "soil_class_usda", label = "Soil Group", multiple = TRUE,
+                        "soil_class_usda", label = "Soil group", multiple = TRUE,
                         choices = c("Alfisols",
                                     "Andisols",
                                     "Aridisols",

@@ -1,6 +1,7 @@
 #Get measurement data from Crop Measurement Data Dictionary
-#
-#
+#attribute: Column values to look for
+#crop: crop name
+#subgroup: subgroup column name
 get_dcm_values <- function(data_dictionary=NULL, attribute = "Subgroup", crop="Potato", subgroup=NULL, measurement= NULL){
   
   if (!is.null(data_dictionary) && !is.null(crop)) {
@@ -10,6 +11,14 @@ get_dcm_values <- function(data_dictionary=NULL, attribute = "Subgroup", crop="P
     } else if(is.null(measurement)) {
       out <-data_dictionary %>% dplyr::filter(Crop==crop) %>% dplyr::select_(attribute)  
       out<- unique(out)
+      
+    } else if(!is.null(measurement) && attribute=="Subgroup" && !is.null(crop)){
+      out <- data_dictionary %>% dplyr::filter(Crop==crop) %>% 
+                                 #dplyr::filter(Subgroup==subgroup) %>% 
+                                 dplyr::filter(Measurement == measurement) %>%  
+                                 dplyr::select_(attribute)
+      #out<- out[,1] 
+      
     } else if(!is.null(measurement) && attribute=="TraitUnit"){
       out <-data_dictionary %>% dplyr::filter(Crop==crop) %>% 
                                 dplyr::filter(Subgroup==subgroup) %>% 

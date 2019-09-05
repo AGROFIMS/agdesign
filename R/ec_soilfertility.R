@@ -96,3 +96,121 @@ get_fertilizer <- function(.data){
 }
 
 
+# minimize total cost of a fertilizer treatment
+productApplicationRates <- function(supply, treatment, price, minCost=TRUE){
+  name <- supply$name
+  supply <- t(as.matrix(supply[,-1]))
+  treatment <- as.matrix(treatment)
+  
+  result <- matrix(nrow=ncol(supply), ncol=nrow(treatment))
+  price <- price * minCost
+  treatment <- treatment * 100
+  for (i in 1:nrow(treatment)) {
+    solution <- limSolve::linp(E=supply, F=treatment[i,], Cost=price)
+    if (solution$IsError) {
+      result[,i] <- -99
+    } else { 	
+      result[,i] <- solution$X
+    }
+  }
+  colnames(result) <- paste0("tr.", 1:ncol(result))
+  data.frame(name, result)
+}
+
+# calculation of nutrient rate application
+nutrientApplicationRates <- function(supply, treatment) {
+  result <- matrix(nrow=ncol(supply)-1, ncol=ncol(treatment)-1)
+  x <- match(treatment$name, supply$name)
+  sup <- supply[x, -1] / 100
+  for (i in 2:ncol(treatment)) {
+    result[,i-1] <- colSums(treatment[,i] * sup)
+  }
+  colnames(result) <- colnames(treatment)[-1]
+  data.frame(element=colnames(sup), result)
+}
+
+#Reshape nutrient data
+nutrient_reshape<- function(df, name="A", values="B"){
+  out<- list()
+  nutrient<- unique(df[,name]) %>% nth(1)
+  for(i in seq.int(nutrient)   ){
+    out[[i]] <- df %>% dplyr::filter(A==nutrient[i]) %>% dplyr::select_(values) %>% nth(1)
+    out[[i]]<- as.data.frame(out[[i]],stringsAsFactors=FALSE)
+    names(out[[i]]) <- nutrient[i]
+  }
+  if(length(out)>1){
+    #https://stackoverflow.com/a/53893866/7340448
+    #How to cbind a list of data.frames of different lengths
+    #library(rowr)
+    out <- do.call(rowr::cbind.fill, c(out, fill = NA))
+  } else {
+    out <- out[[1]]
+  }
+  out
+  #out<- rbindlist(out)
+}
+
+#Product calculation
+product_calculation <- function(allinputs, index="1", indexEspLvl=factorlevel$ids , design="frcbd"){
+  
+  #Get labels
+  indexEspLvl<- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
+  
+  flbl<- get_factors_design(allinputs =allinputs, index,  design= design)
+  #Get especial levels
+  indexEspLvl_subfix <- get_index_espLvl_design(indexEspLvl, paste0(design,"_lvl_espType_"))
+  lookup <- paste0(design,"_")
+  eleType <- allinputs %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_espType_", indexEspLvl_subfix, "$" ))) %>% nth(2) 
+  #Get levels
+  flvl <- get_levels_design(allinputs =allinputs, indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
+                            index, factors = flbl, design=design, format="list")
+  #Table of nutrient details (eletype, mNumTiming)
+  nutrients_details <- get_nutrient_details_design(allinputs=allinputs, design=design, index =index, indexEspLvl = indexEspLvl)
+  print("5")
+  # nutrient_elements <- tidyr::separate(data = tibble(level=flvl[[as.integer(index)]]), 
+  #                                      col=level, into=c("A","B"), sep="_") %>% 
+  #                      dplyr::mutate(B= gsub("(\\d+).*", "\\1",  B))
+  # 
+  nutrient_elements <- tidyr::separate(data = tibble(level=flvl[[1]]), 
+                                       col=level, into=c("A","B"), sep="_") %>% 
+    dplyr::mutate(B= gsub("(\\d+).*", "\\1",  B))
+  
+  
+  
+  treatments <- nutrient_reshape(nutrient_elements, "A", "B")
+  #ASIGNAR 0 A LOS NA
+  #https://stackoverflow.com/questions/20535505/replacing-all-missing-values-in-r-data-table-with-a-value
+  treatments[is.na(treatments)] = 0
+  treatments <- purrr::map_dfr(treatments, as.numeric) 
+  
+  print("7")
+  FertProDt<- dt_fernut %>% dplyr::filter(name %in% nutrients_details$mNutProduct) 
+  names(FertProDt) <- c("group", "name", "Nitrogen","Phosphorus","Potassium","Calcium","Magnesium",  
+                        "Sulfur", "Moldbenum", "Zinc", "Boron", "Copper")
+  FertProDt <- FertProDt[,c("name",unique(nutrient_elements$A))]
+  FertProDt[is.na(FertProDt)] = 0
+  FertProDt <- purrr::map_at(.x = FertProDt,.at = unique(nutrient_elements$A), .f = as.numeric) %>% as.data.frame(stringsAsFactors=FALSE)
+  
+  
+  ##TODO:: TRANSFORMAR A NUMERICO ambas matrices
+  price <- rep(1, nrow(FertProDt) )
+  r <- productApplicationRates(supply = FertProDt, treatment = treatments , price =price , minCost=FALSE)
+  
+  #rr <- r[apply(r[,-1], 1, function(i) !all(i==0)), ]
+  print(r)   
+  
+}
+#product_calculation(AllInputs(), "1", factorlevel$ids , "frcbd")
+
+#Fertilzier calculation
+fertilizer_calculation <- function(allinputs, index="1", indexEspLvl=factorlevel$ids , design="frcbd"){
+  
+#1: Supply: CALCULATE PRODUCT AMOUNT MATRIX (rr)
+#2: USE CONTENT (FILTER dt_ferti by nutrient fertilizer name) contents  
+#3: nutrientApplicationRates(contents, rr)   
+    
+  
+}
+
+
+

@@ -690,7 +690,7 @@ add_season_numplot_prefix<- function(dt){
         if(dt$NumberofMeasurementsPerSeason[i]==1L){
           out2[[i]] <- out[[i]]
         } else {
-          out2[[i]]<- sort( as.vector(outer(1:dt$NumberofMeasurementsPerSeason[i], out[[i]], paste, sep="#")))
+          out2[[i]]<- sort( as.vector(outer(1:dt$NumberofMeasurementsPerSeason[i], out[[i]], paste, sep=":")))
         }
       }
       

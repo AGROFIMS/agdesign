@@ -474,6 +474,7 @@ get_index_design<- function(id, design){
 ## Get index level from given ID (provided by the statistical design prefix)
 #indexEspLvl: character vector (one or multiple values). Statistical design abbreviation + especial level prefix provided by Shiny. Ex "frcbd_lvl_espType_2_1"
 #designEspflvl: statistical design abbreviation + especial level prefix: "frcbd_lvl_espType_"
+#Ex.: get_index_espLvl_design("frcbd_lvl_espType_2_1", "frcbd_lvl_espType_")
 get_index_espLvl_design<- function(indexEspLvl, designEspflvl=NULL){
   
   if(!is.null(designEspflvl)){
@@ -484,6 +485,7 @@ get_index_espLvl_design<- function(indexEspLvl, designEspflvl=NULL){
 
 }
 
+#FILTER SPECIAL LEVEL INDEX BY DESIGN AND FACTOR INDEX
 #index: one-value character vector. Index provided by the factor id. Ex. index="1"
 #indexEspLvl: character vector (one or multiple values). Ex.: "frcbd_lvl_espType_2_1"
 #design: character. Statistical design abbreviation. Ex.: design="crd".
@@ -492,6 +494,7 @@ get_index_espLvl_design<- function(indexEspLvl, designEspflvl=NULL){
 #lvlIds <- c("frcbd_lvl_espType_1_1", "frcbd_lvl_espType_2_1" ,"frcbd_lvl_espType_2_2")
 #index<- "1"
 #res<-filter_index_espLvl_design(index ="2",lvlIds= lvlIds, design="frcbd", designEspflvl="_lvl_espType_")
+
 filter_index_espLvl_design <- function(index="1", indexEspLvl=NULL, design="frcbd", designEspflvl="_lvl_espType_"){
   
   if(!is.null(indexEspLvl)){
@@ -502,4 +505,166 @@ filter_index_espLvl_design <- function(index="1", indexEspLvl=NULL, design="frcb
   }  
  
 }
+
+
+# Get index level from given ID (provided by the statistical design prefix)
+# allinputs: All input values from AGROFIMS sessions
+# indexEspLvl: index's levels 
+# design: design
+# index: design-factor index. Only one value is allowed.
+# indexEspLvl: character vector (one or multiple values). Statistical design abbreviation + especial level prefix provided by Shiny. Ex "frcbd_lvl_espType_2_1"
+# Ex.: res<- get_nutrient_details(allinputs=allinputs, design=design, index =2, indexEspLvl = indexEspLvl)
+
+get_nutrient_details_design <- function(allinputs, design, index, indexEspLvl){
+  
+  
+  #Filter by design and current factor index
+  indexEspLvl<- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
+  #Get index after filtering
+  #return: 2_1, 2_2, 2_3
+  indexEspLvl_subfix <- get_index_espLvl_design(indexEspLvl, paste0(design,"_lvl_espType_")) #"frcbd_lvl_espType_")
+  #Number of elements
+  n <- length(get_amountype_levels(allinputs, index, indexEspLvl=indexEspLvl, factors="", design=design)) 
+  
+  
+  #Lookup design pattern
+  lookup <- paste0("^",design,"_")
+  dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
+                      dplyr::filter(!str_detect(id, "button")) %>%
+                      #dplyr::filter(!str_detect(id, "unit")) %>%  ##Contemplate Unit case
+                      dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                      dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                      dplyr::filter(str_detect(id, lookup))
+  
+  
+  
+  eleType<- mNumTiming <- mNumTimingValue <- mTechnique <- mImplement <- mNutProduct <- NULL
+  nutrient_list<- list()
+  
+  
+  for(i in seq.int(indexEspLvl_subfix)){
+    
+    mNumTiming <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutTiming_",indexEspLvl_subfix[i],"_"))) %>% nth(2)
+    #mNumTiming[i] <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutTiming_",index,"_",level,"_",i, "$"))) %>% nth(2) 
+    #paste0(design,"_mNutTiming_",level,"_",index,"_",i)
+    
+    mNumTimingValue <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"NutTimingValue_",indexEspLvl_subfix[i],"_"))) %>% nth(2) 
+    #mNumTimingValue[i] <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"NutTimingValue_",index,"_",level,"_",i, "$"))) %>% nth(2) 
+    #paste0(design, "_NutTimingValue_",level,"_",index,"_",i)             
+    
+    mTechnique <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutTechnique_",indexEspLvl_subfix[i],"_"))) %>% nth(2)
+    #mTechnique[i] <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutTechnique_",index,"_",level,"_",i, "$"))) %>% nth(2) 
+    #paste0(design,"_mNutTechnique_",level,"_",index,"_",i)
+    
+    mImplement <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutImplement_",indexEspLvl_subfix[i],"_"))) %>% nth(2)
+    #mImplement[i] <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutImplement_",index,"_",level,"_",i, "$"))) %>% nth(2) 
+    #paste0(design,"_mNutImplement_",level,"_",index,"_",i)
+    
+    mNutProduct <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutProduct_",indexEspLvl_subfix[i],"_"))) %>% nth(2) 
+    
+    eleType <- allinputs %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_espType_",indexEspLvl_subfix[i],"$"))) %>% nth(2) 
+    
+    nutrient_list[[i]]<- data.table::data.table(eleType,mNumTiming,mNumTimingValue, mTechnique,mImplement,mNutProduct)
+    
+  }
+  #Juntamos las 3 listas.
+  out <- data.table::rbindlist(nutrient_list)
+  
+  # eleType <- allinputs %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_espType_",indexEspLvl_subfix ,"$"))) %>% nth(2) 
+  # 
+  # #indexEspLvl <-filter_index_espLvl_ design(index = index, indexEspLvl = indexEspLvl, design = design)
+  # 
+  # mNumTiming <- mNumTimingValue <- mTechnique <- mImplement <- mNutProduct <- vector(mode = "character", length = length(indexEspLvl))
+  # 
+  # #for(i in seq.int(indexEspLvl)) {
+  # 
+  # mNumTiming <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutTiming_",indexEspLvl_subfix,"_",collapse = "|"))) %>% nth(2)
+  # #mNumTiming[i] <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutTiming_",index,"_",level,"_",i, "$"))) %>% nth(2) 
+  # #paste0(design,"_mNutTiming_",level,"_",index,"_",i)
+  # 
+  # mNumTimingValue <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"NutTimingValue_",indexEspLvl_subfix,"_",collapse = "|"))) %>% nth(2) 
+  # #mNumTimingValue[i] <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"NutTimingValue_",index,"_",level,"_",i, "$"))) %>% nth(2) 
+  # #paste0(design, "_NutTimingValue_",level,"_",index,"_",i)             
+  # 
+  # mTechnique <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutTechnique_",indexEspLvl_subfix,"_",collapse = "|"))) %>% nth(2)
+  # #mTechnique[i] <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutTechnique_",index,"_",level,"_",i, "$"))) %>% nth(2) 
+  # #paste0(design,"_mNutTechnique_",level,"_",index,"_",i)
+  # 
+  # mImplement <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutImplement_",indexEspLvl_subfix,"_",collapse = "|"))) %>% nth(2)
+  # #mImplement[i] <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutImplement_",index,"_",level,"_",i, "$"))) %>% nth(2) 
+  # #paste0(design,"_mNutImplement_",level,"_",index,"_",i)
+  # 
+  # mNutProduct <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutProduct_",indexEspLvl_subfix,"_",collapse = "|"))) %>% nth(2) 
+  # #mNutProduct[i] <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutProduct_",index,"_",level,"_",i, "$"))) %>% nth(2) 
+  # #paste0(design,"_mNutProduct_",level,"_",index,"_",i)
+  # 
+  # #}
+  # #output<- tiblle
+  # out<- smart_colbind(mNumTiming,mNumTimingValue, mTechnique,mImplement,mNutProduct ) #data.frame(NFactor = index, mNumTiming, mNumTimingValue, mTechnique, mImplement, mNutProduct)
+  
+}
+
+
+
+# Get index level from given ID (provided by the statistical design prefix)
+# allinputs: All input values from AGROFIMS sessions
+# indexEspLvl: index's levels 
+# design: design
+# index: design-factor index. Only one value is allowed.
+# indexEspLvl: character vector (one or multiple values). Statistical design abbreviation + especial level prefix provided by Shiny. Ex "frcbd_lvl_espType_2_1"
+# Ex.: res<- get_nutrient_details(allinputs=allinputs, design=design, index =2, indexEspLvl = indexEspLvl)
+
+get_fertilizer_details_design <- function(allinputs, design, index, indexEspLvl){
+  
+  
+  #Filter by design and current factor index
+  indexEspLvl<- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
+  #Get index after filtering
+  #return: 2_1, 2_2, 2_3
+  indexEspLvl_subfix <- get_index_espLvl_design(indexEspLvl, paste0(design,"_lvl_espType_")) #"frcbd_lvl_espType_")
+  #Number of elements
+  n <- length(get_amountype_levels(allinputs, index, indexEspLvl=indexEspLvl, factors="", design=design)) 
+  
+  
+  #Lookup design pattern
+  lookup <- paste0("^",design,"_")
+  dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
+    dplyr::filter(!str_detect(id, "button")) %>%
+    #dplyr::filter(!str_detect(id, "unit")) %>%  ##Contemplate Unit case
+    dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+    dplyr::filter(!str_detect(id, "-selectized")) %>%  
+    dplyr::filter(str_detect(id, lookup))
+  
+  
+  
+  eleType<- mFerTiming <- mFerTimingValue <- mTechnique <- mImplement <- mFerProduct <- NULL
+  fertilizer_list<- list()
+  
+  
+  for(i in seq.int(indexEspLvl_subfix)){
+    
+    eleType <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"factorType_",indexEspLvl_subfix[i],"_"))) %>% nth(2)
+    
+    mFerTiming <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mFerTiming_",indexEspLvl_subfix[i],"_"))) %>% nth(2)
+ 
+    mFerTimingValue <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"FerTimingValue_",indexEspLvl_subfix[i],"_"))) %>% nth(2) 
+ 
+    mTechnique <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mFerTechnique_",indexEspLvl_subfix[i],"_"))) %>% nth(2)
+ 
+    mImplement <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mFerImplement_",indexEspLvl_subfix[i],"_"))) %>% nth(2)
+  
+    mFerProduct <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mFerProductAmount_",indexEspLvl_subfix[i],"_"))) %>% nth(2) 
+    
+    fertilizer_list[[i]]<- data.table::data.table(eleType ,mFerTiming, mFerTimingValue, mTechnique,mImplement, mFerProduct)
+    
+  }
+  #Juntamos las 3 listas.
+  out <- data.table::rbindlist(fertilizer_list)
+  
+ 
+}
+
+
+
+
 
