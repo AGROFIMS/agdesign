@@ -7494,7 +7494,7 @@ server_design_agrofims <- function(input, output, session, values){
     
 
     output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
-        rhandsontable(as.data.frame(out)) 
+        rhandsontable(as.data.frame(out),rowHeaders = FALSE) 
     })
 
   })
@@ -7659,7 +7659,7 @@ server_design_agrofims <- function(input, output, session, values){
       if (!is.null(value)){
         ferdt <- ferdt()
         ferdt <- ferdt %>% dplyr::filter(name==value)
-        rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+        rhandsontable(ferdt,rowHeaders = FALSE) %>% hot_col(col = 1,readOnly = TRUE) %>% 
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
       }
     })
@@ -7673,7 +7673,7 @@ server_design_agrofims <- function(input, output, session, values){
       ferdt <- ferdt()
       ferdt <- ferdt %>% dplyr::filter(name==param)
       
-      rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+      rhandsontable(ferdt,rowHeaders = FALSE) %>% hot_col(col = 1,readOnly = TRUE) %>% 
         hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
       
     }
