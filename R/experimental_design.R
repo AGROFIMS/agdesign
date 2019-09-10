@@ -160,7 +160,7 @@ get_levels_design <- function(allinputs, index, indexEspLvl=NULL, factors, desig
           #General cases
           else {
                  
-            out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i])))
+            out[[i]]<- dt %>% dplyr::filter(str_detect(id, paste0(lookup, index[i]))) %>% distinct()
             if(factors[i]==""){
               out[[i]] <- c("","","")
             }

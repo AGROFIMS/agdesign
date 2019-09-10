@@ -194,38 +194,101 @@ map_values <- function(input, id_chr="", id_rand,
     print(id_chr)
  
     if(is.null(input[[paste0(id_chr, i)]])){
-      funAgenVals[[i]] <- ""        
+    
+      if(id_chr=="tLeadCenter_"){
+        
+        if(is.null(input[[paste0("projLeadEnt_", i)]])){
+          
+          funAgenVals[[i]]<- "---"
+        }
+        
+        else if(input[[paste0("projLeadEnt_", i)]]=="CGIAR center" ){
+          
+          funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("tLeadCenter_", i)]],
+                                                     input_other = "",
+                                                     type = "select", format="vector")
+        }  
+        
+        else if(input[[paste0("projLeadEnt_", i)]]!="CGIAR center"){
+          
+          funAgenVals[[i]]<- "---" 
+          
+        }
+    
+      }
+      else if(id_chr=="tLeadContCRP_"){
+        
+        if(is.null(input[[paste0("projLeadEnt_", i)]])){
+          funAgenVals[[i]]<- "---" 
+        }
+        
+        else if(input[[paste0("projLeadEnt_", i)]]=="CGIAR center" ){
+          # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
+          funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("tLeadContCRP_", i)]],
+                                                     input_other = "",
+                                                     type = "select", format="vector")
+          
+        } 
+        
+        else if(input[[paste0("projLeadEnt_", i)]]!="CGIAR center"){
+          
+          funAgenVals[[i]]<- "---" 
+          
+        }
+        
+      }
+      else {
+          funAgenVals[[i]] <- ""
+      }
+      
+      
     } 
-  
     else if (input[[paste0(id_chr, i)]]=="Other"){
       
       #special cases 1 (for Project Lead) : projLeadEnt ==
       if(id_chr=="projLeadEnt_"){
-        
-        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("lead_org_type_1_", i)]],
-                                                   input_other = input[[paste0("lead_org_type_1_", i,"_","other")]],
-                                                   type = "select", format="vector")
-        
-      } else if(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_", i)]]=="Other" &&  input[[paste0("lead_org_type_1_", i,"_","other")]]=="Other"){
-        # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
-        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("leadNameOther_", i)]],
+        #projLeadEnt_3_other
+        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("projLeadEnt_", i,"_","other")]], 
                                                    input_other = "",
                                                    type = "select", format="vector")
-      } 
+        
+        
+        
+        # else  if(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_", i)]]=="Other"){
+        #   funAgenVals[[i]]<- "---"
+        #   
+        # }
+        
+        
+        # funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("lead_org_type_1_", i)]],
+        #                                            input_other = input[[paste0("lead_org_type_1_", i,"_","other")]],
+        #                                            type = "select", format="vector")
        
-      else if(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_", i)]]=="CGIAR center" ){
-        # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
-        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("tLeadCenter_", i)]],
-                                                   input_other = "",
-                                                   type = "select", format="vector")
-      }
+      } 
       
-      else if(id_chr=="tLeadContCRP_" && input[[paste0("projLeadEnt_", i)]]=="CGIAR center" ){
-        # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
-        funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("tLeadContCRP_", i)]],
-                                                   input_other = "",
-                                                   type = "select", format="vector")
-      }
+      
+      # } else if(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_", i)]]=="Other"){
+      #   # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
+      #   funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("leadNameOther_", i)]],
+      #                                              input_other = "",
+      #                                              type = "select", format="vector")
+      # } 
+       
+      # else if(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_", i)]]=="CGIAR center" ){
+      #   # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
+      # 
+      #   funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("tLeadCenter_", i)]],
+      #                                              input_other = "",
+      #                                              type = "select", format="vector")
+      #   #funAgenVals[[i]]<- "----"
+      # }
+      
+      # else if(id_chr=="tLeadContCRP_" && input[[paste0("projLeadEnt_", i)]]=="CGIAR center" ){
+      #   # case 6: projLeadEnt=="Other", lead_org_type_1_=="Other"
+      #   funAgenVals[[i]] <-  map_singleform_values(input = input[[paste0("tLeadContCRP_", i)]],
+      #                                              input_other = "",
+      #                                              type = "select", format="vector")
+      # }
       #tLeadContCRP_1
       
       
@@ -260,6 +323,11 @@ map_values <- function(input, id_chr="", id_rand,
         }
     }
    
+    # if(id_chr=="tLeadCenter_" && input[[paste0("projLeadEnt_", i)]]=="Other"){
+    #   funAgenVals[[i]]<- "---"
+    #   
+    # }
+    
     #SPECIAL CASE: id_chr ="designFieldbook_fundAgencyType_name_" && input[["designFieldbook_fundAgencyType_"]]=="CGIAR"
     #When user select CGIAR center in Funding agency type select combo
     
@@ -279,9 +347,45 @@ map_values <- function(input, id_chr="", id_rand,
     if(!is.null(input[[paste0("projLeadEnt_",i)]] )) { 
       #special cases 3 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
       if( input[[paste0("projLeadEnt_",i)]]=="Other" &&  id_chr=="tLeadCenter_"){
-        funAgenVals[[i]] <- ""
+        funAgenVals[[i]] <- "---"
       }
     }  
+    
+    #CASO: When person affiliation is equal to Other and then write the Other value
+    #if(!is.null(input[[paste0("person_affiliation_",i)]] )) { 
+      #special cases 3 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+      # if( id_chr=="person_affiliation_" && input[[paste0("person_affiliation_",i)]]=="Other"){
+      #   funAgenVals[[i]] <- map_singleform_values(input = input[[paste0("affiliation_name_", i,"_","other")]], 
+      #                                             input_other = "",
+      #                                             type = "select", format="vector") 
+      # }
+    
+    #CASO: When person affiliation is equal to Other and then write the Other value
+    if(!is.null(input[[paste0("person_affiliation_",i)]] )) { 
+      #special cases 3 (get Experiment, lead organization name): projLeadEnt == "Other" && tLeadCenter=="NULL
+      
+      #When id_chr=="affiliation_name_" and Person affiliation is different from "other"
+      if( input[[paste0("person_affiliation_",i)]]!="Other" &&  id_chr=="affiliation_name_"){
+          funAgenVals[[i]] <- map_singleform_values(input = input[[paste0("affiliation_name_", i)]], 
+                                                    input_other =  "",
+                                                    type = "select", format="vector") 
+      }
+      else if( input[[paste0("person_affiliation_",i)]]=="Other" &&  id_chr=="person_affiliation_"){
+          
+        funAgenVals[[i]] <- map_singleform_values(input = input[[paste0("person_affiliation_", i,"_","other")]], 
+                                                  input_other =  input[[paste0("person_affiliation_", i,"_","other")]],
+                                                  type = "select", format="vector") 
+        
+          #funAgenVals[[i]] <- "Other"
+          # funAgenVals[[i]] <-   map_singleform_values(input = "Other", #input[[paste0("person_affiliation_", i,"_","other")]],
+          #                                             input_other = "",
+          #                                             type = "select", format="vector")
+       }
+      #When id_chr=="affiliation_name_" and person affiliation is "Other"
+    }
+      
+    #}  
+    
     
     #Deprecated case: SPECIAL CASE:  id_chr="tLeadCenter_" y projecLeadEnt=="Other" in EXPERIMENT LEAD BOX
     # if( id_chr=="tLeadCenter_") { 

@@ -13,7 +13,12 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     #          "Weeding_notes", "Weeding_implement_type", "Weeding_implement_traction")
     
     lbl <- c("Weeding_start_date", "Weeding_technique", 
-             "Weeding_notes", "Weeding_implement_type", "Weeding_traction_type")
+             "Weeding_notes", "Weeding_implement_type", "Weeding_traction_type",
+             "Weed_biomass_fresh_weight_kg/ha",
+             "Weed_biomass_subsample_fresh_weight_kg/ha",
+             "Weed_biomass_dry_weight_kg/ha",
+             "Weed_biomass_subsample_dry_weight_kg/ha"
+             )
     
     lbl_weed <- vector(mode = "character",length = 0L)
     for(i in 1:length(addId)){
@@ -41,8 +46,16 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     traction <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_traction_[:digit:]+$")))
     traction_other <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_traction_[:digit:]+_other$")))
     traction<- dt_inputs(traction, traction_other)
+    
+    wbiofw <- data.frame(id= paste0(ctype,"_wewd_weeding_wbiofw_",seq.int(addId)) , values= rep("",length(addId)), stringsAsFactors = FALSE) #"Weed_biomass_fresh_weight_kg/ha",
+    #wbiosubfw <-  data.frame(id="non_indexed" , values= "") #Weed_biomass_subsample_fresh_weight_kg/ha",
+    wbiosubfw <- data.frame(id= paste0(ctype,"_wewd_weeding_wbiosubfw_",seq.int(addId)) , values= rep("",length(addId)), stringsAsFactors = FALSE)
+    #wbdw  <-  data.frame(id="non_indexed" , values= "") #"Weed_biomass_dry_weight_kg/ha",
+    wbdw  <- data.frame(id= paste0(ctype,"_wewd_weeding_wbdw_",seq.int(addId)) , values= rep("",length(addId)), stringsAsFactors = FALSE)
+    wbsubdw <-  data.frame(id= paste0(ctype,"_wewd_weeding_wbsubdw_",seq.int(addId)) , values= rep("",length(addId)), stringsAsFactors = FALSE) #"Weed_biomass_subsample_dry_weight_kg/ha"
+     
 
-    dt<- rbind(startD, tech, notes, type, traction)
+    dt<- rbind(startD, tech, notes, type, traction, wbiofw, wbiosubfw, wbdw ,wbsubdw )
     dt<- arrange_by_pattern(dt, pattern = addId)
     #extract and tranpose column with valus
     dt <- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
@@ -56,7 +69,7 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     # Weeding_biomass_subsample_dry_weight
     
     names(dt) <- lbl_weed #changes names
-    #dt
+    #dta
     
     #LABEL FOR TRAITLIST
     lbl <- str_replace_all(string = names(dt), pattern = "__[:digit:]+$",replacement = "") %>% unique()
@@ -85,6 +98,8 @@ get_collectable_weed <- function(allinputs, ver ="default"){
   
   weed <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^","weeding_to_collect_field","$") )) %>% dplyr::nth(2)
   out <- stringi::stri_split_regex(weed,",")[[1]] %>% stringr::str_trim(side = "both")  %>% setdiff("")
+  
+  
   if(length(out)!=0){
     if(ver=="default"){
       out <- paste0("Weeding" ,"_", out)

@@ -14907,14 +14907,17 @@ server_design_agrofims <- function(input, output, session, values){
   #experiment lead organization
   epl<- reactive({
     #Experiment Leads
+    #tLeadCenter_1
     id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
     pl <- map_values(input, id_chr="projLeadEnt_", id_rand_el,format = "data.frame",lbl= "Experiment, lead organization name")
     #pl <- map_values(input, id_chr="projLeadEnt_", id_rand_el,format = "data.frame",lbl= "Experiment, lead organization type")
-    plc <- map_values(input, id_chr="tLeadCenter_", id_rand_el, format = "data.frame", lbl= "Experiment, lead organization name")
+    pcgiar <- map_values(input, id_chr="tLeadCenter_", id_rand_el, format = "data.frame", lbl= "Experiment, CGIAR center name")
+    pcgiar <- pcgiar %>% dplyr::filter(res!="---")
     plc <- map_values(input, id_chr="tLeadContCRP_", id_rand_el, format = "data.frame", lbl= "Experiment, lead contributor crp")
+    plc <- plc %>% dplyr::filter(res!="---")
     pel <- map_values(input, id_chr="expLead_", id_rand_el,format = "data.frame", lbl= "Experiment lead person / Primary Investigator")
     
-    out <-rbind(pl,plc,pel)
+    out <-rbind(pl,pcgiar,plc, pel)
     names(out) <- c("Factor", "Value")
     out
   })
@@ -14926,10 +14929,13 @@ server_design_agrofims <- function(input, output, session, values){
     prfn <- map_values(input, id_chr="person_firstName_", id_rand_pers,format = "data.frame", lbl= "Person, first name")
     prsn <- map_values(input, id_chr="person_lastName_", id_rand_pers,format = "data.frame", lbl= "Person, last name")
     prmail <- map_values(input, id_chr="person_email_", id_rand_pers,format = "data.frame", lbl= "Person email")
+    
     praf <- map_values(input, id_chr="person_affiliation_", id_rand_pers, format = "data.frame", lbl= "Person, affiliation")
+    prafname <- map_values(input, id_chr="affiliation_name_", id_rand_pers, format = "data.frame", lbl= "Person, affiliation name")
+    
     pecen<- map_values(input, id_chr="person_center_", id_rand_pers , format = "data.frame", lbl= "Organization name")
     prorcid <- map_values(input, id_chr="person_orcid_", id_rand_pers,format = "data.frame", lbl= "Person, ORCID")
-    out<- rbind(pst, prfn, prsn, prmail, praf, pecen, prorcid)
+    out<- rbind(pst, prfn, prsn, prmail, praf, prafname, pecen, prorcid)
     names(out) <- c("id", "value")
     out<- arrange_by_pattern(out, id_rand_pers)
     names(out) <- c("Factor", "Value")
@@ -15179,6 +15185,7 @@ server_design_agrofims <- function(input, output, session, values){
   get_faclevdt <- function(design, allinputs){
     
     output <- try({  
+      
       design <- tolower(design)
       dsg <- experimental_design_label(design)
       dsg_abbr <- design %>% toupper()
@@ -15188,26 +15195,29 @@ server_design_agrofims <- function(input, output, session, values){
       #Get index from Design's IDs
       index <- get_index_design(IdDesignInputs, design)
       
-      
+      #Get factors 
       flbl<- get_factors_design(allinputs = allinputs, index, design = design,duplicate = FALSE)
       #Get list of labels
       indexEspLvl <- factorlevel$ids 
       #Get levels
-      # flvl <- get_levels_design(allinputs = allinputs, data_dictionary= dt_factordesign,
-      #                           index, factors = flbl, design=design, format="list") #//Deprecated 
       flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                 index, factors = flbl, design=design, format="list")
       flvl <-  lapply(flvl, function(x)paste(x,collapse=", "))
-      # Number of factors
+      
+      #Number of factors
       nf <- length(flvl)
      
-    
       ## Labels
       flab<- paste("Factor", 1:length(flbl))
       levlab <- paste("Factor", 1:length(flbl), "- Levels")
       paramlab <- c(rbind(flab, levlab)) 
       #Ensemble as a data frame of factors and levels
       out<- data.frame()
+      
+      print("niveles detectados")
+      print(flbl)
+      print(flvl)
+      
       for( i in 1:length(flvl)){
         out <- rbind(out, rbind(flbl[i], flvl[[i]]) )
       }
@@ -15215,8 +15225,16 @@ server_design_agrofims <- function(input, output, session, values){
       dsg_dt<- data.frame(Factor= c("Experimental design", "Experimental design abbreviation",
                                     "Number of factors"), 
                           Value = c(dsg,dsg_abbr, nf),stringsAsFactors = FALSE)
+      
+      ##NOTES
+      notes<- lapply(index, function(x)  AllInputs() %>% dplyr::filter(str_detect(id,  paste0(design,"_note_factor_",x,"$")))  )
+      notes<- data.table::rbindlist(notes) %>% as.data.frame(stringsAsFactors=FALSE)
+      notes[,1] <- paste("Factor notes", 1:nrow(notes))
+      names(notes)<- c("Factor", "Value")
+      #######
+      
       out<- data.frame(Factor= paramlab, Value= out$V1)
-      out<-rbind(dsg_dt, out) 
+      out<-rbind(dsg_dt, out, notes) 
       out 
     })
     
@@ -15827,7 +15845,7 @@ server_design_agrofims <- function(input, output, session, values){
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
         # ai <- AllInputs()
-        # fesplvl <<- factorlevel$ids
+        # #fesplvl <<- factorlevel$ids
         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
         # x <- reactiveValuesToList(input)
         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
@@ -16340,8 +16358,6 @@ server_design_agrofims <- function(input, output, session, values){
             }
             kds_platra <- rbindlist(temp_platra,fill = TRUE)
             #Collectable inputs ---------------------------
-            #lbbb <<- get_collectable_plantrans(AllInputs(), ctype="intercrop",crop=circm, cropId=id_ic_rand)
-            
             if(length(get_collectable_plantrans(AllInputs(), ctype="intercrop",crop=circm, cropId=id_ic_rand)  )!=0){
               collect_platra <- get_collectable_plantrans(AllInputs(),ctype="intercrop", crop=circm,cropId= id_ic_rand)
               kds_platra <- kds_platra %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))

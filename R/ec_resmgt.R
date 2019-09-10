@@ -80,8 +80,9 @@ get_ec_resmgt <- function(input, lbl){
   #           )
   
   lbl <-   c("Residue_management_start_date", 
-             "Residue_management_end_date",
+             #"Residue_management_end_date",
              "Residue_management_technique",
+             "Residue_management_traction_type",
              "Residue_management_notes"
   )
   
@@ -136,7 +137,6 @@ get_ec_resmgt <- function(input, lbl){
    out <- list(dt=dt, lbl= lbl)
     
 }
-
 
 
 ## Protocols ##########################################################################################################
