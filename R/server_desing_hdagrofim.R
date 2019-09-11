@@ -14423,19 +14423,6 @@ server_design_agrofims <- function(input, output, session, values){
           dt <- dt[which(lgl==TRUE)]
           dt <- cbind(fbdesign(), dt)
           
-          #collectable inputs
-          #collect_platra <- get_collectable_plantrans(AllInputs(),ctype="monocrop",ver = "export")
-          #print("collect platra")
-          #print(collect_platra)
-          # collect_platra <- stringr::str_replace_all(tolower(collect_platra), pattern = "_", replacement = " ")
-          # #management practices
-          # mpra_trait <- names(dt)
-          # mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "_|//*", replacement = " ")
-          # #mpra_trait<- stringr::str_replace_all(mpra_trait, pattern = "density ", replacement= "")
-          # lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
-          # #select only columns from collect input
-          # dt <- dt[which(lgl==TRUE)]
-          # dt <- cbind(fbdesign(), dt)
         } else {
           dt <- cbind(fbdesign())
         }
@@ -14577,29 +14564,12 @@ server_design_agrofims <- function(input, output, session, values){
                  collect_platra <-c(collect_platra,"transplanting density number of rows"), 
                  collect_platra)
           
-          
-          # #Special cases
-          # ifelse(collect_platra=="seeding distance between plants", 
-          #        collect_platra <-c(collect_platra,"distance between plants"), 
-          #        collect_platra)
-          # 
-          # ifelse(collect_platra=="seeding distance between rows", 
-          #        collect_platra <-c(collect_platra,"distance between rows"), 
-          #        collect_platra)
-          # 
-          # ifelse(collect_platra=="seeding distance between bunds", 
-          #        collect_platra <-c(collect_platra,"distance between bunds"), 
-          #        collect_platra)
-          
-          
-          
           #management practices
           mpra_trait <- tolower(names(ptdt_list[[i]] ))
           #Detect special cases--------------------------------------------------------------------------------------
           mpra_trait <- stringr::str_replace_all(mpra_trait, pattern = "_|//*", replacement = " ")
           mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "[:digit:]+", replacement = "") %>% stringr::str_trim(side="both")
           
-          #mpra_trait <- stringr::str_replace_all(mpra_trait, pattern = "density ", replacement= "")
           
           #Detect headers in plant_dt---------------------------------------------------------------------------------
           lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
