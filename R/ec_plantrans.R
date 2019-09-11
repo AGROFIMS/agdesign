@@ -271,7 +271,12 @@ get_collectable_plantrans <- function(allinputs, ctype="monocrop",crop, cropId="
     tra <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^", lookup,"_transplanting_to_collect_field_1","$") )) %>% dplyr::nth(2)
     tra <- stringi::stri_split_regex(tra, ",")[[1]]  %>% stringr::str_trim(side = "both") %>% setdiff("")
     if(length(tra)!=0){
-      tra <- paste0("Transplanting" ,"_", tra)
+      if(ver=="default"){
+        tra <- paste0("Transplanting" ,"_", tra)
+      }
+      else if(ver=="export"){
+        tra <- ifelse(str_detect(string = tra,pattern = "Transplanting" ), tra, paste0("Transplanting_",tra))
+      }
     } else {
       tra <- NULL
     }

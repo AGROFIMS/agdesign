@@ -78,16 +78,16 @@ get_ec_resmgt <- function(input, lbl){
   #                  "Residue_management_description_traction",
   #                  "Residue_management_description_notes"
   #           )
-  
-  lbl <-   c("Residue_management_start_date", 
-             #"Residue_management_end_date",
-             "Residue_management_technique",
-             "Residue_management_traction_type",
-             "Residue_management_notes"
-  )
+  # 
+  # lbl <-   c("Residue_management_start_date", 
+  #            #"Residue_management_end_date",
+  #            "Residue_management_technique",
+  #            "Residue_management_traction_type",
+  #            "Residue_management_notes"
+  # )
   
   #LABEL FOR SPREADSHEET AND KDSMART with underscore
-  lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
+  #lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
   
   #rmgt_residue_technique
     r_start_date<-  map_singleform_values(input =input$rmgt_residue_start_date, type = "date",
@@ -102,7 +102,7 @@ get_ec_resmgt <- function(input, lbl){
     
     
     ##SPECIAL CASE: INCORPORATION IN METHOD ####################
-    if(r_technique=="Incorporation"){
+   # if(r_technique=="Incorporation"){
       
       #lb1 <- "Residue incorporation depth"
       rb_incordepth <-  map_singleform_values(input =input$rmgt_residue_inc_depth,
@@ -127,11 +127,11 @@ get_ec_resmgt <- function(input, lbl){
       names(dt) <- lbl_dt
       
       
-    } 
-    else {
-      dt <- data.frame(r_start_date, r_technique, r_traction, r_notes, stringsAsFactors = FALSE)
-      names(dt) <- lbl_dt
-    }
+    #} 
+    #else {
+      #dt <- data.frame(r_start_date, r_technique, r_traction, r_notes, stringsAsFactors = FALSE)
+      #names(dt) <- lbl_dt
+    #}
     
  
    out <- list(dt=dt, lbl= lbl)

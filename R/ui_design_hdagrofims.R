@@ -431,8 +431,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     #Width for input-group and modal 
     tags$style("
                 .input-group { width: 100%; }
-                .modal-lg{ width:90% !important }
-                  
+                .modal-lg{ width:90% !important }   
                "),
     
     # Style for calendar to work inside modal
@@ -676,8 +675,12 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       })'
     ),
     
-    
-    
+    tags$script(
+      '$(document).on("change", "[id*=\'_mIrriTiming_\']",  function(){
+      Shiny.onInputChange("mIrriTiming", Math.random());
+      Shiny.onInputChange("mIrriTimingid", this.id);
+})'
+    ),
     
     # Levels CASOS ESPECIALES
     # tags$script(
@@ -692,7 +695,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       '$(document).on("click", "button[id*=\'_numLevelsESPModal_\']",  function(){
       Shiny.onInputChange("levelsESPModal", Math.random());
       Shiny.onInputChange("levelsESPModalid", this.id);
-})'
+      })'
     ),
     
     # Levels CASOS ESPECIALES ADD
@@ -739,7 +742,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       '$(document).on("click", "button[id*=\'_closeBox_\']",  function(){
       Shiny.onInputChange("closeBox_button_GEN", Math.random());
       Shiny.onInputChange("closeBox_button_GENid", this.id);
-      })'
+    })'
     ),
     # Other/Other GENERAL
     tags$script(
@@ -792,15 +795,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       })'
     ),
     
-    # Level changing  #ELIMINAR
-    tags$script(
-      '$(document).on("change", "[id*=\'_lvl_espLvl_\']",  function(){
-      Shiny.onInputChange("lvlInputModal", Math.random());
-      Shiny.onInputChange("lvlInputModalid", this.id);
-      })'
-    ),
-    
-    # Level changing
+    # Reload (Delete then load) modal content
     tags$script(
       '$(document).on("click", "[id*=\'_btnRefresh_\']",  function(){
       Shiny.onInputChange("refreshModal", Math.random());
@@ -808,7 +803,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       })'
     ),
     
-    # Timing Change Nutrient Modal
+    # Change Product for Nutrient Modal (Correspondes to Nutrient Element Type and Amount)
     tags$script(
       '$(document).on("change", "select[id*=\'_mNutProduct_\']",  function(){
       Shiny.onInputChange("mProductNutModal", Math.random());
@@ -816,12 +811,45 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       })'
     ),
     
+    # Irrigation Timing Nutrient Content Button
+    tags$script(
+      '$(document).on("click", "[id*=\'_btnIrriTimingNut_\']",  function(){
+      Shiny.onInputChange("mIrriTimingNut", Math.random());
+      Shiny.onInputChange("mIrriTimingNutid", this.id);
+      })'
+    ),
+    
+    # Irrigation Timing Product Content Button
+    tags$script(
+      '$(document).on("click", "[id*=\'_btnIrriTimingPro_\']",  function(){
+      Shiny.onInputChange("mIrriTimingPro", Math.random());
+      Shiny.onInputChange("mIrriTimingProid", this.id);
+      })'
+    ),
+    
+    # Irrigation Timing Split Button Add for Nutrient Content
+    tags$script(
+      '$(document).on("click", "[id*=\'_btnIrriNutSplit_\']",  function(){
+      Shiny.onInputChange("mIrriNutSplitAdd", Math.random());
+      Shiny.onInputChange("mIrriNutSplitAddid", this.id);
+      })'
+    ),
+    
+    # Change Product for Irrigation Modal (Correspondes to Nutrient Content)
+    tags$script(
+      '$(document).on("change", "select[id*=\'_mIrriProduct_\']",  function(){
+      Shiny.onInputChange("mIrriNutProduct", Math.random());
+      Shiny.onInputChange("mIrriNutProductid", this.id);
+      })'
+    ),
+    
+    
     # Trigger calculate product amount for fertilizer
     tags$script(
       '$(document).on("click", "[id*=\'_btnmFer_\']",  function(){
       Shiny.onInputChange("calculateProdAmountFertilizer", Math.random());
       Shiny.onInputChange("calculateProdAmountFertilizerid", this.id);
-    })'
+      })'
     ),
     
     
@@ -830,12 +858,10 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       '$(document).on("click", "[id*=\'_btnmNut_\']",  function(){
       Shiny.onInputChange("calculateProdAmountNutrient", Math.random());
       Shiny.onInputChange("calculateProdAmountNutrientid", this.id);
-    })'
+      })'
     ),
     
     
-    
-
     ###################### END: DESIGN ######################
     
     ###################### START: MANAGEMENT PRACTICES ######################
@@ -1498,7 +1524,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 6,
                 
                 
-                actionButton("btnViewLevelsFactor","Ver arreglo de factores"),
+                actionButton("btnViewLevelsFactor","Ver arreglo level factors."),
                 h2("Experimental design"),
                 shiny::selectInput(
                   "designFieldbook_agrofims", "", 
@@ -1506,7 +1532,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   c("Select one..." = "", design_choices_agrofims)
                 ),
                 
-                #actionButton("boton","action"),
+                actionButton("boton","action"),
                 
                 conditionalPanel(
                   "input.designFieldbook_agrofims == 'CRD' || 
