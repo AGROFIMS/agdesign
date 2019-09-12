@@ -55,7 +55,6 @@ test_that("Residue description and management test #2", {
 
 })
 
-
 test_that("Seedbed preparation test ", {
   
   input <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_ec_seedbed_1.rds")
@@ -109,8 +108,6 @@ test_that("Weeding test", {
   
   
 })
-
-
 
 test_that("Harvest test", {
 
@@ -171,11 +168,10 @@ test_that("Harvest test", {
   
 })
 
-
 test_that("Planting transplanting",{
   
-  source("R/utils.R")
-  source("R/ec_plantrans.R")
+  #source("R/utils.R")
+  #source("R/ec_plantrans.R")
   allinputs<- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
   input <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
   
@@ -212,11 +208,141 @@ test_that("Planting transplanting",{
   lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
   
   dt <- dt[which(lgl==TRUE)]
+  testthat::expect_equal(nrow(dt),15)
   
+})
+
+test_that("Irrigation Evaluation>1",{
   
+  input <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_input_ec_add_evaluation.rds")
+  allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_ec_add_evaluation.rds")
+  source("R/utils.R")
+  source("R/ec_irrigation.R")
   
+  kds_irri <- magmtprac$irri
+  addId <- c("1","2")
+  ctype <-"monocrop"
+  dt<- get_protocol_irri(allinputs= allinputs , addId=addId)    
+  
+  dt<- dplyr::left_join(kds_irri , dt) %>% filter(Value!="")
+  #dt$NumberofMeasurementsPerSeason <- ns_irrigation()
+  dt  <- dt %>% dplyr::mutate(TraitName=TraitProt)
+  dt$TraitProt <- NULL #Remove temporal column
+  
+  testthat::expect_equal(nrow(dt),13)
+  
+
+})
+
+test_that("Weeding Evaluation>1",{
+  
+  input <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_input_ec_add_evaluation.rds")
+  allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_ec_add_evaluation.rds")
+  source("R/utils.R")
+  source("R/ec_weeding.R")
+  
+  kds_weed <- magmtprac$weed
+  addId <- c("1","2","3")
+  ctype <-"monocrop"
+  dt<- get_protocol_weed(allinputs= allinputs , addId=addId)    
+  
+  dt<- dplyr::left_join(kds_weed , dt) %>% filter(Value!="")
+  #dt$NumberofMeasurementsPerSeason <- ns_irrigation()
+  dt  <- dt %>% dplyr::mutate(TraitName=TraitProt)
+  dt$TraitProt <- NULL #Remove temporal column
+  
+  testthat::expect_equal(nrow(dt),15)
   
   
 })
 
+test_that("Harvest Evaluation>1 Monocrop",{
+  
+  input <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_input_ec_add_evaluation.rds")
+  allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_ec_add_evaluation.rds")
+  source("R/utils.R")
+  source("R/ec_harvest.R")
+  ctype <-"monocrop"
+  addId <-c("1","2")
+  dt <- get_protocol_harv(allinputs=allinputs, input, ctype=ctype, addId=addId)
+  
+  ### INSIDE THE SERVER AND REACTIVE DT_PROTOCOL
+  kds_harv <- magmtprac$harv
+  
+  dt<- dplyr::left_join(kds_harv , dt) %>% filter(Value!="")
+  dt$NumberofMeasurementsPerSeason <- 1 #length(ns_harvest())
+  
+  dt  <- dt %>% dplyr::mutate(TraitName=TraitProt)#Reassinig values with numeration(__1,__2)
+  dt$TraitProt <- NULL #Remove temporal column
+  
+  testthat::expect_equal(nrow(dt),21)
+})
+
+test_that("Harvest Evaluation>1 Monocrop with 3 evaluations",{
+  
+  input <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_input_ec_add_eval_3.rds")
+  allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_ec_add_eval_3.rds")
+  source("R/utils.R")
+  source("R/ec_harvest.R")
+  ctype <-"monocrop"
+  addId <-c("1","2","3")
+  dt <- get_protocol_harv(allinputs=allinputs, input, ctype=ctype, addId=addId)
+  
+  ### INSIDE THE SERVER AND REACTIVE DT_PROTOCOL
+  kds_harv <- magmtprac$harv
+  
+  dt<- dplyr::left_join(kds_harv , dt) %>% filter(Value!="")
+  dt$NumberofMeasurementsPerSeason <- 1 #length(ns_harvest())
+  
+  dt  <- dt %>% dplyr::mutate(TraitName=TraitProt)#Reassinig values with numeration(__1,__2)
+  dt$TraitProt <- NULL #Remove temporal column
+  
+  
+  testthat::expect_equal(nrow(get_protocol_harv(allinputs=allinputs, input, ctype=ctype, addId=addId)), 23)
+  #After filtering and removing harvestable_area (2 cases in the example)
+  testthat::expect_equal(nrow(dt),21)
+})
+
+test_that("Planting transplanting all variables",{
+  
+  source("R/utils.R")
+  source("R/ec_plantrans.R")
+  allinputs<- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_ec_mgp_4.rds")
+  input <- readRDS("/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/test_ec_input_mgp_4.rds")
+  
+  dt<- get_ec_plantrans(allinputs, input, ctype="monocrop", cropId= "1", addId="1")$dt
+  
+  collect_platra <- get_collectable_plantrans(allinputs,ctype="monocrop",ver = "export")
+  collect_platra <- stringr::str_replace_all(tolower(collect_platra), pattern = "_", replacement = " ")
+  
+  #Special cases
+  
+  #Direct seeding
+  
+  collect_platra <-  dplyr::case_when( collect_platra =="seeding distance between plants"  ~ "seeding density distance between plants",   
+                                       collect_platra=="seeding distance between rows"  ~"seeding density distance between rows",
+                                       collect_platra=="seeding number of rows" ~ "seeding density number of rows",
+                                       collect_platra=="seeding distance between bunds" ~ "seeding density distance between bunds",
+                                       TRUE ~ collect_platra)
+
+  #Tranplanting case
+  collect_platra <-  dplyr::case_when( collect_platra =="transplanting distance between plants"  ~ "transplanting density distance between plants",   
+                                       collect_platra=="transplanting distance between rows"  ~"transplanting density distance between rows",
+                                       collect_platra=="transplanting number of rows" ~ "transplanting density number of rows",
+                                       collect_platra== "transplanting distance between bunds" ~ "transplanting density distance between bunds" ,
+                                       TRUE ~ collect_platra)
+  
+  
+  #management practices
+  mpra_trait <- names(dt)
+  mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "__[:digit:]+", replacement = "") %>% stringr::str_trim(side="both")
+  mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "_", replacement = " ")
+ 
+  
+  lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
+  
+  dt <- dt[which(lgl==TRUE)]
+  testthat::expect_equal(nrow(dt),25)
+  
+})
 

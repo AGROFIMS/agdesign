@@ -871,93 +871,170 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 Shiny.onInputChange("boxTitleClickedId", this.id);
 })
                 '
-    ),
-    
-    # ?????
-    tags$head(
-      tags$script(
-        HTML("
-             var openTab = function(tabName){
-             $('a', $('.sidebar')).each(function(){
-             if(this.getAttribute('data-value') == tabName){
-             this.click()
-             };
-             });
-             }
-             
-             shinyjs.collapse = function(boxid) {
-             $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
-             }
-             //
-             ")
-        )
-        ),
-    
-    # ?????
-    tags$script('Shiny.addCustomMessageHandler("focus",
-                function(a) {
-                document.getElementById(a).focus();
-                });
-                '
+  ),
+  
+  # ?????
+  tags$head(
+    tags$script(
+      HTML("
+           var openTab = function(tabName){
+           $('a', $('.sidebar')).each(function(){
+           if(this.getAttribute('data-value') == tabName){
+           this.click()
+           };
+           });
+           }
+           
+           shinyjs.collapse = function(boxid) {
+           $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
+           }
+           //
+           ")
+      )
       ),
-    
-    # actionButton("cassava_pt_add", "Add Planting & Transplanting")
-    # Add planting mono and multicrop
-    tags$script('$(document).on("click", "button[id*=\'_pt_add\']",  function(){
-                Shiny.onInputChange("PTBoxVar", Math.random());
-                Shiny.onInputChange("PTBoxVarid", this.id);
-                })
-                '),
-    # When intercrop is selected planting
-    tags$script('$(document).on("change", "select[id*=\'_cropCommonName_\']",  function(){
-                Shiny.onInputChange("PTBoxMulticropVar", Math.random());
-                Shiny.onInputChange("PTBoxMulticropVarid", this.id);
-                })
-                '),
-    # Add irrigation monocrop
-    tags$script('$(document).on("click", "button[id*=\'_irri_add\']",  function(){
-                Shiny.onInputChange("IRRIBoxVar", Math.random());
-                Shiny.onInputChange("IRRIBoxVarid", this.id);
-                })
-                '),
-    # Delete irrigation GENERAL
-    tags$script('$(document).on("click", "button[id*=\'_closeBox_ECIRRI_\']",  function(){
-                  Shiny.onInputChange("closeBox_ECIRRI_GEN", Math.random());
-                  Shiny.onInputChange("closeBox_ECIRRI_GENid", this.id);
-                  })
-                  '),
-    # Add weeding monocrop
-    tags$script('$(document).on("click", "button[id*=\'_wee_add\']",  function(){
-                  Shiny.onInputChange("WEEBoxVar", Math.random());
-                  Shiny.onInputChange("WEEBoxVarid", this.id);
-      })
-                  '),
-    # Delete weeding GENERAL
-    tags$script('$(document).on("click", "button[id*=\'_closeBox_ECWEE_\']",  function(){
-                  Shiny.onInputChange("closeBox_ECWEE_GEN", Math.random());
-                  Shiny.onInputChange("closeBox_ECWEE_GENid", this.id);
-      })
-                  '),
-    # Add harvest mono and multicrop
-    tags$script('$(document).on("click", "button[id*=\'_harv_add\']",  function(){
-                  Shiny.onInputChange("HARVBoxVar", Math.random());
-                  Shiny.onInputChange("HARVBoxVarid", this.id);
-      })
-                  '),
-    # When intercrop is selected harvest
-    tags$script('$(document).on("change", "select[id*=\'_cropCommonName_\']",  function(){
-                  Shiny.onInputChange("HARVBoxMulticropVar", Math.random());
-                  Shiny.onInputChange("HARVBoxMulticropVarid", this.id);
-      })
-                  '),
-    # Delete harvest GENERAL
-    tags$script('$(document).on("click", "button[id*=\'_closeBox_ECHARV_\']",  function(){
-                  Shiny.onInputChange("closeBox_ECHARV_GEN", Math.random());
-                  Shiny.onInputChange("closeBox_ECHARV_GENid", this.id);
-      })
-                  '),
-    
-    ###################### END: MANAGEMENT PRACTICES ######################
+  
+  # ?????
+  tags$script('Shiny.addCustomMessageHandler("focus",
+              function(a) {
+              document.getElementById(a).focus();
+              });
+              '
+    ),
+  
+  # actionButton("cassava_pt_add", "Add Planting & Transplanting")
+  # Add planting mono and multicrop
+  tags$script('$(document).on("click", "button[id*=\'_pt_add\']",  function(){
+              Shiny.onInputChange("PTBoxVar", Math.random());
+              Shiny.onInputChange("PTBoxVarid", this.id);
+              })
+              '),
+  # When intercrop is selected planting
+  tags$script('$(document).on("change", "select[id*=\'_cropCommonName_\']",  function(){
+              Shiny.onInputChange("PTBoxMulticropVar", Math.random());
+              Shiny.onInputChange("PTBoxMulticropVarid", this.id);
+              })
+              '),
+  # Add irrigation monocrop
+  tags$script('$(document).on("click", "button[id*=\'_irri_add\']",  function(){
+              Shiny.onInputChange("IRRIBoxVar", Math.random());
+              Shiny.onInputChange("IRRIBoxVarid", this.id);
+              })
+              '),
+  # Delete irrigation GENERAL
+  tags$script('$(document).on("click", "button[id*=\'_closeBox_ECIRRI_\']",  function(){
+              Shiny.onInputChange("closeBox_ECIRRI_GEN", Math.random());
+              Shiny.onInputChange("closeBox_ECIRRI_GENid", this.id);
+              })
+              '),
+  # Add weeding monocrop
+  tags$script('$(document).on("click", "button[id*=\'_wee_add\']",  function(){
+              Shiny.onInputChange("WEEBoxVar", Math.random());
+              Shiny.onInputChange("WEEBoxVarid", this.id);
+  })
+              '),
+  # Delete weeding GENERAL
+  tags$script('$(document).on("click", "button[id*=\'_closeBox_ECWEE_\']",  function(){
+              Shiny.onInputChange("closeBox_ECWEE_GEN", Math.random());
+              Shiny.onInputChange("closeBox_ECWEE_GENid", this.id);
+  })
+              '),
+  # Add harvest mono and multicrop
+  tags$script('$(document).on("click", "button[id*=\'_harv_add\']",  function(){
+              Shiny.onInputChange("HARVBoxVar", Math.random());
+              Shiny.onInputChange("HARVBoxVarid", this.id);
+  })
+              '),
+  # When intercrop is selected harvest
+  tags$script('$(document).on("change", "select[id*=\'_cropCommonName_\']",  function(){
+              Shiny.onInputChange("HARVBoxMulticropVar", Math.random());
+              Shiny.onInputChange("HARVBoxMulticropVarid", this.id);
+  })
+              '),
+  # Delete harvest GENERAL
+  tags$script('$(document).on("click", "button[id*=\'_closeBox_ECHARV_\']",  function(){
+              Shiny.onInputChange("closeBox_ECHARV_GEN", Math.random());
+              Shiny.onInputChange("closeBox_ECHARV_GENid", this.id);
+  })
+              '),
+  
+  # test para soil fertility
+  # Add row measurement 
+  tags$script(
+    '$(document).on("click", "button[id*=\'soil_\'][id$=\'add\']",  function(){
+    Shiny.onInputChange("addRow_button_SOIL", Math.random());
+    Shiny.onInputChange("addRow_button_SOILid", this.id);
+  })'
+    ),
+  
+  # Add row measurement 
+  tags$script(
+    '$(document).on("click", "button[id*=\'ele_add\'][id$=\'add\']",  function(){
+    Shiny.onInputChange("addRow_button_ELE", Math.random());
+    Shiny.onInputChange("addRow_button_ELEid", this.id);
+  })'
+    ),
+  
+  
+  # Radio Button Nutrient and Product
+  tags$script(
+    '$(document).on("change", "[id*=\'rbtSoilOption\']",  function(){
+    Shiny.onInputChange("soilFertilityUI", Math.random());
+    Shiny.onInputChange("soilFertilityUIid", this.id);
+  })'
+    ),
+  
+  # Change Product in Nutrient Soil Fertility
+  tags$script(
+    '$(document).on("change", "[id*=\'sfNutrientProduct\']",  function(){
+    Shiny.onInputChange("sfNutrientProductChange", Math.random());
+    Shiny.onInputChange("sfNutrientProductChangeid", this.id);
+    })'
+    ),
+  
+  # Change Product in Product Soil Fertility
+  tags$script(
+    '$(document).on("change", "[id*=\'sfProductProduct\']",  function(){
+    Shiny.onInputChange("sfProductProductChange", Math.random());
+    Shiny.onInputChange("sfProductProductChangeid", this.id);
+    })'
+    ),
+  
+  # Change Timing in Nutrient Soil Fertility
+  tags$script(
+    '$(document).on("change", "[id*=\'sfNutrientTiming\']",  function(){
+    Shiny.onInputChange("sfNutrientTimingChange", Math.random());
+    Shiny.onInputChange("sfNutrientTimingChangeid", this.id);
+    })'
+    ),
+  
+  # Change Timing in Product Soil Fertility
+  tags$script(
+    '$(document).on("change", "[id*=\'sfProductTiming\']",  function(){
+    Shiny.onInputChange("sfProductTimingChange", Math.random());
+    Shiny.onInputChange("sfProductTimingChangeid", this.id);
+  })'
+    ),
+  
+  
+  
+  # Close Button in Nutrient Soil Fertility
+  tags$script(
+    '$(document).on("click", "[id*=\'sfNutCloseBox\']",  function(){
+    Shiny.onInputChange("sfNutCloseBox", Math.random());
+    Shiny.onInputChange("sfNutCloseBoxid", this.id);
+    })'
+    ),
+  
+  # Close Button in Product Soil Fertility
+  tags$script(
+    '$(document).on("click", "[id*=\'sfProCloseBox\']",  function(){
+    Shiny.onInputChange("sfProCloseBox", Math.random());
+    Shiny.onInputChange("sfProCloseBoxid", this.id);
+    })'
+    ),
+  
+  
+  ###################### END: MANAGEMENT PRACTICES ######################
     
     ###################### START: MEASUREMENT AND PHENOLOGY ######################
     
@@ -1986,702 +2063,692 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
           shiny::tabPanel(
             title = tagList(shiny::icon("truck"), "Management practices"), value = "tabAgroFeat",
             
-            fluidRow(
-              column(
-                12,
-                h2("Management practices"),
-                selectizeInput(
-                  "selectAgroFeature", "", multiple = TRUE, 
-                  choices = c("Residue management",
-                              "Seedbed preparation",
-                              "Soil fertility",
-                              "Planting and transplanting",
-                              "Mulch management",
-                              "Irrigation",
-                              "Weeding",
-                              "Harvest"),
-                  options = list(maxItems = 8, placeholder = "Select some...")
-                )
+            
+            column(
+              12,
+              h2("Management practices"),
+              selectizeInput(
+                "selectAgroFeature", "", multiple = TRUE, 
+                choices = c("Residue management",
+                            "Seedbed preparation",
+                            "Soil fertility",
+                            "Planting and transplanting",
+                            "Mulch management",
+                            "Irrigation",
+                            "Weeding",
+                            "Harvest"),
+                options = list(maxItems = 8, placeholder = "Select some...")
               )
             ),
-            fluidRow(
-              column(
-                12,
-                tabsetPanel(
-                  id = "nutrienTabPanels",
-                  tabPanel(
-                    div(id = "gh", "Residue management"), value = "tabResidue",
-                    column(
-                      12,
-                      br(),
-                      fluidRow(
-                        box(
-                          id = "residue_description_boxid",
-                          title = checkboxInput("residueDesc_checkbox", actionLink("residue_description_titleId", "Residue description"), T),
-                          status = "primary", solidHeader = TRUE,
-                          width = 12, collapsible = TRUE, collapsed = TRUE,
-                          fluidRow(
-                            column(
-                              12,
-                              selectizeInput(
-                                "residue_description_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                                options = list(maxItems = 10, placeholder = "Select one..."), 
-                                choices = magm_label$get("resdes")
-                                # choices = c("Plant part",
-                                #             "Crop residue moisture",
-                                #             "Crop residue thickness",
-                                #             "Crop residue amount",
-                                #             "Crop residue percent of coverage")
-                              ),
-                              hr()
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              6,
-                              selectizeInput(
-                                "rmgt_residue_plantPart", label = "Plant part", multiple = TRUE, 
-                                options = list(maxItems = 1, placeholder = "Select one..."), 
-                                choices = c("Husk",
-                                            "Leaf",
-                                            "Root",
-                                            "Seed Pod/Cob/Fruit",
-                                            "Stem",
-                                            "Stubble",
-                                            "Other")
-                              ),
-                              hidden(textInput("rmgt_residue_plantPart_other", "", value = "")),
-                              selectizeInput(
-                                "rmgt_crop_residue_moisture", "Crop residue moisture", multiple = T, 
-                                options = list(maxItems=1, placeholder = "Select one..."),
-                                choices = c("Dry", "Moist", "Wet")
-                              ),
-                              fluidRow(
-                                column(6, numericInput("rmgt_crop_residue_thick", value = "", label = "Crop residue thickness", min = 0, max = 100, step = 0.1)),
-                                column(
-                                  6,
-                                  selectizeInput(
-                                    "rmgt_crop_residue_thick_unit", "Unit", multiple = T, 
-                                    options=list(maxItems=1, placeholder="Select one..."),
-                                    choices = c("cm", "ft", "in", "m"), selected = "cm"
-                                  )
-                                )
-                              ),
-                              fluidRow(
-                                column(6, numericInput("rmgt_crop_residue_amount_sqm", value = "", label = "Crop residue amount", min = 0, max = 100, step = 0.1)),
-                                column(
-                                  6,
-                                  selectizeInput(
-                                    "rmgt_crop_residue_amount_sqm_unit", "Unit", multiple = T, 
-                                    options=list(maxItems = 1, placeholder = "Select one..."),
-                                    choices = c("g/ft2", "g/m2", "kg/ha", "kg/m2", "lb/ac"), selected = "kg/ha"
-                                  )
-                                )
-                              ),
-                              fluidRow(
-                                column(6, numericInput("rmgt_crop_residue_perc_cov", "Crop residue percent of coverage", value = "", min = 0, max = 100)),
-                                column(6, selectInput("rmgt_crop_residue_perc_cov_unit", "Unit", c("%"), selected = "%"))
-                              ),
-                              textAreaInput("rmgt_residue_description_notes", label = "Notes", value = "")
-                            )
-                          )
-                        ), 
-                        box(
-                          id="residue_management_boxid",
-                          title = checkboxInput("residueManag_checkbox", actionLink("residue_management_titleId", "Residue management"), T),
-                          status = "primary", solidHeader = TRUE,
-                          width = 12, collapsible = TRUE,  collapsed = TRUE,
-                          fluidRow(
-                            column(
-                              12,
-                              selectizeInput(
-                                "residue_management_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                                options = list(maxItems = 10, placeholder = "Select one..."), 
-                                choices = magm_label$get("resmgtm")
-                                # choices = c("Start date",
-                                #             "Technique",
-                                #             "Traction")
-                              ),
-                              hr()
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              6,
-                              fluidRow(
-                                column(
-                                  6,
-                                  uiOutput("res_start_date")
-                                )
-                              ),
-                              selectizeInput(
-                                "rmgt_residue_technique", label = "Technique", multiple = TRUE, 
-                                options = list(maxItems =1, placeholder ="Select one..."), 
-                                choices = c("Burning",
-                                            "Incorporation",
-                                            "Spreading",
-                                            "Other")
-                              ),
-                              hidden(textInput("rmgt_residue_technique_other", "", value = "")),
-                              conditionalPanel(
-                                "input.rmgt_residue_technique == 'Incorporation'", 
-                                fluidRow(
-                                  column(6, textInput("rmgt_residue_inc_depth", "Residue incorporation depth", value = "")),
-                                  column(
-                                    6, 
-                                    selectizeInput(
-                                      "rmgt_residue_inc_depth_unit", "Unit", multiple = T, 
-                                      options=list(maxItems=1, placeholder="Select one..."),
-                                      choices = c("cm", "ft", "in", "m"), selected = "cm"
-                                    )
-                                  )
-                                )
-                              ),
-                              selectizeInput(
-                                "rmgt_residue_traction", label = "Traction", multiple = TRUE, 
-                                options = list(maxItems =1, placeholder ="Select one..."), 
-                                choices = c("Animal",
-                                            "Manual",
-                                            "2 wheel tractor",
-                                            "4 wheel tractor",
-                                            "Other")
-                              ),
-                              hidden(textInput("rmgt_residue_traction_other", "", value = "")),
-                              textAreaInput("rmgt_residue_management_notes", label = "Notes", value = "")
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  tabPanel(
-                    div(id = "gh", "Seedbed preparation"), value = "tabSeedbed",
-                    column(
-                      12,
-                      br(),
-                      fluidRow(
-                        box(
-                          id = "land_levelling_boxid",
-                          title = checkboxInput("landLevelling_checkbox" , actionLink("land_levelling_titleId", "Land Levelling"), F),
-                          status = "primary", solidHeader = TRUE,
-                          width = 12, collapsible = TRUE,  collapsed = TRUE,
-                          fluidRow(
-                            column(
-                              12,
-                              selectizeInput(
-                                "land_levelling_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                                options = list(maxItems = 10, placeholder = "Select one..."), 
-                                choices = magm_label$get("landlev")
-                                # choices = c("Start date",
-                                #             "Total number of levelling passes",
-                                #             "Type",
-                                #             "Traction")
-                              ),
-                              hr()
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              6,
-                              fluidRow(
-                                column(
-                                  6,
-                                  uiOutput("landLev_start_date")
-                                )
-                              ),
-                              numericInput("numPasses", label = "Total number of levelling passes", value="", min = 1, max = 20, step = 1),
-                              textAreaInput("landLeveling_notes", label="Notes", value="")
-                            ),
-                            column(
-                              6,
-                              br(),
-                              fluidRow(
-                                box(
-                                  title = "Implement", solidHeader = TRUE, status = "warning", width = 12,
-                                  fluidRow(
-                                    column(12, h4("Implement", style="font-weight: 800;color: #555;"))
-                                  ),
-                                  selectizeInput(
-                                    "land_impl_type", label = "Type", multiple = TRUE, 
-                                    options = list(maxItems =1, placeholder = "Select one..."),
-                                    choices = c("Chain harrow",
-                                                "Disc harrow",
-                                                "Drag bucket",
-                                                "Laser-controlled",
-                                                "Levelling board",
-                                                "Levelling bucket",
-                                                "Roller", 
-                                                "Tine harrow",
-                                                "Other")
-                                  ),
-                                  hidden(textInput("land_impl_type_other", "")),
-                                  selectizeInput(
-                                    "land_traction", multiple = TRUE, options = list(maxItems = 1, placeholder ="Select one..."), 
-                                    label = "Traction", choices = c("Animal",
-                                                                    "Manual",
-                                                                    "2 wheel tractor",
-                                                                    "4 wheel tractor",
-                                                                    "Other")
-                                  ),
-                                  hidden(textInput("land_traction_other", "", value = ""))
-                                )
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        box(
-                          id = "puddling_boxid",
-                          title = checkboxInput("puddling_checkbox", actionLink("puddling_titleId", "Puddling"), F),
-                          solidHeader = TRUE, status = "primary",
-                          width = 12, collapsible = TRUE,  collapsed = TRUE,
-                          fluidRow(
-                            column(
-                              12,
-                              selectizeInput(
-                                "puddling_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                                options = list(maxItems = 10, placeholder = "Select one..."), 
-                                choices = magm_label$get("pud")
-                                # choices = c("Start date",
-                                #             "Puddling depth",
-                                #             "Total number of puddling passes",
-                                #             "Type",
-                                #             "Traction")
-                              ),
-                              hr()
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              6,
-                              fluidRow(
-                                column(
-                                  6,
-                                  uiOutput("pud_start_date")
-                                )
-                              )
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              6,
-                              fluidRow(
-                                column(6, numericInput("puddling_depth_val", label = "Puddling depth", value="", min = 1, step = 0.1)),
-                                column(
-                                  6,
-                                  selectizeInput(
-                                    "puddling_depth_unit", label="Unit", multiple = TRUE, 
-                                    options = list(maxItems = 1, placeholder ="Select one..."), 
-                                    choices = c("cm", "ft", "in", "m"), selected = "cm"
-                                  )
-                                )
-                              ),
-                              numericInput("puddling_total_number_puddling_passes", "Total number of puddling passes", value = "", min = 0, step = 1),
-                              textAreaInput("puddling_notes", label="Notes", value="")
-                            ),
-                            column(
-                              6,
-                              fluidRow(
-                                box(
-                                  title = "Implement", solidHeader = TRUE, status = "warning", width = 12,
-                                  fluidRow(
-                                    column(12, h4("Implement", style="font-weight: 800;color: #555;"))                  
-                                  ),
-                                  selectizeInput(
-                                    "pud_impl_type", label = "Type", multiple = TRUE, 
-                                    options = list(maxItems =1, placeholder ="Select one..."),
-                                    choices = c("Chisel plough",
-                                                "Cultivator",
-                                                "Disc plough",
-                                                "Hand-held hoe",
-                                                "Mouldboard / Ridging plough",
-                                                "Paraplough",
-                                                "Spade plough",
-                                                "Subsoiler",
-                                                "Other")
-                                  ),
-                                  hidden(textInput("pud_impl_type_other", "")),
-                                  selectizeInput(
-                                    "pud_traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-                                    label = "Traction", choices = c("Animal",
-                                                                    "Manual",
-                                                                    "2 wheel tractor",
-                                                                    "4 wheel tractor",
-                                                                    "Other")
-                                  ),
-                                  hidden(textInput("pud_traction_other", "", value = ""))
-                                )
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        box(
-                          id="tillage_boxid",
-                          title = checkboxInput("tillage_checkbox", actionLink("tillage_titleId", "Tillage"), F),
-                          status = "primary", solidHeader = TRUE,
-                          width = 12, collapsible = TRUE,  collapsed = TRUE,
-                          fluidRow(
-                            column(
-                              12,
-                              selectizeInput(
-                                "tillage_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                                options = list(maxItems = 10, placeholder = "Select one..."), 
-                                choices = magm_label$get("till")
-                                # choices = c("Start date",
-                                #             "Technique",
-                                #             "Tillage depth",
-                                #             "Total number of tillage passes",
-                                #             "Type",
-                                #             "Traction")
-                              ),
-                              hr()
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              width = 6,
-                              fluidRow(
-                                column(6, uiOutput("till_start_date"))
-                              ),
-                              selectizeInput(
-                                "till_technique",  label = "Technique", multiple = TRUE, 
-                                options = list(maxItems =1, placeholder ="Select one..."), 
-                                choices = c("Conventional till",
-                                            "Deep till",
-                                            "No-till",
-                                            "Reduced till",
-                                            "Ridge-till",
-                                            "Strip-till",
-                                            "Other")
-                              ),
-                              hidden(textInput("till_technique_other", "")),
-                              fluidRow(
-                                column(6, numericInput("tillage_depth", "Tillage depth", value = "", min = 0, step = 0.1)),
-                                column(
-                                  6,
-                                  selectizeInput(
-                                    "tillage_depth_unit", label="Unit", multiple = TRUE, 
-                                    options = list(maxItems =1, placeholder ="Select one..."), 
-                                    choices=c("cm", "ft", "in", "m"), selected = "cm"
-                                  )
-                                )
-                              ),
-                              numericInput("total_number_tillage_passes", "Total number of tillage passes", value = "", min = 0, step = 1),
-                              textAreaInput("tillage_notes", label="Notes", value="")
-                            ),
-                            column(
-                              6,
-                              br(),
-                              fluidRow(
-                                box(
-                                  title = "Implement", solidHeader = TRUE, status = "warning", width = 12,
-                                  fluidRow(
-                                    column(12, h4("Implement", style="font-weight: 800;color: #555;"))
-                                  ),
-                                  selectizeInput(
-                                    "till_impl_type", label = "Type", multiple = TRUE, 
-                                    options = list(maxItems = 1, placeholder ="Select one..."), 
-                                    choices = c("Chisel plough",
-                                                "Cultivator",
-                                                "Disc plough",
-                                                "Hand-held hoe",
-                                                "Mouldboard / Ridging plough",
-                                                "Paraplough",
-                                                "Spade plough",
-                                                "Subsoiler",
-                                                "Other")
-                                  ),
-                                  hidden(textInput("till_impl_type_other", "", value = "")),
-                                  selectizeInput(
-                                    "till_traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-                                    label = "Traction", choices = c("Animal",
-                                                                    "Manual",
-                                                                    "2 wheel tractor",
-                                                                    "4 wheel tractor",
-                                                                    "Other")
-                                  ),
-                                  hidden(textInput("till_traction_other", "", value = ""))
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  tabPanel(
-                    div(id = "gh", "Soil fertility"), value = "tabSoil",
-                    column(
-                      12,
-                      h1("Under construction")
-                    )
-                  ),
-                  tabPanel(
-                    div(id = "gh", "Planting and transplanting"), value="tabPlanting",
-                    column(
-                      12,
-                      br(),
-                      conditionalPanel(
-                        "input.croppingType == 'Monocrop'",
-                        fluidRow(id = "monocrop_fr_plantingTransplating")#,
-                        #actionButton("monocrop_pt_add", "Add Planting & Transplanting")
-                      ),
-                      conditionalPanel(
-                        "input.croppingType == 'Intercrop'",
-                        tabsetPanel(
-                          id = "tabpanelPTint",
-                          shiny::tabPanel(title = "default int", value = "pt_int_default")
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.croppingType == 'Relay crop'",
-                        tabsetPanel(
-                          id = "tabpanelPTrel",
-                          shiny::tabPanel(title = "default rel", value = "pt_rel_default")
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.croppingType == 'Rotation'",
-                        tabsetPanel(
-                          id = "tabpanelPTrot",
-                          shiny::tabPanel(title = "default rot", value = "pt_rot_default")
-                        )
-                      )
-                    )
-                  ),
-                  tabPanel(
-                    div(id = "gh", "Mulch management"), value="tabMulching",
-                    column(
-                      12,
-                      br(),
-                      fluidRow(
-                        box(
-                          id = "mulch_management_boxid",
-                          title= "Mulching details",
-                          status = "primary", solidHeader = TRUE,
-                          width = 12, collapsible = TRUE, collapsed = FALSE,
-                          fluidRow(
-                            column(
-                              12,
-                              selectizeInput(
-                                "mulch_management_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                                options = list(maxItems = 20, placeholder = "Select one..."), 
-                                choices = magm_label$get("mulching")
-                                # choices = c("Mulching start date",
-                                #             "Type",
-                                #             "Mulch thickness",
-                                #             "Mulch amount",
-                                #             "Mulch color",
-                                #             "Percentage of coverage",
-                                #             "Mulch removal start date",
-                                #             "Mulch removal end date",
-                                #             "Type",
-                                #             "Traction")
-                              ),
-                              hr()
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              6,
-                              fluidRow(
-                                column(
-                                  6,
-                                  uiOutput("mul_start_date")
-                                )
-                              ),
-                              selectizeInput(
-                                "mumd_mulch_type", label = "Type", multiple = TRUE, 
-                                options = list(maxItems =1, placeholder ="Select one..."),
-                                choices = c("Bark / Wood chips",
-                                            "Compost",
-                                            "Foil (landscape fabric)",
-                                            "Grass / Straw",
-                                            "Gravel",
-                                            "Hush / Chaff",
-                                            "Leaves",
-                                            "Plastic",
-                                            "Saw dust",
-                                            "Other")
-                                
-                              ),
-                              hidden(textInput("mumd_mulch_type_other", "", value = "")),
-                              fluidRow(
-                                column(6, numericInput("mumd_mulch_thickness", value="", label = "Mulch thickness", min=0, max=100, step=0.1)),
-                                column(
-                                  6,
-                                  selectizeInput(
-                                    "mumd_mulch_thickness_unit","Unit", multiple = T, 
-                                    options=list(maxItems=1, placeholder="Select one..."),
-                                    choices = c("cm","ft", "in", "m"), 
-                                    selected = "cm"
-                                  )
-                                )
-                              ),
-                              fluidRow(
-                                column(6, numericInput("mumd_mulch_amountPerSq", value="", label = "Mulch amount", min=0, max=100, step = 0.1)),
-                                column(
-                                  6,
-                                  selectizeInput(
-                                    "mumd_mulch_amountPerSq_unit", "Unit", multiple = T, 
-                                    options=list(maxItems=1, placeholder="Select one..."),
-                                    choices = c("g/ft2", "g/m2","kg/ha", "kg/m2", "lb/ac"), 
-                                    selected = "kg/ha"
-                                  )
-                                )
-                              ),
-                              textInput("mumd_mulch_color","Mulch color"),
-                              fluidRow(
-                                column(6, textInput("mumd_mulch_percCoverage", value="", label = "Percentage of coverage")),
-                                column(
-                                  6,
-                                  selectInput(
-                                    "mumd_mulch_percCoverage_unit", "Unit", c("%"), 
-                                    selected= "%"
-                                  )
-                                )
-                              ),
-                              fluidRow(
-                                column(6, uiOutput("mulre_start_date")),
-                                column(6, uiOutput("mulre_end_date"))
-                              ),
-                              textAreaInput("mumd_mulching_management_notes", label="Notes", value="")
-                            ),
-                            column(
-                              6,
-                              br(),
-                              fluidRow(
-                                box(
-                                  title = "Implement", solidHeader = TRUE, status = "warning", width=12,
-                                  fluidRow(
-                                    column(12, h4("Implement", style="font-weight: 800;color: #555;"))
-                                  ),
-                                  selectizeInput(
-                                    "mumd_mulch_implement_type", label = "Type", multiple = TRUE, 
-                                    options = list(maxItems =1, placeholder ="Select one..."), 
-                                    choices = c("Manual",
-                                                "Mechanized")
-                                  ),
-                                  selectizeInput(
-                                    "mumd_mulch_traction", label = "Traction", multiple = TRUE, 
-                                    options = list(maxItems =1, placeholder ="Select one..."), 
-                                    choices = c("Animal",
-                                                "Manual",
-                                                "2 wheel tractor",
-                                                "4 wheel tractor",
-                                                "Other")
-                                  ),
-                                  hidden(textInput("mumd_mulch_traction_other", "", value = ""))
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  tabPanel(
-                    div(id = "gh", "Irrigation"), value = "tabIrrigation",
-                    column(
-                      12,
-                      br(),
-                      fluidRow(
-                        column(
-                          12,
-                          selectizeInput(
-                            "irrigation_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                            options = list(maxItems = 20, placeholder = "Select one..."), 
-                            choices = magm_label$get("irrigation")
-                            # choices = c("Start date",
-                            #             "End date",
-                            #             "Irrigation technique",
-                            #             "Irrigation source",
-                            #             "Irrigation source distance",
-                            #             "Irrigation amount")
-                          )#,
-                          #hr()
-                        )
-                      ),
-                      fluidRow(id = "monocrop_fr_irrigation"),
-                      actionButton("monocrop_irri_add", "Add irrigation")
-                    )
-                  ),
-                  tabPanel(
-                    div(id = "gh", "Weeding"), value = "tabWeeding",
-                    column(
-                      12,
-                      br(),
-                      fluidRow(
-                        column(
-                          12,
-                          selectizeInput(
-                            "weeding_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                            options = list(maxItems = 20, placeholder = "Select one..."), 
-                            choices = magm_label$get("weeding")
-                            # choices = c("Start date",
-                            #             "Technique",
-                            #             "Type",
-                            #             "Traction")
-                          )#,
-                          #hr()
-                        )
-                      ),
-                      fluidRow(id = "monocrop_fr_weeding"),
-                      actionButton("monocrop_wee_add", "Add weeding")
-                    )
-                  ),
-                  tabPanel(
-                    div(id = "gh", "Harvest"), value = "tabHarvest",
-                    column(
-                      12,
-                      br(),
-                      conditionalPanel(
-                        "input.croppingType == 'Monocrop'",
+            
+            column(
+              12,
+              tabsetPanel(
+                id = "nutrienTabPanels",
+                tabPanel(
+                  div(id = "gh", "Residue management"), value = "tabResidue",
+                  column(
+                    12,
+                    br(),
+                    fluidRow(
+                      box(
+                        id = "residue_description_boxid",
+                        title = checkboxInput("residueDesc_checkbox", actionLink("residue_description_titleId", "Residue description"), T),
+                        status = "primary", solidHeader = TRUE,
+                        width = 12, collapsible = TRUE, collapsed = TRUE,
                         fluidRow(
                           column(
                             12,
                             selectizeInput(
-                              paste0("mono_harvest_to_collect_field"), label = "To collect in the field", multiple = TRUE, 
-                              options = list(maxItems = 20, placeholder = "Select one..."), 
-                               choices = magm_label$get("harvest")   #c("Start date",
-                              #             "End date",
-                              #             "Harvest Method",
-                              #             "Crop component harvested",
-                              #             "Harvestable area",
-                              #             "Amount harvested",
-                              #             "Harvest cut height",
-                              #             "Type",
-                              #             "Traction")
-                            )#,
-                            #hr()
+                              "residue_description_to_collect_field", label = "To collect in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              choices = magm_label$get("resdes")
+                              # choices = c("Plant part",
+                              #             "Crop residue moisture",
+                              #             "Crop residue thickness",
+                              #             "Crop residue amount",
+                              #             "Crop residue percent of coverage")
+                            ),
+                            hr()
                           )
                         ),
-                        fluidRow(id = "monocrop_fr_harvest"),
-                        actionButton("monocrop_harv_add", "Add harvest")
-                      ),
-                      conditionalPanel(
-                        "input.croppingType == 'Intercrop'",
-                        tabsetPanel(
-                          id = "tabpanelHARVint",
-                          shiny::tabPanel(title = "default int", value = "harv_int_default")
+                        fluidRow(
+                          column(
+                            6,
+                            selectizeInput(
+                              "rmgt_residue_plantPart", label = "Plant part", multiple = TRUE, 
+                              options = list(maxItems = 1, placeholder = "Select one..."), 
+                              choices = c("Husk",
+                                          "Leaf",
+                                          "Root",
+                                          "Seed Pod/Cob/Fruit",
+                                          "Stem",
+                                          "Stubble",
+                                          "Other")
+                            ),
+                            hidden(textInput("rmgt_residue_plantPart_other", "", value = "")),
+                            selectizeInput(
+                              "rmgt_crop_residue_moisture", "Crop residue moisture", multiple = T, 
+                              options = list(maxItems=1, placeholder = "Select one..."),
+                              choices = c("Dry", "Moist", "Wet")
+                            ),
+                            fluidRow(
+                              column(6, numericInput("rmgt_crop_residue_thick", value = "", label = "Crop residue thickness", min = 0, max = 100, step = 0.1)),
+                              column(
+                                6,
+                                selectizeInput(
+                                  "rmgt_crop_residue_thick_unit", "Unit", multiple = T, 
+                                  options=list(maxItems=1, placeholder="Select one..."),
+                                  choices = c("cm", "ft", "in", "m"), selected = "cm"
+                                )
+                              )
+                            ),
+                            fluidRow(
+                              column(6, numericInput("rmgt_crop_residue_amount_sqm", value = "", label = "Crop residue amount", min = 0, max = 100, step = 0.1)),
+                              column(
+                                6,
+                                selectizeInput(
+                                  "rmgt_crop_residue_amount_sqm_unit", "Unit", multiple = T, 
+                                  options=list(maxItems = 1, placeholder = "Select one..."),
+                                  choices = c("g/ft2", "g/m2", "kg/ha", "kg/m2", "lb/ac"), selected = "kg/ha"
+                                )
+                              )
+                            ),
+                            fluidRow(
+                              column(6, numericInput("rmgt_crop_residue_perc_cov", "Crop residue percent of coverage", value = "", min = 0, max = 100)),
+                              column(6, selectInput("rmgt_crop_residue_perc_cov_unit", "Unit", c("%"), selected = "%"))
+                            ),
+                            textAreaInput("rmgt_residue_description_notes", label = "Notes", value = "")
+                          )
+                        )
+                      ), 
+                      box(
+                        id="residue_management_boxid",
+                        title = checkboxInput("residueManag_checkbox", actionLink("residue_management_titleId", "Residue management"), T),
+                        status = "primary", solidHeader = TRUE,
+                        width = 12, collapsible = TRUE,  collapsed = TRUE,
+                        fluidRow(
+                          column(
+                            12,
+                            selectizeInput(
+                              "residue_management_to_collect_field", label = "To collect in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              choices = magm_label$get("resmgtm")
+                              # choices = c("Start date",
+                              #             "Technique",
+                              #             "Traction")
+                            ),
+                            hr()
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            6,
+                            fluidRow(
+                              column(
+                                6,
+                                uiOutput("res_start_date")
+                              )
+                            ),
+                            selectizeInput(
+                              "rmgt_residue_technique", label = "Technique", multiple = TRUE, 
+                              options = list(maxItems =1, placeholder ="Select one..."), 
+                              choices = c("Burning",
+                                          "Incorporation",
+                                          "Spreading",
+                                          "Other")
+                            ),
+                            hidden(textInput("rmgt_residue_technique_other", "", value = "")),
+                            conditionalPanel(
+                              "input.rmgt_residue_technique == 'Incorporation'", 
+                              fluidRow(
+                                column(6, textInput("rmgt_residue_inc_depth", "Residue incorporation depth", value = "")),
+                                column(
+                                  6, 
+                                  selectizeInput(
+                                    "rmgt_residue_inc_depth_unit", "Unit", multiple = T, 
+                                    options=list(maxItems=1, placeholder="Select one..."),
+                                    choices = c("cm", "ft", "in", "m"), selected = "cm"
+                                  )
+                                )
+                              )
+                            ),
+                            selectizeInput(
+                              "rmgt_residue_traction", label = "Traction", multiple = TRUE, 
+                              options = list(maxItems =1, placeholder ="Select one..."), 
+                              choices = c("Animal",
+                                          "Manual",
+                                          "2 wheel tractor",
+                                          "4 wheel tractor",
+                                          "Other")
+                            ),
+                            hidden(textInput("rmgt_residue_traction_other", "", value = "")),
+                            textAreaInput("rmgt_residue_management_notes", label = "Notes", value = "")
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                tabPanel(
+                  div(id = "gh", "Seedbed preparation"), value = "tabSeedbed",
+                  column(
+                    12,
+                    br(),
+                    fluidRow(
+                      box(
+                        id = "land_levelling_boxid",
+                        title = checkboxInput("landLevelling_checkbox" , actionLink("land_levelling_titleId", "Land Levelling"), F),
+                        status = "primary", solidHeader = TRUE,
+                        width = 12, collapsible = TRUE,  collapsed = TRUE,
+                        fluidRow(
+                          column(
+                            12,
+                            selectizeInput(
+                              "land_levelling_to_collect_field", label = "To collect in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              choices = magm_label$get("landlev")
+                              # choices = c("Start date",
+                              #             "Total number of levelling passes",
+                              #             "Type",
+                              #             "Traction")
+                            ),
+                            hr()
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            6,
+                            fluidRow(
+                              column(
+                                6,
+                                uiOutput("landLev_start_date")
+                              )
+                            ),
+                            numericInput("numPasses", label = "Total number of levelling passes", value="", min = 1, max = 20, step = 1),
+                            textAreaInput("landLeveling_notes", label="Notes", value="")
+                          ),
+                          column(
+                            6,
+                            br(),
+                            fluidRow(
+                              box(
+                                title = "Implement", solidHeader = TRUE, status = "warning", width = 12,
+                                fluidRow(
+                                  column(12, h4("Implement", style="font-weight: 800;color: #555;"))
+                                ),
+                                selectizeInput(
+                                  "land_impl_type", label = "Type", multiple = TRUE, 
+                                  options = list(maxItems =1, placeholder = "Select one..."),
+                                  choices = c("Chain harrow",
+                                              "Disc harrow",
+                                              "Drag bucket",
+                                              "Laser-controlled",
+                                              "Levelling board",
+                                              "Levelling bucket",
+                                              "Roller", 
+                                              "Tine harrow",
+                                              "Other")
+                                ),
+                                hidden(textInput("land_impl_type_other", "")),
+                                selectizeInput(
+                                  "land_traction", multiple = TRUE, options = list(maxItems = 1, placeholder ="Select one..."), 
+                                  label = "Traction", choices = c("Animal",
+                                                                  "Manual",
+                                                                  "2 wheel tractor",
+                                                                  "4 wheel tractor",
+                                                                  "Other")
+                                ),
+                                hidden(textInput("land_traction_other", "", value = ""))
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      box(
+                        id = "puddling_boxid",
+                        title = checkboxInput("puddling_checkbox", actionLink("puddling_titleId", "Puddling"), F),
+                        solidHeader = TRUE, status = "primary",
+                        width = 12, collapsible = TRUE,  collapsed = TRUE,
+                        fluidRow(
+                          column(
+                            12,
+                            selectizeInput(
+                              "puddling_to_collect_field", label = "To collect in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              choices = magm_label$get("pud")
+                              # choices = c("Start date",
+                              #             "Puddling depth",
+                              #             "Total number of puddling passes",
+                              #             "Type",
+                              #             "Traction")
+                            ),
+                            hr()
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            6,
+                            fluidRow(
+                              column(
+                                6,
+                                uiOutput("pud_start_date")
+                              )
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            6,
+                            fluidRow(
+                              column(6, numericInput("puddling_depth_val", label = "Puddling depth", value="", min = 1, step = 0.1)),
+                              column(
+                                6,
+                                selectizeInput(
+                                  "puddling_depth_unit", label="Unit", multiple = TRUE, 
+                                  options = list(maxItems = 1, placeholder ="Select one..."), 
+                                  choices = c("cm", "ft", "in", "m"), selected = "cm"
+                                )
+                              )
+                            ),
+                            numericInput("puddling_total_number_puddling_passes", "Total number of puddling passes", value = "", min = 0, step = 1),
+                            textAreaInput("puddling_notes", label="Notes", value="")
+                          ),
+                          column(
+                            6,
+                            fluidRow(
+                              box(
+                                title = "Implement", solidHeader = TRUE, status = "warning", width = 12,
+                                fluidRow(
+                                  column(12, h4("Implement", style="font-weight: 800;color: #555;"))                  
+                                ),
+                                selectizeInput(
+                                  "pud_impl_type", label = "Type", multiple = TRUE, 
+                                  options = list(maxItems =1, placeholder ="Select one..."),
+                                  choices = c("Chisel plough",
+                                              "Cultivator",
+                                              "Disc plough",
+                                              "Hand-held hoe",
+                                              "Mouldboard / Ridging plough",
+                                              "Paraplough",
+                                              "Spade plough",
+                                              "Subsoiler",
+                                              "Other")
+                                ),
+                                hidden(textInput("pud_impl_type_other", "")),
+                                selectizeInput(
+                                  "pud_traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                                  label = "Traction", choices = c("Animal",
+                                                                  "Manual",
+                                                                  "2 wheel tractor",
+                                                                  "4 wheel tractor",
+                                                                  "Other")
+                                ),
+                                hidden(textInput("pud_traction_other", "", value = ""))
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      box(
+                        id="tillage_boxid",
+                        title = checkboxInput("tillage_checkbox", actionLink("tillage_titleId", "Tillage"), F),
+                        status = "primary", solidHeader = TRUE,
+                        width = 12, collapsible = TRUE,  collapsed = TRUE,
+                        fluidRow(
+                          column(
+                            12,
+                            selectizeInput(
+                              "tillage_to_collect_field", label = "To collect in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              choices = magm_label$get("till")
+                              # choices = c("Start date",
+                              #             "Technique",
+                              #             "Tillage depth",
+                              #             "Total number of tillage passes",
+                              #             "Type",
+                              #             "Traction")
+                            ),
+                            hr()
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 6,
+                            fluidRow(
+                              column(6, uiOutput("till_start_date"))
+                            ),
+                            selectizeInput(
+                              "till_technique",  label = "Technique", multiple = TRUE, 
+                              options = list(maxItems =1, placeholder ="Select one..."), 
+                              choices = c("Conventional till",
+                                          "Deep till",
+                                          "No-till",
+                                          "Reduced till",
+                                          "Ridge-till",
+                                          "Strip-till",
+                                          "Other")
+                            ),
+                            hidden(textInput("till_technique_other", "")),
+                            fluidRow(
+                              column(6, numericInput("tillage_depth", "Tillage depth", value = "", min = 0, step = 0.1)),
+                              column(
+                                6,
+                                selectizeInput(
+                                  "tillage_depth_unit", label="Unit", multiple = TRUE, 
+                                  options = list(maxItems =1, placeholder ="Select one..."), 
+                                  choices=c("cm", "ft", "in", "m"), selected = "cm"
+                                )
+                              )
+                            ),
+                            numericInput("total_number_tillage_passes", "Total number of tillage passes", value = "", min = 0, step = 1),
+                            textAreaInput("tillage_notes", label="Notes", value="")
+                          ),
+                          column(
+                            6,
+                            br(),
+                            fluidRow(
+                              box(
+                                title = "Implement", solidHeader = TRUE, status = "warning", width = 12,
+                                fluidRow(
+                                  column(12, h4("Implement", style="font-weight: 800;color: #555;"))
+                                ),
+                                selectizeInput(
+                                  "till_impl_type", label = "Type", multiple = TRUE, 
+                                  options = list(maxItems = 1, placeholder ="Select one..."), 
+                                  choices = c("Chisel plough",
+                                              "Cultivator",
+                                              "Disc plough",
+                                              "Hand-held hoe",
+                                              "Mouldboard / Ridging plough",
+                                              "Paraplough",
+                                              "Spade plough",
+                                              "Subsoiler",
+                                              "Other")
+                                ),
+                                hidden(textInput("till_impl_type_other", "", value = "")),
+                                selectizeInput(
+                                  "till_traction", multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                                  label = "Traction", choices = c("Animal",
+                                                                  "Manual",
+                                                                  "2 wheel tractor",
+                                                                  "4 wheel tractor",
+                                                                  "Other")
+                                ),
+                                hidden(textInput("till_traction_other", "", value = ""))
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                tabPanel(
+                  div(id = "gh", "Soil fertility"), value = "tabSoil",
+                  column(
+                    12,
+                    uiOutput("uiSoilFertility")
+                  )
+                ),
+                tabPanel(
+                  div(id = "gh", "Planting and transplanting"), value="tabPlanting",
+                  column(
+                    12,
+                    br(),
+                    conditionalPanel(
+                      "input.croppingType == 'Monocrop'",
+                      fluidRow(id = "monocrop_fr_plantingTransplating")#,
+                      #actionButton("monocrop_pt_add", "Add Planting & Transplanting")
+                    ),
+                    conditionalPanel(
+                      "input.croppingType == 'Intercrop'",
+                      tabsetPanel(
+                        id = "tabpanelPTint",
+                        shiny::tabPanel(title = "default int", value = "pt_int_default")
+                      )
+                    ),
+                    conditionalPanel(
+                      "input.croppingType == 'Relay crop'",
+                      tabsetPanel(
+                        id = "tabpanelPTrel",
+                        shiny::tabPanel(title = "default rel", value = "pt_rel_default")
+                      )
+                    ),
+                    conditionalPanel(
+                      "input.croppingType == 'Rotation'",
+                      tabsetPanel(
+                        id = "tabpanelPTrot",
+                        shiny::tabPanel(title = "default rot", value = "pt_rot_default")
+                      )
+                    )
+                  )
+                ),
+                tabPanel(
+                  div(id = "gh", "Mulch management"), value="tabMulching",
+                  column(
+                    12,
+                    br(),
+                    fluidRow(
+                      box(
+                        id = "mulch_management_boxid",
+                        title= "Mulching details",
+                        status = "primary", solidHeader = TRUE,
+                        width = 12, collapsible = TRUE, collapsed = FALSE,
+                        fluidRow(
+                          column(
+                            12,
+                            selectizeInput(
+                              "mulch_management_to_collect_field", label = "To collect in the field", multiple = TRUE, 
+                              options = list(maxItems = 20, placeholder = "Select one..."), 
+                              choices = magm_label$get("mulching")
+                              # choices = c("Mulching start date",
+                              #             "Type",
+                              #             "Mulch thickness",
+                              #             "Mulch amount",
+                              #             "Mulch color",
+                              #             "Percentage of coverage",
+                              #             "Mulch removal start date",
+                              #             "Mulch removal end date",
+                              #             "Type",
+                              #             "Traction")
+                            ),
+                            hr()
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            6,
+                            fluidRow(
+                              column(
+                                6,
+                                uiOutput("mul_start_date")
+                              )
+                            ),
+                            selectizeInput(
+                              "mumd_mulch_type", label = "Type", multiple = TRUE, 
+                              options = list(maxItems =1, placeholder ="Select one..."),
+                              choices = c("Bark / Wood chips",
+                                          "Compost",
+                                          "Foil (landscape fabric)",
+                                          "Grass / Straw",
+                                          "Gravel",
+                                          "Hush / Chaff",
+                                          "Leaves",
+                                          "Plastic",
+                                          "Saw dust",
+                                          "Other")
+                              
+                            ),
+                            hidden(textInput("mumd_mulch_type_other", "", value = "")),
+                            fluidRow(
+                              column(6, numericInput("mumd_mulch_thickness", value="", label = "Mulch thickness", min=0, max=100, step=0.1)),
+                              column(
+                                6,
+                                selectizeInput(
+                                  "mumd_mulch_thickness_unit","Unit", multiple = T, 
+                                  options=list(maxItems=1, placeholder="Select one..."),
+                                  choices = c("cm","ft", "in", "m"), 
+                                  selected = "cm"
+                                )
+                              )
+                            ),
+                            fluidRow(
+                              column(6, numericInput("mumd_mulch_amountPerSq", value="", label = "Mulch amount", min=0, max=100, step = 0.1)),
+                              column(
+                                6,
+                                selectizeInput(
+                                  "mumd_mulch_amountPerSq_unit", "Unit", multiple = T, 
+                                  options=list(maxItems=1, placeholder="Select one..."),
+                                  choices = c("g/ft2", "g/m2","kg/ha", "kg/m2", "lb/ac"), 
+                                  selected = "kg/ha"
+                                )
+                              )
+                            ),
+                            textInput("mumd_mulch_color","Mulch color"),
+                            fluidRow(
+                              column(6, textInput("mumd_mulch_percCoverage", value="", label = "Percentage of coverage")),
+                              column(
+                                6,
+                                selectInput(
+                                  "mumd_mulch_percCoverage_unit", "Unit", c("%"), 
+                                  selected= "%"
+                                )
+                              )
+                            ),
+                            fluidRow(
+                              column(6, uiOutput("mulre_start_date")),
+                              column(6, uiOutput("mulre_end_date"))
+                            ),
+                            textAreaInput("mumd_mulching_management_notes", label="Notes", value="")
+                          ),
+                          column(
+                            6,
+                            br(),
+                            fluidRow(
+                              box(
+                                title = "Implement", solidHeader = TRUE, status = "warning", width=12,
+                                fluidRow(
+                                  column(12, h4("Implement", style="font-weight: 800;color: #555;"))
+                                ),
+                                selectizeInput(
+                                  "mumd_mulch_implement_type", label = "Type", multiple = TRUE, 
+                                  options = list(maxItems =1, placeholder ="Select one..."), 
+                                  choices = c("Manual",
+                                              "Mechanized")
+                                ),
+                                selectizeInput(
+                                  "mumd_mulch_traction", label = "Traction", multiple = TRUE, 
+                                  options = list(maxItems =1, placeholder ="Select one..."), 
+                                  choices = c("Animal",
+                                              "Manual",
+                                              "2 wheel tractor",
+                                              "4 wheel tractor",
+                                              "Other")
+                                ),
+                                hidden(textInput("mumd_mulch_traction_other", "", value = ""))
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                tabPanel(
+                  div(id = "gh", "Irrigation"), value = "tabIrrigation",
+                  column(
+                    12,
+                    br(),
+                    fluidRow(
+                      column(
+                        12,
+                        selectizeInput(
+                          "irrigation_to_collect_field", label = "To collect in the field", multiple = TRUE, 
+                          options = list(maxItems = 20, placeholder = "Select one..."), 
+                          choices = magm_label$get("irrigation")
+                          # choices = c("Start date",
+                          #             "End date",
+                          #             "Irrigation technique",
+                          #             "Irrigation source",
+                          #             "Irrigation source distance",
+                          #             "Irrigation amount")
+                        )#,
+                        #hr()
+                      )
+                    ),
+                    fluidRow(id = "monocrop_fr_irrigation"),
+                    actionButton("monocrop_irri_add", "Add irrigation")
+                  )
+                ),
+                tabPanel(
+                  div(id = "gh", "Weeding"), value = "tabWeeding",
+                  column(
+                    12,
+                    br(),
+                    fluidRow(
+                      column(
+                        12,
+                        selectizeInput(
+                          "weeding_to_collect_field", label = "To collect in the field", multiple = TRUE, 
+                          options = list(maxItems = 20, placeholder = "Select one..."), 
+                          choices = magm_label$get("weeding")
+                          # choices = c("Start date",
+                          #             "Technique",
+                          #             "Type",
+                          #             "Traction")
+                        )#,
+                        #hr()
+                      )
+                    ),
+                    fluidRow(id = "monocrop_fr_weeding"),
+                    actionButton("monocrop_wee_add", "Add weeding")
+                  )
+                ),
+                tabPanel(
+                  div(id = "gh", "Harvest"), value = "tabHarvest",
+                  column(
+                    12,
+                    br(),
+                    conditionalPanel(
+                      "input.croppingType == 'Monocrop'",
+                      fluidRow(
+                        column(
+                          12,
+                          selectizeInput(
+                            paste0("mono_harvest_to_collect_field"), label = "To collect in the field", multiple = TRUE, 
+                            options = list(maxItems = 20, placeholder = "Select one..."), 
+                            choices = magm_label$get("harvest")
+                          )#,
+                          #hr()
                         )
                       ),
-                      conditionalPanel(
-                        "input.croppingType == 'Relay crop'",
-                        tabsetPanel(
-                          id = "tabpanelHARVrel",
-                          shiny::tabPanel(title = "default rel", value = "harv_rel_default")
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.croppingType == 'Rotation'",
-                        tabsetPanel(
-                          id = "tabpanelHARVrot",
-                          shiny::tabPanel(title = "default rot", value = "harv_rot_default")
-                        )
+                      fluidRow(id = "monocrop_fr_harvest"),
+                      actionButton("monocrop_harv_add", "Add harvest")
+                    ),
+                    conditionalPanel(
+                      "input.croppingType == 'Intercrop'",
+                      tabsetPanel(
+                        id = "tabpanelHARVint",
+                        shiny::tabPanel(title = "default int", value = "harv_int_default")
+                      )
+                    ),
+                    conditionalPanel(
+                      "input.croppingType == 'Relay crop'",
+                      tabsetPanel(
+                        id = "tabpanelHARVrel",
+                        shiny::tabPanel(title = "default rel", value = "harv_rel_default")
+                      )
+                    ),
+                    conditionalPanel(
+                      "input.croppingType == 'Rotation'",
+                      tabsetPanel(
+                        id = "tabpanelHARVrot",
+                        shiny::tabPanel(title = "default rot", value = "harv_rot_default")
                       )
                     )
                   )

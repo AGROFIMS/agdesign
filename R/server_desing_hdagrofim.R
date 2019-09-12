@@ -7286,7 +7286,10 @@ server_design_agrofims <- function(input, output, session, values){
               ),
               column(
                 12,
-                loadDataFrame(type)
+                loadDataFrame(type),
+                ###OPTINAL NEW
+                rHandsontableOutput(paste0(design,"_outputFERT_",modalLevel))
+                #####
               )
           )
         )
@@ -7508,8 +7511,8 @@ server_design_agrofims <- function(input, output, session, values){
               ),
               column(
                 12,
-                HTML("<div> Aca viene un rhandsometable. </div>")
-                #rhandsontable::rHandsontableOutput("output_nutDT")
+                HTML("<div> Aca viene un rhandsometable. </div>"),
+                rHandsontableOutput(paste0(design,"_outputPADT_",modalLevel))
               )
           )
         )
@@ -7542,12 +7545,145 @@ server_design_agrofims <- function(input, output, session, values){
   # Trigger calculate for fertilizer
   observeEvent(input$calculateProdAmountFertilizer,{
     print("Fertilizer replace code here!")
+    
+    #print("Nutient replace code here!")
+    vars <- unlist(strsplit(input$calculateProdAmountFertilizerid, "_"))
+    modalLevel <- vars[3] #Factor number
+    print("modalLevel")
+    print(modalLevel)
+    
+    design <- tolower(input$designFieldbook_agrofims)
+    IdDesignInputs <- getFactorIds(design)
+    
+    #index <- get_index_design(IdDesignInputs, design)
+    index <- modalLevel
+    
+    allinputs <- AllInputs()
+    flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
+    #Get especial levels
+    indexEspLvl <- factorlevel$ids 
+    print(indexEspLvl)
+    
+    Inputs<-input
+    
+    dfAll <- data.frame(level=NULL,type=NULL,levels=NULL,unit=NULL,stringsAsFactors = FALSE)
+    for (i in factorlevel$ids){
+      
+      value <- c(input[[i]])
+      vars <- unlist(strsplit(i, "_"))
+      design <- vars[1]
+      level <- vars[4]
+      indexlevel <- vars[5]
+      
+      levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
+      #if(length(levels)==0){return()}
+      unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
+      split <- input[[paste0(design,"_lvl_espSplit_",level,"_",indexlevel)]]
+      #frcbd_lvl_espSplit_1_3
+      
+      df <- data.frame(   level = rep(level,length(levels)),
+                          eleType = rep(value,length(levels)),
+                          levels = levels,
+                          unit = rep(unit,length(levels)),
+                          index = rep(indexlevel, length(levels)),
+                          splits = rep(split, length(levels)) ,
+                          stringsAsFactors = FALSE
+      )
+      
+      dfAll <- rbind(dfAll,df)
+    }
+    dfAll2 <- dfAll 
+    #out <- product_calculation_test(allinputs, dfAll=dfAll2, index="1", indexEspLvl= indexEspLvl , design=design)
+    #a1<<-get_fertilizer_details_design(allinputs, design, index, indexEspLvl)
+    out <- try({  fertilizer_calculation(allinputs, dfAll2, index="1", indexEspLvl=indexEspLvl , design="frcbd") })
+    
+    if(class(out)!="try-error")  {     
+    
+        output[[paste0(design,"_outputFERT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
+          rhandsontable(as.data.frame(out),rowHeaders = FALSE) 
+        })
+        
+    } else {
+      
+      output[[paste0(design,"_outputFERT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(data.frame(NoData="Please choose products or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE) 
+      })
+    }
+    
   })
   
   # Trigger calculate for nutrient
   observeEvent(input$calculateProdAmountNutrient,{
     print("Nutient replace code here!")
+    
+    #print("Nutient replace code here!")
+    vars <- unlist(strsplit(input$calculateProdAmountNutrientid, "_"))
+    modalLevel <- vars[3] #Factor number
+    print("modalLevel")
+    print(modalLevel)
+    
+    design <- tolower(input$designFieldbook_agrofims)
+    IdDesignInputs <- getFactorIds(design)
+    
+    #index <- get_index_design(IdDesignInputs, design)
+    index <- modalLevel
+    
+    allinputs <- AllInputs()
+    flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
+    #Get especial levels
+    indexEspLvl <- factorlevel$ids 
+    print(indexEspLvl)
+    
+    Inputs<-input
+    
+    dfAll <- data.frame(level=NULL,type=NULL,levels=NULL,unit=NULL,stringsAsFactors = FALSE)
+    for (i in factorlevel$ids){
+      
+      value <- c(input[[i]])
+      vars <- unlist(strsplit(i, "_"))
+      design <- vars[1]
+      level <- vars[4]
+      indexlevel <- vars[5]
+      
+      levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
+      #if(length(levels)==0){return()}
+      unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
+      split <- input[[paste0(design,"_lvl_espSplit_",level,"_",indexlevel)]]
+      #frcbd_lvl_espSplit_1_3
+      
+      df <- data.frame(   level = rep(level,length(levels)),
+                          eleType = rep(value,length(levels)),
+                          levels = levels,
+                          unit = rep(unit,length(levels)),
+                          index = rep(indexlevel, length(levels)),
+                          splits = rep(split, length(levels)) ,
+                          stringsAsFactors = FALSE
+      )
+      
+      dfAll <- rbind(dfAll,df)
+    }
+    dfAll2 <- dfAll 
+    
+    out <- try({product_calculation_test(allinputs, dfAll=dfAll2, index="1", indexEspLvl= indexEspLvl , design=design) })
+    
+    if(class(out)!="try-error")  {         
+    print("calculo")
+    print(out)
+    
+    output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
+      rhandsontable(as.data.frame(out),rowHeaders = FALSE) 
+    })
+    
+    } else {
+      
+      output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(data.frame(NoData="Please choose products or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE) 
+      })
+      
+    }
+    
   })
+  
   
   # Irrigation Timing Modal In progress
   irrigationTModal <- function(design,modalLevel,descriptionId,dfAll){
@@ -9828,7 +9964,6 @@ server_design_agrofims <- function(input, output, session, values){
   
   ## Residue management
   # residue_start_date 
-  
   output$res_start_date <- renderUI({
     if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
       airDatepickerInput("rmgt_residue_start_date",
@@ -9852,8 +9987,6 @@ server_design_agrofims <- function(input, output, session, values){
       )
     }
   })
-  
-  outputOptions(output, "res_start_date", suspendWhenHidden = FALSE)
   
   ###################### END: RESIDUE MANAGEMENT ######################
   
@@ -9937,6 +10070,893 @@ server_design_agrofims <- function(input, output, session, values){
   
   ###################### END: LAND LEVELLING ######################
   
+  ###################### START: SOIL FERTILITY ######################
+  
+  # Funcion que crea el disenno de measurement --> solo Monocrop
+  output$uiSoilFertility <- renderUI({
+    # cropValue <- input[["cropCommonNameMono"]]
+    # msm <- get_dcm_values(cmdt, "Measurement",cropValue)
+    fluidRow(
+      fluidRow(
+        column(style="text-align:center; margin-bottom:15px",
+               12,
+               radioButtons(inputId = "rbtSoilOption", 
+                            label = " ", 
+                            choices = c("Nutrient","Product"),
+                            selected = "",
+                            inline = TRUE
+               )
+               # actionButton(inputId = paste0("_btnIrriTimingNut_"),"Nutrients",class = "btn btn-primary", style="color:white"),
+               # actionButton(inputId = paste0("_btnIrriTimingPro_"),"Products",class = "btn btn-primary", style="color:white")
+        )
+      ),
+      fluidRow(
+        id = "sfContainer"
+      )
+    )
+    
+    
+  })
+  
+  ferdt <- reactive({
+    ferdt <- agdesign::dt_fernut[,-1] #Load dataset from agdesign package
+  })
+  
+  
+  sfNutrientSplit <- reactiveValues()
+  sfNutrientSplit$num <- 1
+  sfNutrientSplit$ids <- c()
+  
+  sfProductSplit <- reactiveValues()
+  sfProductSplit$num <- 1
+  sfProductSplit$ids <- c()
+  
+
+  observeEvent(input$soilFertilityUI,{
+    
+    value = input[[input$soilFertilityUIid]]
+    
+    if (value == "Nutrient"){
+      drawNutrientForSoilFertility()
+    }else if (value == "Product"){
+      drawProductForSoilFertility()
+    }
+    
+  })
+  
+  # Draw Template for Nutrient in Soil Fertility
+  drawNutrientForSoilFertility <- function(){
+    
+    flevel <- get_dfa_values(dt, choice = "Nutrient element type and amount", attribute = "LEVEL")
+    unit <- get_dfa_values(dt, choice = "Nutrient element type and amount", attribute = "UNIT")
+    
+    #Levels
+    choices_level <- strsplit(flevel, split = ";")[[1]] %>% stringi::stri_trim_both()
+    #Units
+    choices_unit <- strsplit(unit, ",")[[1]]
+    
+    #We reset the counter if the user is switching between product and nutrient
+    sfNutrientSplit$num <- 1
+    sfNutrientSplit$ids <- c()
+    sfNutrientSplit$ids <- c(sfNutrientSplit$ids,paste0("mgp_nut_",sfNutrientSplit$num))
+    
+    
+    
+    DF = data.frame(
+      Nitrogen = 0,
+      Phosphorus = 0,
+      Potassium = 0,
+      Calcium = 0,
+      Magnesium = 0,
+      Sulfur = 0,
+      Copper = 0,
+      Iron = 0,
+      Manganese = 0,
+      Moldbenum = 0,
+      Boron = 0,
+      Zinc = 0,
+      stringsAsFactors = FALSE)
+    
+    
+    # Remove Product Content
+    removeUI(
+      selector = "#sfProductContainer",
+      immediate = T
+    )
+    
+    # Remove Nutrient Content
+    removeUI(
+      selector = "#sfNutrientContainer",
+      immediate = T
+    )
+    
+    insertUI(
+      immediate = TRUE,
+      selector = "#sfContainer",
+      where = "beforeEnd",
+      ui = column(12,
+                  id ="sfNutrientContainer",
+                  fluidRow(
+                    column(
+                      offset = 5,
+                      2,
+                      selectInput(
+                        inputId = paste0("sfNutUnit"),
+                        label = "Unit",
+                        choices = c(choices_unit),
+                        selected = 2
+                      )
+                    )
+                    
+                  )
+      )
+    )
+    
+    insertUI(
+      immediate = TRUE,
+      selector = paste0("#sfNutrientContainer"),
+      where = "beforeEnd",
+      ui = fluidRow(
+        
+        column(
+          id = paste0("sfNutSplitContainer_",sfNutrientSplit$num),
+          12,
+          box(
+            solidHeader = TRUE,
+            status = "warning",
+            width = 12,
+            column(
+              style = "text-align:right",
+              12,
+              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close"))
+            ),
+            column(
+              style="margin-bottom:15px",
+              12,
+              column(
+                style="margin-bottom:15px",
+                12,
+                column(
+                  3,
+                  HTML(paste0("<label> Split application ",sfNutrientSplit$num,"</label>"))
+                ),
+                column(
+                  9,
+                  rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
+                )
+              )
+            ),
+            column(
+              12,
+              fluidRow(
+                column(12,
+                       column(
+                         4,
+                         selectizeInput(inputId = paste0("sfNutrientTiming_",sfNutrientSplit$num),
+                                        multiple = TRUE,
+                                        options = list(maxItems = 1, placeholder = "Select one..."),
+                                        label = "Timing",
+                                        choices = fertCombo$get("ferTiming")
+                         )
+                       ),
+                       column(
+                         2,
+                         fluidRow(id=paste0("sfNutrientTimingAux_",sfNutrientSplit$num))
+                       ),
+                       column(
+                         4,
+                         selectizeInput(inputId = paste0("sfNutrientTechnique_",sfNutrientSplit$num),
+                                        label = "Technique",
+                                        multiple = TRUE,
+                                        options = list(maxItems = 1, placeholder = "Select one..."),
+                                        choices = fertCombo$get("ferTech")
+                         )
+                       ),
+                       column(
+                         2,
+                         selectizeInput(inputId = paste0("sfNutrientImplement_",sfNutrientSplit$num),
+                                        label = "Implement",
+                                        multiple = TRUE,
+                                        options = list(maxItems = 1, placeholder = "Select one..."),
+                                        choices = fertCombo$get("ferImple")
+                         )
+                       )
+                )
+                
+              )
+            ),
+            column(
+              12,
+              column(
+                4,
+                selectizeInput(inputId = paste0("sfNutrientProduct_",sfNutrientSplit$num),
+                               label = "Choose Product",
+                               multiple = TRUE,
+                               options = list(maxItems = 10, placeholder = "Select one..."),
+                               choices = ferdt()$name
+                )
+              )
+            ),
+            column(
+              12,
+              column(
+                12,
+                rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              )
+              
+            )
+          )
+          
+        ),
+        column(
+          id = "sfNutSplitAux",
+          12
+        )
+      )
+    )
+    
+    ## Adding buttons for calculate and add split application
+    insertUI(
+      immediate = FALSE,
+      selector = "#sfNutrientContainer",
+      where = "beforeEnd",
+      ui = fluidRow(
+        column(
+          12,
+          box(solidHeader = TRUE,
+              status = "warning",
+              width = 12,
+              column(
+                12,
+                align="center",
+                actionButton(inputId = paste0("btnsfNutSplit"),"Add Application",class = "btn btn-primary", icon("plus-circle"), style="color:white;"),
+                actionButton(inputId = paste0("btnsfNut"),"Calculate Product Amount",class = "btn btn-primary", style="color:white")
+              ),
+              column(12,
+                     "Product amount "
+              ),
+              column(
+                12,
+                HTML("<div> Aca viene un rhandsometable. Soil Nutrient </div>")
+                #rhandsontable::rHandsontableOutput("output_nutDT")
+              )
+          )
+        )
+      )
+    )
+    
+    output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
+      rhandsontable(DF)
+    })
+    
+  }
+  
+  # Draw Template for Product in Soil Fertility
+  drawProductForSoilFertility <- function(){
+    
+    #We reset the counter if the user is switching between product and nutrient
+    sfProductSplit$num <- 1
+    sfProductSplit$ids <- c()
+    sfProductSplit$ids <- c(sfProductSplit$ids,paste0("mgp_pro_",sfProductSplit$num))
+    
+    
+    # Remove Product Content
+    removeUI(
+      selector = "#sfProductContainer",
+      immediate = T
+    )
+    
+    # Remove Nutrient Content
+    removeUI(
+      selector = "#sfNutrientContainer",
+      immediate = T
+    )
+    
+    # Insert Container for product content
+    insertUI(
+      immediate = TRUE,
+      selector = "#sfContainer",
+      where = "beforeEnd",
+      ui = column(12,id = "sfProductContainer")
+    )
+    
+    insertUI(
+      immediate = TRUE,
+      selector = "#sfProductContainer",
+      where = "beforeEnd",
+      ui = fluidRow(
+        id = "sfProductSection_2",
+        column(
+          id = paste0("sfProSplitContainer_",sfProductSplit$num),
+          12,
+          box(
+            solidHeader = TRUE,
+            status = "warning",
+            width = 12,
+            column(
+              style = "text-align:right",
+              12,
+              actionButton(paste0("sfProCloseBox_",sfProductSplit$num),"", icon("close"))
+            ),
+            column(
+              12,
+              column(
+                style = "margin-bottom: 15px",
+                12,
+                HTML("<label> Split application 1 </label>")
+              ),
+              column(
+                4,
+                selectizeInput(inputId = paste0("sfProductProduct_",sfProductSplit$num),
+                               label = "Choose Product",
+                               multiple = TRUE,
+                               options = list(maxItems = 10, placeholder = "Select one..."),
+                               choices = ferdt()$name
+                )
+              ),
+              column(
+                12,
+                rHandsontableOutput(paste0("outputDTsfProProduct_",sfProductSplit$num))
+              )
+            ),
+            column(12,
+                   column(
+                     2,
+                     selectizeInput(inputId = paste0("sfProductTiming_",sfProductSplit$num) ,
+                                    multiple = TRUE,
+                                    options = list(maxItems = 1, placeholder = "Select one..."),
+                                    label = "Timing",
+                                    choices = fertCombo$get("ferTiming")
+                     )
+                   ),
+                   column(
+                     2,
+                     fluidRow(id= paste0("sfProductTimingAux_",sfProductSplit$num))
+                   ),
+                   column(
+                     4,
+                     selectizeInput(inputId = paste0("sfProductTechnique_",sfProductSplit$num),
+                                    label = "Technique",
+                                    multiple = TRUE,
+                                    options = list(maxItems = 1, placeholder = "Select one..."),
+                                    choices = fertCombo$get("ferTech")
+                     )
+                   ),
+                   column(
+                     2,
+                     selectizeInput(inputId = paste0("sfProductImplement_",sfProductSplit$num),
+                                    label = "Implement",
+                                    multiple = TRUE,
+                                    options = list(maxItems = 1, placeholder = "Select one..."),
+                                    choices = fertCombo$get("ferImple")
+                     )
+                   )
+            ),
+            column(
+              12,
+              fluidRow(id = paste0("sfProductProContainer_",sfProductSplit$num)),
+              fluidRow(id=paste0("sfProductProAux_",sfProductSplit$num))
+            ),
+            column(
+              12,
+              column(
+                12,
+                rHandsontableOutput(paste0("sfProductDT_",sfProductSplit$num))
+              )
+            )
+          )
+        )
+      )
+    )
+    
+    
+    insertUI(
+      immediate = FALSE,
+      selector = "#sfProductContainer",
+      where = "beforeEnd",
+      ui = fluidRow(
+        id = paste0("sfProductSection_3"),
+        column(
+          12,
+          box(solidHeader = TRUE,
+              status = "warning",
+              width = 12,
+              column(
+                12,
+                align="center",
+                actionButton(inputId = paste0("btnsfProSplit"),"Add Application",class = "btn btn-primary", icon("plus-circle"), style="color:white;"),
+                actionButton(inputId = paste0("btnsfPro"),"Calculate Product Amount",class = "btn btn-primary", style="color:white")
+              ),
+              column(12,
+                     "Product amount "
+              ),
+              column(
+                12,
+                HTML("<div> Aca viene un rhandsometable. Soil Product </div>")
+                #rhandsontable::rHandsontableOutput("output_nutDT")
+              )
+          )
+        )
+      )
+    )
+    
+  }
+  
+  # Render DT of Product for Soil Fertility Nutrient
+  observeEvent(input$sfNutrientProductChange,{
+    
+    vars <- unlist(strsplit(input$sfNutrientProductChangeid,"_"))
+    
+    index <- vars[2]
+    
+    value <- input[[paste0("sfNutrientProduct_",index)]]
+    
+    output[[paste0("outputDTsfNutProduct_",index)]] <- rhandsontable::renderRHandsontable({
+      if (!is.null(value)){
+        ferdt <- ferdt()
+        ferdt <- ferdt %>% dplyr::filter(name==value)
+        rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+      }
+    })
+    
+  })
+  
+  # Render TextInputs of Product for Soil Fertility Nutrient
+  observeEvent(input$sfProductProductChange,{
+    
+    vars <- unlist(strsplit(input$sfProductProductChangeid,"_"))
+    index = vars[2]
+    
+    values = input[[input$sfProductProductChangeid]]
+    
+    output[[paste0("outputDTsfProProduct_",index)]] <- rhandsontable::renderRHandsontable({
+      if (!is.null(value)){
+        ferdt <- ferdt()
+        ferdt <- ferdt %>% dplyr::filter(name==value)
+        rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+      }
+    })
+    
+    removeUI(
+      selector = paste0("#sfProductProContainer_",index),
+      immediate = T
+    )
+    
+    insertUI(
+      immediate = T,
+      selector = paste0("#sfProductProAux_",index),
+      where = "beforeBegin",
+      ui = (fluidRow(id = paste0("sfProductProContainer_",index)))
+    )
+    
+    for (i in length(values)){
+      insertUI(
+        immediate = F,
+        selector = paste0("#sfProductProContainer_",index),
+        tags$script("alert('hello')"),
+        where = "afterEnd",
+        ui = fluidRow(
+          column(
+            12,
+            column(
+              2,
+              textInput(inputId = paste0("txtsfProductValue_",index,"_",i),
+                        label = values[i])
+            )
+          )
+        )
+      )
+      
+    }
+  })
+  
+  # Timing for nutrient
+  observeEvent(input$sfNutrientTimingChange,{
+    
+    vars = unlist(strsplit(input$sfNutrientTimingChangeid, "_"))
+    index = vars[2]
+    
+    timingValue = input[[input$sfNutrientTimingChangeid]]
+    
+    removeUI(
+      selector = paste0("#sfNutTimingOpt_",index),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#sfNutrientTimingAux_",index),
+      where = "beforeBegin",
+      ui =
+        fluidRow(
+          id = paste0("sfNutTimingOpt_",index),
+          column(
+            12,
+            if(timingValue == "Date"){
+              airDatepickerInput(
+                inputId = paste0("sfNutTimingValue_",index),
+                label = "Date",
+                dateFormat = "yyyy-mm-dd",
+                value = Sys.Date(),
+                placeholder = "yyyy-mm-dd",
+                addon = "none",
+                clearButton = TRUE,
+                autoClose = TRUE
+              )
+            }else if(timingValue == "Frequency"){
+              textInput(inputId = paste0("sfNutTimingValue_",index),
+                        label = timingValue)
+            }else if(timingValue == "Other"){
+              selectizeInput(inputId = paste0("sfNutTimingValue_",index),
+                             label = timingValue,
+                             multiple = TRUE,
+                             choices = c(),
+                             options = list(
+                               maxItems = 20,
+                               placeholder = "Write..." ,
+                               'create' = TRUE,
+                               'persist' = FALSE
+                             )
+              )
+            }else{
+              selectizeInput(inputId = paste0("sfNutTimingValue_",index),
+                             label = timingValue,
+                             multiple = TRUE,
+                             choices = c(),
+                             options = list(
+                               maxItems = 20,
+                               placeholder = "Write..." ,
+                               'create' = TRUE,
+                               'persist' = FALSE
+                             )
+              )
+            }
+          )
+        )
+    )
+    
+  })
+  
+  # Timing for product
+  observeEvent(input$sfProductTimingChange,{
+    
+    vars = unlist(strsplit(input$sfProductTimingChangeid, "_"))
+    index = vars[2]
+    
+    timingValue = input[[input$sfProductTimingChangeid]]
+    
+    removeUI(
+      selector = paste0("#sfProTimingOpt_",index),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#sfProductTimingAux_",index),
+      where = "beforeBegin",
+      ui =
+        fluidRow(
+          id = paste0("sfProTimingOpt_",index),
+          column(
+            12,
+            if(timingValue == "Date"){
+              airDatepickerInput(
+                inputId = paste0("sfProTimingValue_",index),
+                label = "Date",
+                dateFormat = "yyyy-mm-dd",
+                value = Sys.Date(),
+                placeholder = "yyyy-mm-dd",
+                addon = "none",
+                clearButton = TRUE,
+                autoClose = TRUE
+              )
+            }else if(timingValue == "Frequency"){
+              textInput(inputId = paste0("sfProTimingValue_",index),
+                        label = timingValue)
+            }else if(timingValue == "Other"){
+              selectizeInput(inputId = paste0("sfProTimingValue_",index),
+                             label = timingValue,
+                             multiple = TRUE,
+                             choices = c(),
+                             options = list(
+                               maxItems = 20,
+                               placeholder = "Write..." ,
+                               'create' = TRUE,
+                               'persist' = FALSE
+                             )
+              )
+            }else{
+              selectizeInput(inputId = paste0("sfProTimingValue_",index),
+                             label = timingValue,
+                             multiple = TRUE,
+                             choices = c(),
+                             options = list(
+                               maxItems = 20,
+                               placeholder = "Write..." ,
+                               'create' = TRUE,
+                               'persist' = FALSE
+                             )
+              )
+            }
+          )
+        )
+    )
+    
+  })
+  
+  # Add Split for Nutrient in Soil Fertility
+  observeEvent(input$btnsfNutSplit,{
+    
+    flevel <- get_dfa_values(dt, choice = "Nutrient element type and amount", attribute = "LEVEL")
+    unit <- get_dfa_values(dt, choice = "Nutrient element type and amount", attribute = "UNIT")
+    
+    #Levels
+    choices_level <- strsplit(flevel, split = ";")[[1]] %>% stringi::stri_trim_both()
+    #Units
+    choices_unit <- strsplit(unit, ",")[[1]]
+    
+    
+    #Como la primera fila se agrega por default, hacemos +1 
+    sfNutrientSplit$num = sfNutrientSplit$num + 1
+    sfNutrientSplit$ids <- c(sfNutrientSplit$ids,paste0("mgp_nut_",sfNutrientSplit$num))
+    
+    
+    DF = data.frame(
+      Nitrogen = 0,
+      Phosphorus = 0,
+      Potassium = 0,
+      Calcium = 0,
+      Magnesium = 0,
+      Sulfur = 0,
+      Copper = 0,
+      Iron = 0,
+      Manganese = 0,
+      Moldbenum = 0,
+      Boron = 0,
+      Zinc = 0,
+      stringsAsFactors = FALSE)
+    
+    insertUI(
+      selector =paste0("#sfNutSplitAux"),
+      where = "beforeBegin",
+      ui = 
+        
+        column(
+          id = paste0("sfNutSplitContainer_",sfNutrientSplit$num),
+          12,
+          box(
+            solidHeader = TRUE,
+            status = "warning",
+            width = 12,
+            column(
+              style = "text-align:right",
+              12,
+              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close"))
+            ),
+            column(
+              style="margin-bottom:15px",
+              12,
+              column(
+                style="margin-bottom:15px",
+                12,
+                column(
+                  3,
+                  HTML(paste0("<label> Split application ",sfNutrientSplit$num,"</label>"))
+                ),
+                column(
+                  9,
+                  rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
+                )
+              )
+            ),
+            column(
+              12,
+              fluidRow(
+                column(12,
+                       column(
+                         4,
+                         selectizeInput(inputId = paste0("sfNutrientTiming_",sfNutrientSplit$num),
+                                        multiple = TRUE,
+                                        options = list(maxItems = 1, placeholder = "Select one..."),
+                                        label = "Timing",
+                                        choices = fertCombo$get("ferTiming")
+                         )
+                       ),
+                       column(
+                         2,
+                         fluidRow(id=paste0("sfNutrientTimingAux_",sfNutrientSplit$num))
+                       ),
+                       column(
+                         4,
+                         selectizeInput(inputId = paste0("sfNutrientTechnique_",sfNutrientSplit$num),
+                                        label = "Technique",
+                                        multiple = TRUE,
+                                        options = list(maxItems = 1, placeholder = "Select one..."),
+                                        choices = fertCombo$get("ferTech")
+                         )
+                       ),
+                       column(
+                         2,
+                         selectizeInput(inputId = paste0("sfNutrientImplement_",sfNutrientSplit$num),
+                                        label = "Implement",
+                                        multiple = TRUE,
+                                        options = list(maxItems = 1, placeholder = "Select one..."),
+                                        choices = fertCombo$get("ferImple")
+                         )
+                       )
+                )
+                
+              )
+            ),
+            column(
+              12,
+              column(
+                4,
+                selectizeInput(inputId = paste0("sfNutrientProduct_",sfNutrientSplit$num),
+                               label = "Choose Product",
+                               multiple = TRUE,
+                               options = list(maxItems = 10, placeholder = "Select one..."),
+                               choices = ferdt()$name
+                )
+              )
+            ),
+            column(
+              12,
+              column(
+                12,
+                rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              )
+              
+            )
+          )
+          
+          
+        )
+    )
+    
+    output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
+      rhandsontable(DF)
+    })
+    
+  })
+  
+  # Add Split for Product in Soil Fertility
+  observeEvent(input$btnsfProSplit,{
+    
+    #vars = unlist(strsplit(input$btnsfNutSplitid, "_"))
+    
+    #Como la primera fila se agrega por default, hacemos +1 
+    sfProductSplit$num = sfProductSplit$num + 1
+    
+    sfProductSplit$ids <- c(sfProductSplit$ids,paste0("mgp_pro_",sfProductSplit$num))
+    
+    insertUI(
+      selector =paste0("#sfProductSection_2"),
+      where = "beforeEnd",
+      ui = column(
+        id = paste0("sfProSplitContainer_",sfProductSplit$num),
+        12,
+        box(
+          solidHeader = TRUE,
+          status = "warning",
+          width = 12,
+          column(
+            style = "text-align:right",
+            12,
+            actionButton(paste0("sfProCloseBox_",sfProductSplit$num),"", icon("close"))
+          ),
+          column(
+            12,
+            column(
+              style = "margin-bottom: 15px",
+              12,
+              HTML(paste0("<label> Split application ", sfProductSplit$num,"</label>"))
+            ),
+            column(
+              4,
+              selectizeInput(inputId = paste0("sfProductProduct_",sfProductSplit$num),
+                             label = "Choose Product",
+                             multiple = TRUE,
+                             options = list(maxItems = 10, placeholder = "Select one..."),
+                             choices = ferdt()$name
+              )
+            )
+          ),
+          column(12,
+                 column(
+                   2,
+                   selectizeInput(inputId = paste0("sfProductTiming_",sfProductSplit$num) ,
+                                  multiple = TRUE,
+                                  options = list(maxItems = 1, placeholder = "Select one..."),
+                                  label = "Timing",
+                                  choices = fertCombo$get("ferTiming")
+                   )
+                 ),
+                 column(
+                   2,
+                   fluidRow(id= paste0("sfProductTimingAux_",sfProductSplit$num))
+                 ),
+                 column(
+                   4,
+                   selectizeInput(inputId = paste0("sfProductTechnique_",sfProductSplit$num),
+                                  label = "Technique",
+                                  multiple = TRUE,
+                                  options = list(maxItems = 1, placeholder = "Select one..."),
+                                  choices = fertCombo$get("ferTech")
+                   )
+                 ),
+                 column(
+                   2,
+                   selectizeInput(inputId = paste0("sfProductImplement_",sfProductSplit$num),
+                                  label = "Implement",
+                                  multiple = TRUE,
+                                  options = list(maxItems = 1, placeholder = "Select one..."),
+                                  choices = fertCombo$get("ferImple")
+                   )
+                 )
+          ),
+          column(
+            12,
+            fluidRow(id=paste0("sfProductProAux_",sfProductSplit$num))
+          ),
+          column(
+            12,
+            column(
+              12,
+              rHandsontableOutput(paste0("sfProductDT_",sfProductSplit$num))
+            )
+          )
+        )
+      )
+    )
+  })
+  
+  # Close Button for Nutrient in Soil Fertility
+  observeEvent(input$sfNutCloseBox,{
+    vars = unlist(strsplit(input$sfNutCloseBoxid, "_"))
+    index = vars[2]
+    
+    # We filter nutrient and check if the array have more than 1 element, in that case delete 
+    nutrientFiltered <- sfNutrientSplit$ids[str_detect(sfNutrientSplit$ids,"mgp_nut_")]
+    
+    if (length(nutrientFiltered) > 1){
+      sfNutrientSplit$ids <- sfNutrientSplit$ids[!str_detect(sfNutrientSplit$ids,paste0("mgp_nut_",index))]
+      removeUI(
+        selector = paste0("#sfNutSplitContainer_",index),
+        immediate = T
+      )
+    }
+    
+  })
+  
+  # Close Button for Product in Soil Fertility
+  observeEvent(input$sfProCloseBox,{
+    vars = unlist(strsplit(input$sfProCloseBoxid, "_"))
+    index = vars[2]
+    
+    # We filter product and check if the array have more than 1 element, in that case delete 
+    productFiltered <- sfProductSplit$ids[str_detect(sfProductSplit$ids,"mgp_pro_")]
+    
+    if (length(productFiltered) > 1){
+      sfProductSplit$ids <- sfProductSplit$ids[!str_detect(sfProductSplit$ids,paste0("mgp_pro_",index))]
+      removeUI(
+        selector = paste0("#sfProSplitContainer_",index),
+        immediate = T
+      )
+    }
+    
+    
+  })
+  
+  # Calculate Nutrient
+  observeEvent(input$btnsfNut,{
+    
+    #Calculate Nutrient 
+    
+  })
+  
+  ###################### END: SOIL FERTILITY ######################
+  
   ###################### START: PLANTING & TRANSPLANTING ######################
   
   # Oculta por defecto los tabs de inicio de Int, Rel & Rot
@@ -9988,7 +11008,6 @@ server_design_agrofims <- function(input, output, session, values){
     val <- AllInputs() %>% dplyr::filter(id %in% df$id)
     val <- c(val$values)
     
-
     i<-1
     for (id in newids){
       if(val[i] != "" && !is.na(val[i])){
@@ -10559,7 +11578,7 @@ server_design_agrofims <- function(input, output, session, values){
                 12,
                 selectizeInput(
                   paste0(crop, "_transplanting_to_collect_field_", index), label = "To collect in the field", multiple = TRUE, 
-                  options = list(maxItems = 12, placeholder = "Select one..."), 
+                  options = list(maxItems = 20, placeholder = "Select one..."), 
                   choices = magm_label$get("transplanting")
                   # choices = c("Start date",
                   #             "End date",
@@ -10655,7 +11674,7 @@ server_design_agrofims <- function(input, output, session, values){
                   paste0(crop, "_ptta_trans_traction_", index), label = "Traction", 
                   multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                   choices = c("Animal",
-                              "Manual",
+                              "Traction",
                               "2 wheel tractor",
                               "4 wheel tractor",
                               "Other")
@@ -10879,9 +11898,8 @@ server_design_agrofims <- function(input, output, session, values){
   insertRow_IRRI <- function(crop, index) {
     # monocrop
     if (crop == "monocrop") {
-      
       expconIRRImonocrop$ids <- c(expconIRRImonocrop$ids, paste0("mono_irri_", index))
-
+      
       insertUI(
         selector = "#monocrop_fr_irrigation",
         where = "beforeBegin",
@@ -10907,152 +11925,155 @@ server_design_agrofims <- function(input, output, session, values){
           
         ),
         br(),
-        width = 12, solidHeader = TRUE, status = "warning",
-        column(
-          6,
-          fluidRow(
-            column(
-              6,
-              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                airDatepickerInput(
-                  paste0(crop, "_irid_irrigationevent_start_date_", index),
-                  "Start date",
-                  clearButton = T,
-                  autoClose = T,
-                  addon = "none",
-                  #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                  placeholder = "yyyy-mm-dd",
-                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                  maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                )
-              } else {
-                airDatepickerInput(
-                  paste0(crop, "_irid_irrigationevent_start_date_", index),
-                  "Start date",
-                  clearButton = T,
-                  autoClose = T,
-                  addon = "none",
-                  placeholder = "yyyy-mm-dd"                           
-                )
-              }
-            ),
-            column(
-              6,
-              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                airDatepickerInput(
-                  paste0(crop, "_irid_irrigationevent_end_date_", index),
-                  "End date",
-                  clearButton = T,
-                  autoClose = T,
-                  addon = "none",
-                  #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
-                  placeholder = "yyyy-mm-dd",
-                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                  maxDate = as.Date(input$fbDesign_project_end_date) + 1                 
-                )
-              } else {
-                airDatepickerInput(
-                  paste0(crop, "_irid_irrigationevent_end_date_", index),
-                  "End date",
-                  clearButton = T,
-                  autoClose = T,
-                  addon = "none",
-                  placeholder = "yyyy-mm-dd"
-                )
-              }
-            )
-          ),
-          selectizeInput(
-            paste0(crop, "_irid_irrigation_technique_", index), label = "Irrigation technique", 
-            multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-            choices = c("Sprinkler irrigation",
-                        "Localized",
-                        "Surface",
-                        #"Sub-irrigation",
-                        "Other")
-          ),
-          hidden(textInput(paste0(crop, "_irid_irrigation_technique_", index, "_other"), "")),
-          conditionalPanel(
-            paste0("input.", crop, "_irid_irrigation_technique_", index, "== 'Surface'"),
-            selectizeInput(
-              paste0(crop, "_irid_surface_irrigation_technique_", index), label = "Surface irrigation technique", 
-              multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-              choices = c("Basin irrigation",
-                          "Border irrigation",
-                          "Continuous flood",
-                          "Furrow irrigation",
-                          "Uncontrolled flooding",
-                          "Other")
-            ),
-            hidden(textInput(paste0(crop, "_irid_surface_irrigation_technique_", index, "_other"), ""))
-          ),
-          conditionalPanel(
-            paste0("input.", crop, "_irid_irrigation_technique_", index, "== 'Localized'"),
-            selectizeInput(
-              paste0(crop, "_irid_localized_irrigation_technique_", index), label = "Localized irrigation technique", 
-              multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-              choices = c("Bubbler irrigation",
-                          "Drip irrigation",
-                          "Mist irrigation",
-                          "Pitcher irrigation",
-                          "Subsurface drip irrigation",
-                          "Subsurface textile irrigation",
-                          "Other")
-            ),
-            hidden(textInput(paste0(crop, "_irid_localized_irrigation_technique_", index, "_other"), ""))
-          ),
-          conditionalPanel(
-            paste0("input.", crop, "_irid_irrigation_technique_", index, "== 'Sprinkler irrigation'"),
-            selectizeInput(
-              paste0(crop, "_irid_irrigation_using_sprinkler_systems_", index), label = "Sprinkler irrigation system", 
-              multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-              choices = c("Center pivot irrigation",
-                          "Irrigation by lateral move",
-                          "Irrigation by side move",
-                          "Other")
-            ),
-            hidden(textInput(paste0(crop, "_irid_irrigation_using_sprinkler_systems_", index, "_other"), ""))
-          ),
-          selectizeInput(
-            paste0(crop, "_irid_irrigation_source_", index), label = "Irrigation source", 
-            multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-            choices = c("Drainage",
-                        "Groundwater",
-                        "Lake",
-                        "Reservoir",
-                        "River",
-                        "Spring",
-                        "Other")
-          ),
-          hidden(textInput(paste0(crop, "_irid_irrigation_source_", index,  "_other"), ""))
-        ),
-        column(
-          6,
-          fluidRow(
-            column(6, numericInput(paste0(crop, "_irid_irrigation_source_distance_", index), label = "Irrigation source distance", value = "", min = 0, step = 0.1)),
-            column(
-              6,
-              selectizeInput(
-                paste0(crop, "_irid_irrigation_source_distance_", index, "_unit"), "Unit", 
-                multiple = T, options = list(maxItems = 1, placeholder="Select one..."),
-                choices = c("ft", "km", "m", "mi"),
-                selected = "m"
+        width = 12, 
+        solidHeader = TRUE, status = "info",
+        fluidRow(
+          column(
+            6,
+            fluidRow(
+              column(
+                6,
+                if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                  airDatepickerInput(
+                    paste0(crop, "_irid_irrigationevent_start_date_", index),
+                    "Start date",
+                    clearButton = T,
+                    autoClose = T,
+                    addon = "none",
+                    #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                    placeholder = "yyyy-mm-dd",
+                    minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                    maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                  )
+                } else {
+                  airDatepickerInput(
+                    paste0(crop, "_irid_irrigationevent_start_date_", index),
+                    "Start date",
+                    clearButton = T,
+                    autoClose = T,
+                    addon = "none",
+                    placeholder = "yyyy-mm-dd"                           
+                  )
+                }
+              ),
+              column(
+                6,
+                if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                  airDatepickerInput(
+                    paste0(crop, "_irid_irrigationevent_end_date_", index),
+                    "End date",
+                    clearButton = T,
+                    autoClose = T,
+                    addon = "none",
+                    #value = as.Date(input$fbDesign_project_time_line[1]) + 1,
+                    placeholder = "yyyy-mm-dd",
+                    minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                    maxDate = as.Date(input$fbDesign_project_end_date) + 1                 
+                  )
+                } else {
+                  airDatepickerInput(
+                    paste0(crop, "_irid_irrigationevent_end_date_", index),
+                    "End date",
+                    clearButton = T,
+                    autoClose = T,
+                    addon = "none",
+                    placeholder = "yyyy-mm-dd"
+                  )
+                }
               )
-            )
-          ),
-          fluidRow(
-            column(6, numericInput(paste0(crop, "_irid_irrigation_amount_", index), label = "Irrigation amount", value = "", min = 0, step = 0.1)),
-            column(
-              6,
+            ),
+            selectizeInput(
+              paste0(crop, "_irid_irrigation_technique_", index), label = "Irrigation technique", 
+              multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+              choices = c("Sprinkler irrigation",
+                          "Localized",
+                          "Surface",
+                          #"Sub-irrigation",
+                          "Other")
+            ),
+            hidden(textInput(paste0(crop, "_irid_irrigation_technique_", index, "_other"), "")),
+            conditionalPanel(
+              paste0("input.", crop, "_irid_irrigation_technique_", index, "== 'Surface'"),
               selectizeInput(
-                paste0(crop, "_irid_irrigation_amount_", index, "_unit"), "Unit", 
-                multiple=T, options=list(maxItems=1, placeholder="Select one..."),
-                choices = c("in", "mm"),#, "cm", "m", "in", "ft", "ml", "L", "gal", "cu m", "cu in", "cu ft")
-                selected = "mm"
-              )
-            )
+                paste0(crop, "_irid_surface_irrigation_technique_", index), label = "Surface irrigation technique", 
+                multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                choices = c("Basin irrigation",
+                            "Border irrigation",
+                            "Continuous flood",
+                            "Furrow irrigation",
+                            "Uncontrolled flooding",
+                            "Other")
+              ),
+              hidden(textInput(paste0(crop, "_irid_surface_irrigation_technique_", index, "_other"), ""))
+            ),
+            conditionalPanel(
+              paste0("input.", crop, "_irid_irrigation_technique_", index, "== 'Localized'"),
+              selectizeInput(
+                paste0(crop, "_irid_localized_irrigation_technique_", index), label = "Localized irrigation technique", 
+                multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                choices = c("Bubbler irrigation",
+                            "Drip irrigation",
+                            "Mist irrigation",
+                            "Pitcher irrigation",
+                            "Subsurface drip irrigation",
+                            "Subsurface textile irrigation",
+                            "Other")
+              ),
+              hidden(textInput(paste0(crop, "_irid_localized_irrigation_technique_", index, "_other"), ""))
+            ),
+            conditionalPanel(
+              paste0("input.", crop, "_irid_irrigation_technique_", index, "== 'Sprinkler irrigation'"),
+              selectizeInput(
+                paste0(crop, "_irid_irrigation_using_sprinkler_systems_", index), label = "Sprinkler irrigation system", 
+                multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                choices = c("Center pivot irrigation",
+                            "Irrigation by lateral move",
+                            "Irrigation by side move",
+                            "Other")
+              ),
+              hidden(textInput(paste0(crop, "_irid_irrigation_using_sprinkler_systems_", index, "_other"), ""))
+            ),
+            selectizeInput(
+              paste0(crop, "_irid_irrigation_source_", index), label = "Irrigation source", 
+              multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+              choices = c("Drainage",
+                          "Groundwater",
+                          "Lake",
+                          "Reservoir",
+                          "River",
+                          "Spring",
+                          "Other")
+            ),
+            hidden(textInput(paste0(crop, "_irid_irrigation_source_", index,  "_other"), ""))
           ),
-          textAreaInput(paste0(crop, "_irid_irrigation_notes_", index), label = "Notes", value = "")
+          column(
+            6,
+            fluidRow(
+              column(6, numericInput(paste0(crop, "_irid_irrigation_source_distance_", index), label = "Irrigation source distance", value = "", min = 0, step = 0.1)),
+              column(
+                6,
+                selectizeInput(
+                  paste0(crop, "_irid_irrigation_source_distance_", index, "_unit"), "Unit", 
+                  multiple = T, options = list(maxItems = 1, placeholder="Select one..."),
+                  choices = c("ft", "km", "m", "mi"),
+                  selected = "m"
+                )
+              )
+            ),
+            fluidRow(
+              column(6, numericInput(paste0(crop, "_irid_irrigation_amount_", index), label = "Irrigation amount", value = "", min = 0, step = 0.1)),
+              column(
+                6,
+                selectizeInput(
+                  paste0(crop, "_irid_irrigation_amount_", index, "_unit"), "Unit", 
+                  multiple=T, options=list(maxItems=1, placeholder="Select one..."),
+                  choices = c("in", "mm"),#, "cm", "m", "in", "ft", "ml", "L", "gal", "cu m", "cu in", "cu ft")
+                  selected = "mm"
+                )
+              )
+            ),
+            textAreaInput(paste0(crop, "_irid_irrigation_notes_", index), label = "Notes", value = "")
+          )
         )
       )
     )
@@ -11138,70 +12159,72 @@ server_design_agrofims <- function(input, output, session, values){
           )
         ),
         width = 12, solidHeader = TRUE, status = "warning",
-        column(
-          6,
-          fluidRow(
-            column(
-              6, 
-              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                airDatepickerInput(
-                  paste0(crop, "_wewd_weeding_start_date_", index),
-                  "Start date",
-                  clearButton = T,
-                  autoClose = T,
-                  addon = "none",
-                  #value = startDate,
-                  placeholder = "yyyy-mm-dd",
-                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                  maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                )
-              } else {
-                airDatepickerInput(
-                  paste0(crop, "_wewd_weeding_start_date_", index),
-                  "Start date",
-                  clearButton = T,
-                  #value = startDate,
-                  autoClose = T,
-                  addon = "none",
-                  placeholder = "yyyy-mm-dd"                           
-                )
-              }
-            )
+        fluidRow(
+          column(
+            6,
+            fluidRow(
+              column(
+                6, 
+                if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                  airDatepickerInput(
+                    paste0(crop, "_wewd_weeding_start_date_", index),
+                    "Start date",
+                    clearButton = T,
+                    autoClose = T,
+                    addon = "none",
+                    #value = startDate,
+                    placeholder = "yyyy-mm-dd",
+                    minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                    maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                  )
+                } else {
+                  airDatepickerInput(
+                    paste0(crop, "_wewd_weeding_start_date_", index),
+                    "Start date",
+                    clearButton = T,
+                    #value = startDate,
+                    autoClose = T,
+                    addon = "none",
+                    placeholder = "yyyy-mm-dd"                           
+                  )
+                }
+              )
+            ),
+            selectizeInput(
+              paste0(crop, "_wewd_weeding_technique_", index), "Technique", multiple = TRUE, 
+              options = list(maxItems =1, placeholder ="Select one..."),
+              choices = c("Chemical",
+                          "Manual",
+                          "Mechanized")
+            ),
+            textAreaInput(paste0(crop, "_wewd_weeding_notes_", index), "Notes")
           ),
-          selectizeInput(
-            paste0(crop, "_wewd_weeding_technique_", index), "Technique", multiple = TRUE, 
-            options = list(maxItems =1, placeholder ="Select one..."),
-            choices = c("Chemical",
-                        "Manual",
-                        "Mechanized")
-          ),
-          textAreaInput(paste0(crop, "_wewd_weeding_notes_", index), "Notes")
-        ),
-        column(
-          6,
-          fluidRow(
-            column(12, h4("Implement", style="font-weight: 800;color: #555;"))
-          ),
-          selectizeInput(
-            paste0(crop, "_wewd_weeding_type_",index ), "Type", multiple = TRUE,
-            options = list(maxItems =1, placeholder ="Select one..."),
-            choices = c("Cultivator",
-                        "Manual",
-                        "Sprayer",
-                        "Weed cutter/puller",
-                        "Other")
-          ),
-          hidden(textInput(paste0(crop, "_wewd_weeding_type_",index, "_other" ), "")),
-          selectizeInput(
-            paste0(crop, "_wewd_weeding_traction_", index), "Traction",multiple = TRUE,
-            options = list(maxItems =1, placeholder ="Select one..."),
-            choices = c("Animal",
-                        "Manual",
-                        "2 wheel tractor",
-                        "4 wheel tractor",
-                        "Other")
-          ),
-          hidden(textInput(paste0(crop, "_wewd_weeding_traction_",index, "_other" ), ""))
+          column(
+            6,
+            fluidRow(
+              column(12, h4("Implement", style="font-weight: 800;color: #555;"))
+            ),
+            selectizeInput(
+              paste0(crop, "_wewd_weeding_type_",index ), "Type", multiple = TRUE,
+              options = list(maxItems =1, placeholder ="Select one..."),
+              choices = c("Cultivator",
+                          "Manual",
+                          "Sprayer",
+                          "Weed cutter/puller",
+                          "Other")
+            ),
+            hidden(textInput(paste0(crop, "_wewd_weeding_type_",index, "_other" ), "")),
+            selectizeInput(
+              paste0(crop, "_wewd_weeding_traction_", index), "Traction",multiple = TRUE,
+              options = list(maxItems =1, placeholder ="Select one..."),
+              choices = c("Animal",
+                          "Manual",
+                          "2 wheel tractor",
+                          "4 wheel tractor",
+                          "Other")
+            ),
+            hidden(textInput(paste0(crop, "_wewd_weeding_traction_",index, "_other" ), ""))
+          )
         )
       )
     )
@@ -11691,197 +12714,199 @@ server_design_agrofims <- function(input, output, session, values){
           )
         ),
         width = 12, status = "warning", solidHeader = TRUE,
-        column(
-          6,
-          fluidRow(
-            column(
-              6,
-              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                airDatepickerInput(
-                  paste0(crop, "_hahd_harvest_start_date_", index),
-                  "Start date",
-                  clearButton = T,
-                  autoClose = T,
-                  addon = "none",
-                  #value = as.Date(input$fbDesign_project_start_date) + 1,
-                  placeholder = "yyyy-mm-dd",
-                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                  maxDate = as.Date(input$fbDesign_project_end_date) + 1                           
-                )
-              } else {
-                airDatepickerInput(
-                  paste0(crop, "_hahd_harvest_start_date_", index),
-                  "Start date",
-                  clearButton = T,
-                  autoClose = T,
-                  addon = "none",
-                  placeholder = "yyyy-mm-dd"
-                )
-              }
-            ),
-            column(
-              6,
-              if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
-                airDatepickerInput(
-                  paste0(crop, "_hahd_harvest_end_date_", index),
-                  "End date",
-                  clearButton = T,
-                  autoClose = T,
-                  addon = "none",
-                  #value = as.Date(input$fbDesign_project_start_date) + 1,
-                  placeholder = "yyyy-mm-dd",
-                  minDate = as.Date(input$fbDesign_project_start_date) + 1,
-                  maxDate = as.Date(input$fbDesign_project_end_date) + 1
-                )
-              } else {
-                airDatepickerInput(
-                  paste0(crop, "_hahd_harvest_end_date_", index),
-                  "End date",
-                  clearButton = T,
-                  autoClose = T,
-                  addon = "none",
-                  placeholder = "yyyy-mm-dd"                           
-                )
-              }
-            )
-          ),
-          fluidRow(
-            column(
-              6,
-              selectizeInput(
-                paste0(crop, "_hahd_harvest_method_", index), label = "Harvest method", 
-                multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-                choices = c("Baling", "Cutting", "Mowing", "Haymaking", "Picking", "Threshing", "Trussing", "Windrowing","Winnowing","Other")
+        fluidRow(
+          column(
+            6,
+            fluidRow(
+              column(
+                6,
+                if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                  airDatepickerInput(
+                    paste0(crop, "_hahd_harvest_start_date_", index),
+                    "Start date",
+                    clearButton = T,
+                    autoClose = T,
+                    addon = "none",
+                    #value = as.Date(input$fbDesign_project_start_date) + 1,
+                    placeholder = "yyyy-mm-dd",
+                    minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                    maxDate = as.Date(input$fbDesign_project_end_date) + 1                           
+                  )
+                } else {
+                  airDatepickerInput(
+                    paste0(crop, "_hahd_harvest_start_date_", index),
+                    "Start date",
+                    clearButton = T,
+                    autoClose = T,
+                    addon = "none",
+                    placeholder = "yyyy-mm-dd"
+                  )
+                }
+              ),
+              column(
+                6,
+                if (!is.null(input$fbDesign_project_start_date) && !is.null(input$fbDesign_project_end_date)) {
+                  airDatepickerInput(
+                    paste0(crop, "_hahd_harvest_end_date_", index),
+                    "End date",
+                    clearButton = T,
+                    autoClose = T,
+                    addon = "none",
+                    #value = as.Date(input$fbDesign_project_start_date) + 1,
+                    placeholder = "yyyy-mm-dd",
+                    minDate = as.Date(input$fbDesign_project_start_date) + 1,
+                    maxDate = as.Date(input$fbDesign_project_end_date) + 1
+                  )
+                } else {
+                  airDatepickerInput(
+                    paste0(crop, "_hahd_harvest_end_date_", index),
+                    "End date",
+                    clearButton = T,
+                    autoClose = T,
+                    addon = "none",
+                    placeholder = "yyyy-mm-dd"                           
+                  )
+                }
               )
-            )
-          ),
-          hidden(textInput(paste0(crop, "_hahd_harvest_method_", index,"_other"), "")),
-          selectizeInput(
-            paste0(crop, "_hahd_crop_component_harvested_", index), label = "Crop component harvested", 
-            multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), 
-            choices = c("Canopy", "Aboveground biomass","Leaves","Stems","Seed","Pod", "Grain", "Tuber","Roots (excluding storage roots)", "Storage roots", "Other")
-          ),
-          hidden(textInput(paste0(crop, "_hahd_crop_component_harvested_",index,"_other"), "")),
-          selectizeInput(
-            paste0(crop, "_hahd_crop_harvestable_area_", index), label = "Harvestable area", 
-            multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-            choices = c("m2 units", "Individual plants","Rows","Entire plot","Other")
-          ),
-          conditionalPanel(
-            paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'm2 units'"),
-            textInput(paste0(crop, "_hahd_crop_component_harvested_m2_",index), "Number of m2 units harvested")
-          ),
-          conditionalPanel(
-            paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'Individual plants'"),
-            textInput(paste0(crop, "_hahd_crop_component_harvested_ip_",index), "Number of plants harvested")
-          ),
-          conditionalPanel(
-            paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'Rows'"),
-            fluidRow(
-              column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_num_",index), "Number of rows harvested"))
             ),
             fluidRow(
-              column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_len_",index), "Length of rows harvested")),
               column(
                 6,
                 selectizeInput(
-                  paste0(crop, "_hahd_crop_component_harvested_lenunit_",index),  label ="Unit", multiple = TRUE, 
-                  options = list(maxItems =11, placeholder ="Select one..."), 
-                  choices = c("cm", "m", "in","ft"), selected = "cm"
+                  paste0(crop, "_hahd_harvest_method_", index), label = "Harvest method", 
+                  multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                  choices = c("Baling", "Cutting", "Mowing", "Haymaking", "Picking", "Threshing", "Trussing", "Windrowing","Winnowing","Other")
+                )
+              )
+            ),
+            hidden(textInput(paste0(crop, "_hahd_harvest_method_", index,"_other"), "")),
+            selectizeInput(
+              paste0(crop, "_hahd_crop_component_harvested_", index), label = "Crop component harvested", 
+              multiple = TRUE, options = list(maxItems =11, placeholder ="Select one..."), 
+              choices = c("Canopy", "Aboveground biomass","Leaves","Stems","Seed","Pod", "Grain", "Tuber","Roots (excluding storage roots)", "Storage roots", "Other")
+            ),
+            hidden(textInput(paste0(crop, "_hahd_crop_component_harvested_",index,"_other"), "")),
+            selectizeInput(
+              paste0(crop, "_hahd_crop_harvestable_area_", index), label = "Harvestable area", 
+              multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+              choices = c("m2 units", "Individual plants","Rows","Entire plot","Other")
+            ),
+            conditionalPanel(
+              paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'm2 units'"),
+              textInput(paste0(crop, "_hahd_crop_component_harvested_m2_",index), "Number of m2 units harvested")
+            ),
+            conditionalPanel(
+              paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'Individual plants'"),
+              textInput(paste0(crop, "_hahd_crop_component_harvested_ip_",index), "Number of plants harvested")
+            ),
+            conditionalPanel(
+              paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'Rows'"),
+              fluidRow(
+                column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_num_",index), "Number of rows harvested"))
+              ),
+              fluidRow(
+                column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_len_",index), "Length of rows harvested")),
+                column(
+                  6,
+                  selectizeInput(
+                    paste0(crop, "_hahd_crop_component_harvested_lenunit_",index),  label ="Unit", multiple = TRUE, 
+                    options = list(maxItems =11, placeholder ="Select one..."), 
+                    choices = c("cm", "m", "in","ft"), selected = "cm"
+                  )
+                )
+              ),
+              fluidRow(
+                column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_width_",index), "Width within rows harvested")),
+                column(
+                  6,
+                  selectizeInput(
+                    paste0(crop, "_hahd_crop_component_harvested_widthunit_",index),  label ="Unit", multiple = TRUE, 
+                    options = list(maxItems =11, placeholder ="Select one..."), 
+                    choices = c("cm", "m", "in","ft"), selected = "cm"
+                  )
+                )
+              ),
+              fluidRow(
+                column(6, numericInput(paste0(crop, "_hahd_space_rows_harvested_", index), "Space between rows harvested", value = "", min = 0, step = 0.1)),
+                column(
+                  6,
+                  selectizeInput(
+                    paste0(crop, "_hahd_crop_component_harvested_spaceunit_",index),  label ="Unit", multiple = TRUE, 
+                    options = list(maxItems =11, placeholder ="Select one..."), 
+                    choices = c("cm", "m", "in","ft"), selected = "cm"
+                  )
+                )
+              )
+            ),
+            conditionalPanel(
+              paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'Entire plot'"),
+              fluidRow(
+                column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_entire_",index), "Plot area harvested")),
+                column(
+                  6, 
+                  selectizeInput(
+                    paste0(crop, "_hahd_crop_component_harvested_entireunit_",index),  label ="Unit", multiple = TRUE, 
+                    options = list(maxItems =11, placeholder ="Select one..."), 
+                    choices = c("m2", "ha", "ft2","ac"), selected = "ha"
+                  )
+                )
+              )
+            ),
+            hidden(textInput(paste0(crop, "_hahd_crop_harvestable_area_", index,"_other"), "")),
+            fluidRow(
+              column(6, numericInput(paste0(crop, "_hahd_amount_harvested_", index), "Amount harvested", value = "", min = 0, step = 0.1)),
+              column(
+                6,
+                selectizeInput(
+                  paste0(crop, "_hahd_amount_harvested_unit_", index), label="Unit", multiple = TRUE, 
+                  options = list(maxItems =1, placeholder ="Select one..."), 
+                  choices=c("g", "kg", "lb", "t"), selected = "g"
                 )
               )
             ),
             fluidRow(
-              column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_width_",index), "Width within rows harvested")),
+              column(6, numericInput(paste0(crop, "_hahd_harvest_cut_height_", index), "Harvest cut height", value = "", min = 0, step = 0.1)),
               column(
                 6,
                 selectizeInput(
-                  paste0(crop, "_hahd_crop_component_harvested_widthunit_",index),  label ="Unit", multiple = TRUE, 
-                  options = list(maxItems =11, placeholder ="Select one..."), 
-                  choices = c("cm", "m", "in","ft"), selected = "cm"
+                  paste0(crop, "_hahd_harvest_cut_height_unit_", index), label="Unit", multiple = TRUE, 
+                  options = list(maxItems =1, placeholder ="Select one..."), 
+                  choices=c("cm", "ft", "in", "m"), selected = "cm"
                 )
               )
             ),
+            textAreaInput(inputId = paste0(crop, "_hahd_harvest_notes_", index), label = "Notes", value = "")
+          ),
+          column(
+            6,
             fluidRow(
-              column(6, numericInput(paste0(crop, "_hahd_space_rows_harvested_", index), "Space between rows harvested", value = "", min = 0, step = 0.1)),
-              column(
-                6,
-                selectizeInput(
-                  paste0(crop, "_hahd_crop_component_harvested_spaceunit_",index),  label ="Unit", multiple = TRUE, 
-                  options = list(maxItems =11, placeholder ="Select one..."), 
-                  choices = c("cm", "m", "in","ft"), selected = "cm"
-                )
-              )
-            )
-          ),
-          conditionalPanel(
-            paste0("input.", crop, "_hahd_crop_harvestable_area_",index, " == 'Entire plot'"),
-            fluidRow(
-              column(6, textInput(paste0(crop, "_hahd_crop_component_harvested_entire_",index), "Plot area harvested")),
-              column(
-                6, 
-                selectizeInput(
-                  paste0(crop, "_hahd_crop_component_harvested_entireunit_",index),  label ="Unit", multiple = TRUE, 
-                  options = list(maxItems =11, placeholder ="Select one..."), 
-                  choices = c("m2", "ha", "ft2","ac"), selected = "ha"
-                )
-              )
-            )
-          ),
-          hidden(textInput(paste0(crop, "_hahd_crop_harvestable_area_", index,"_other"), "")),
-          fluidRow(
-            column(6, numericInput(paste0(crop, "_hahd_amount_harvested_", index), "Amount harvested", value = "", min = 0, step = 0.1)),
-            column(
-              6,
-              selectizeInput(
-                paste0(crop, "_hahd_amount_harvested_unit_", index), label="Unit", multiple = TRUE, 
-                options = list(maxItems =1, placeholder ="Select one..."), 
-                choices=c("g", "kg", "lb", "t"), selected = "g"
-              )
-            )
-          ),
-          fluidRow(
-            column(6, numericInput(paste0(crop, "_hahd_harvest_cut_height_", index), "Harvest cut height", value = "", min = 0, step = 0.1)),
-            column(
-              6,
-              selectizeInput(
-                paste0(crop, "_hahd_harvest_cut_height_unit_", index), label="Unit", multiple = TRUE, 
-                options = list(maxItems =1, placeholder ="Select one..."), 
-                choices=c("cm", "ft", "in", "m"), selected = "cm"
-              )
-            )
-          ),
-          textAreaInput(inputId = paste0(crop, "_hahd_harvest_notes_", index), label = "Notes", value = "")
-        ),
-        column(
-          6,
-          fluidRow(
-            column(12, h4("Implement", style="font-weight: 800;color: #555;"))
-          ),     
-          selectizeInput(
-            paste0(crop, "_hahd_harvest_implement_", index), label = "Type", multiple = TRUE, 
-            options = list(maxItems =1, placeholder ="Select one..."), 
-            choices = c("Baler",
-                        "Chopper",
-                        "Combine",
-                        "Digger",
-                        "Mower",
-                        "Reaper",
-                        "Roller",
-                        "Sickle",
-                        "Other")
-          ),
-          hidden(textInput(paste0(crop, "_hahd_harvest_implement_", index, "_other"), "")),
-          selectizeInput(
-            paste0(crop, "_hahd_harvest_traction_" , index), label = "Traction", multiple = TRUE, 
-            options = list(maxItems =1, placeholder ="Select one..."), 
-            choices = c("Animal",
-                        "Manual",
-                        "2 wheel tractor",
-                        "4 wheel tractor",
-                        "Other")
-          ),
-          hidden(textInput(paste0(crop, "_hahd_harvest_traction_",index,"_other"), ""))     
+              column(12, h4("Implement", style="font-weight: 800;color: #555;"))
+            ),     
+            selectizeInput(
+              paste0(crop, "_hahd_harvest_implement_", index), label = "Type", multiple = TRUE, 
+              options = list(maxItems =1, placeholder ="Select one..."), 
+              choices = c("Baler",
+                          "Chopper",
+                          "Combine",
+                          "Digger",
+                          "Mower",
+                          "Reaper",
+                          "Roller",
+                          "Sickle",
+                          "Other")
+            ),
+            hidden(textInput(paste0(crop, "_hahd_harvest_implement_", index, "_other"), "")),
+            selectizeInput(
+              paste0(crop, "_hahd_harvest_traction_" , index), label = "Traction", multiple = TRUE, 
+              options = list(maxItems =1, placeholder ="Select one..."), 
+              choices = c("Animal",
+                          "Manual",
+                          "2 wheel tractor",
+                          "4 wheel tractor",
+                          "Other")
+            ),
+            hidden(textInput(paste0(crop, "_hahd_harvest_traction_",index,"_other"), ""))     
+          )
         )
       )
     )
@@ -13018,7 +14043,7 @@ server_design_agrofims <- function(input, output, session, values){
   ###################### START: PHENOLOGY ######################
   
   # Funcion que crea el disenno de measurement --> solo Monocrop
-  pheno_vars <- agdesign::dt_cphe
+  dt_cphe <- agdesign::dt_cphe
   
   output$uiCropPheMono <- renderUI({
     fluidRow(
@@ -13040,7 +14065,7 @@ server_design_agrofims <- function(input, output, session, values){
     if(length(cropMono)>0){
       datatable(
         #dtInterPhe <<- finterphe("Cassava"),
-        pheno_vars,
+        dt_cphe,
         selection = 'multiple',
         #editable = TRUE,
         options = list(
@@ -13068,7 +14093,7 @@ server_design_agrofims <- function(input, output, session, values){
   createDataTableTabsPhenology <- function(vals){
     output[[paste0("tblPhe_",vals)]] <- renderDT(
       #dtInterPhe <<- finterphe("Cassava"),
-      pheno_vars,
+      dt_cphe,
       selection = 'multiple',
       #editable = TRUE,
       options = list(
@@ -14380,7 +15405,6 @@ server_design_agrofims <- function(input, output, session, values){
       dt<- get_ec_plantrans(allinputs=AllInputs(), input, ctype="monocrop", cropId= "1", addId="1")$dt
       
       print("monocrop plantrsans header")
-      print(names(dt))
       
       if(nrow(fbdesign())==0 && length(dt)>0){
         dt <- dt
@@ -14394,30 +15418,23 @@ server_design_agrofims <- function(input, output, session, values){
           
           collect_platra <- stringr::str_replace_all(tolower(collect_platra), pattern = "_", replacement = " ")
           
+          collect_platra <-  dplyr::case_when( collect_platra =="seeding distance between plants"  ~ "seeding density distance between plants",   
+                                               collect_platra=="seeding distance between rows"  ~"seeding density distance between rows",
+                                               collect_platra=="seeding number of rows" ~ "seeding density number of rows",
+                                               collect_platra=="seeding distance between bunds" ~ "seeding density distance between bunds",
+                                               TRUE ~ collect_platra)
           
-          #Special cases
-          ifelse(collect_platra=="transplanting distance between plants", 
-                 collect_platra <-c(collect_platra, "transplanting density distance between plants"), 
-                 collect_platra)
-          
-          ifelse(collect_platra=="transplanting distance between rows", 
-                 collect_platra <-c(collect_platra, "transplanting density distance between rows"), 
-                 collect_platra)
-          
-          ifelse(collect_platra=="transplanting distance between bunds", 
-                 collect_platra <-c(collect_platra,"transplanting density distance between bunds"), 
-                 collect_platra)
-          
-          ifelse(collect_platra=="transplanting number of rows", 
-                 collect_platra <-c(collect_platra,"transplanting density number of rows"), 
-                 collect_platra)
+          #Tranplanting case
+          collect_platra <-  dplyr::case_when( collect_platra =="transplanting distance between plants"  ~ "transplanting density distance between plants",   
+                                               collect_platra=="transplanting distance between rows"  ~"transplanting density distance between rows",
+                                               collect_platra=="transplanting number of rows" ~ "transplanting density number of rows",
+                                               collect_platra== "transplanting distance between bunds" ~ "transplanting density distance between bunds" ,
+                                               TRUE ~ collect_platra)
           
           #management practices
           mpra_trait <- names(dt)
-          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "_|//*", replacement = " ")
-          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "[:digit:]+", replacement = "") %>% stringr::str_trim(side="both")
-          
-          
+          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "__[:digit:]+", replacement = "") %>% stringr::str_trim(side="both")
+          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "_", replacement = " ")
           lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
           
           dt <- dt[which(lgl==TRUE)]
@@ -14452,55 +15469,27 @@ server_design_agrofims <- function(input, output, session, values){
           #collectable inputs ---------------------------------------------------------------------------------------
           collect_platra <- get_collectable_plantrans(AllInputs(),ctype= tolower(ct), crop=circm[i], 
                                                       cropId= id_rand_inter[i],ver = "export")
-          
-          print("planting transplating 1")
-          print(collect_platra)
-          
           collect_platra <- stringr::str_replace_all(tolower(collect_platra), pattern = "_", replacement = " ")
           
-          #Special cases
-          ifelse(collect_platra=="transplanting distance between plants", 
-                 collect_platra <-c(collect_platra, "transplanting density distance between plants"), 
-                 collect_platra)
           
-          ifelse(collect_platra=="transplanting distance between rows", 
-                 collect_platra <-c(collect_platra, "transplanting density distance between rows"), 
-                 collect_platra)
+          collect_platra <-  dplyr::case_when( collect_platra =="seeding distance between plants"  ~ "seeding density distance between plants",   
+                                               collect_platra=="seeding distance between rows"  ~"seeding density distance between rows",
+                                               collect_platra=="seeding number of rows" ~ "seeding density number of rows",
+                                               collect_platra=="seeding distance between bunds" ~ "seeding density distance between bunds",
+                                               TRUE ~ collect_platra)
           
-          ifelse(collect_platra=="transplanting distance between bunds", 
-                 collect_platra <-c(collect_platra,"transplanting density distance between bunds"), 
-                 collect_platra)
-          
-          ifelse(collect_platra=="transplanting number of rows", 
-                 collect_platra <-c(collect_platra,"transplanting density number of rows"), 
-                 collect_platra)
-          
-          
-          #Special cases
-          # ifelse(collect_platra=="seeding distance between plants", 
-          #        collect_platra <-c(collect_platra,"distance between plants"), 
-          #        collect_platra)
-          # 
-          # ifelse(collect_platra=="seeding distance between rows", 
-          #        collect_platra <-c(collect_platra,"distance between rows"), 
-          #        collect_platra)
-          # 
-          # ifelse(collect_platra=="seeding distance between bunds", 
-          #        collect_platra <-c(collect_platra,"distance between bunds"), 
-          #        collect_platra)
-          
+          #Tranplanting case
+          collect_platra <-  dplyr::case_when( collect_platra =="transplanting distance between plants"  ~ "transplanting density distance between plants",   
+                                               collect_platra=="transplanting distance between rows"  ~"transplanting density distance between rows",
+                                               collect_platra=="transplanting number of rows" ~ "transplanting density number of rows",
+                                               collect_platra== "transplanting distance between bunds" ~ "transplanting density distance between bunds" ,
+                                               TRUE ~ collect_platra)
           
           #management practices
-          mpra_trait <- tolower(names(ptdt_list[[i]] ))
-          
-          print("planting transplating 2")
-          print(mpra_trait)
-          
+          mpra_trait <-  tolower(names(ptdt_list[[i]] ))
           #Detect special cases--------------------------------------------------------------------------------------
-          mpra_trait <- stringr::str_replace_all(mpra_trait, pattern = "_|//*", replacement = " ")
-          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "[:digit:]+", replacement = "") %>% stringr::str_trim(side="both")
-          
-          #mpra_trait <- stringr::str_replace_all(mpra_trait, pattern = "density ", replacement= "")
+          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "__[:digit:]+", replacement = "") %>% stringr::str_trim(side="both")
+          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "_", replacement = " ")
           
           #Detect headers in plant_dt---------------------------------------------------------------------------------
           lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
@@ -14547,29 +15536,25 @@ server_design_agrofims <- function(input, output, session, values){
                                                       cropId= id_re_rand[i],ver = "export")
           collect_platra <- stringr::str_replace_all(tolower(collect_platra), pattern = "_", replacement = " ")
           
-          #Special cases
-          ifelse(collect_platra=="transplanting distance between plants", 
-                 collect_platra <-c(collect_platra, "transplanting density distance between plants"), 
-                 collect_platra)
+        
+          collect_platra <-  dplyr::case_when( collect_platra =="seeding distance between plants"  ~ "seeding density distance between plants",   
+                                               collect_platra=="seeding distance between rows"  ~"seeding density distance between rows",
+                                               collect_platra=="seeding number of rows" ~ "seeding density number of rows",
+                                               collect_platra=="seeding distance between bunds" ~ "seeding density distance between bunds",
+                                               TRUE ~ collect_platra)
           
-          ifelse(collect_platra=="transplanting distance between rows", 
-                 collect_platra <-c(collect_platra, "transplanting density distance between rows"), 
-                 collect_platra)
-          
-          ifelse(collect_platra=="transplanting distance between bunds", 
-                 collect_platra <-c(collect_platra,"transplanting density distance between bunds"), 
-                 collect_platra)
-          
-          ifelse(collect_platra=="transplanting number of rows", 
-                 collect_platra <-c(collect_platra,"transplanting density number of rows"), 
-                 collect_platra)
+          #Tranplanting case
+          collect_platra <-  dplyr::case_when( collect_platra =="transplanting distance between plants"  ~ "transplanting density distance between plants",   
+                                               collect_platra=="transplanting distance between rows"  ~"transplanting density distance between rows",
+                                               collect_platra=="transplanting number of rows" ~ "transplanting density number of rows",
+                                               collect_platra== "transplanting distance between bunds" ~ "transplanting density distance between bunds" ,
+                                               TRUE ~ collect_platra)
           
           #management practices
-          mpra_trait <- tolower(names(ptdt_list[[i]] ))
+          mpra_trait <-  tolower(names(ptdt_list[[i]] ))
           #Detect special cases--------------------------------------------------------------------------------------
-          mpra_trait <- stringr::str_replace_all(mpra_trait, pattern = "_|//*", replacement = " ")
-          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "[:digit:]+", replacement = "") %>% stringr::str_trim(side="both")
-          
+          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "__[:digit:]+", replacement = "") %>% stringr::str_trim(side="both")
+          mpra_trait <- stringr::str_replace_all(tolower(mpra_trait), pattern = "_", replacement = " ")
           
           #Detect headers in plant_dt---------------------------------------------------------------------------------
           lgl<- grepl(pattern = paste0(collect_platra, collapse="|"),x = mpra_trait)
@@ -14796,9 +15781,12 @@ server_design_agrofims <- function(input, output, session, values){
     kds_irri <- magmtprac$irri
     addId <- getAddInputId(addId = expconIRRImonocrop$ids, "mono_irri_", "")
     dt<- get_protocol_irri(allinputs= AllInputs(),addId=addId) 
+ 
     if(nrow(dt)!=0){
       dt<- dplyr::left_join(kds_irri , dt) %>% filter(Value!="")
-      dt$NumberofMeasurementsPerSeason <- ns_irrigation()
+      dt$NumberofMeasurementsPerSeason <- 1 #"ns_irrigation()
+      dt  <- dt %>% dplyr::mutate(TraitName=TraitProt)#Reassinig values with numeration(__1,__2)
+      dt$TraitProt <- NULL #Remove temporal column
     } else{
       dt<- data.frame()
     }
@@ -14860,7 +15848,9 @@ server_design_agrofims <- function(input, output, session, values){
     dt<- get_protocol_weed(allinputs=AllInputs(), addId=addId, ctype="monocrop")
     if(nrow(dt)!=0){
       dt<- dplyr::left_join(kds_weed , dt) %>% filter(Value!="")
-      dt$NumberofMeasurementsPerSeason <- ns_weeding()
+      dt$NumberofMeasurementsPerSeason <- 1 #ns_weeding()
+      dt  <- dt %>% dplyr::mutate(TraitName=TraitProt)#Reassinig values with numeration(__1,__2)
+      dt$TraitProt <- NULL #Remove temporal column
     } else{
       dt<- data.frame()
     }
@@ -15064,11 +16054,15 @@ server_design_agrofims <- function(input, output, session, values){
     
     if(ct=="Monocrop"){
       addId <- getAddInputId(addId = expconHARVmonocrop$ids, "mono_harv_", "")
-      dt <-get_protocol_harv(allinputs=AllInputs(), input, ctype="monocrop", addId=addId)
+      dt<- get_protocol_harv(allinputs=AllInputs(), addId=addId, ctype="monocrop")
       #allinputs, input, ctype="monocrop", cropId="1", addId="1"
       if(nrow(dt)!=0){
         dt<- dplyr::left_join(kds_harv , dt) %>% filter(Value!="")
-        dt$NumberofMeasurementsPerSeason <- length(ns_harvest())
+        dt$NumberofMeasurementsPerSeason <- 1 #length(ns_harvest())
+        
+        dt  <- dt %>% dplyr::mutate(TraitName=TraitProt)#Reassinig values with numeration(__1,__2)
+        dt$TraitProt <- NULL #Remove temporal column
+        
       }else {
         dt <- data.frame()
       }
@@ -15093,7 +16087,15 @@ server_design_agrofims <- function(input, output, session, values){
           if(nrow(dtf[[i]])!=0){
             dtf[[i]] <- dplyr::left_join(kds_harv , dtf[[i]]) %>% dplyr::filter(Value!="")
             dtf[[i]]$Crop <- cropnames[i]
-            dtf[[i]]$NumberofMeasurementsPerSeason <- length(ns_harvest()[[i]])
+            #dtf[[i]]$NumberofMeasurementsPerSeason <- length(ns_harvest()[[i]])
+            dtf[[i]]$NumberofMeasurementsPerSeason <- 1
+            
+            #dt$NumberofMeasurementsPerSeason <- 1 #length(ns_harvest())
+            
+            dtf[[i]] <- dtf[[i]] %>% dplyr::mutate(TraitName=TraitProt)#Reassinig values with numeration(__1,__2)
+            dtf[[i]]$TraitProt <- NULL #Remove temporal column
+            
+            
           }
           else {
             dtf[[i]] <- data.frame()
@@ -15209,7 +16211,7 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in 1:length(crop)){
         
         phe_row_selected<- input[[paste0("tblPhe_",prefix,"_phe_", id_phe_dt[i],"_rows_selected")]]  #input$tblInterPheCassava_rows_selected
-        dtPhenoMulticrop <- pheno_vars #%>% dplyr::filter(Crop==crop[i])  #dtInterPheCassava #filtrar phenota por tabla principal
+        dtPhenoMulticrop <- dt_cphe #%>% dplyr::filter(Crop==crop[i])  #dtInterPheCassava #filtrar phenota por tabla principal
         dtPhenoMulticrop <- ec_clean_header(dtPhenoMulticrop)
         
         #"NumberofMeasurementsPerSeason"	NumberofMeasurementsPerPlot
@@ -15273,7 +16275,7 @@ server_design_agrofims <- function(input, output, session, values){
       #row_select <- input$tblMonoPhe_rows_selected
       row_select <- input$tblPhe_mono_mea_1_rows_selected
       #dt <- dtMonocropphe[row_select, ]
-      dt<- pheno_vars[row_select, ]
+      dt<- dt_cphe[row_select, ]
       lbl <- dt$TraitName
       
       if(length(lbl)==0 && nrow(dt)==0){
@@ -15437,6 +16439,7 @@ server_design_agrofims <- function(input, output, session, values){
     edate<- map_singleform_values(input = input$fbDesign_project_end_date,type = "date",format = "data.frame", label="Experiment end date")
     
     type <- AllInputs() %>% dplyr::filter(id=="designFieldbook_typeExperiment") %>% nth(2) %>% paste0(collapse = ", ")
+    type <- stringr::str_replace(string = type, "Other", "")
     type_other <- AllInputs() %>% dplyr::filter(id=="designFieldbook_typeExperiment_other") %>% nth(2)
     type <- data.frame(label="Type of experiment", res=paste0(c(type, type_other),collapse = ", "), stringsAsFactors = FALSE)
     
@@ -15483,11 +16486,11 @@ server_design_agrofims <- function(input, output, session, values){
     #Experiment Leads
     #tLeadCenter_1
     id_rand_el <- getAddInputId(experimentVars$ids_EL, "EL_", "")
-    pl <- map_values(input, id_chr="projLeadEnt_", id_rand_el,format = "data.frame",lbl= "Experiment, lead organization name")
+    pl <- map_values(input, id_chr="projLeadEnt_", id_rand_el,format = "data.frame",lbl= "Experiment lead organization")
     #pl <- map_values(input, id_chr="projLeadEnt_", id_rand_el,format = "data.frame",lbl= "Experiment, lead organization type")
-    pcgiar <- map_values(input, id_chr="tLeadCenter_", id_rand_el, format = "data.frame", lbl= "Experiment, CGIAR center name")
+    pcgiar <- map_values(input, id_chr="tLeadCenter_", id_rand_el, format = "data.frame", lbl= "Experiment lead CGIAR center")
     pcgiar <- pcgiar %>% dplyr::filter(res!="---")
-    plc <- map_values(input, id_chr="tLeadContCRP_", id_rand_el, format = "data.frame", lbl= "Experiment, lead contributor crp")
+    plc <- map_values(input, id_chr="tLeadContCRP_", id_rand_el, format = "data.frame", lbl= "Experiment lead CRP contributor 1")
     plc <- plc %>% dplyr::filter(res!="---")
     pel <- map_values(input, id_chr="expLead_", id_rand_el,format = "data.frame", lbl= "Experiment lead person / Primary Investigator")
     
@@ -16004,6 +17007,14 @@ server_design_agrofims <- function(input, output, session, values){
     
     vSiteVegetation <- ""
     if(!is.null(input$fbDesign_inSiteVegetation)) vSiteVegetation <- paste(input$fbDesign_inSiteVegetation, collapse = ",")
+    
+    vSiteVegetation <- AllInputs() %>% dplyr::filter(str_detect(id,  paste0("^fbDesign_inSiteVegetation","$"))) 
+    vSiteVegetation <- vSiteVegetation$values
+    if(stringr::str_detect(string = vSiteVegetation, pattern = "Other")){
+      vSiteVegetation <- str_replace(string = vSiteVegetation ,pattern = "Other","")
+      vSiteVegetation_other <-  AllInputs() %>% dplyr::filter(str_detect(id,  paste0("^fbDesign_inSiteVegetation_other","$")))   
+      vSiteVegetation <- paste(vSiteVegetation, vSiteVegetation_other$values,collapse = ",")
+    }
     
     c38 <- c('Vegetation surrounding the experimental site', vSiteVegetation)
     c39 <- c('Site description notes', input$inSiteDescNotes)
@@ -16591,8 +17602,8 @@ server_design_agrofims <- function(input, output, session, values){
                 
                 
                 #TODO: Avoid LONG names in sheetNames (error) max 32 characters
-                openxlsx::addWorksheet(wb,  paste("Planting-",circm[i]), gridLines = TRUE)
-                openxlsx::writeDataTable(wb, paste("Planting-",circm[i]), x = dt_pltr,
+                openxlsx::addWorksheet(wb,  paste0("Planting-",circm[i]), gridLines = TRUE)
+                openxlsx::writeDataTable(wb, paste0("Planting-",circm[i]), x = dt_pltr,
                                          colNames = TRUE, withFilter = FALSE)
               }
               
@@ -16613,8 +17624,8 @@ server_design_agrofims <- function(input, output, session, values){
                 dt_pltr <- dt_plantrans()[[i]]
                 
                 #TODO Avoid LONG names in sheetNames (error) max 32 characters
-                openxlsx::addWorksheet(wb,  paste("Planting-",crecm[i]), gridLines = TRUE)
-                openxlsx::writeDataTable(wb, paste("Planting-",crecm[i]), x = dt_pltr,
+                openxlsx::addWorksheet(wb,  paste0("Planting-",crecm[i]), gridLines = TRUE)
+                openxlsx::writeDataTable(wb, paste0("Planting-",crecm[i]), x = dt_pltr,
                                          colNames = TRUE, withFilter = FALSE)
               }
               
@@ -16821,7 +17832,7 @@ server_design_agrofims <- function(input, output, session, values){
           if(nrow(pheno_dt())!=0){
             row_select <- input$tblPhe_mono_mea_1_rows_selected
             row_select<- sort(row_select)
-            dt <- pheno_vars[row_select, ]
+            dt <- dt_cphe[row_select, ]
             dt <- ec_clean_header(dt)
             ph_tl <- dt
             #ph_tl$CropMeasurementPerSeason <- ph_tl$CropMeasurementPerPlot <- 1

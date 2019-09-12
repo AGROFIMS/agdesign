@@ -10,11 +10,9 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
   if(ctype=="monocrop"){
     lookup<- ctype 
     cropId <- "1"
-  } 
-  else if(ctype=="intercrop"){
+  } else if(ctype=="intercrop"){
     lookup<- paste0("int_pt_",cropId)
-  } 
-  else if(ctype=="relay crop") {
+  } else if(ctype=="relay crop") {
     lookup<- paste0("rel_pt_",cropId) 
   }
   

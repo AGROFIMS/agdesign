@@ -7,8 +7,8 @@ get_ec_sblalv<- function(input){
                                       label = "Factor" )
   ll_notes <-  map_singleform_values(input =input$landLeveling_notes,  type = "text", format = "vector",
                                      label = "Factor")
-  ll_type <-  map_singleform_values(input$land_impl_type, type = "select", format = "vector", label = "Factor")
-  ll_traction <-  map_singleform_values(input$land_traction, input$land_traction_other, type = "select", format = "vector", label = "Factor")
+  ll_type <-  map_singleform_values(input$land_impl_type, input_other = input$land_impl_type_other, type = "select", format = "vector", label = "Factor")
+  ll_traction <-  map_singleform_values(input$land_traction, input_other = input$land_traction_other, type = "select", format = "vector", label = "Factor")
   
   dt<- data.frame(ll_start_date, ll_npasses, ll_notes, ll_type, ll_traction, stringsAsFactors = FALSE)
   #dt[1,] <- "" #Fill the templates with empty values 
@@ -44,9 +44,9 @@ get_ec_sbpud <- function(input){
                                       type = "numeric", format = "vector", label = "Factor")
   lp_notes <- map_singleform_values(input =input$puddling_notes, 
                                     type = "text", format = "vector", label = "Factor")
-  lp_type <- map_singleform_values(input = input$pud_impl_type, input$pud_impl_type_other, 
+  lp_type <- map_singleform_values(input = input$pud_impl_type, input_other = input$pud_impl_type_other, 
                                    type = "select", format = "vector", label = "Factor")
-  lp_traction <- map_singleform_values(input$pud_traction, input$pud_traction_other, 
+  lp_traction <- map_singleform_values(input$pud_traction, input_other = input$pud_traction_other, 
                                        type = "select", format = "vector", label = "Factor")
   
   dt <- data.frame(lp_start_date, lp_depth_val, lp_npasses, lp_notes, lp_type, lp_traction, stringsAsFactors = FALSE) 
@@ -75,7 +75,7 @@ get_ec_sbtill <- function(input){
   
   lt_start_date <- map_singleform_values(input = input$tillage_start_date, type = "date", format = "vector", label = "Factor" )
   #lt_end_date  <-  getDateInput(input$tillage_end_date)
-  lt_technique  <- map_singleform_values(input =input$till_technique, input$till_technique_other,
+  lt_technique  <- map_singleform_values(input =input$till_technique, input_other = input$till_technique_other,
                                          type = "select", format = "vector", label = "Factor")
   #lt_depth_method  <- getAgrOper(input$till_depth_method)
   
@@ -86,9 +86,9 @@ get_ec_sbtill <- function(input){
   lt_npasses  <- map_singleform_values(input =input$total_number_tillage_passes, type = "numeric", format = "vector", label = "Factor")
   lt_notes  <- map_singleform_values(input$tillage_notes, type = "text", format = "vector",
                                      label = "Factor")
-  lt_type  <-  map_singleform_values(input =input$till_impl_type, input$till_impl_type_other, 
+  lt_type  <-  map_singleform_values(input =input$till_impl_type, input_other =input$till_impl_type_other, 
                                      type = "select", format = "vector", label = "Factor")
-  lt_traction <- map_singleform_values(input =input$till_traction, input$till_traction_other,
+  lt_traction <- map_singleform_values(input =input$till_traction, input_other = input$till_traction_other,
                                        type = "select", format = "vector", label = "Factor")
   #Labels / Headers
   # lbl <- c("Tillage_start_date_(yyyy/mm/dd)", 

@@ -84,11 +84,22 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
 get_protocol_weed <- function(allinputs, addId, ctype="monocrop"){
   
   out <- get_ec_weed(allinputs, addId, ctype="monocrop")$dt
-  names(out) <- stringr::str_replace_all(names(out),"__1","")
+  #names(out) <- stringr::str_replace_all(names(out),"__1","")
+  if(nrow(out)!=0){
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
   out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
-  names(out) <- c("TraitName","Value")
+  
+  #Create a column to store temporally TraitName
+  out$TraitProt <- out$rowname
+  #Remove numbers from traitnames
+  out$rowname <- stringr::str_replace_all(out$rowname,"__[:digit:]+","")
+  names(out) <- c("TraitName","Value","TraitProt")
+  out <- out
+  }else {
+    out<- data.frame()
+  }
   out
+  
 }
 
 
