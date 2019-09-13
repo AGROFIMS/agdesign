@@ -16,8 +16,10 @@ server_design_agrofims(input, output, session, values)
 \item{values}{reactive values}
 }
 \description{
-Design field book for HIDAP-AGROFIMS
+proccess all information provided by users
 }
 \author{
-Omar Benites
+Omar Benites / Ivan Perez
+
+Soil Fertility     #############################################################
 }
