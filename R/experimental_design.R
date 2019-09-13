@@ -573,7 +573,7 @@ get_nutrient_details_design <- function(allinputs, design, index, indexEspLvl){
 
 }
 
-get_nutrient_details_design_test <- function(allinputs, design, index, indexEspLvl){
+get_nutrient_details_design <- function(allinputs, design, index, indexEspLvl){
   
   #Filter by design and current factor index
   #indexEspLvl<- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")

@@ -152,58 +152,8 @@ nutrient_reshape<- function(df, name="A", values="B"){
 
 
 
-#Product calculation
-product_calculation <- function(allinputs, index="1", indexEspLvl=indexEspLvl , design="frcbd"){
-  
-  #Get labels
-  indexEspLvl<- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
-  
-  flbl<- get_factors_design(allinputs =allinputs, index,  design= design)
-  #Get especial levels
-  indexEspLvl_subfix <- get_index_espLvl_design(indexEspLvl, paste0(design,"_lvl_espType_"))
-  lookup <- paste0(design,"_")
-  #eleType <- allinputs %>% dplyr::filter(str_detect(id,  paste0(lookup,"lvl_espType_", indexEspLvl_subfix, "$" ))) %>% nth(2) 
-  #Get levels
-  flvl <- get_levels_design(allinputs =allinputs, indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
-                            index, factors = flbl, design=design, format="list")
-  #Table of nutrient details (eletype, mNumTiming)
-  nutrients_details <- get_nutrient_details_design(allinputs=allinputs, design=design, index =index, indexEspLvl = indexEspLvl)
-  print("5")
-  # nutrient_elements <- tidyr::separate(data = tibble(level=flvl[[as.integer(index)]]), 
-  #                                      col=level, into=c("A","B"), sep="_") %>% 
-  #                      dplyr::mutate(B= gsub("(\\d+).*", "\\1",  B))
-  # 
-  nutrient_elements <- tidyr::separate(data = tibble(level=flvl[[1]]), 
-                                       col=level, into=c("A","B"), sep="_") %>% 
-                        dplyr::mutate(B= gsub("(\\d+).*", "\\1",  B))
-  
-  
-  
-  treatments <- nutrient_reshape(nutrient_elements, "A", "B")
-  #ASIGNAR 0 A LOS NA
-  #https://stackoverflow.com/questions/20535505/replacing-all-missing-values-in-r-data-table-with-a-value
-  treatments[is.na(treatments)] = 0
-  #treatments <- purrr::map_dfr(treatments, as.numeric) 
-  
-  print("7")
-  FertProDt<- dt_fernut %>% dplyr::filter(name %in% nutrients_details$mNutProduct) 
-  names(FertProDt) <- c("group", "name", "Nitrogen","Phosphorus","Potassium","Calcium","Magnesium",  
-                        "Sulfur", "Moldbenum", "Zinc", "Boron", "Copper")
-  FertProDt <- FertProDt[,c("name",unique(nutrient_elements$A))]
-  FertProDt[is.na(FertProDt)] = 0
-  FertProDt <- purrr::map_at(.x = FertProDt,.at = unique(nutrient_elements$A), .f = as.numeric) %>% as.data.frame(stringsAsFactors=FALSE)
-  
-  
-  ##TODO:: TRANSFORMAR A NUMERICO ambas matrices
-  price <- rep(1, nrow(FertProDt) )
-  r <- productApplicationRates(supply = FertProDt, treatment = treatments , price =price , minCost=FALSE)
-  #rr <- r[apply(r[,-1], 1, function(i) !all(i==0)), ]
-  print(r)   
-  
-}
-#product_calculation(AllInputs(), "1", factorlevel$ids , "frcbd")
 
-product_calculation_test <- function(allinputs, dfAll, index="1", indexEspLvl=indexEspLvl , design="frcbd"){
+product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEspLvl , design="frcbd"){
   
   #Get labels
   indexEspLvl<- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
@@ -213,7 +163,7 @@ product_calculation_test <- function(allinputs, dfAll, index="1", indexEspLvl=in
   lookup <- paste0(design,"_")
 
   #Table of nutrient details (eletype, mNumTiming)-----------------------------------------------------------------------------------------
-  nutrients_details <- get_nutrient_details_design_test(allinputs=allinputs, design=design, index =index, indexEspLvl = indexEspLvl)
+  nutrients_details <- get_nutrient_details_design(allinputs=allinputs, design=design, index =index, indexEspLvl = indexEspLvl)
   
   ## Split nutrient name and split number per each nutrient-------------------------------------------------------------------------------
   split_nutrient_name <- lapply(X = seq.int(dfAll$splits), function(x) rep(dfAll$eleType[x], each =as.numeric(dfAll$splits[x]))) %>% unlist() 
@@ -246,8 +196,13 @@ product_calculation_test <- function(allinputs, dfAll, index="1", indexEspLvl=in
   ##TODO:: TRANSFORMAR A NUMERICO ambas matrices
   price <- rep(1, nrow(FertProDt) )
   r <- productApplicationRates(supply = FertProDt, treatment = treatments , price =price , minCost=FALSE)
+  r <- as.data.frame(r, stringsAsFactors=FALSE)
+  n <- ncol(r)- 1
+  names(r) <- c("name", paste0("level_",seq.int(n)))
+  r
+ 
   #rr <- r[apply(r[,-1], 1, function(i) !all(i==0)), ]
-  print(r)   
+  #print(rr)   
   
 }
 
