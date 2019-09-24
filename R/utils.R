@@ -698,6 +698,16 @@ arrange_by_pattern <- function(data, pattern){
   dt
 } 
 
+# Arrange whole nutrient and fertilizer matrix by pattern
+arrange_nutfert<- function(data){
+  
+  data <- data %>% mutate(num_col = str_remove_all(id,"_")) %>% 
+                   mutate(num_col = gsub(pattern = "[^0-9.-]",replacement = "", num_col )) 
+  data$num_col <- as.numeric(data$num_col)
+  data <- data[order(data$num_col),]
+  
+}
+
 
 #Smart Bind data frames by columns
 # ... data frames to bind them in one data.frame 
@@ -834,4 +844,7 @@ get_traitlist_headers <- function(soilData=TRUE){
   
 } 
 
+#Replicate rows of data.frame function
+#
+#sapply(df, rep.int, 2) %>% as.data.frame(stringsAsFactors=FALSE) method 2
 

@@ -861,6 +861,13 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       })'
     ),
     
+    # Modal level 
+    tags$script(
+      '$(document).on("change", "[id*=\'_outputNutLvlDT_\']",  function(){
+      Shiny.onInputChange("modalSFNutLevelInput", Math.random());
+      Shiny.onInputChange("modalSFNutLevelInputid", this.id);
+      })'
+    ),
     
     ###################### END: DESIGN ######################
     

@@ -6929,7 +6929,7 @@ server_design_agrofims <- function(input, output, session, values){
           )
           
           if (input_choice == "Irrigation timing"){
-            shinyjs::show(id = paste0(design, "_numLevelsESPModal_", index))
+            #shinyjs::show(id = paste0(design, "_numLevelsESPModal_", index))
             
             ## TODO: START: Transcribir todas estas lineas a una funcion 
             insertUI(
@@ -7134,7 +7134,9 @@ server_design_agrofims <- function(input, output, session, values){
       dfAll <- rbind(dfAll,df)
     }
     
+    
     dfAll <- dfAll[dfAll$level == modalLevel,]
+    #dfk <<- dfAll
     
     removeUI(
       selector = paste0("#",design,"_modalContainer_",modalLevel),
@@ -7171,6 +7173,7 @@ server_design_agrofims <- function(input, output, session, values){
         
         #Loading Dataframe
         #DF <- loadDataFrame()
+        ferdt <- loadDataFrame(type)
         
         insertUI(
           selector = paste0("#",design,"_modalContainer_",modalLevel),
@@ -7195,7 +7198,26 @@ server_design_agrofims <- function(input, output, session, values){
                          ),
                          column(
                            9,
-                           rHandsontableOutput(paste0(design,"_outputFerLvlDT_",level,"_",index,"_",i))
+                           div(
+                             style="display: flex;vertical-align:top;",
+                             #textInput(inputId = paste0(design,"_factorType1_",level,"_",index,"_",i),value = type, label = "Name Product" ),
+                             textInput(inputId = paste0(design,"_outputFerDT1_",level,"_",index,"_",i),value = ferdt[[2]], label = "N" ),
+                             textInput(inputId = paste0(design,"_outputFerDT2_",level,"_",index,"_",i),value = ferdt[[3]], label = "P" ),
+                             textInput(inputId = paste0(design,"_outputFerDT3_",level,"_",index,"_",i),value = ferdt[[4]], label = "K" ),
+                             textInput(inputId = paste0(design,"_outputFerDT4_",level,"_",index,"_",i),value = ferdt[[5]], label = "Ca" ),
+                             textInput(inputId = paste0(design,"_outputFerDT5_",level,"_",index,"_",i),value = ferdt[[6]], label = "Mg" ),
+                             textInput(inputId = paste0(design,"_outputFerDT6_",level,"_",index,"_",i),value = ferdt[[7]], label = "S" ),
+                             textInput(inputId = paste0(design,"_outputFerDT7_",level,"_",index,"_",i),value = ferdt[[8]], label = "Mb" ),
+                             textInput(inputId = paste0(design,"_outputFerDT8_",level,"_",index,"_",i),value = ferdt[[9]], label = "Zn" ),
+                             textInput(inputId = paste0(design,"_outputFerDT9_",level,"_",index,"_",i),value = ferdt[[10]], label = "B" ),
+                             textInput(inputId = paste0(design,"_outputFerDT10_",level,"_",index,"_",i),value = ferdt[[11]], label = "Cu" ),
+                             textInput(inputId = paste0(design,"_outputFerDT11_",level,"_",index,"_",i),value = ferdt[[12]], label = "Fe" ),
+                             textInput(inputId = paste0(design,"_outputFerDT12_",level,"_",index,"_",i),value = ferdt[[13]], label = "Mn" ),
+                             textInput(inputId = paste0(design,"_outputFerDT13_",level,"_",index,"_",i),value = ferdt[[14]], label = "Ni" ),
+                             textInput(inputId = paste0(design,"_outputFerDT14_",level,"_",index,"_",i),value = ferdt[[15]], label = "Cl" )
+                           )
+                           
+                           #rHandsontableOutput(paste0(design,"_outputFerLvlDT_",level,"_",index,"_",i))
                            #loadDataFrame(type)
                          )
                        )
@@ -7257,13 +7279,7 @@ server_design_agrofims <- function(input, output, session, values){
             )
           )
         }
-        
-        output[[paste0(design,"_outputFerLvlDT_",level,"_",index,"_",i)]] <- rhandsontable::renderRHandsontable({
-          loadDataFrame(type)
-        })
       }
-      
-      
       
     }
     
@@ -7285,13 +7301,18 @@ server_design_agrofims <- function(input, output, session, values){
               column(12,
                      paste0("Nutrient: amount ",unit)
               ),
+              
               column(
                 12,
-                loadDataFrame(type),
-                ###OPTINAL NEW
+                #HTML("<div> Aca viene un rhandsometable. </div>"),
                 rHandsontableOutput(paste0(design,"_outputFERT_",modalLevel))
-                #####
+                #rhandsontable::rHandsontableOutput("output_nutDT")
               )
+              
+              # column(
+              #   12,
+              #   loadDataFrame(type)
+              # )
           )
         )
       )
@@ -7366,11 +7387,11 @@ server_design_agrofims <- function(input, output, session, values){
         numberSplit <- input[[paste0(design,"_lvl_espSplit_",level,"_",index)]]
         
         
-        removeUI(
-          selector = paste0(design,"_outputNutDT_",level,"_",index,"_",i),
-          immediate = T
-        )
-        
+        # removeUI(
+        #   selector = paste0("#",design,"_outputNutDT_",level,"_",index,"_",i,"_1"),
+        #   immediate = T
+        # )
+        # 
         #DF <- fillValuesDFNutrient(type,levels)
         
         insertUI(
@@ -7391,7 +7412,7 @@ server_design_agrofims <- function(input, output, session, values){
                 column(12,
                        style= "margin-bottom: 15px",
                        column(2,
-                              HTML(paste0("<div style='font-weight: bold'>  Factor level ",levelNumber," (",unit,") " ," </div>"))
+                              HTML(paste0("<div style='font-weight: bold'>  Factor level ",levelNumber, " (",unit,")" ," </div>"))
                        ),
                        column(
                          10,
@@ -7465,12 +7486,23 @@ server_design_agrofims <- function(input, output, session, values){
             12,
             column(
               3,
-              selectizeInput(inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_",j),
-                             label = "Choose Product",
-                             multiple = TRUE,
-                             options = list(maxItems = 1, placeholder = "Select one..."),
-                             choices = ferdt()$name
-              )
+              if(round(as.numeric(levels)/as.numeric(numberSplit),1) == 0){
+                selectizeInput(inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1"),
+                               label = "Choose Product",
+                               multiple = TRUE,
+                               options = list(maxItems = 1, placeholder = "Select one..."),
+                               choices = c()
+                )
+                
+              }else{
+                selectizeInput(inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1"),
+                               label = "Choose Product",
+                               multiple = TRUE,
+                               options = list(maxItems = 1, placeholder = "Select one..."),
+                               choices = ferdt()$name
+                )
+              }
+              
             )
           )
         )
@@ -7482,13 +7514,12 @@ server_design_agrofims <- function(input, output, session, values){
             column(
               12,
               column(
-                12,
-                rHandsontableOutput(paste0(design,"_outputNutDT_",level,"_",index,"_",i,"_",j))
+                id = paste0("aux_",design,"_outputNutDT_",level,"_",index,"_",i,"_1"),
+                12
+                #DTOutput(paste0(design,"_outputNutDT_",level,"_",index,"_",i,"_1"))
               )
             )
         )
-        
-        #print(input[[paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i)]])
       }
     }
     
@@ -7505,70 +7536,128 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 12,
                 align="center",
-                actionButton(inputId = paste0(design,"_btnmNut_",modalLevel),"Calculate Nutrient Amount",class = "btn btn-primary", style="color:white")
+                actionButton(inputId = paste0(design,"_btnmNut_",modalLevel),"Calculate Product Amount",class = "btn btn-primary", style="color:white")
               ),
               column(12,
-                     paste0("Nutrient: amount ",unit)
+                     paste0("Product Rate", unit)
               ),
               column(
                 12,
-                HTML("<div> Aca viene un rhandsometable. </div>"),
+                #HTML("<div> Aca viene un rhandsometable. </div>"),
+                
                 rHandsontableOutput(paste0(design,"_outputPADT_",modalLevel))
+                
+                #rhandsontable::rHandsontableOutput("output_nutDT") old
               )
           )
         )
       )
     )
-    
-    # lapply(1:2,function(i){
-    #   
-    #   print("id lapply")
-    #   print(paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i))
-    #   
-    #   output[[paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i)]] <- rhandsontable::renderRHandsontable({
-    # 
-    #     print(DF)
-    #     
-    #     rhandsontable(DF)
-    #     
-    #     # print(paste0(design,level,index,i))
-    #     # 
-    #     # if (!is.null(value)){
-    #     #   
-    #     #   rhandsontable(DF) 
-    #     # }
-    #   })
-    #   outputOptions(output, paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i), suspendWhenHidden = FALSE)  
-    # })
-    
   }
+  
+  
+  # Nutrient Modal Level Input Change
+  observeEvent(input$modalSFNutLevelInput,{
+    
+    vars <- unlist(strsplit(input$modalSFNutLevelInputid, "_"))
+    design = vars[1]
+    level = vars[3]
+    index = vars[4]
+    i = vars[5]
+    j = vars[6]
+    
+    
+    splitNumber <- input[[paste0(design,"_lvl_espSplit_",level,"_",index)]]
+    acum=0
+    
+    
+    type = input[[paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1")]]
+    ferdt = loadDataFrame(type)
+    
+    # We sum value of all splits
+    for (x in 1:splitNumber){
+      auxVal =  as.integer(input[[paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i,"_",x)]])
+      
+      if(is.na(auxVal)){
+        auxVal = 0
+      }
+      
+      acum = acum + auxVal
+    }
+    
+    # If value 0 remove datatable, else update options
+    if(acum == 0){
+      
+      removeUI(
+        selector = paste0("#",design,"_outputNutDTContainer_",level,"_",index,"_",i),
+        immediate = T
+      )
+      
+      updateSelectizeInput(session,
+                           inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1"),
+                           choices = c(""))
+    }
+    else{
+      
+      removeUI(
+        selector = paste0("#",design,"_outputNutDTContainer_",level,"_",index,"_",i),
+        immediate = T
+      )
+      
+      insertUI(
+        selector = paste0("#aux_",design,"_outputNutDT_",level,"_",index,"_",i,"_1"),
+        immediate = T,
+        where = "beforeEnd",
+        ui = (
+          div(
+            id = paste0(design,"_outputNutDTContainer_",level,"_",index,"_",i),
+            style="display: flex;vertical-align:top;",
+            #textInput(inputId = paste0(design,"_outputNutDT_",level,"_",index,"_",i),value = type, label = "Name Product" ),
+            textInput(inputId = paste0(design,"_outputNutDT1_",level,"_",index,"_",i),value = ferdt[[2]], label = "N" ),
+            textInput(inputId = paste0(design,"_outputNutDT2_",level,"_",index,"_",i),value = ferdt[[3]], label = "P" ),
+            textInput(inputId = paste0(design,"_outputNutDT3_",level,"_",index,"_",i),value = ferdt[[4]], label = "K" ),
+            textInput(inputId = paste0(design,"_outputNutDT4_",level,"_",index,"_",i),value = ferdt[[5]], label = "Ca" ),
+            textInput(inputId = paste0(design,"_outputNutDT5_",level,"_",index,"_",i),value = ferdt[[6]], label = "Mg" ),
+            textInput(inputId = paste0(design,"_outputNutDT6_",level,"_",index,"_",i),value = ferdt[[7]], label = "S" ),
+            textInput(inputId = paste0(design,"_outputNutDT7_",level,"_",index,"_",i),value = ferdt[[8]], label = "Mb" ),
+            textInput(inputId = paste0(design,"_outputNutDT8_",level,"_",index,"_",i),value = ferdt[[9]], label = "Zn" ),
+            textInput(inputId = paste0(design,"_outputNutDT9_",level,"_",index,"_",i),value = ferdt[[10]], label = "B" ),
+            textInput(inputId = paste0(design,"_outputNutDT10_",level,"_",index,"_",i),value = ferdt[[11]], label = "Cu" ),
+            textInput(inputId = paste0(design,"_outputNutDT11_",level,"_",index,"_",i),value = ferdt[[12]], label = "Fe" ),
+            textInput(inputId = paste0(design,"_outputNutDT12_",level,"_",index,"_",i),value = ferdt[[13]], label = "Mn" ),
+            textInput(inputId = paste0(design,"_outputNutDT13_",level,"_",index,"_",i),value = ferdt[[14]], label = "Ni" ),
+            textInput(inputId = paste0(design,"_outputNutDT14_",level,"_",index,"_",i),value = ferdt[[15]], label = "Cl" )
+          )
+        )
+        
+      )
+      
+      
+      updateSelectizeInput(session,
+                           inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1"),
+                           choices = ferdt()$name)
+    }
+  })
   
   # Trigger calculate for fertilizer
   observeEvent(input$calculateProdAmountFertilizer,{
-    print("Fertilizer replace code here!")
-    
-    #print("Nutient replace code here!")
+      
     vars <- unlist(strsplit(input$calculateProdAmountFertilizerid, "_"))
     modalLevel <- vars[3] #Factor number
-    print("modalLevel")
-    print(modalLevel)
     
     design <- tolower(input$designFieldbook_agrofims)
     IdDesignInputs <- getFactorIds(design)
     
-    #index <- get_index_design(IdDesignInputs, design)
     index <- modalLevel
     
     allinputs <- AllInputs()
     flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
     #Get especial levels
     indexEspLvl <- factorlevel$ids 
-    print(indexEspLvl)
     
-    Inputs<-input
-    
+    #Build fertilizer input table derived from user's inputs
     dfAll <- data.frame(level=NULL,type=NULL,levels=NULL,unit=NULL,stringsAsFactors = FALSE)
-    for (i in factorlevel$ids){
+    for (i in indexEspLvl){
       
       value <- c(input[[i]])
       vars <- unlist(strsplit(i, "_"))
@@ -7577,10 +7666,8 @@ server_design_agrofims <- function(input, output, session, values){
       indexlevel <- vars[5]
       
       levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
-      #if(length(levels)==0){return()}
       unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
       split <- input[[paste0(design,"_lvl_espSplit_",level,"_",indexlevel)]]
-      #frcbd_lvl_espSplit_1_3
       
       df <- data.frame(   level = rep(level,length(levels)),
                           eleType = rep(value,length(levels)),
@@ -7593,10 +7680,8 @@ server_design_agrofims <- function(input, output, session, values){
       
       dfAll <- rbind(dfAll,df)
     }
-    dfAll2 <<- dfAll 
-    #out <- product_calculation_test(allinputs, dfAll=dfAll2, index="1", indexEspLvl= indexEspLvl , design=design)
-    #a1<<-get_fertilizer_details_design(allinputs, design, index, indexEspLvl)
-    out <- try({  fertilizer_calculation(allinputs, dfAll2, index=index, indexEspLvl=indexEspLvl , design="frcbd") })
+    dfAll <- dfAll 
+    out <- try({  fertilizer_calculation(allinputs, dfAll, index=index, indexEspLvl=indexEspLvl , design=design) })
     
     if(class(out)!="try-error")  {     
     
@@ -7604,10 +7689,11 @@ server_design_agrofims <- function(input, output, session, values){
           rhandsontable(as.data.frame(out),rowHeaders = FALSE) 
         })
         
-    } else {
+    } 
+    else {
       
       output[[paste0(design,"_outputFERT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
-        rhandsontable(data.frame(NoData="Please choose products or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE) 
+        rhandsontable(data.frame(NoData="Please choose products correctly or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE) 
       })
     }
     
@@ -7619,7 +7705,8 @@ server_design_agrofims <- function(input, output, session, values){
     #Id of Nutrient calculation variables
     vars <- unlist(strsplit(input$calculateProdAmountNutrientid, "_"))
     modalLevel <- vars[3] #Factor number
-    index <- modalLevel
+    index <- as.character(modalLevel)
+    
     #Get design and factor levels
     design <- tolower(input$designFieldbook_agrofims)
     IdDesignInputs <- getFactorIds(design)
@@ -7629,11 +7716,12 @@ server_design_agrofims <- function(input, output, session, values){
     flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
     
     #Get especial levels
-    indexEspLvl <- factorlevel$ids 
+    indexEspLvl <- factorlevel$ids
+    indexEspLvl <- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
     
     #Build fertilizer input table derived from user's inputs
     dfAll <- data.frame(level=NULL,type=NULL,levels=NULL,unit=NULL,stringsAsFactors = FALSE)
-    for (i in factorlevel$ids){
+    for (i in indexEspLvl){
       
       value <- c(input[[i]])
       vars <- unlist(strsplit(i, "_"))
@@ -7644,7 +7732,7 @@ server_design_agrofims <- function(input, output, session, values){
       levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
       unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
       split <- input[[paste0(design,"_lvl_espSplit_",level,"_",indexlevel)]]
-
+      
       df <- data.frame(   level = rep(level,length(levels)),
                           eleType = rep(value,length(levels)),
                           levels = levels,
@@ -7658,16 +7746,18 @@ server_design_agrofims <- function(input, output, session, values){
     }
     dfAll2 <- dfAll 
     
+    listdat <-list(index=index, allinputs= allinputs, indexEspLvl= indexEspLvl, dfAll= dfAll)
+    
     out <- try({product_calculation(allinputs, dfAll=dfAll, index=index, indexEspLvl= indexEspLvl , design=design) })
     
     if(class(out)!="try-error")  {   
-         output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
-         rhandsontable(out,rowHeaders = FALSE) 
-       })
-    
+      output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(out,rowHeaders = FALSE,readOnly = TRUE) 
+      })
+      
     } else {
       output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
-        rhandsontable(data.frame(NoData="Please choose products or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE) 
+        rhandsontable(data.frame(NoData="Please choose products correctly or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE,readOnly = TRUE) 
       })
     }
     
@@ -7875,7 +7965,7 @@ server_design_agrofims <- function(input, output, session, values){
               ),
               column(
                 12,
-                HTML("<div> Aca viene un rhandsometable. </div>")
+                #HTML("<div> Aca viene un rhandsometable. </div>")
                 #rhandsontable::rHandsontableOutput("output_nutDT")
               )
           )
@@ -8153,6 +8243,11 @@ server_design_agrofims <- function(input, output, session, values){
     
     timingValue = input[[input$mNutTimingid]]
     
+    # If none of the options are selected then return.
+    if(length(timingValue)<1){
+      return()
+    }
+    
     removeUI(
       selector = paste0("#",design, "_mNutTimingContainerValue_",level,"_",index,"_",i,"_",j),
       immediate = T
@@ -8210,27 +8305,62 @@ server_design_agrofims <- function(input, output, session, values){
     )
   })
   
-  # Product change nutrient modal
+  # Product change Nutrient modal
   observeEvent(input$mProductNutModal,{
+    
     vars = unlist(strsplit(input$mProductNutModalid, "_"))
     design = vars[1]
     level = vars[3]
     index = vars[4]
     i = vars[5]
-    j = vars[6]
     
     value <- input[[input$mProductNutModalid]]
     
-    output[[paste0(design,"_outputNutDT_",level,"_",index,"_",i,"_",j)]] <- rhandsontable::renderRHandsontable({
-      if (!is.null(value)){
-        ferdt <- ferdt()
-        ferdt <- ferdt %>% dplyr::filter(name==value)
-        names(ferdt)[1] <- c("%           ")
-        rhandsontable(ferdt,rowHeaders = FALSE) %>% hot_col(col = 1,readOnly = TRUE) %>% 
-          hot_cols(names(dt_fernut)[3:16], format = "0.0") %>% 
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
-      }
-    })
+    # If value is null break method
+    if(length(value)==0)
+    {
+      return()
+      
+    }else{
+      
+      removeUI(
+        selector = paste0("#",design,"_outputNutDTContainer_",level,"_",index,"_",i),
+        immediate = T
+      )
+      
+      
+      ferdt <- ferdt()
+      ferdt <- ferdt %>% dplyr::filter(name==value)
+      
+      insertUI(
+        selector = paste0("#aux_",design,"_outputNutDT_",level,"_",index,"_",i,"_1"),
+        immediate = T,
+        where = "beforeEnd",
+        ui = (
+          div(
+            id = paste0(design,"_outputNutDTContainer_",level,"_",index,"_",i),
+            style="display: flex;vertical-align:top;",
+            #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
+            textInput(inputId = paste0(design,"_outputNutDT1_",level,"_",index,"_",i),value = ferdt[[2]], label = "N" ),
+            textInput(inputId = paste0(design,"_outputNutDT2_",level,"_",index,"_",i),value = ferdt[[3]], label = "P" ),
+            textInput(inputId = paste0(design,"_outputNutDT3_",level,"_",index,"_",i),value = ferdt[[4]], label = "K" ),
+            textInput(inputId = paste0(design,"_outputNutDT4_",level,"_",index,"_",i),value = ferdt[[5]], label = "Ca" ),
+            textInput(inputId = paste0(design,"_outputNutDT5_",level,"_",index,"_",i),value = ferdt[[6]], label = "Mg" ),
+            textInput(inputId = paste0(design,"_outputNutDT6_",level,"_",index,"_",i),value = ferdt[[7]], label = "S" ),
+            textInput(inputId = paste0(design,"_outputNutDT7_",level,"_",index,"_",i),value = ferdt[[8]], label = "Mb" ),
+            textInput(inputId = paste0(design,"_outputNutDT8_",level,"_",index,"_",i),value = ferdt[[9]], label = "Zn" ),
+            textInput(inputId = paste0(design,"_outputNutDT9_",level,"_",index,"_",i),value = ferdt[[10]], label = "B" ),
+            textInput(inputId = paste0(design,"_outputNutDT10_",level,"_",index,"_",i),value = ferdt[[11]], label = "Cu" ),
+            textInput(inputId = paste0(design,"_outputNutDT11_",level,"_",index,"_",i),value = ferdt[[12]], label = "Fe" ),
+            textInput(inputId = paste0(design,"_outputNutDT12_",level,"_",index,"_",i),value = ferdt[[13]], label = "Mn" ),
+            textInput(inputId = paste0(design,"_outputNutDT13_",level,"_",index,"_",i),value = ferdt[[14]], label = "Ni" ),
+            textInput(inputId = paste0(design,"_outputNutDT14_",level,"_",index,"_",i),value = ferdt[[15]], label = "Cl" )
+          )
+        )
+      )
+      
+    }
+    
   })
   
   # Select for timing inside fertilizer modal
@@ -8244,6 +8374,11 @@ server_design_agrofims <- function(input, output, session, values){
     j      = vars[6]
     
     timingValue = input[[input$mFerTimingid]]
+    
+    # If none of the options are selected then return.
+    if(length(timingValue)<1){
+      return()
+    }
     
     removeUI(
       selector = paste0("#",design, "_mFerTimingContainerValue_",level,"_",index,"_",i,"_",j),
@@ -8309,9 +8444,14 @@ server_design_agrofims <- function(input, output, session, values){
       ferdt <- ferdt()
       ferdt <- ferdt %>% dplyr::filter(name==param)
       
-      rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
-        hot_cols(names(dt_fernut)[3:16], format = "0.0") %>% 
-        hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+      print(ferdt)
+      
+      return(ferdt)
+      
+      # rhandsontable(ferdt,rowHeaders = FALSE) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+      #   hot_cols(names(dt_fernut)[3:16], format = "0.0") %>% 
+      #   hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+      
     }
     
     
@@ -10132,21 +10272,20 @@ server_design_agrofims <- function(input, output, session, values){
     sfNutrientSplit$ids <- c(sfNutrientSplit$ids,paste0("mgp_nut_",sfNutrientSplit$num))
     
     
-    
-    DF = data.frame(
-      Nitrogen = 0,
-      Phosphorus = 0,
-      Potassium = 0,
-      Calcium = 0,
-      Magnesium = 0,
-      Sulfur = 0,
-      Copper = 0,
-      Iron = 0,
-      Manganese = 0,
-      Moldbenum = 0,
-      Boron = 0,
-      Zinc = 0,
-      stringsAsFactors = FALSE)
+    # DF = data.frame(
+    #   Nitrogen = 0,
+    #   Phosphorus = 0,
+    #   Potassium = 0,
+    #   Calcium = 0,
+    #   Magnesium = 0,
+    #   Sulfur = 0,
+    #   Copper = 0,
+    #   Iron = 0,
+    #   Manganese = 0,
+    #   Moldbenum = 0,
+    #   Boron = 0,
+    #   Zinc = 0,
+    #   stringsAsFactors = FALSE)
     
     
     # Remove Product Content
@@ -10208,12 +10347,32 @@ server_design_agrofims <- function(input, output, session, values){
                 style="margin-bottom:15px",
                 12,
                 column(
-                  3,
+                  2,
                   HTML(paste0("<label> Split application ",sfNutrientSplit$num,"</label>"))
                 ),
                 column(
-                  9,
-                  rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
+                  10,
+                  
+                  div(
+                    id = paste0("sfNutrientSplitContainer_",sfNutrientSplit$num),
+                    style="display: flex;vertical-align:top;",
+                    #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
+                    textInput(inputId = paste0("sfNutrientSplit1_",sfNutrientSplit$num),value = 0, label = "N" ),
+                    textInput(inputId = paste0("sfNutrientSplit2_",sfNutrientSplit$num),value = 0, label = "P" ),
+                    textInput(inputId = paste0("sfNutrientSplit3_",sfNutrientSplit$num),value = 0, label = "K" ),
+                    textInput(inputId = paste0("sfNutrientSplit4_",sfNutrientSplit$num),value = 0, label = "Ca" ),
+                    textInput(inputId = paste0("sfNutrientSplit5_",sfNutrientSplit$num),value = 0, label = "Mg" ),
+                    textInput(inputId = paste0("sfNutrientSplit6_",sfNutrientSplit$num),value = 0, label = "S" ),
+                    textInput(inputId = paste0("sfNutrientSplit7_",sfNutrientSplit$num),value = 0, label = "Mb" ),
+                    textInput(inputId = paste0("sfNutrientSplit8_",sfNutrientSplit$num),value = 0, label = "Zn" ),
+                    textInput(inputId = paste0("sfNutrientSplit9_",sfNutrientSplit$num),value = 0, label = "B" ),
+                    textInput(inputId = paste0("sfNutrientSplit10_",sfNutrientSplit$num),value = 0, label = "Cu" ),
+                    textInput(inputId = paste0("sfNutrientSplit11_",sfNutrientSplit$num),value = 0, label = "Fe" ),
+                    textInput(inputId = paste0("sfNutrientSplit12_",sfNutrientSplit$num),value = 0, label = "Mn" ),
+                    textInput(inputId = paste0("sfNutrientSplit13_",sfNutrientSplit$num),value = 0, label = "Ni" ),
+                    textInput(inputId = paste0("sfNutrientSplit14_",sfNutrientSplit$num),value = 0, label = "Cl" )
+                  )
+                  #rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
                 )
               )
             ),
@@ -10270,11 +10429,18 @@ server_design_agrofims <- function(input, output, session, values){
             ),
             column(
               12,
-              column(
-                12,
-                rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              # column(
+              #   12,
+              #   #rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              # )
+              div(
+                id = paste0("nutrientProductContainerAux_",sfNutrientSplit$num),
+                style="margin: 0px 0px; padding: 0px 0px;",
+                div(
+                  id = paste0("nutrientProductContainer_",sfNutrientSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;"
+                )  
               )
-              
             )
           )
           
@@ -10288,7 +10454,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     ## Adding buttons for calculate and add split application
     insertUI(
-      immediate = FALSE,
+      immediate = TRUE,
       selector = "#sfNutrientContainer",
       where = "beforeEnd",
       ui = fluidRow(
@@ -10308,25 +10474,22 @@ server_design_agrofims <- function(input, output, session, values){
               ),
               column(
                 12,
-                HTML("<div> Aca viene un rhandsometable. Soil Nutrient </div>")
-                #rhandsontable::rHandsontableOutput("output_nutDT")
+                #HTML("<div> Aca viene un rhandsometable. Soil Nutrient </div>")
+                rhandsontable::rHandsontableOutput("sfoutput_nutDT")
               )
           )
         )
       )
     )
     
-    output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
-      rhandsontable(DF)
-    })
+    # output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
+    #   rhandsontable(DF)
+    # })
     
   }
   
   # Draw Template for Product in Soil Fertility
   drawProductForSoilFertility <- function(){
-    
-    
-    
     
     #We reset the counter if the user is switching between product and nutrient
     sfProductSplit$num <- 1
@@ -10390,7 +10553,15 @@ server_design_agrofims <- function(input, output, session, values){
               ),
               column(
                 12,
-                rHandsontableOutput(paste0("outputDTsfProProduct_",sfProductSplit$num))
+                div(
+                  id = paste0("productProductContainerAux_",sfProductSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;",
+                  div(
+                    id = paste0("productProductContainer_",sfProductSplit$num),
+                    style="margin: 0px 0px; padding: 0px 0px;"
+                  )  
+                )
+                #rHandsontableOutput(paste0("outputDTsfProProduct_",sfProductSplit$num))
               )
             ),
             column(12,
@@ -10434,7 +10605,15 @@ server_design_agrofims <- function(input, output, session, values){
               12,
               column(
                 12,
-                rHandsontableOutput(paste0("sfProductDT_",sfProductSplit$num))
+                div(
+                  id = paste0("productProductContainerAux_",sfProductSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;",
+                  div(
+                    id = paste0("productProductContainer_",sfProductSplit$num),
+                    style="margin: 0px 0px; padding: 0px 0px;"
+                  )  
+                )
+                #rHandsontableOutput(paste0("sfProductDT_",sfProductSplit$num))
               )
             )
           )
@@ -10444,7 +10623,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     
     insertUI(
-      immediate = FALSE,
+      immediate = TRUE,
       selector = "#sfProductContainer",
       where = "beforeEnd",
       ui = fluidRow(
@@ -10465,8 +10644,8 @@ server_design_agrofims <- function(input, output, session, values){
               ),
               column(
                 12,
-                HTML("<div> Aca viene un rhandsometable. Soil Product </div>")
-                #rhandsontable::rHandsontableOutput("output_nutDT")
+                #HTML("<div> Aca viene un rhandsometable. Soil Product </div>")
+                rhandsontable::rHandsontableOutput("sfoutput_proDT")
               )
           )
         )
@@ -10482,20 +10661,114 @@ server_design_agrofims <- function(input, output, session, values){
     
     index <- vars[2]
     
-    value <- input[[paste0("sfNutrientProduct_",index)]]
+    values <- input[[paste0("sfNutrientProduct_",index)]]
     
-    output[[paste0("outputDTsfNutProduct_",index)]] <- rhandsontable::renderRHandsontable({
-      if (!is.null(value)){
-        ferdt <- ferdt()
-        ferdt <- ferdt %>% dplyr::filter(name==value)
-        rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+    if (!is.null(values)){
+      ferdt <- ferdt()
+      ferdt <- ferdt %>% dplyr::filter(name==values)
+    }
+    
+    nrow <- nrow(ferdt)
+    
+    
+    if(length(nrow)==0){
+      return()
+    }
+    
+    if(nrow == 0){
+      removeUI(
+        selector = paste0("#nutrientProductContainer_",index),
+        immediate = T
+      )
+      return()
+    }
+    
+    removeUI(
+      selector = paste0("#nutrientProductContainer_",index),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#nutrientProductContainerAux_",index),
+      where = "beforeBegin",
+      ui= (
+        div(
+          id = paste0("nutrientProductContainer_",index),
+          style="vertical-align:top;margin: 0px 0px; padding: 0px 0px;"
+        )
+      ),
+      immediate = T
+    )
+    
+    for (i in 1:nrow) {
+      if(i == 1){
+        insertUI(
+          selector = paste0("#nutrientProductContainer_",index),
+          where = "beforeEnd",
+          ui = (
+            div(
+              id = paste0("sfboxNutrientProduct_",index,"_",i),
+              style="display: flex;vertical-align:top; margin: 0px 0px; padding: 0px 0px;",
+              textInput(inputId = paste0("nutrientProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "Name" ),
+              textInput(inputId = paste0("nutrientProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "N" ),
+              textInput(inputId = paste0("nutrientProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = "P" ),
+              textInput(inputId = paste0("nutrientProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = "K" ),
+              textInput(inputId = paste0("nutrientProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = "Ca" ),
+              textInput(inputId = paste0("nutrientProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = "Mg" ),
+              textInput(inputId = paste0("nutrientProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = "S" ),
+              textInput(inputId = paste0("nutrientProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = "Mb" ),
+              textInput(inputId = paste0("nutrientProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = "Zn" ),
+              textInput(inputId = paste0("nutrientProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = "B" ),
+              textInput(inputId = paste0("nutrientProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = "Cu" ),
+              textInput(inputId = paste0("nutrientProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = "Fe" ),
+              textInput(inputId = paste0("nutrientProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = "Mn" ),
+              textInput(inputId = paste0("nutrientProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = "Ni" ),
+              textInput(inputId = paste0("nutrientProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = "Cl" )
+            )
+          )
+        )
       }
-    })
+      else{
+        insertUI(
+          selector = paste0("#nutrientProductContainer_",index),
+          where = "beforeEnd",
+          ui = (
+            div(
+              id = paste0("sfboxNutrientProduct_",index,"_",i),
+              style="display: flex;vertical-align:top;margin: 0px 0px; line-height:0;font-size:0",
+              textInput(inputId = paste0("nutrientProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = "" ),
+              textInput(inputId = paste0("nutrientProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = "" )
+            )
+          )
+        )
+      }
+    }
+    
+    # output[[paste0("outputDTsfNutProduct_",index)]] <- rhandsontable::renderRHandsontable({
+    #   if (!is.null(value)){
+    #     ferdt <- ferdt()
+    #     ferdt <- ferdt %>% dplyr::filter(name==value)
+    #     rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+    #       hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+    #   }
+    # })
     
   })
   
-  # Render TextInputs of Product for Soil Fertility Nutrient
+  # Render TextInputs of Product for Soil Fertility Product
   observeEvent(input$sfProductProductChange,{
     
     vars <- unlist(strsplit(input$sfProductProductChangeid,"_"))
@@ -10503,15 +10776,110 @@ server_design_agrofims <- function(input, output, session, values){
     
     values = input[[input$sfProductProductChangeid]]
     
-    output[[paste0("outputDTsfProProduct_",index)]] <- rhandsontable::renderRHandsontable({
-      if (!is.null(values)){
-        ferdt <- ferdt()
-        ferdt <- ferdt %>% dplyr::filter(name==values)
-        names(ferdt)[1] <- c("%           ")
-        rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+    
+    if (!is.null(values)){
+      ferdt <- ferdt()
+      ferdt <- ferdt %>% dplyr::filter(name==values)
+    }
+    
+    nrow <- nrow(ferdt)
+    
+    if(length(nrow)==0){
+      return()
+    }
+    
+    if(nrow == 0){
+      removeUI(
+        selector = paste0("#productProductContainer_",index),
+        immediate = T
+      )
+      return()
+    }
+    
+    removeUI(
+      selector = paste0("#productProductContainer_",index),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#productProductContainerAux_",index),
+      where = "beforeBegin",
+      ui= (
+        div(
+          id = paste0("productProductContainer_",index),
+          style="vertical-align:top;margin: 0px 0px; padding: 0px 0px;"
+        )
+      ),
+      immediate = T
+    )
+    
+    
+    for (i in 1:nrow) {
+      if(i == 1){
+        insertUI(
+          selector = paste0("#productProductContainer_",index),
+          where = "beforeEnd",
+          ui = (
+            div(
+              id = paste0("sfboxProductProduct_",index,"_",i),
+              style="display: flex;vertical-align:top; margin: 0px 0px; padding: 0px 0px;",
+              textInput(inputId = paste0("productProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "Name" ),
+              textInput(inputId = paste0("productProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "N" ),
+              textInput(inputId = paste0("productProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = "P" ),
+              textInput(inputId = paste0("productProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = "K" ),
+              textInput(inputId = paste0("productProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = "Ca" ),
+              textInput(inputId = paste0("productProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = "Mg" ),
+              textInput(inputId = paste0("productProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = "S" ),
+              textInput(inputId = paste0("productProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = "Mb" ),
+              textInput(inputId = paste0("productProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = "Zn" ),
+              textInput(inputId = paste0("productProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = "B" ),
+              textInput(inputId = paste0("productProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = "Cu" ),
+              textInput(inputId = paste0("productProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = "Fe" ),
+              textInput(inputId = paste0("productProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = "Mn" ),
+              textInput(inputId = paste0("productProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = "Ni" ),
+              textInput(inputId = paste0("productProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = "Cl" )
+            )
+          )
+        )
       }
-    })
+      else{
+        insertUI(
+          selector = paste0("#productProductContainer_",index),
+          where = "beforeEnd",
+          ui = (
+            div(
+              id = paste0("sfboxProductProduct_",index,"_",i),
+              style="display: flex;vertical-align:top; margin: 0px 0px; padding: 0px 0px;",
+              textInput(inputId = paste0("productProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = "" ),
+              textInput(inputId = paste0("productProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = "" )
+            )
+          )
+        )
+      }
+    }
+    
+    
+    # output[[paste0("outputDTsfProProduct_",index)]] <- rhandsontable::renderRHandsontable({
+    #   if (!is.null(values)){
+    #     ferdt <- ferdt()
+    #     ferdt <- ferdt %>% dplyr::filter(name==values)
+    #     rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+    #       hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+    #   }
+    # })
     
     removeUI(
       selector = paste0("#sfProductProContainer_",index),
@@ -10678,7 +11046,6 @@ server_design_agrofims <- function(input, output, session, values){
     )
     
   })
-  
   # Add Split for Nutrient in Soil Fertility
   observeEvent(input$btnsfNutSplit,{
     
@@ -10695,21 +11062,21 @@ server_design_agrofims <- function(input, output, session, values){
     sfNutrientSplit$num = sfNutrientSplit$num + 1
     sfNutrientSplit$ids <- c(sfNutrientSplit$ids,paste0("mgp_nut_",sfNutrientSplit$num))
     
-    
-    DF = data.frame(
-      Nitrogen = 0,
-      Phosphorus = 0,
-      Potassium = 0,
-      Calcium = 0,
-      Magnesium = 0,
-      Sulfur = 0,
-      Copper = 0,
-      Iron = 0,
-      Manganese = 0,
-      Moldbenum = 0,
-      Boron = 0,
-      Zinc = 0,
-      stringsAsFactors = FALSE)
+    # 
+    #     DF = data.frame(
+    #       Nitrogen = 0,
+    #       Phosphorus = 0,
+    #       Potassium = 0,
+    #       Calcium = 0,
+    #       Magnesium = 0,
+    #       Sulfur = 0,
+    #       Copper = 0,
+    #       Iron = 0,
+    #       Manganese = 0,
+    #       Moldbenum = 0,
+    #       Boron = 0,
+    #       Zinc = 0,
+    #       stringsAsFactors = FALSE)
     
     insertUI(
       selector =paste0("#sfNutSplitAux"),
@@ -10735,12 +11102,31 @@ server_design_agrofims <- function(input, output, session, values){
                 style="margin-bottom:15px",
                 12,
                 column(
-                  3,
+                  2,
                   HTML(paste0("<label> Split application ",sfNutrientSplit$num,"</label>"))
                 ),
                 column(
-                  9,
-                  rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
+                  10,
+                  div(
+                    id = paste0("sfNutrientSplitContainer_",sfNutrientSplit$num),
+                    style="display: flex;vertical-align:top;",
+                    #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
+                    textInput(inputId = paste0("sfNutrientSplit1_",sfNutrientSplit$num),value = 0, label = "N" ),
+                    textInput(inputId = paste0("sfNutrientSplit2_",sfNutrientSplit$num),value = 0, label = "P" ),
+                    textInput(inputId = paste0("sfNutrientSplit3_",sfNutrientSplit$num),value = 0, label = "K" ),
+                    textInput(inputId = paste0("sfNutrientSplit4_",sfNutrientSplit$num),value = 0, label = "Ca" ),
+                    textInput(inputId = paste0("sfNutrientSplit5_",sfNutrientSplit$num),value = 0, label = "Mg" ),
+                    textInput(inputId = paste0("sfNutrientSplit6_",sfNutrientSplit$num),value = 0, label = "S" ),
+                    textInput(inputId = paste0("sfNutrientSplit7_",sfNutrientSplit$num),value = 0, label = "Mb" ),
+                    textInput(inputId = paste0("sfNutrientSplit8_",sfNutrientSplit$num),value = 0, label = "Zn" ),
+                    textInput(inputId = paste0("sfNutrientSplit9_",sfNutrientSplit$num),value = 0, label = "B" ),
+                    textInput(inputId = paste0("sfNutrientSplit10_",sfNutrientSplit$num),value = 0, label = "Cu" ),
+                    textInput(inputId = paste0("sfNutrientSplit11_",sfNutrientSplit$num),value = 0, label = "Fe" ),
+                    textInput(inputId = paste0("sfNutrientSplit12_",sfNutrientSplit$num),value = 0, label = "Mn" ),
+                    textInput(inputId = paste0("sfNutrientSplit13_",sfNutrientSplit$num),value = 0, label = "Ni" ),
+                    textInput(inputId = paste0("sfNutrientSplit14_",sfNutrientSplit$num),value = 0, label = "Cl" )
+                  )
+                  #rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
                 )
               )
             ),
@@ -10797,11 +11183,18 @@ server_design_agrofims <- function(input, output, session, values){
             ),
             column(
               12,
-              column(
-                12,
-                rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              # column(
+              #   12,
+              #   rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              # )
+              div(
+                id = paste0("nutrientProductContainerAux_",sfNutrientSplit$num),
+                style="margin: 0px 0px; padding: 0px 0px;",
+                div(
+                  id = paste0("nutrientProductContainer_",sfNutrientSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;"
+                )  
               )
-              
             )
           )
           
@@ -10809,10 +11202,10 @@ server_design_agrofims <- function(input, output, session, values){
         )
     )
     
-    output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
-      rhandsontable(DF)
-    })
-    
+    # output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
+    #   rhandsontable(DF)
+    # })
+    # 
   })
   
   # Add Split for Product in Soil Fertility
@@ -10858,7 +11251,15 @@ server_design_agrofims <- function(input, output, session, values){
             ),
             column(
               12,
-              rHandsontableOutput(paste0("outputDTsfProProduct_",sfProductSplit$num))
+              div(
+                id = paste0("productProductContainerAux_",sfProductSplit$num),
+                style="margin: 0px 0px; padding: 0px 0px;",
+                div(
+                  id = paste0("productProductContainer_",sfProductSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;"
+                )  
+              )
+              #rHandsontableOutput(paste0("outputDTsfProProduct_",sfProductSplit$num))
             )
           ),
           column(12,
@@ -10950,16 +11351,147 @@ server_design_agrofims <- function(input, output, session, values){
   # Calculate Nutrient
   observeEvent(input$btnsfNut,{
     
-    #Calculate Nutrient 
+    #print(sfNutrientSplit$ids) #variable that store ids
+    allinputs <- AllInputs()
+    indexSoilMagp<- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
+    #out<<-get_nutrient_details_magm(allinputs, indexSoilMagp= nutIndexSoilMagp)
     
+    
+    
+    dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
+      dplyr::filter(!str_detect(id, "button")) %>%
+      dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+      dplyr::filter(!str_detect(id, "-selectized"))  
+    
+    
+    #NUTRIENT SPLIT ##########################################################################
+    out_nut_mgmt <- list()
+    for(i in seq.int(indexSoilMagp) ){
+      
+      out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit1_",indexSoilMagp[i])))  %>% nth(2)%>% as.numeric()
+      out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit2_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+      out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit3_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+      out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit4_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+      out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit5_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+      out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit6_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+      out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit7_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+      out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit8_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+      out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit9_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+      out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit10_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+      out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit11_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+      out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit12_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+      out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit13_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+      out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit14_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+      
+      out_nut_mgmt[[i]] <-data.frame(out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
+      names(out_nut_mgmt[[i]]) <-  c("N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
+    }  
+    nut_mgmt<-data.table::rbindlist(out_nut_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
+    #nut_mgmt$N <- c(25,36)
+    treatments<-nut_mgmt
+    ##########################################################################################
+    
+    #NUTRIENT CHOSE PRODUCT #################################################################
+    out_prod_mgmt <- list()
+    for(i in seq.int(indexSoilMagp) ){
+      
+      prodname <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit0_",indexSoilMagp[i],"_1" )))  %>% nth(2)
+      out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit1_",indexSoilMagp[i],"_1")))  %>% nth(2) %>% as.numeric()
+      out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit2_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit3_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit4_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit5_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit6_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit7_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit8_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit9_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit10_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit11_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit12_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit13_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit14_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+      
+      out_prod_mgmt[[i]] <-data.frame(prodname, out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
+      names(out_prod_mgmt[[i]]) <-  c("name", "N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
+      
+    }  
+    prod_mgmt <- data.table::rbindlist(out_prod_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
+    #prod_mgmt$N <- c(90,89)
+    fertilizers <- prod_mgmt
+    ##########################################################################################
+    
+    # Nutrient Rates (output)
+    # outrate <- list()
+    
+    outrate<- try({fertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
+    #}
+    
+    if(class(outrate)!="try-error")  {   
+      
+      outrate$name <- fertilizers$name
+      DF<- outrate[, c(15,1:14)]
+      #Calculate Nutrient 
+      output[["sfoutput_nutDT"]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(DF)
+      })
+    } else {
+      DF<- data.frame(NoData="Please choose products correctly or fill other missing information")
+      output[["sfoutput_nutDT"]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(DF)
+      })
+    }
   })
+  
+  # Function tht get ids's for Split Product
+  getSFProductIds <- function(){
+    
+    productIds = sfProductSplit$ids #reactive value that have id's of splits for product
+    
+    idsIndex = c()
+    indexesProductValue = c()
+    
+    for (id in productIds){
+      vars = unlist(strsplit(id, "_"))
+      index = vars[3]
+      
+      lengthProductValues = length(input[[paste0("sfProductProduct_",index)]])
+      
+      if(lengthProductValues > 0){
+        for(i in 1:lengthProductValues){
+          indexesProductValue = c(indexesProductValue,paste0("mgp_proidx_",index,"_",i))
+        }
+      }
+      
+    }
+    
+    return(indexesProductValue)
+  }
   
   # Calculate Product
   observeEvent(input$btnsfPro,{
     
+    #Get product input 
+    print(sfProductSplit$ids)
+    
+    # Get Product indexes by split
+    print(getSFProductIds())
+    allinputs <- AllInputs()
+    prodIndexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
+    
+    out33 <<- get_fertilizer_details_magm(allinputs, indexSoilMagp=prodIndexSoilMagp, indexProdSplit= getSFProductIds())
+    # sfProductSplit <- reactiveValues()
+    # sfProductSplit$num <- 1
+    # sfProductSplit$ids <- c() 
+    # sfProductSplit$splitids <- c()
+    
+    DF <- data.frame()
+    output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
+      rhandsontable(DF)
+    })
     #Calculate Product 
     
   })
+  
   
   ###################### END: SOIL FERTILITY ######################
   
@@ -17435,19 +17967,12 @@ server_design_agrofims <- function(input, output, session, values){
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
-        #  ai <- AllInputs()
-        # # #fesplvl <<- factorlevel$ids
-        #  saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-        #  x <- reactiveValuesToList(input)
-        #  saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+         # ai <- AllInputs()
+         # fesplvl <<- factorlevel$ids
+         # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+         # x <- reactiveValuesToList(input)
+         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
 
-         #  crop <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector",label = "Crop")
-         #  addId <- getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
-         #  dt_measurements <<- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 
-         #                                          addId=addId, crop=crop, cropId= "1")
-         #  
-         #  trait2 <<- trait_dt()
-         # # 
          ##### Eliminar Start: Testing by Jose ######
          print("Entro al método.")
          #savefb()

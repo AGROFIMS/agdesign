@@ -38,6 +38,8 @@ server_sites_agrofims <- function(input, output, session, values){
   })
   
   uiTrialSiteNew <- function(pData = NULL){
+    
+    
     strCreate = "Create"
     strCreateId = "btCreateSite"
     boxTitle <- "Create Site information"
@@ -54,7 +56,6 @@ server_sites_agrofims <- function(input, output, session, values){
       boxIcon  <- "edit"
       # veg <-  strsplit(vData[[13]], ',')[[1]]
     }
-    
     
     mchoices = c("Farmer field", "Experiment station field", "Greenhouse/screenhouse", "Government forest", "Private forest", "Pasture", "Water body")
     fluidRow(
@@ -97,8 +98,9 @@ server_sites_agrofims <- function(input, output, session, values){
                   HTML("<center>"),
                   radioButtons("mymap_radiobutton_type", "Map view type", c("Default", "Street map", "Geo map"), selected="Default",inline = T),
                   HTML("</center>"),
-                  
+                  ### Start: LEAFTLET MAP ###
                   leafletOutput("mymap"), 
+                  ### End: LEAFTLET MAP ###
                   fluidRow(
                     column(width = 6, 
                            shiny::numericInput(inputId = "inSiteLatitude" , label = "Site latitude (in decimal degrees)", value = vData[[13]] )
