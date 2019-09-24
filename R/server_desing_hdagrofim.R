@@ -7652,8 +7652,9 @@ server_design_agrofims <- function(input, output, session, values){
     
     allinputs <- AllInputs()
     flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
-    #Get especial levels
+    #Get especial levels and filter the actives ones
     indexEspLvl <- factorlevel$ids 
+    indexEspLvl <- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
     
     #Build fertilizer input table derived from user's inputs
     dfAll <- data.frame(level=NULL,type=NULL,levels=NULL,unit=NULL,stringsAsFactors = FALSE)

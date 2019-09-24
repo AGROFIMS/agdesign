@@ -267,61 +267,6 @@ product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEs
   
 }
 
-# product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEspLvl , design="frcbd"){
-#   
-#   #Get labels
-#   indexEspLvl<- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
-#   
-#   #Get especial levels
-#   indexEspLvl_subfix <- get_index_espLvl_design(indexEspLvl, paste0(design,"_lvl_espType_"))
-#   lookup <- paste0(design,"_")
-# 
-#   #Table of nutrient details (eletype, mNumTiming)-----------------------------------------------------------------------------------------
-#   nutrients_details <- get_nutrient_details_design(allinputs=allinputs, design=design, index =index, indexEspLvl = indexEspLvl)
-#   
-#   ## Split nutrient name and split number per each nutrient-------------------------------------------------------------------------------
-#   split_nutrient_name <- lapply(X = seq.int(dfAll$splits), function(x) rep(dfAll$eleType[x], each =as.numeric(dfAll$splits[x]))) %>% unlist() 
-#   split_nutrient_number <- lapply(as.integer(dfAll$splits), function(x) seq.int(x)) %>% unlist() 
-#   nutrients_details <- nutrients_details %>% 
-#                                  mutate(SplitNutName = split_nutrient_name ) %>% 
-#                                  mutate(splitNutNum = split_nutrient_number)
-#   ## 
-#   print("5")
-#   class(nutrients_details)<-"data.frame"
-#   nutrient_elements <- nutrients_details[,c("SplitNutName", "nutAmount")]
-#   nutrient_elements[,2] <- as.numeric(nutrient_elements[,2] ) 
-#   
-#   treatments <-  nutrient_reshape(nutrient_elements, "SplitNutName", "nutAmount")
-#   #ASIGNAR 0 A LOS NA
-#   #Ref: https://stackoverflow.com/questions/20535505/replacing-all-missing-values-in-r-data-table-with-a-value
-#   treatments[is.na(treatments)] = 0
-# 
-# 
-#   print("7")
-#   FertProDt<- lapply(seq.int(nutrients_details$mNutProduct), function(x) dt_fernut %>% dplyr::filter(name %in% nutrients_details$mNutProduct[x]) )
-#   FertProDt <- data.table::rbindlist(FertProDt,fill = TRUE,use.names = TRUE)
-#   names(FertProDt) <- c("group", "name", "Nitrogen","Phosphorus","Potassium","Calcium","Magnesium",  
-#                         "Sulfur", "Moldbenum", "Zinc", "Boron", "Copper","Iron", "Manganese", "Nickel", "Chlorine")
-#   FertProDt<- tibble::as_tibble(FertProDt) 
-#   FertProDt <- FertProDt[,c("name",unique(nutrient_elements$SplitNutName))]
-#   FertProDt[is.na(FertProDt)] = 0
-#   FertProDt <- purrr::map_at(.x = FertProDt,.at = unique(nutrient_elements$SplitNutName), .f = as.numeric) %>% as.data.frame(stringsAsFactors=FALSE)
-#   
-#   
-#   ##TODO:: TRANSFORMAR A NUMERICO ambas matrices
-#   price <- rep(1, nrow(FertProDt) )
-# 
-#   #New function based on Robert's script
-#   fertilizer_table <- dt_fernut
-#   names(fertilizer_table) <- c("group", "name", "Nitrogen","Phosphorus","Potassium","Calcium","Magnesium",  
-#                         "Sulfur", "Moldbenum", "Zinc", "Boron", "Copper","Iron", "Manganese", "Nickel", "Chlorine")
-#   
-#   r <- getFert(treats = treatments, fertilizers = fertilizer_table, selected =  unique(FertProDt$name))
-#   r
-# 
-# }
-
-
 #Reshape fertilizer data
 fertilizer_reshape<- function(df){
   
