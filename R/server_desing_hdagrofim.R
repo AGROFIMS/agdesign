@@ -11,7 +11,6 @@
 
 #' 
 server_design_agrofims <- function(input, output, session, values){
-  
   ########################################################################################################################################
   ########################################################### NEW CODIGO: IVAN ###########################################################
   ########################################################################################################################################
@@ -1943,7 +1942,7 @@ server_design_agrofims <- function(input, output, session, values){
   # Funcion que guarda la session del usuario
   savesession <- function() {
     if(session$userData$logged){
-      expid <- input$uniqueId
+      expid <- paste0(input$uniqueId,"-", input$fieldbookId)
 
       if (file.exists(isolate(paste0(sessionpath, expid, ".csv")))) {
         x <- read.csv(paste0(sessionpath, expid, ".csv"))
@@ -1992,17 +1991,17 @@ server_design_agrofims <- function(input, output, session, values){
       # case3_type <- case3p[[3]]
       # case3_create <- case3p[[4]]
       
-      
-      
       for (i in 1:length(case1)) {
-        
         type <- case1_type[i]
         
         if(type == "textInput" | type == "numericInput" | type == "textAreaInput" | type == "checkboxInput" | type == "dateInput"){
           
           if (is.null(input[[paste0(case1InputAux[i])]]) || is.na(input[[paste0(case1InputAux[i])]])) {
             inputs1[i] <- ""
-          } else {
+          }else if (case1InputAux[i] == "uniqueId" ) {
+            inputs1[i] <- as.character(paste0(input$uniqueId,"-", input$fieldbookId))
+          } 
+          else {
             inputs1[i] <- as.character(input[[paste0(case1InputAux[i])]])
           }
           
@@ -2065,8 +2064,8 @@ server_design_agrofims <- function(input, output, session, values){
                               soilRow, weatherRow)
       
       #Almacena archivos en 2 csv's
-      write.csv(final_inputs_df, paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
-      write.csv(final_inputs_df, paste0(sessionpathbk, input$uniqueId, ".csv"), row.names = FALSE)
+      write.csv(final_inputs_df, paste0(sessionpath, paste0(input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
+      write.csv(final_inputs_df, paste0(sessionpathbk, paste0(input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
       
       updateTextInput(session,
                       inputId = "uniqueId",
@@ -2226,7 +2225,6 @@ server_design_agrofims <- function(input, output, session, values){
   
   loadInputsFundingAgency <- function(uploaded_inputs){
     
-    View(as.data.frame(uploaded_inputs))
     #Funding Agency
     nrowFundingAgency <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowFundingAgency") %>% select_("value")
     nrowFundingAgency <- as.numeric(as.character(nrowFundingAgency[[1]]))
@@ -2670,6 +2668,7 @@ server_design_agrofims <- function(input, output, session, values){
         # Unique ID
         mf <- my_files()[i]
         mf <- unlist(strsplit(mf, "[.]"))
+        
         a[i] <- mf[1]
         
         # Experiment ID
@@ -2679,7 +2678,7 @@ server_design_agrofims <- function(input, output, session, values){
         # Experiment name
         fl <- read.csv(paste0(sessionpath, my_files()[i]))
         c[i] <- as.character(fl[6, 4])
-        
+       
         # Experiment project name
         d[i] <- as.character(fl[7, 4])
         
@@ -2696,14 +2695,15 @@ server_design_agrofims <- function(input, output, session, values){
       userM <- session$userData$userMail
       
       df <- data.frame(a, b, c, d, e, f, g, stringsAsFactors = F)
-      
-      
-      
       df <- dplyr::filter(as.data.frame(df), g == userM)
+      df <- df[,-which(names(df) == "g")]
+      
       df <- df %>% dplyr::arrange(desc(f))
-
+      
       sessionVals$aux <- data.frame(df)
-      colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
+      
+      # colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
+      colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified")
 
     } else {
       
@@ -7200,6 +7200,7 @@ server_design_agrofims <- function(input, output, session, values){
                            9,
                            div(
                              style="display: flex;vertical-align:top;",
+                             class = "designProductRow",
                              #textInput(inputId = paste0(design,"_factorType1_",level,"_",index,"_",i),value = type, label = "Name Product" ),
                              textInput(inputId = paste0(design,"_outputFerDT1_",level,"_",index,"_",i),value = ferdt[[2]], label = "N" ),
                              textInput(inputId = paste0(design,"_outputFerDT2_",level,"_",index,"_",i),value = ferdt[[3]], label = "P" ),
@@ -7611,6 +7612,7 @@ server_design_agrofims <- function(input, output, session, values){
         ui = (
           div(
             id = paste0(design,"_outputNutDTContainer_",level,"_",index,"_",i),
+            class = "designProductRow",
             style="display: flex;vertical-align:top;",
             #textInput(inputId = paste0(design,"_outputNutDT_",level,"_",index,"_",i),value = type, label = "Name Product" ),
             textInput(inputId = paste0(design,"_outputNutDT1_",level,"_",index,"_",i),value = ferdt[[2]], label = "N" ),
@@ -8340,6 +8342,7 @@ server_design_agrofims <- function(input, output, session, values){
         ui = (
           div(
             id = paste0(design,"_outputNutDTContainer_",level,"_",index,"_",i),
+            class = "designProductRow",
             style="display: flex;vertical-align:top;",
             #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
             textInput(inputId = paste0(design,"_outputNutDT1_",level,"_",index,"_",i),value = ferdt[[2]], label = "N" ),
@@ -10211,6 +10214,16 @@ server_design_agrofims <- function(input, output, session, values){
     # msm <- get_dcm_values(cmdt, "Measurement",cropValue)
     fluidRow(
       fluidRow(
+        column(
+          12,
+          selectizeInput(
+            paste0("soilfertility_to_collect_field"), label = "To be collected in the field", multiple = TRUE, 
+            options = list(maxItems = 20, placeholder = "Select one..."), 
+            choices = magm_label$get("soilf")
+          )
+        )
+      ),
+      fluidRow(
         column(style="text-align:center; margin-bottom:15px",
                12,
                radioButtons(inputId = "rbtSoilOption", 
@@ -10339,7 +10352,8 @@ server_design_agrofims <- function(input, output, session, values){
             column(
               style = "text-align:right",
               12,
-              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close"))
+              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close")),
+              br(),br()
             ),
             column(
               style="margin-bottom:15px",
@@ -10353,9 +10367,9 @@ server_design_agrofims <- function(input, output, session, values){
                 ),
                 column(
                   10,
-                  
                   div(
                     id = paste0("sfNutrientSplitContainer_",sfNutrientSplit$num),
+                    class = "sfProductRow",
                     style="display: flex;vertical-align:top;",
                     #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
                     textInput(inputId = paste0("sfNutrientSplit1_",sfNutrientSplit$num),value = 0, label = "N" ),
@@ -10663,10 +10677,13 @@ server_design_agrofims <- function(input, output, session, values){
     index <- vars[2]
     
     values <- input[[paste0("sfNutrientProduct_",index)]]
+    print("nutrient values magmetn")
+    print(values)
+    
     
     if (!is.null(values)){
       ferdt <- ferdt()
-      ferdt <- ferdt %>% dplyr::filter(name==values)
+      ferdt <- ferdt %>% dplyr::filter(name %in% values)
     }
     
     nrow <- nrow(ferdt)
@@ -10709,6 +10726,7 @@ server_design_agrofims <- function(input, output, session, values){
           ui = (
             div(
               id = paste0("sfboxNutrientProduct_",index,"_",i),
+              class = "sfProductRow sfProductRowName",
               style="display: flex;vertical-align:top; margin: 0px 0px; padding: 0px 0px;",
               textInput(inputId = paste0("nutrientProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "Name" ),
               textInput(inputId = paste0("nutrientProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "N" ),
@@ -10736,22 +10754,23 @@ server_design_agrofims <- function(input, output, session, values){
           ui = (
             div(
               id = paste0("sfboxNutrientProduct_",index,"_",i),
+              class = "sfProductRow sfProductRowName",
               style="display: flex;vertical-align:top;margin: 0px 0px; line-height:0;font-size:0",
-              textInput(inputId = paste0("nutrientProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = "" ),
-              textInput(inputId = paste0("nutrientProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = "" )
+              textInput(inputId = paste0("nutrientProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = NULL ),
+              textInput(inputId = paste0("nutrientProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = NULL )
             )
           )
         )
@@ -10780,7 +10799,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     if (!is.null(values)){
       ferdt <- ferdt()
-      ferdt <- ferdt %>% dplyr::filter(name==values)
+      ferdt <- ferdt %>% dplyr::filter(name %in% values)
     }
     
     nrow <- nrow(ferdt)
@@ -10823,6 +10842,7 @@ server_design_agrofims <- function(input, output, session, values){
           ui = (
             div(
               id = paste0("sfboxProductProduct_",index,"_",i),
+              class = "sfProductRow sfProductRowName",
               style="display: flex;vertical-align:top; margin: 0px 0px; padding: 0px 0px;",
               textInput(inputId = paste0("productProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "Name" ),
               textInput(inputId = paste0("productProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "N" ),
@@ -10850,22 +10870,23 @@ server_design_agrofims <- function(input, output, session, values){
           ui = (
             div(
               id = paste0("sfboxProductProduct_",index,"_",i),
+              class = "sfProductRow sfProductRowName",
               style="display: flex;vertical-align:top; margin: 0px 0px; padding: 0px 0px;",
-              textInput(inputId = paste0("productProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = "" ),
-              textInput(inputId = paste0("productProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = "" )
+              textInput(inputId = paste0("productProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = NULL ),
+              textInput(inputId = paste0("productProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = NULL )
             )
           )
         )
@@ -11047,6 +11068,7 @@ server_design_agrofims <- function(input, output, session, values){
     )
     
   })
+  
   # Add Split for Nutrient in Soil Fertility
   observeEvent(input$btnsfNutSplit,{
     
@@ -11110,6 +11132,7 @@ server_design_agrofims <- function(input, output, session, values){
                   10,
                   div(
                     id = paste0("sfNutrientSplitContainer_",sfNutrientSplit$num),
+                    class = "sfProductRow sfProductRowName",
                     style="display: flex;vertical-align:top;",
                     #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
                     textInput(inputId = paste0("sfNutrientSplit1_",sfNutrientSplit$num),value = 0, label = "N" ),
@@ -11352,79 +11375,84 @@ server_design_agrofims <- function(input, output, session, values){
   # Calculate Nutrient
   observeEvent(input$btnsfNut,{
     
-    #print(sfNutrientSplit$ids) #variable that store ids
-    allinputs <- AllInputs()
-    indexSoilMagp<- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
-    #out<<-get_nutrient_details_magm(allinputs, indexSoilMagp= nutIndexSoilMagp)
     
+    out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
+    outrate <- out$outrate
+    fertilizers <- out$fertilizers
     
-    
-    dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
-      dplyr::filter(!str_detect(id, "button")) %>%
-      dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
-      dplyr::filter(!str_detect(id, "-selectized"))  
-    
-    
-    #NUTRIENT SPLIT ##########################################################################
-    out_nut_mgmt <- list()
-    for(i in seq.int(indexSoilMagp) ){
-      
-      out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit1_",indexSoilMagp[i])))  %>% nth(2)%>% as.numeric()
-      out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit2_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-      out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit3_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-      out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit4_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-      out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit5_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-      out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit6_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-      out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit7_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-      out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit8_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-      out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit9_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-      out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit10_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-      out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit11_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-      out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit12_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-      out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit13_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-      out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit14_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-      
-      out_nut_mgmt[[i]] <-data.frame(out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
-      names(out_nut_mgmt[[i]]) <-  c("N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
-    }  
-    nut_mgmt<-data.table::rbindlist(out_nut_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
-    #nut_mgmt$N <- c(25,36)
-    treatments<-nut_mgmt
-    ##########################################################################################
-    
-    #NUTRIENT CHOSE PRODUCT #################################################################
-    out_prod_mgmt <- list()
-    for(i in seq.int(indexSoilMagp) ){
-      
-      prodname <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit0_",indexSoilMagp[i],"_1" )))  %>% nth(2)
-      out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit1_",indexSoilMagp[i],"_1")))  %>% nth(2) %>% as.numeric()
-      out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit2_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit3_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit4_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit5_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit6_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit7_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit8_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit9_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit10_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit11_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit12_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit13_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit14_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-      
-      out_prod_mgmt[[i]] <-data.frame(prodname, out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
-      names(out_prod_mgmt[[i]]) <-  c("name", "N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
-      
-    }  
-    prod_mgmt <- data.table::rbindlist(out_prod_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
-    #prod_mgmt$N <- c(90,89)
-    fertilizers <- prod_mgmt
-    ##########################################################################################
-    
+    # #print(sfNutrientSplit$ids) #variable that store ids
+    # allinputs <- AllInputs()
+    # indexSoilMagp<- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
+    # #out<<-get_nutrient_details_magm(allinputs, indexSoilMagp= nutIndexSoilMagp)
+    # 
+    # 
+    # 
+    # dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
+    #                     dplyr::filter(!str_detect(id, "button")) %>%
+    #                     dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+    #                     dplyr::filter(!str_detect(id, "-selectized"))  
+    # 
+    # 
+    # #NUTRIENT SPLIT ##########################################################################
+    # out_nut_mgmt <- list()
+    # for(i in seq.int(indexSoilMagp) ){
+    #   
+    #   out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit1_",indexSoilMagp[i])))  %>% nth(2)%>% as.numeric()
+    #   out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit2_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    #   out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit3_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    #   out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit4_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    #   out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit5_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    #   out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit6_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    #   out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit7_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    #   out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit8_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    #   out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit9_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    #   out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit10_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    #   out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit11_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    #   out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit12_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    #   out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit13_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    #   out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit14_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    #   
+    #   out_nut_mgmt[[i]] <-data.frame(out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
+    #   names(out_nut_mgmt[[i]]) <-  c("N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
+    # }  
+    # nut_mgmt<-data.table::rbindlist(out_nut_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
+    # #nut_mgmt$N <- c(25,36)
+    # treatments<-nut_mgmt
+    # ##########################################################################################
+    # 
+    # #NUTRIENT CHOSE PRODUCT #################################################################
+    # out_prod_mgmt <- list()
+    # for(i in seq.int(indexSoilMagp) ){
+    #   
+    #   prodname <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit0_",indexSoilMagp[i],"_1" )))  %>% nth(2)
+    #   out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit1_",indexSoilMagp[i],"_1")))  %>% nth(2) %>% as.numeric()
+    #   out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit2_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit3_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit4_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit5_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit6_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit7_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit8_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit9_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit10_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit11_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit12_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit13_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit14_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    #   
+    #   out_prod_mgmt[[i]] <-data.frame(prodname, out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
+    #   names(out_prod_mgmt[[i]]) <-  c("name", "N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
+    #   
+    # }  
+    # prod_mgmt <- data.table::rbindlist(out_prod_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
+    # #prod_mgmt$N <- c(90,89)
+    # fertilizers <- prod_mgmt
+    # ##########################################################################################
+    # 
     # Nutrient Rates (output)
     # outrate <- list()
     
-    outrate<- try({fertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
+    #out<- try({fertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
     #}
     
     if(class(outrate)!="try-error")  {   
@@ -11472,23 +11500,41 @@ server_design_agrofims <- function(input, output, session, values){
   observeEvent(input$btnsfPro,{
     
     #Get product input 
+    print("---1")
     print(sfProductSplit$ids)
-    
+    addId <-  sfProductSplit$ids
     # Get Product indexes by split
+    print("---2")
+    splitId<- getSFProductIds()
     print(getSFProductIds())
-    allinputs <- AllInputs()
-    prodIndexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
     
-    out33 <<- get_fertilizer_details_magm(allinputs, indexSoilMagp=prodIndexSoilMagp, indexProdSplit= getSFProductIds())
+    allinputs <- AllInputs()
+    #sprodIndexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
+    
+    
+    out <- try({  get_prodfert_mgmt(allinputs, addId = sfProductSplit$ids, splitId= getSFProductIds()) })
+    nutrate <- try({ NutrientRates_mgmt(out$prodfert_mgmt ,out$treatment_mgmt) })
+    #treatment_mgmt= treatment_mgmt, prodfert_mgmt
+    #out33 <<- get_fertilizer_details_magm(allinputs, indexSoilMagp=prodIndexSoilMagp, indexProdSplit= getSFProductIds())
     # sfProductSplit <- reactiveValues()
     # sfProductSplit$num <- 1
     # sfProductSplit$ids <- c() 
     # sfProductSplit$splitids <- c()
     
-    DF <- data.frame()
-    output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
-      rhandsontable(DF)
-    })
+    if(class(nutrate)!="try-error")  {   
+    
+    #DF <- data.frame()
+      output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(nutrate)
+      })
+    } else {
+      DF <- data.frame()
+      output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(nutrate)
+      })
+      
+    }
+    
     #Calculate Product 
     
   })
@@ -17190,9 +17236,9 @@ server_design_agrofims <- function(input, output, session, values){
       wif_main <- paste(wi_main, wunit_main)
       lenf_main <-  paste(len_main, lunit_main)
       
-      iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
-      ow_main<- data.frame(Factor = "Experimental plot width", Value = wif_main )
-      ol_main<- data.frame(Factor = "Experimental plot length",Value = lenf_main )
+      #iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
+      ow_main<- data.frame(Factor = "Main plot width", Value = wif_main )
+      ol_main<- data.frame(Factor = "Main plot length",Value = lenf_main )
       
       ## Sub plot ##
       
@@ -17203,16 +17249,18 @@ server_design_agrofims <- function(input, output, session, values){
       wif_sub <- paste(wi_sub, wunit_sub)
       lenf_sub <-  paste(len_sub, lunit_sub)
       
-      iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
-      ow_sub<- data.frame(Factor = "Experimental plot width", Value = wif_sub )
-      ol_sub<- data.frame(Factor = "Experimental plot length",Value = lenf_sub )
+      #iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
+      ow_sub<- data.frame(Factor = "Sub plot width", Value = wif_sub )
+      ol_sub<- data.frame(Factor = "Sub plot length",Value = lenf_sub )
       
       ## Consolidation of all main, sub plot
-      out_main <- rbind(iou_main, ow_main, ol_main)
-      out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      #out_main <- rbind(iou_main, ow_main, ol_main) 
+      out_main <- rbind(ow_main, ol_main)
+      #out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      out_sub<- rbind(ow_sub, ol_sub)
       out<- rbind(out_main, out_sub)
       
-      
+
     } 
     else if(input$designFieldbook_agrofims=="SPSP"){
       
@@ -17223,9 +17271,9 @@ server_design_agrofims <- function(input, output, session, values){
       wif_main <- paste(wi_main, wunit_main)
       lenf_main <-  paste(len_main, lunit_main)
       
-      iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
-      ow_main<- data.frame(Factor = "Experimental plot width", Value = wif_main )
-      ol_main<- data.frame(Factor = "Experimental plot length",Value = lenf_main )
+      #iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
+      ow_main<- data.frame(Factor = "Main plot width", Value = wif_main )
+      ol_main<- data.frame(Factor = "Main plot length",Value = lenf_main )
       
       ## Sub plot ##
       
@@ -17236,9 +17284,9 @@ server_design_agrofims <- function(input, output, session, values){
       wif_sub <- paste(wi_sub, wunit_sub)
       lenf_sub <-  paste(len_sub, lunit_sub)
       
-      iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
-      ow_sub<- data.frame(Factor = "Experimental sub plot width", Value = wif_sub )
-      ol_sub<- data.frame(Factor = "Experimental sub plot length",Value = lenf_sub )
+      #iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
+      ow_sub<- data.frame(Factor = "Sub sub plot width", Value = wif_sub )
+      ol_sub<- data.frame(Factor = "Sub plot length",Value = lenf_sub )
       
       ## Sub-Sub Plot ##
       
@@ -17249,14 +17297,18 @@ server_design_agrofims <- function(input, output, session, values){
       wif_subsub <- paste(wi_subsub, wunit_subsub)
       lenf_subsub <-  paste(len_subsub, lunit_subsub)
       
-      iou_subsub<- data.frame(Factor = "Information on experimental unit", Value = "Sub-sub plot" )
-      ow_subsub<- data.frame(Factor = "Experimental sub-sub plot width", Value = wif_subsub )
-      ol_subsub<- data.frame(Factor = "Experimental sub-sub plot length",Value = lenf_subsub )
+      #iou_subsub<- data.frame(Factor = "Information on experimental unit", Value = "Sub-sub plot" )
+      ow_subsub<- data.frame(Factor = "Sub-sub plot width", Value = wif_subsub )
+      ol_subsub<- data.frame(Factor = "Sub-sub plot length",Value = lenf_subsub )
       
       ## Consolidation of all main, sub and sub-sub plot
-      out_main <- rbind(iou_main, ow_main, ol_main)
-      out_sub <- rbind(iou_sub, ow_sub, ol_sub)
-      out_subsub <- rbind(iou_subsub, ow_subsub, ol_subsub)
+      #out_main <- rbind(iou_main, ow_main, ol_main)
+      out_main <- rbind(ow_main, ol_main)
+      #out_sub <- rbind(iou_sub, ow_sub, ol_sub)
+      out_sub <- rbind( ow_sub, ol_sub)
+      #out_subsub <- rbind(iou_subsub, ow_subsub, ol_subsub)
+      out_subsub <- rbind(ow_subsub, ol_subsub)
+      #Combine data
       out <- rbind(out_main, out_sub,out_subsub)
       
     }
@@ -17270,9 +17322,9 @@ server_design_agrofims <- function(input, output, session, values){
       wif_main <- paste(wi_main, wunit_main)
       lenf_main <-  paste(len_main, lunit_main)
       
-      iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
-      ow_main<- data.frame(Factor = "Experimental plot width", Value = wif_main )
-      ol_main<- data.frame(Factor = "Experimental plot length",Value = lenf_main )
+      #iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
+      ow_main<- data.frame(Factor = "Main plot width", Value = wif_main )
+      ol_main<- data.frame(Factor = "Main plot length",Value = lenf_main )
       
       ## Sub plot ##
       
@@ -17283,13 +17335,15 @@ server_design_agrofims <- function(input, output, session, values){
       wif_sub <- paste(wi_sub, wunit_sub)
       lenf_sub <-  paste(len_sub, lunit_sub)
       
-      iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
-      ow_sub<- data.frame(Factor = "Experimental plot width", Value = wif_sub )
-      ol_sub<- data.frame(Factor = "Experimental plot length",Value = lenf_sub )
+      #iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
+      ow_sub<- data.frame(Factor = "Sub plot width", Value = wif_sub )
+      ol_sub<- data.frame(Factor = "Sub plot length",Value = lenf_sub )
       
       ## Consolidation of all main, sub plot
-      out_main <- rbind(iou_main, ow_main, ol_main)
-      out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      #out_main <- rbind(iou_main, ow_main, ol_main)
+      out_main <- rbind(ow_main, ol_main)
+      #out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      out_sub<- rbind(ow_sub, ol_sub)
       out<- rbind(out_main, out_sub)
       
       
@@ -17958,12 +18012,17 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
   
+  #FbFileName <- function(){
+    #function()paste0(input$uniqueId,"-",input$fieldbookId, ".xlsx")
+  #  out
+  #}
+  
   
   
   ######################### Donwload Fieldbook #################################################################
   output$downloadData <- downloadHandler(
     
-    filename = "fileNameBook.xlsx",
+    filename = function()paste0(input$uniqueId,"-",input$fieldbookId, ".xlsx") ,#paste0(FbFileName(),".xlsx"),#"fileNameBook.xlsx",
     content = function(file) {
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
@@ -18692,25 +18751,35 @@ server_design_agrofims <- function(input, output, session, values){
         
         print("inicio18")  
         incProgress(19/20,message = "Downloading file...")
+        print(fname)
         saveWorkbook(wb, file = fname , overwrite = TRUE)
         
         ##### START: SAVE FILE FOR KDSMART ##############################################################
         
+        
+        print("inicio19: create file in format kdx")
         #First copy the file to specific folder
         file.copy(from = fname, to = "/home/obenites/AGROFIMS/kdsmart/", overwrite = TRUE)
         #Then, rename the fieldbook file using the aforementioned folder path 
         file.rename(from = paste0("/home/obenites/AGROFIMS/kdsmart/", basename(fname)), 
-                    to =   paste0("/home/obenites/AGROFIMS/kdsmart/",input$uniqueId,".xlsx"))
+                    to =   paste0("/home/obenites/AGROFIMS/kdsmart/",input$uniqueId,"-",input$fieldbookId,".xlsx"))
         
-        print(paste0("/home/obenites/AGROFIMS/kdsmart/",input$uniqueId,".xlsx"))
+        print(paste0("/home/obenites/AGROFIMS/kdsmart/",input$uniqueId,"-", input$fieldbookId,".xlsx"))
 
         ### END: END SAVE FILE FOR KDSMART ###############################################################
         
         file.rename(fname, file)
         
-        #}################# END ######################
+        ################## END ######################
+        
+        ###############  START : SAVE FILE IN CSV FORMAT #############
+        print("inicio20: save sesion")
+        savesession()
+        
+        ###############  END : SAVE FILE IN CSV FORMAT #############
         
         ###############  START : SEND FIELDBOOK DATA TO KDSMART TABLE IN DATABASE #############
+        print("inicio20: save kdsmart data on database")
         sendFieldBookToDB()
         
         ###############  END : SEND FIELDBOOK DATA TO KDSMART TABLE IN DATABASE #############
@@ -18734,14 +18803,16 @@ server_design_agrofims <- function(input, output, session, values){
     
     mydb <- conexionDB()
     #Use "ignore" to avoid mistakes when trying to insert a row with an ID that already exists in the database.
-    query <- paste0("INSERT IGNORE INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `user`, `registered`, `modified`, `status`) VALUES ('",
-                                 input$uniqueId,"','",
+    query <- paste0("INSERT INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `user`, `registered`, `modified`, `status`) VALUES ('",
+                                 paste0(input$uniqueId,"-", input$fieldbookId),"','",
                                  input$experimentId,"','",
                                  input$fieldbookId,"','",
                                  session$userData$userMail,"','",
-                                 Sys.Date(),"','",
-                                 Sys.Date(),"','",
+                                 format(Sys.time(), '%Y-%m-%d %H:%M:%S'),"','",
+                                 format(Sys.time(), '%Y-%m-%d %H:%M:%S'),"','",
                                  "subido","')")
+    
+    print(query)
 
     dbSendQuery(mydb, query)
   }

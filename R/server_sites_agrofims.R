@@ -13,6 +13,7 @@
 #server_design <- function(input, output, session, dom="hot_fieldbook_design", values){
 
 server_sites_agrofims <- function(input, output, session, values){
+
   
   constUserDB <- "agrofims"
   constPassDB <- "cnReOdGjS851TTR140318"
@@ -38,8 +39,7 @@ server_sites_agrofims <- function(input, output, session, values){
   })
   
   uiTrialSiteNew <- function(pData = NULL){
-    
-    
+
     strCreate = "Create"
     strCreateId = "btCreateSite"
     boxTitle <- "Create Site information"

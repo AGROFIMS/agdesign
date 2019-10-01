@@ -426,7 +426,37 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     [id*='_to_collect_field']+ div>.selectize-input {
                     background: #d9edf7; color: #ffffff;
                     }
+                    
+                    /* Styles for nutrient and product table in soil fertility */
+                    .sfProductRow label {
+                      display: block;
+                      text-align: center;
+                      border: 1px solid #d2d6de;
+                      margin-bottom:0px;
+                      background:#455a64;
+                      color: #fff;
+                    }
+                    
+                    .sfProductRow > .shiny-input-container {
+                      margin-bottom: 0px !important;
+                    }
+                    
+                    div.sfProductRow:last-child {
+                      margin-bottom: 20px !important;
+                    }
+                    
+                    div.sfProductRow > div.shiny-input-container > input {
+                      text-align:right;
+                    }
+                    
+                    div.sfProductRowName > div.shiny-input-container:nth-child(1) > input {
+                      width:300px;
+                      text-align:left !important;
+                    }
+    
                     ")),
+    
+    #Asociado con design
     
     #Width for input-group and modal 
     tags$style("
@@ -436,6 +466,26 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     
     # Style for calendar to work inside modal
     tags$style(".datepicker{z-index:999999 !important}"),
+    
+    tags$style(".designProductRow label {
+                      display: block;
+                      text-align: center;
+                      border: 1px solid #d2d6de;
+                      margin-bottom:0px;
+                      background:#455a64;
+                      color: #fff;
+                    }
+                "
+    ),
+    
+    tags$style( "                     
+                div.designProductRow div.shiny-input-container input {
+                      text-align:right;
+                }
+                
+               "),
+    
+    
     
     ############################### END UI: CSS ###############################
     ###########################################################################

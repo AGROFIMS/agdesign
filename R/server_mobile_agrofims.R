@@ -29,11 +29,13 @@ server_mobile_agrofims <- function(input, output, session, values){
     
     mydb = conexionDB()
     
-    query <- paste0("SELECT * FROM `kdsmart`")
+    query <- paste0("SELECT uniqueId, experimentId, fieldbookId, registered, modified, status FROM `kdsmart` order by modified desc")
 
     res <- dbSendQuery(mydb, query)
     res <- fetch(res, n = -1)
-    colnames(res) <- c("ID", "Experiment ID", "Fieldbook ID", "User" ,"Date created", "Date modified", "Status")
+    
+    #colnames(res) <- c("ID", "Experiment ID", "Fieldbook ID", "User" ,"Date created", "Date modified", "Status")
+    colnames(res) <- c("ID", "Experiment ID", "Fieldbook ID", "Date created", "Date modified", "Status")
     
     sessionVals$dtkdsmartaux <- data.frame(res)
     
@@ -107,9 +109,7 @@ server_mobile_agrofims <- function(input, output, session, values){
 
   })
   
-  
   output$downloadKDX <- downloadHandler(
-    
     filename  = function() {
       paste(sessionVals$dtkdsmartaux[input$dtkdsmart_rows_selected,1],".kdx",sep="")
     },
@@ -129,12 +129,26 @@ server_mobile_agrofims <- function(input, output, session, values){
       wb = loadWorkbook(paste0(sessionpath,"/",newid,'.xlsx'))
       experimentId = readxl::read_xlsx(path = paste0(sessionpath,"/",newid,'.xlsx'),sheet = 1,col_names=FALSE, range="B2")[[1]]
       
-      system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.8.9.jar -outdir /home/obenites/AGROFIMS/kdsmart ", listOfFiles ," -nogui"), FALSE)
+      system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.9.1.jar -outdir /home/obenites/AGROFIMS/kdsmart ", listOfFiles ," -nogui"), FALSE)
       file.copy(paste0("/home/obenites/AGROFIMS/kdsmart/",experimentId,".kdx"), file)
       # END: Export in kdx format
       
     }
   )
+  
+  observeEvent(input$refreshsession2,{
+    output$dtkdsmart <- DT::renderDataTable({
+      DT::datatable(
+        #sessionVals$dtkdsmartaux,
+        selectfbDB(),
+        selection = 'single',
+        options = list(
+          pageLength = 5
+        )
+      )
+    })
+  })
+  
 
   # output$downloadKDX <- downloadHandler(
   #   filename = function() {
@@ -145,14 +159,12 @@ server_mobile_agrofims <- function(input, output, session, values){
   #   }
   # )
 
-  
   #Evento reactivo que captura id de la fila seleccionada 
   selectedRow <- eventReactive(input$duplicate_file2, {
     id <- input$dtkdsmart_rows_selected
     sessionVals$dtkdsmartaux[id, 1]
   })
-  
-  
+
   idgenerator <- function() {
     id <- stri_rand_strings(1, 8,  '[A-Z0-9]')
     id
@@ -167,8 +179,6 @@ server_mobile_agrofims <- function(input, output, session, values){
   ##################################################################################################################
   ############################################# END: KDSMART JOSE ##################################################
   ##################################################################################################################
-  
-  
   
   # # path global para lectura de RDS's
   # globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"

@@ -119,7 +119,7 @@ getFert <- function(treats, fertilizers, selected) {
 
 ############################################ NUTRIENT AND FERTILIZERS ####################################################
 
-# best application rates based on nutrient inputs
+# Product/Fertilizer Rates
 productApplicationRates <- function(supply, treatment, price, minCost=TRUE){
   name <- supply$name
   supply <- t(as.matrix(supply[,-1]))
@@ -161,9 +161,7 @@ nutrient_reshape<- function(df, name="A", values="B"){
   #out<- rbindlist(out)
 }
 
-
-#Product calculation wrapper function
-
+#Product/Fertilizer calculation wrapper function for the DESIGN TAB
 product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEspLvl , design="frcbd"){
   
   #Get labels
@@ -267,7 +265,7 @@ product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEs
   
 }
 
-#Reshape fertilizer data
+#Reshape fertilizer/product data
 fertilizer_reshape<- function(df){
   
   out<- data.frame(t(as.numeric(df$mProdAmount)),stringsAsFactors = FALSE)
@@ -275,7 +273,7 @@ fertilizer_reshape<- function(df){
   out
 }
 
-#Fertilizer calculation
+#Fertilizer calculation for the DESIGN TAB
 fertilizer_calculation<- function(allinputs, dfAll, index="1", indexEspLvl=indexEspLvl , design="frcbd"){
   
   
@@ -383,7 +381,6 @@ fertilizer_calculation<- function(allinputs, dfAll, index="1", indexEspLvl=index
   
 }
 
-
 # Nutrient Rates (output)
 nutrientRates <- function(fertilizers, treatments) {
   m <- match(names(treatments), fertilizers$name)
@@ -400,7 +397,7 @@ nutrientRates <- function(fertilizers, treatments) {
   out
 }    
 
-# Fertilizer Rates (output)
+# Fertilizer/Product Rates (output)
 fertilizerRates <- function(fertilizers, treatments) {
   out <- list()
   for (i in 1:length(treatments)) {
@@ -417,15 +414,149 @@ fertilizerRates <- function(fertilizers, treatments) {
   out
 }    
 
-
-
-
-
-# Fertilizer Rates (output)
+# Fertilizer/Product Rates (output) for Management Practices
 fertilizerRates_mgmt <- function(fertilizers, treatments) {
   out <- fertilizers[,-1]*treatments
 }    
 
+# Fertilizer/Product Rates (output) for Management Practices
+NutrientRates_mgmt <- function(fertilizers, treatments) {
+  
+  out<- vector(mode="list", length = nrow(fertilizers)) 
+  for(i in 1:nrow(fertilizers)){
+    out[[i]] <- fertilizers[i,-c(1,2)]*treatments[i,3]/100
+  }
+  out <- data.table::rbindlist(out) %>% as.data.frame(stringsAsFactors=FALSE)
+} 
+
+# Get nutrient management calculation and metadata
+#
+get_nutrient_mgmt <- function(allinputs, addId="mgp_nut_1"){
+  
+  #allinputs <- allinputs #AllInputs()
+  indexSoilMagp<- getAddInputId(addId = addId, pattern= "mgp_nut_", replacement="")
+  #out<<-get_nutrient_details_magm(allinputs, indexSoilMagp= nutIndexSoilMagp)
+  
+  dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
+                      dplyr::filter(!str_detect(id, "button")) %>%
+                      dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                      dplyr::filter(!str_detect(id, "-selectized"))  
+  
+  
+  #NUTRIENT SPLIT ##########################################################################
+  out_nut_mgmt <- list()
+  for(i in seq.int(indexSoilMagp) ){
+    
+    out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit1_",indexSoilMagp[i])))  %>% nth(2)%>% as.numeric()
+    out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit2_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit3_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit4_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit5_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit6_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit7_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit8_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit9_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
+    out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit10_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit11_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit12_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit13_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit14_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
+    
+    out_nut_mgmt[[i]] <-data.frame(out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
+    names(out_nut_mgmt[[i]]) <-  c("N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
+  }  
+  nut_mgmt<-data.table::rbindlist(out_nut_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
+  #nut_mgmt$N <- c(25,36)
+  treatments<-nut_mgmt
+  ##########################################################################################
+  
+  #NUTRIENT CHOSE PRODUCT #################################################################
+  out_prod_mgmt <- list()
+  for(i in seq.int(indexSoilMagp) ){
+    
+    prodname <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit0_",indexSoilMagp[i],"_1" )))  %>% nth(2)
+    out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit1_",indexSoilMagp[i],"_1")))  %>% nth(2) %>% as.numeric()
+    out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit2_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit3_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit4_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit5_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit6_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit7_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit8_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit9_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit10_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit11_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit12_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit13_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit14_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
+    
+    out_prod_mgmt[[i]] <-data.frame(prodname, out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
+    names(out_prod_mgmt[[i]]) <-  c("name", "N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
+    
+  }  
+  prod_mgmt <- data.table::rbindlist(out_prod_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
+  #prod_mgmt$N <- c(90,89)
+  fertilizers <- prod_mgmt
+  
+  outrate<- try({fertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
+  
+  out <- list(outrate= outrate, fertilizers= fertilizers,treatments= treatments )
+  
+} 
+
+# Get product/fertilizer management
+#
+get_prodfert_mgmt <- function(allinputs, addId="mgp_pro_1", splitId){
+  
+  indexSoilMagp <- getAddInputId(addId = addId, pattern= "mgp_pro_", replacement="")
+  splitId <- getAddInputId(splitId,"mgp_proidx_", "")
+  #out<<-get_nutrient_details_magm(allinputs, indexSoilMagp= nutIndexSoilMagp)
+  
+  dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
+                      dplyr::filter(!str_detect(id, "button")) %>%
+                      dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                      dplyr::filter(!str_detect(id, "-selectized"))  
+  
+  #Product/Fertilizer data
+  out_treatment_mgmt <- list()
+  for(i in seq.int(splitId)){
+    splitIdVal <- splitId[i]
+    out0 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit0_",splitId[i])) )  %>% dplyr::nth(2)
+    prodfert <- dt %>% dplyr::filter(str_detect(id,  paste0("txtsfProductValue_",splitId[i])) )  %>% dplyr::nth(2)%>% as.numeric()
+    
+    out_treatment_mgmt[[i]] <-data.frame(splitIdVal, out0, prodfert, stringsAsFactors = FALSE)    
+    names(out_treatment_mgmt[[i]]) <-  c("splitId", "name", "product")
+  } 
+  treatment_mgmt <- data.table::rbindlist(out_treatment_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
+    
+  #Product/Fertilizer split data
+  out_prodfersplit_mgmt <- list()
+  for(i in seq.int(splitId)){
+    splitIdFerVal <- splitId[i]
+    out0 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit0_",splitId[i])) )  %>% nth(2)
+    out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit1_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit2_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit3_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit4_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit5_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit6_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit7_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit8_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("productProductSplit9_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out10 <- dt %>% dplyr::filter(str_detect(id, paste0("productProductSplit10_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out11 <- dt %>% dplyr::filter(str_detect(id, paste0("productProductSplit11_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out12 <- dt %>% dplyr::filter(str_detect(id, paste0("productProductSplit12_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out13 <- dt %>% dplyr::filter(str_detect(id, paste0("productProductSplit13_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    out14 <- dt %>% dplyr::filter(str_detect(id, paste0("productProductSplit14_",splitId[i])) )  %>% nth(2)%>% as.numeric()
+    
+    out_prodfersplit_mgmt[[i]] <-data.frame(splitIdFerVal, out0, out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
+    names(out_prodfersplit_mgmt[[i]]) <-  c("splitId", "name","N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
+  }
+  prodfert_mgmt <- data.table::rbindlist(out_prodfersplit_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
+  
+  out <- list(treatment_mgmt= treatment_mgmt, prodfert_mgmt= prodfert_mgmt)
+  
+}
 
 
 

@@ -64,10 +64,14 @@ server_session_agrofims <- function(input, output, session, values){
       
       df <- data.frame(a, b, c, d, e, f, g, stringsAsFactors = F)
       df <- dplyr::filter(as.data.frame(df), g == userM)
+      
+
+      # df <- df[,-which(names(df) == "g")]
       df <- df %>% dplyr::arrange(desc(f))
       #print(df)
       sessionVals$aux <- data.frame(df)
-      colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
+      #colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
+      colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified")
       #colnames(df) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
       #print(df)
     } else {
