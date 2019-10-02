@@ -5,86 +5,56 @@
 #' @param napp \code{numeric} number of applications
 #' @author Omar Benites
 #'
-get_ec_sf <- function(allinputs, napp ){
+get_ec_sf <- function(input){
   
-  #allinputs$id<-as.character(allinputs$id)
-  #allinputs$values<-as.character(allinputs$values)  
-  
-  # allinputs <- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
-  # input<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
-
-  napp<- as.numeric(napp)
-  
-  ## Number of fertilizer
-  # napp_vector <- rep(napp,napp) 
+  if(length(input$soilfertility_to_collect_field)==0){
+   
+    lbl <- c("Fertilizer_type", "Fertilizer_amount_kg/ha","Nutrient_amount_kg/ha")
+    dt <- data.frame()
     
-  ## Fertilizer type -------------------------------------------------------------------------------------------------
-  ft <-allinputs %>% filter(str_detect(id, "^select_fertilizerType_soil_table_row_")) %>%
-                      filter(!str_detect(id, "selectized")) %>% arrange_("id")
-  
-  #product fertilizer ------------------------------------------------------------------------------------------------
-  pr <-allinputs %>% filter(str_detect(id, "^select_product_soil_table_row_")) %>% 
-                     filter(!str_detect(id, "selectized")) %>% filter(!str_detect(id, "other")) %>% arrange_("id")
-  pr_other <-allinputs %>% filter(str_detect(id, "^select_product_soil_table_row_[0-9]+_other")) %>% arrange_("id")
-  pr <- dt_inputs(pr,pr_other)
-  
-  
-  ## product rate -----------------------------------------------------------------------------------------------------
-  pra <-allinputs %>% filter(str_detect(id, "^input_productRate_soil_table_")) %>% arrange_("id")
-  
-  # element fertilizer ------------------------------------------------------------------------------------------------
-  el <-allinputs %>% filter(str_detect(id, "^select_element_soil_table_row_")) %>% 
-                      filter(!str_detect(id, "selectized")) %>% filter(!str_detect(id, "other")) %>% arrange_("id")
-  el_other <-allinputs %>% filter(str_detect(id, "^select_element_soil_table_row_[0-9]+_other"))  %>% arrange_("id")
-  el <- dt_inputs(el,el_other)
-  
-  
-  ## element rate -----------------------------------------------------------------------------------------------------
-  era <-allinputs %>% filter(str_detect(id, "^input_elementRate_soil_table_row_")) %>% arrange_("id")
-  
-  ##Start and End Date ------------------------------------------------------------------------------------------------
-  startD <-allinputs %>% filter(str_detect(id, "^input_startdate_soil_table_row_")) %>% 
-                          filter(!str_detect(id, "button")) %>%  arrange_("id")
-  
-  endD <-  allinputs %>% filter(str_detect(id, "^input_enddate_soil_table_row_")) %>% 
-                          filter(!str_detect(id, "button")) %>%  arrange_("id")
-  ## Technique ---------------------------------------------------------------------------------------------------------
-  tech <-allinputs %>% filter(str_detect(id, "^select_techinque_soil_table_row_")) %>% 
-                        filter(!str_detect(id, "selectized")) %>% filter(!str_detect(id, "other")) %>% arrange_("id")
-  tech_other <-allinputs %>% filter(str_detect(id, "^select_techinque_soil_table_row_[0-9]+_other")) %>% arrange_("id")
-  tech <- dt_inputs(tech,tech_other)
-  
-  #Text Area Soil fertility --------------------------------------------------------------------------------------------
-  txtA <- allinputs %>% filter(str_detect(id, "^textArea_soil_table_row_")) %>% arrange_("id")
-  
-  #Total product and element soil fertility ----------------------------------------------------------------------------
-  proTotal <- allinputs %>% filter(str_detect(id, "^totalApp soil_fertilizer_totalAppRate"))
-  eleTotal <- allinputs %>% filter(str_detect(id, "^soil_fertilizer_totalAppRate"))
-  
-  dt_soil<- rbind(ft, pr, pra, el, era, startD, endD, tech, txtA, proTotal, eleTotal) 
-  dt_soil <- arrange_by_pattern(dt_soil, as.character(1:napp) )
-  #dt_soil <- arrange_by_pattern(dt_soil,c("1","2","3"))
-  ### Label
-  lbl <- c("Soil_fertility_fertilizer_type","Soil_fertility_product","Soil_fertility_product_rate_(kg/ha)", 
-           "Soil_fertility_element","Soil_fertility_element_rate_(kg/ha)",
-           "Soil_fertility_start_date", "Soil_fertility_end_date", "Soil_fertility_technique", "Soil_fertility_notes")
-  lbl_soil <- NULL #vector(mode = "character",length = length(lbl)*napp)) 
-  for(i in 1:napp){
-    lbl_soil  <- append(lbl_soil , paste0(lbl,"__", i))
+  } else {
+    lbl <- input$soilfertility_to_collect_field
+    lbl <-  dplyr::case_when(  lbl =="Fertilizer type"~  "Fertilizer_type",
+                               lbl =="Fertilizer amount"  ~ "Fertilizer_amount_kg/ha",   
+                               lbl=="Nutrient amount"  ~"Nutrient_amount_kg/ha",
+                               lbl=="Timing"  ~ "Fertilizer_timing",
+                               lbl=="Number of fertilizer applications"  ~"Fertilizer_application_number",
+                               lbl=="Nutrient type"  ~"Nutrient_type",
+                               lbl=="Fertilizer application technique"	~"Fertilizer_application_technique",
+                               lbl=="Fertilizer implement type"	~"Fertilizer_implement_type",
+                               lbl=="Fertilizer notes"	~"Fertilizer_notes",
+                               TRUE ~ lbl)
+    lbl <- lbl
+    
+    dt <- as.list(rep("", length(lbl)))
+    names(dt) <- lbl
   }
-  #lbl_soil <-c(lbl_soil, "Total product calculated application", "Total element calculated application")
-  dt <- data.frame(matrix(ncol = length(lbl_soil), nrow = 1))
-  names(dt) <- lbl_soil
-  dt[1,]<- dt_soil[,"values"]
+ 
+  out <- list(dt= dt, lbl= lbl)
   
   ##LABEL FOR TRAITLIST :remove all double underscore from soil_fertility labels
-  lbl<- str_replace_all(string = lbl_soil, pattern = "__[:digit:]+$",replacement = "")
-  lbl <- unique(lbl)
-  
-  out<- list(dt=dt, lbl= lbl)
-  
+  # lbl<- str_replace_all(string = lbl_soil, pattern = "__[:digit:]+$",replacement = "")
+  # lbl <- unique(lbl)
+  # out<- list(dt=dt, lbl= lbl)
+  # 
   
 }
+
+
+# 
+# get_collectable_sf <- function(input){
+#   
+#   trait <- input$soilfertility_to_collect_field
+#   if(!is.null(trait)){
+#     #trait_values <- vector("list", length(trait))
+#     trait_values <- as.list(rep("", length(trait)))
+#     names(trait_values) <- 
+#   } else {
+#     
+#   }
+#   
+#   
+# }
 
 #' Get fertilizer product names from Fertilizer and Nutrient dataset
 #' @description Get fertilizer's names from Fertilizer and Nutrient dataset
@@ -442,6 +412,8 @@ get_nutrient_mgmt <- function(allinputs, addId="mgp_nut_1"){
                       dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
                       dplyr::filter(!str_detect(id, "-selectized"))  
   
+  #UNIT
+  nutUnit <- dt %>% dplyr::filter(str_detect(id,  paste0("^","sfNutUnit","$"))) %>% nth(2)
   
   #NUTRIENT SPLIT ##########################################################################
   out_nut_mgmt <- list()

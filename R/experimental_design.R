@@ -668,6 +668,8 @@ get_nutrient_details_magm <- function(allinputs, indexSoilMagp){
   splitApplicationTable <- mNumTiming <- mNumTimingValue <- mTechnique <- mImplement <- mNutProduct <- NULL
   nutrient_list<- list()
   
+  sfNutUnit <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutUnit")))  %>% nth(2)
+  
   for(i in seq.int(indexSoilMagp) ){
     
     #'TODO: Obtener las tablas "sfNutrientSplit_", con los valores de cada elemento
@@ -699,6 +701,8 @@ get_nutrient_details_magm <- function(allinputs, indexSoilMagp){
     
   }
   output <- data.table::rbindlist(nutrient_list)
+  output$Unit <- sfNutUnit
+  output$Split <- indexSoilMagp
   output
   
 }

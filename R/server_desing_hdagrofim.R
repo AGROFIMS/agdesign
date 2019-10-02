@@ -1942,10 +1942,10 @@ server_design_agrofims <- function(input, output, session, values){
   # Funcion que guarda la session del usuario
   savesession <- function() {
     if(session$userData$logged){
-      expid <- paste0(input$uniqueId,"-", input$fieldbookId)
-
-      if (file.exists(isolate(paste0(sessionpath, expid, ".csv")))) {
-        x <- read.csv(paste0(sessionpath, expid, ".csv"))
+      expid <- input$uniqueId
+      
+      if (file.exists(isolate(paste0(sessionpath,  paste0(input$uniqueId,"-", input$fieldbookId), ".csv")))) {
+        x <- read.csv(paste0(sessionpath,  paste0(input$uniqueId,"-", input$fieldbookId), ".csv"))
         datecreate <- as.character(x[2, 4])
         datemodified <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
       } else {
@@ -1998,9 +1998,10 @@ server_design_agrofims <- function(input, output, session, values){
           
           if (is.null(input[[paste0(case1InputAux[i])]]) || is.na(input[[paste0(case1InputAux[i])]])) {
             inputs1[i] <- ""
-          }else if (case1InputAux[i] == "uniqueId" ) {
-            inputs1[i] <- as.character(paste0(input$uniqueId,"-", input$fieldbookId))
-          } 
+          }
+          #else if (case1InputAux[i] == "uniqueId" ) {
+          #  inputs1[i] <- as.character(paste0(input$uniqueId,"-", input$fieldbookId))
+          #} 
           else {
             inputs1[i] <- as.character(input[[paste0(case1InputAux[i])]])
           }
@@ -2067,12 +2068,13 @@ server_design_agrofims <- function(input, output, session, values){
       write.csv(final_inputs_df, paste0(sessionpath, paste0(input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
       write.csv(final_inputs_df, paste0(sessionpathbk, paste0(input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
       
-      updateTextInput(session,
-                      inputId = "uniqueId",
-                      value = "")
-      updateTextInput(session,
-                      inputId = "uniqueId",
-                      value = expid)
+      # updateTextInput(session,
+      #                 inputId = "uniqueId",
+      #                 value = "")
+      # 
+      # updateTextInput(session,
+      #                 inputId = "uniqueId",
+      #                 value = expid)
       
       shinyalert("Saved successfully", type = "success", timer = 1500, showConfirmButton = F)
     } else {
@@ -2420,7 +2422,7 @@ server_design_agrofims <- function(input, output, session, values){
     if (length(selectedRow() != 0)) {
       
       if (file.exists(isolate(paste0(sessionpath, selectedRow(), ".csv")))){
-        uploaded_inputs <- read.csv(paste0(sessionpath, selectedRow(), ".csv"))
+        uploaded_inputs <- read.csv(paste0(sessionpath, selectedRow(), ".csv"),stringsAsFactors = FALSE)
         
         loadInputsFundingAgency(uploaded_inputs)
         loadInputsProjectManagmentEntities(uploaded_inputs)
@@ -2437,8 +2439,13 @@ server_design_agrofims <- function(input, output, session, values){
         uploaded_inputs2 <- uploaded_inputs  %>% filter(!str_detect(inputId, "croppingType")) %>%
                                                  filter(!str_detect(inputId, "cropCommonName")) %>%
                                                  filter(!str_detect(inputId, "selectAgroFeature")) %>%
-                                                 filter(!str_detect(inputId, "designFieldbook_typeExperiment")) 
-                                                 
+                                                 filter(!str_detect(inputId, "designFieldbook_typeExperiment")) %>%
+                                                 filter(!str_detect(inputId, "soil_unit_")) %>%
+                                                 filter(!str_detect(inputId, "soil_mea_")) %>%
+                                                 filter(!str_detect(inputId, "soil_timingValue_")) %>%
+                                                 filter(!str_detect(inputId, "soil_timing_")) %>%
+                                                 filter(!str_detect(inputId, "soil_timingValue_")) %>%
+                                                 filter(!str_detect(inputId, "soil_timing_"))
         
         # Actualizacion de Inputs
         
@@ -2550,8 +2557,13 @@ server_design_agrofims <- function(input, output, session, values){
         delay(3000,lapply(1:nrow(uploaded_inputs2),function(i){
             type <- as.character(uploaded_inputs2[i, 2])
             create <- as.character(uploaded_inputs2[i, 3])
+            
+            
+            #print(uploaded_inputs2$inputId[i])
+            #print(uploaded_inputs2$inputId[i,4])
 
             if (type == "textInput") {
+
               updateTextInput(session,
                               inputId = uploaded_inputs2$inputId[i],
                               value = uploaded_inputs2$value[i])
@@ -2595,9 +2607,9 @@ server_design_agrofims <- function(input, output, session, values){
                                    selected = getInputs(uploaded_inputs2[i, 4], ""))
 
             }
-            
+
             if (type == "selectInput"  && create == "y") {
-              
+
               updateSelectInput(session,
                                 inputId = uploaded_inputs$inputId[i],
                                 selected = getInputs(uploaded_inputs[i, 4], ""),
@@ -2643,7 +2655,7 @@ server_design_agrofims <- function(input, output, session, values){
                                    clear = T)
               }
             }
-            
+
           }
           )
         )
@@ -2660,7 +2672,7 @@ server_design_agrofims <- function(input, output, session, values){
   # Datatable perteniciente a la vista Manage Fieldbooks
   refreshDT <- function() {
     df <- data.frame()
-    a <- b <- c <- d <- e <- f <- g <- c()
+    a <- b <- c <- d <- e <- f <- g <- h <- c()
     
     if (length(my_files()) >= 1) {
       
@@ -2678,6 +2690,9 @@ server_design_agrofims <- function(input, output, session, values){
         # Experiment name
         fl <- read.csv(paste0(sessionpath, my_files()[i]))
         c[i] <- as.character(fl[6, 4])
+        
+        # Unique Id
+        h[i] <- as.character(fl[4, 4])
        
         # Experiment project name
         d[i] <- as.character(fl[7, 4])
@@ -2694,7 +2709,7 @@ server_design_agrofims <- function(input, output, session, values){
       
       userM <- session$userData$userMail
       
-      df <- data.frame(a, b, c, d, e, f, g, stringsAsFactors = F)
+      df <- data.frame(a, h , b, c, d, e, f, g, stringsAsFactors = F)
       df <- dplyr::filter(as.data.frame(df), g == userM)
       df <- df[,-which(names(df) == "g")]
       
@@ -2703,7 +2718,7 @@ server_design_agrofims <- function(input, output, session, values){
       sessionVals$aux <- data.frame(df)
       
       # colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
-      colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified")
+      colnames(sessionVals$aux) <- c("FieldBook Name","ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified")
 
     } else {
       
@@ -3878,49 +3893,52 @@ server_design_agrofims <- function(input, output, session, values){
   #################### START: GENERA NUEVO FIELDBOOK ####################
   # New fieldbook button
   observeEvent(input$newfieldbook, {
-    if (session$userData$logged) {
-      showModal(modalDialog(
-        title =
-          fluidRow(
-            column(
-              6,
-              style = ("margin-top: -20px;margin-bottom: -10px;"),
-              h3("Save fieldbook?")
-            ),
-            column(
-              6,
-              align = "right",
-              style = "margin-top: 0px;",
-              actionLink("btncancel2", "X")
-            )
-          ),
-        fluidRow(
-          column(
-            1,
-            icon("exclamation-triangle", "fa-3x")
-          ),
-          column(
-            11,
-            "Save changes to fieldbook before closing?",
-            br(),
-            "Your changes will be lost if you don’t save them."
-          )
-        ),
-        br(),
-        fluidRow(
-          column(
-            12,
-            align = "center",
-            actionButton("btnsave", "Save", class = "btn-success", style="color: #fff;", width = "95px"),
-            actionButton("btndontsave", "Don't save", width = "95px"),
-            actionButton("btncancel", "Cancel", width = "95px")
-          )
-        ),
-        footer = NULL
-      ))
-    } else {
-      shinyalert("Sorry", "You must login to create new fieldbook", type = "info", timer = 1500, showConfirmButton = F)
-    }
+    
+    
+    
+    # if (session$userData$logged) {
+    #   showModal(modalDialog(
+    #     title =
+    #       fluidRow(
+    #         column(
+    #           6,
+    #           style = ("margin-top: -20px;margin-bottom: -10px;"),
+    #           h3("Save fieldbook?")
+    #         ),
+    #         column(
+    #           6,
+    #           align = "right",
+    #           style = "margin-top: 0px;",
+    #           actionLink("btncancel2", "X")
+    #         )
+    #       ),
+    #     fluidRow(
+    #       column(
+    #         1,
+    #         icon("exclamation-triangle", "fa-3x")
+    #       ),
+    #       column(
+    #         11,
+    #         "Save changes to fieldbook before closing?",
+    #         br(),
+    #         "Your changes will be lost if you don’t save them."
+    #       )
+    #     ),
+    #     br(),
+    #     fluidRow(
+    #       column(
+    #         12,
+    #         align = "center",
+    #         actionButton("btnsave", "Save", class = "btn-success", style="color: #fff;", width = "95px"),
+    #         actionButton("btndontsave", "Don't save", width = "95px"),
+    #         actionButton("btncancel", "Cancel", width = "95px")
+    #       )
+    #     ),
+    #     footer = NULL
+    #   ))
+    # } else {
+    #   shinyalert("Sorry", "You must login to create new fieldbook", type = "info", timer = 1500, showConfirmButton = F)
+    # }
   })
   
   # Boton que guarda el avance de la sesion antes que crear un nuevo fieldbook
@@ -4197,31 +4215,34 @@ server_design_agrofims <- function(input, output, session, values){
     
   }
   
-  savefbDB <- function() {
-    statusfb <- "subido"
-    
-    mydb = dbConnect(MySQL(), user='agrofims', password='cnReOdGjS851TTR140318', dbname='agrofims', host='176.34.248.121')
-    
-    query <- paste0("INSERT INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `user`, `registered`, `modified`, `status`) VALUES ('",
-                    input$uniqueId,"','",
-                    input$experimentId,"','",
-                    input$fieldbookId,"','",
-                    session$userData$userMail,"','",
-                    Sys.Date(),"','",
-                    Sys.Date(),"','",
-                    statusfb,"')")
-    
-    #print(query)
-    dbSendQuery(mydb, query)
-  }
   
-  observeEvent(input$sendKDSmart, {
-    
-    savefb()
-    checkDS()
-    savefbDB()
-    
-  })
+  # Not used
+  # savefbDB <- function() {
+  #   statusfb <- "subido"
+  #   
+  #   mydb = dbConnect(MySQL(), user='agrofims', password='cnReOdGjS851TTR140318', dbname='agrofims', host='176.34.248.121')
+  #   
+  #   query <- paste0("INSERT INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `user`, `registered`, `modified`, `status`) VALUES ('",
+  #                   input$uniqueId,"','",
+  #                   input$experimentId,"','",
+  #                   input$fieldbookId,"','",
+  #                   session$userData$userMail,"','",
+  #                   Sys.Date(),"','",
+  #                   Sys.Date(),"','",
+  #                   statusfb,"')")
+  #   
+  #   #print(query)
+  #   dbSendQuery(mydb, query)
+  # }
+  
+  # Not used
+  # observeEvent(input$sendKDSmart, {
+  #   
+  #   savefb()
+  #   checkDS()
+  #   savefbDB()
+  #   
+  # })
   
   # output$sendKDSmart <- downloadHandler(
   #   
@@ -10511,6 +10532,10 @@ server_design_agrofims <- function(input, output, session, values){
     sfProductSplit$ids <- c()
     sfProductSplit$ids <- c(sfProductSplit$ids,paste0("mgp_pro_",sfProductSplit$num))
     
+    unit <- get_dfa_values(dt, choice = "Nutrient element type and amount", attribute = "UNIT")
+    
+    #Units
+    choices_unit <- strsplit(unit, ",")[[1]]
     
     # Remove Product Content
     removeUI(
@@ -10524,13 +10549,29 @@ server_design_agrofims <- function(input, output, session, values){
       immediate = T
     )
     
+    
     # Insert Container for product content
     insertUI(
       immediate = TRUE,
       selector = "#sfContainer",
       where = "beforeEnd",
-      ui = column(12,id = "sfProductContainer")
+      ui = column(12,id = "sfProductContainer",
+                  fluidRow(
+                    column(
+                      offset = 5,
+                      2,
+                      selectInput(
+                        inputId = paste0("sfProUnit"),
+                        label = "Unit",
+                        choices = c(choices_unit),
+                        selected = 2
+                      )
+                    )
+                    
+                  )
+      )
     )
+    
     
     insertUI(
       immediate = TRUE,
@@ -10652,7 +10693,7 @@ server_design_agrofims <- function(input, output, session, values){
                 12,
                 align="center",
                 actionButton(inputId = paste0("btnsfProSplit"),"Add Application",class = "btn btn-primary", icon("plus-circle"), style="color:white;"),
-                actionButton(inputId = paste0("btnsfPro"),"Calculate Product Amount",class = "btn btn-primary", style="color:white")
+                actionButton(inputId = paste0("btnsfPro"),"Calculate Nutrient Amount",class = "btn btn-primary", style="color:white")
               ),
               column(12,
                      "Product amount "
@@ -11376,10 +11417,12 @@ server_design_agrofims <- function(input, output, session, values){
   observeEvent(input$btnsfNut,{
     
     
-    out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
-    outrate <- out$outrate
-    fertilizers <- out$fertilizers
-    
+    out <<- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
+    # nut_details <<- get_nutrient_details_magm(allinputs= AllInputs(), sfNutrientSplit$ids)
+    # 
+     outrate <- out$outrate
+     fertilizers <- out$fertilizers
+    # 
     # #print(sfNutrientSplit$ids) #variable that store ids
     # allinputs <- AllInputs()
     # indexSoilMagp<- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
@@ -15950,33 +15993,35 @@ server_design_agrofims <- function(input, output, session, values){
     out <- c(s1,s2,s3)
   })
   
-  #' Soil Fertility     #############################################################
+  # Soil Fertility     #############################################################
   dt_soilFertility <- reactive({
     
-    if(is.null(input$soil_fertilizer_num_apps)){
-      napp <- 1
-    } else{
-      napp <- as.numeric(input$soil_fertilizer_num_apps)
-    }
-    dt<- get_ec_sf(allinputs= AllInputs(), napp=napp )$dt
-    
-    if(nrow(fbdesign())==0){
-      dt <- dt
-    }else {
-      dt <-cbind(fbdesign() ,dt)
-    }
-    
+   collect_field <- input$soilfertility_to_collect_field
+   
+   if(nrow(fbdesign())==0){
+     dt <- data.frame()
+   }
+   else if(nrow(fbdesign())>0 &&  length(collect_field)>0){
+     dt <- cbind(fbdesign(), get_ec_sf(input)$dt)
+   } else {
+     dt <- fbdesign()
+   }
     dt
+  })
+  dt_protocol_soilfertility <- reactive({
+    
+    nutIndexSoilMagp <- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
+    out <- get_nutrient_details_magm(allinputs= AllInputs(), indexSoilMagp= nutIndexSoilMagp)  
+    
+    
   })
   lbl_soilFertility <- reactive({
     
-    if(is.null(input$soil_fertilizer_num_apps)){
-      napp <- 1
+    if(!is.null(input$soilfertility_to_collect_field)){
+      lbl <-  get_ec_sf(input)$lbl
     } else{
-      napp <- as.numeric(input$soil_fertilizer_num_apps)
+      lbl <-  "no-label"
     }
-    lbl<- get_ec_sf(allinputs= AllInputs(), napp=napp )$lbl
-    if(length(lbl)==0){lbl <- "no-label"}
     lbl
     
   })
@@ -18032,7 +18077,9 @@ server_design_agrofims <- function(input, output, session, values){
          # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
          # x <- reactiveValuesToList(input)
          # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-
+         #abc1 <<- lbl_soilFertility()
+         #soil_mgt <<- dt_soilFertility()
+        
          ##### Eliminar Start: Testing by Jose ######
          print("Entro al método.")
          #savefb()
@@ -18158,15 +18205,15 @@ server_design_agrofims <- function(input, output, session, values){
           
         }
         
-        # if(is.element("Soil fertility",input$selectAgroFeature)){
+         if(is.element("Soil fertility",input$selectAgroFeature)){
         #   
-        #   print("soil fertility")
-        #   incProgress(7/20,message = "Adding soil and fertility")
-        #   openxlsx::addWorksheet(wb, "Soil fertility", gridLines = TRUE)
-        #   openxlsx::writeDataTable(wb, "Soil fertility", x = dt_soilFertility(),
-        #                            colNames = TRUE, withFilter = FALSE)
-        #   
-        # }
+          print("soil fertility")
+          incProgress(7/20,message = "Adding soil and fertility")
+          openxlsx::addWorksheet(wb, "Soil fertility", gridLines = TRUE)
+          openxlsx::writeDataTable(wb, "Soil fertility", x = dt_soilFertility(),
+                                   colNames = TRUE, withFilter = FALSE)
+
+         }
         
         ######################### Planting and transplanting #####################################################
         if(is.element("Planting and transplanting",input$selectAgroFeature)){
@@ -18496,16 +18543,16 @@ server_design_agrofims <- function(input, output, session, values){
           dt_kds <- ec_clean_header(dt_kds)
         }
         print("seedbed pt")
-        # if(is.element("Soil fertility",input$selectAgroFeature)){
-        #   globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-        #   kds_soilf<- readxl::read_excel(paste0(globalpath, ecname),sheet = "Soil fertility")
-        #   kds_soilf <- ec_filter_data(kds_soilf)
-        #   kds_soilf <- kds_soilf %>% dplyr::filter(TraitName %in% lbl_soilFertility())
-        #   
-        #   kds_soilf <- data.table(kds_soilf)
-        #   dt_kds<-rbindlist(list(dt_kds,kds_soilf),fill = TRUE)
-        #   dt_kds<-ec_clean_header(dt_kds)
-        # }
+        if(is.element("Soil fertility",input$selectAgroFeature)){
+          
+          kds_sferti <- magmtprac$sferti
+          kds_sferti <- ec_filter_data(kds_sferti)
+          #kds_sedbed <- kds_sedbed %>% dplyr::filter(Fieldbook_download %in% lbl_seedbed()) #deprecated
+          kds_sferti <- kds_sferti %>% dplyr::filter(TraitName %in% lbl_soilFertility())
+          kds_sferti <- data.table(kds_sferti)
+          dt_kds<-rbindlist(list(dt_kds,kds_sferti),fill = TRUE)
+          dt_kds<-ec_clean_header(dt_kds)
+       }
         if(is.element("Planting and transplanting",input$selectAgroFeature)){
           
           kds_platra <- magmtprac$platrans
@@ -18802,15 +18849,17 @@ server_design_agrofims <- function(input, output, session, values){
   sendFieldBookToDB <- function(){
     
     mydb <- conexionDB()
+    
     #Use "ignore" to avoid mistakes when trying to insert a row with an ID that already exists in the database.
-    query <- paste0("INSERT INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `user`, `registered`, `modified`, `status`) VALUES ('",
-                                 paste0(input$uniqueId,"-", input$fieldbookId),"','",
+    query <- paste0("INSERT INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `fieldbookName`, `user`, `registered`, `modified`, `status`) VALUES ('",
+                                 input$uniqueId,"','",
                                  input$experimentId,"','",
                                  input$fieldbookId,"','",
+                                 paste0(input$uniqueId,"-", input$fieldbookId),"','",
                                  session$userData$userMail,"','",
                                  format(Sys.time(), '%Y-%m-%d %H:%M:%S'),"','",
                                  format(Sys.time(), '%Y-%m-%d %H:%M:%S'),"','",
-                                 "subido","')")
+                                 "subido","') ON DUPLICATE KEY UPDATE `modified`='",format(Sys.time()),"'")
     
     print(query)
 

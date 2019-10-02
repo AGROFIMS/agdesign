@@ -29,13 +29,13 @@ server_mobile_agrofims <- function(input, output, session, values){
     
     mydb = conexionDB()
     
-    query <- paste0("SELECT uniqueId, experimentId, fieldbookId, registered, modified, status FROM `kdsmart` order by modified desc")
+    query <- paste0("SELECT uniqueId, experimentId, fieldbookId, fieldbookName, registered, modified, status FROM `kdsmart` order by modified desc")
 
     res <- dbSendQuery(mydb, query)
     res <- fetch(res, n = -1)
     
     #colnames(res) <- c("ID", "Experiment ID", "Fieldbook ID", "User" ,"Date created", "Date modified", "Status")
-    colnames(res) <- c("ID", "Experiment ID", "Fieldbook ID", "Date created", "Date modified", "Status")
+    colnames(res) <- c("ID", "Experiment ID", "Fieldbook ID", "Fieldbook Name" ,"Date created", "Date modified", "Status")
     
     sessionVals$dtkdsmartaux <- data.frame(res)
     
@@ -111,14 +111,16 @@ server_mobile_agrofims <- function(input, output, session, values){
   
   output$downloadKDX <- downloadHandler(
     filename  = function() {
-      paste(sessionVals$dtkdsmartaux[input$dtkdsmart_rows_selected,1],".kdx",sep="")
+      # number 4 is fieldbook name.
+      paste(sessionVals$dtkdsmartaux[input$dtkdsmart_rows_selected,4],".kdx",sep="")
     },
     content = function(file) {
       
       id = input$dtkdsmart_rows_selected
 
-      newid = sessionVals$dtkdsmartaux[id, 1]
-      
+      # number 4 is fieldbook name.
+      newid = sessionVals$dtkdsmartaux[id, 4]
+
       listOfFiles <- list.files(sessionpath, paste0(newid,".xlsx"),full.names=T)
       
       # START: Save in targz format
