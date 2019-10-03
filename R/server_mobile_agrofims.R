@@ -138,6 +138,37 @@ server_mobile_agrofims <- function(input, output, session, values){
     }
   )
   
+  
+  output$downloadExcel <- downloadHandler(
+    filename  = function() {
+      # number 4 is fieldbook name.
+      paste(sessionVals$dtkdsmartaux[input$dtkdsmart_rows_selected,4],".xlsx",sep="")
+    },
+    content = function(file) {
+      
+      id = input$dtkdsmart_rows_selected
+      
+      # number 4 is fieldbook name.
+      newid = sessionVals$dtkdsmartaux[id, 4]
+      
+      listOfFiles <- list.files(sessionpath, paste0(newid,".xlsx"),full.names=T)
+      
+      # START: Save in targz format
+      system(paste0("tar -zcvf /var/www/html/kdsmart/",newid,".tar.gz /home/obenites/AGROFIMS/kdsmart/",newid,".xlsx" ), TRUE)
+      # END: Save in targz format
+      
+      # START: Export in kdx format
+      wb = loadWorkbook(paste0(sessionpath,"/",newid,'.xlsx'))
+      experimentId = readxl::read_xlsx(path = paste0(sessionpath,"/",newid,'.xlsx'),sheet = 1,col_names=FALSE, range="B2")[[1]]
+      
+      system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.9.1.jar -outdir /home/obenites/AGROFIMS/kdsmart ", listOfFiles ," -nogui"), FALSE)
+      file.copy(paste0("/home/obenites/AGROFIMS/kdsmart/",newid,".xlsx"), file)
+      # END: Export in kdx format
+      
+    }
+  )
+  
+  
   observeEvent(input$refreshsession2,{
     output$dtkdsmart <- DT::renderDataTable({
       DT::datatable(

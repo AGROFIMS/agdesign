@@ -10349,7 +10349,7 @@ server_design_agrofims <- function(input, output, session, values){
                         inputId = paste0("sfNutUnit"),
                         label = "Unit",
                         choices = c(choices_unit),
-                        selected = 2
+                        selected = "kg/ha"
                       )
                     )
                     
@@ -10564,7 +10564,7 @@ server_design_agrofims <- function(input, output, session, values){
                         inputId = paste0("sfProUnit"),
                         label = "Unit",
                         choices = c(choices_unit),
-                        selected = 2
+                        selected = "kg/ha"
                       )
                     )
                     
