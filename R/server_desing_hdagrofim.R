@@ -5145,7 +5145,7 @@ server_design_agrofims <- function(input, output, session, values){
               12,
               selectizeInput(
                 inputId = "fbDesign_inSiteVegetation_other", label = "Other", 
-                choices = c("a","b","c"), multiple = T,
+                choices = c(), multiple = T,
                 options = list('create' = TRUE)
               )
             )
@@ -7561,7 +7561,7 @@ server_design_agrofims <- function(input, output, session, values){
                 actionButton(inputId = paste0(design,"_btnmNut_",modalLevel),"Calculate Product Amount",class = "btn btn-primary", style="color:white")
               ),
               column(12,
-                     paste0("Product Rate", unit)
+                     paste0("Amount of product to be added (", unit, ")")
               ),
               column(
                 12,
@@ -9555,6 +9555,11 @@ server_design_agrofims <- function(input, output, session, values){
       
       flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
       
+      print("----Labels for factors----")
+      print(flbl)
+      print(index)
+      saveRDS(allinputs,"/home/obenites/agrofims_modules/allinputs.rds")
+            
       #Get especial levels
       indexEspLvl <- factorlevel$ids 
       print("indexEspLvl")
@@ -10239,7 +10244,7 @@ server_design_agrofims <- function(input, output, session, values){
           12,
           selectizeInput(
             paste0("soilfertility_to_collect_field"), label = "To be collected in the field", multiple = TRUE, 
-            options = list(maxItems = 20, placeholder = "Select one..."), 
+            options = list(maxItems = 20, placeholder = "Select ..."), 
             choices = magm_label$get("soilf")
           )
         )
@@ -10441,7 +10446,7 @@ server_design_agrofims <- function(input, output, session, values){
                        column(
                          2,
                          selectizeInput(inputId = paste0("sfNutrientImplement_",sfNutrientSplit$num),
-                                        label = "Implement",
+                                        label = "Traction",
                                         multiple = TRUE,
                                         options = list(maxItems = 1, placeholder = "Select one..."),
                                         choices = fertCombo$get("ferImple")
@@ -10646,7 +10651,7 @@ server_design_agrofims <- function(input, output, session, values){
                    column(
                      2,
                      selectizeInput(inputId = paste0("sfProductImplement_",sfProductSplit$num),
-                                    label = "Implement",
+                                    label = "Traction",
                                     multiple = TRUE,
                                     options = list(maxItems = 1, placeholder = "Select one..."),
                                     choices = fertCombo$get("ferImple")
@@ -11224,7 +11229,7 @@ server_design_agrofims <- function(input, output, session, values){
                        column(
                          2,
                          selectizeInput(inputId = paste0("sfNutrientImplement_",sfNutrientSplit$num),
-                                        label = "Implement",
+                                        label = "Traction",
                                         multiple = TRUE,
                                         options = list(maxItems = 1, placeholder = "Select one..."),
                                         choices = fertCombo$get("ferImple")
@@ -11353,7 +11358,7 @@ server_design_agrofims <- function(input, output, session, values){
                  column(
                    2,
                    selectizeInput(inputId = paste0("sfProductImplement_",sfProductSplit$num),
-                                  label = "Implement",
+                                  label = "Traction",
                                   multiple = TRUE,
                                   options = list(maxItems = 1, placeholder = "Select one..."),
                                   choices = fertCombo$get("ferImple")
@@ -11417,7 +11422,7 @@ server_design_agrofims <- function(input, output, session, values){
   observeEvent(input$btnsfNut,{
     
     
-    out <<- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
+    out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
     # nut_details <<- get_nutrient_details_magm(allinputs= AllInputs(), sfNutrientSplit$ids)
     # 
      outrate <- out$outrate
@@ -11997,8 +12002,8 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 12,
                 selectizeInput(
-                  paste0(crop, "_directSeeding_to_collect_field_", index), label = "To collect in the field", multiple = TRUE, 
-                  options = list(maxItems = 20, placeholder = "Select one..."), 
+                  paste0(crop, "_directSeeding_to_collect_field_", index), label = "To be collected in the field", multiple = TRUE, 
+                  options = list(maxItems = 20, placeholder = "Select ..."), 
                   choices = magm_label$get("direct")
                   # choices = c("Start date",
                   #             "Seeding environment",
@@ -12136,8 +12141,15 @@ server_design_agrofims <- function(input, output, session, values){
                           paste0(crop, "_ptdi_seeding_rate_unit_", index), label = "Unit", 
                           multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                           choices = c("kg/ha",
+                                      "t/ha",
+                                      "kg/m2",
                                       "lb/ac",
-                                      "plants/pot"),
+                                      "g/m2",
+                                      "g/ft2",
+                                      "seeds/m2",
+                                      "seeds/ac",
+                                      "t/ac",
+                                      "lb/ft2"),
                           selected = "kg/ha"
                         )
                       )
@@ -12166,10 +12178,12 @@ server_design_agrofims <- function(input, output, session, values){
                           paste0(crop, "_ptdi_seeding_plant_density_unit_", index), label = "Unit", 
                           multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                           choices = c("plants/hill",
+                                      "plants/row",
+                                      "plants/ha",
                                       "plants/m2",
                                       "plants/pot",
-                                      "plants/row"),
-                          selected = "plants/m2"
+                                      "plants/ft2"),
+                          selected = "plants/row"
                         )
                       )
                     ),
@@ -12205,8 +12219,8 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 12,
                 selectizeInput(
-                  paste0(crop, "_transplanting_to_collect_field_", index), label = "To collect in the field", multiple = TRUE, 
-                  options = list(maxItems = 20, placeholder = "Select one..."), 
+                  paste0(crop, "_transplanting_to_collect_field_", index), label = "To be collected in the field", multiple = TRUE, 
+                  options = list(maxItems = 20, placeholder = "Select ..."), 
                   choices = magm_label$get("transplanting")
                   # choices = c("Start date",
                   #             "End date",
@@ -12342,7 +12356,8 @@ server_design_agrofims <- function(input, output, session, values){
                           choices = c("plants/hill",
                                       "plants/m2",
                                       "plants/pot",
-                                      "plants/row"),
+                                      "plants/row",
+                                      "plants/ft2"),
                           selected = "plants/m2"
                         )
                       )
@@ -12985,8 +13000,8 @@ server_design_agrofims <- function(input, output, session, values){
                 column(
                   12,
                   selectizeInput(
-                    paste0(vals[i], "_harvest_to_collect_field_", i ), label = "To collect in the field", multiple = TRUE, 
-                    options = list(maxItems = 20, placeholder = "Select one..."), 
+                    paste0(vals[i], "_harvest_to_collect_field_", i ), label = "To be collected in the field", multiple = TRUE, 
+                    options = list(maxItems = 20, placeholder = "Select ..."), 
                     choices = magm_label$get("harvest")
                     # choices = c("Start date",
                     #             "End date",
@@ -13488,7 +13503,10 @@ server_design_agrofims <- function(input, output, session, values){
                 selectizeInput(
                   paste0(crop, "_hahd_amount_harvested_unit_", index), label="Unit", multiple = TRUE, 
                   options = list(maxItems =1, placeholder ="Select one..."), 
-                  choices=c("g", "kg", "lb", "t"), selected = "g"
+                  #choices=c("g", "kg", "lb", "t"), 
+                  choices = c("kg/ha","t/ha","q/ha","kg/m2","kg","g","g/m2","g/ft2",
+                              "q","q/ac","t","t/ac","lb","lb/ac","lb/ft2","bsh/ac","bsh"),
+                  selected = "kg/ha"
                 )
               )
             ),
@@ -14436,6 +14454,11 @@ server_design_agrofims <- function(input, output, session, values){
     
     #parmea <- get_dcm_values(data_dictionary = cmdt, attribute = "Subgroup", crop = crop)
     parmea <- get_dcm_values(cmdt,  attribute = "Subgroup", crop = crop, measurement = measurement)
+    if(nrow(parmea)==1) {
+      temp <- parmea
+      temp$Subgroup <- ""
+      parmea <- rbind(parmea, temp)
+    }
     
     unit<- get_dcm_values(cmdt, "TraitUnit",crop = crop, subgroup= parmea[[1,1]], measurement=measurement )
     timing<- get_dcm_values(cmdt, "Timing",crop)
@@ -15566,8 +15589,12 @@ server_design_agrofims <- function(input, output, session, values){
     updateTabsetPanel(session, "fbDesignNav", selected = "tabCrop")
     shinyjs::runjs("window.scrollTo(0, 50)")
   })
-  observeEvent(input$btnDesign, {
+  observeEvent(input$btnNextDesign, {
     updateTabsetPanel(session, "fbDesignNav", selected = "tabDesign")
+    shinyjs::runjs("window.scrollTo(0, 50)")
+  })
+  observeEvent(input$btnNextManagement, {
+    updateTabsetPanel(session, "fbDesignNav", selected = "tabAgroFeat")
     shinyjs::runjs("window.scrollTo(0, 50)")
   })
   observeEvent(input$btnNextPlotInfo, {

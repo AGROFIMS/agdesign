@@ -14,7 +14,7 @@ ui_mobile_agrofims <- function(type="tab",title="KDSmart manage",name="kdsmart_f
     tabName = name,
     
     fluidRow(
-      column(12, style = "margin-top: -16px; margin-bottom: 16px;", h1("KDSmart"))
+      column(12, style = "margin-top: -16px; margin-bottom: 16px;", h1("Export FieldBook"))
     ),
     fluidRow(
       box(

@@ -1409,6 +1409,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     ),
                     shiny::uiOutput("fbDesign_country", inline = TRUE, width = 500),
                     shiny::uiOutput("fbDesign_countrySite", inline = TRUE, width = 500),
+                    actionLink("fbLinkNewSite", "Click here to create new site!", onclick = "openTab('newSiteAgrofims')"),
                     br(),
                     h2("Site description"),
                     selectizeInput(
@@ -1540,8 +1541,9 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   "croppingType", "Cropping type",
                   choices = c("Monocrop",
                               "Intercrop",
-                              "Relay crop",
-                              "Rotation"), 
+                              "Relay crop"
+                              #"Rotation"
+                              ), 
                   selected = "Monocrop"
                 )
               ),
@@ -1650,7 +1652,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
               
               sidebarPanel(
                 id="sidebar", width = 12,
-                actionButton("btnDesign", "Next", class = "btn-primary",style="color: #fff;", href="#top")
+                actionButton("btnNextDesign", "Next", class = "btn-primary",style="color: #fff;", href="#top")
               )
             ),
             
@@ -1665,7 +1667,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 6,
                 
                 
-                actionButton("btnViewLevelsFactor","Ver arreglo level factors."),
+                #actionButton("btnViewLevelsFactor","Ver arreglo level factors."),
                 h2("Experimental design"),
                 shiny::selectInput(
                   "designFieldbook_agrofims", "", 
@@ -1673,7 +1675,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   c("Select one..." = "", design_choices_agrofims)
                 ),
                 
-                actionButton("boton","action"),
+                #actionButton("boton","action"),
                 
                 conditionalPanel(
                   "input.designFieldbook_agrofims == 'CRD' || 
@@ -2116,7 +2118,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
               ),
               sidebarPanel(
                 id="sidebar", width = 12,
-                actionButton("btnDesign", "Next", class = "btn-primary",style="color: #fff;", href="#top")
+                actionButton("btnNextManagement", "Next", class = "btn-primary",style="color: #fff;", href="#top")
               )
           ),
           
@@ -2164,8 +2166,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                           column(
                             12,
                             selectizeInput(
-                              "residue_description_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              "residue_description_to_collect_field", label = "To be collected in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select ..."), 
                               choices = magm_label$get("resdes")
                               # choices = c("Plant part",
                               #             "Crop residue moisture",
@@ -2214,7 +2216,9 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                 selectizeInput(
                                   "rmgt_crop_residue_amount_sqm_unit", "Unit", multiple = T, 
                                   options=list(maxItems = 1, placeholder = "Select one..."),
-                                  choices = c("g/ft2", "g/m2", "kg/ha", "kg/m2", "lb/ac"), selected = "kg/ha"
+                                  #choices = c("g/ft2", "g/m2", "kg/ha", "kg/m2", "lb/ac"), 
+                                  choices = c("kg/ha","t/ha","g/m2","g/ft2","kg/m2","lb/ac","t/ac","lb/ft2"),
+                                  selected = "kg/ha"
                                 )
                               )
                             ),
@@ -2235,8 +2239,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                           column(
                             12,
                             selectizeInput(
-                              "residue_management_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              "residue_management_to_collect_field", label = "To be collected in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select ..."), 
                               choices = magm_label$get("resmgtm")
                               # choices = c("Start date",
                               #             "Technique",
@@ -2309,8 +2313,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                           column(
                             12,
                             selectizeInput(
-                              "land_levelling_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              "land_levelling_to_collect_field", label = "To be collected in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select ..."), 
                               choices = magm_label$get("landlev")
                               # choices = c("Start date",
                               #             "Total number of levelling passes",
@@ -2380,8 +2384,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                           column(
                             12,
                             selectizeInput(
-                              "puddling_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              "puddling_to_collect_field", label = "To be collected in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select ..."), 
                               choices = magm_label$get("pud")
                               # choices = c("Start date",
                               #             "Puddling depth",
@@ -2467,8 +2471,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                           column(
                             12,
                             selectizeInput(
-                              "tillage_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                              options = list(maxItems = 10, placeholder = "Select one..."), 
+                              "tillage_to_collect_field", label = "To be collected in the field", multiple = TRUE, 
+                              options = list(maxItems = 10, placeholder = "Select ..."), 
                               choices = magm_label$get("till")
                               # choices = c("Start date",
                               #             "Technique",
@@ -2607,8 +2611,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                           column(
                             12,
                             selectizeInput(
-                              "mulch_management_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                              options = list(maxItems = 20, placeholder = "Select one..."), 
+                              "mulch_management_to_collect_field", label = "To be collected in the field", multiple = TRUE, 
+                              options = list(maxItems = 20, placeholder = "Select ..."), 
                               choices = magm_label$get("mulching")
                               # choices = c("Mulching start date",
                               #             "Type",
@@ -2668,7 +2672,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                 selectizeInput(
                                   "mumd_mulch_amountPerSq_unit", "Unit", multiple = T, 
                                   options=list(maxItems=1, placeholder="Select one..."),
-                                  choices = c("g/ft2", "g/m2","kg/ha", "kg/m2", "lb/ac"), 
+                                  #choices = c("g/ft2", "g/m2","kg/ha", "kg/m2", "lb/ac"), 
+                                  choices = c("kg/ha","t/ha","g/m2","g/ft2","kg/m2","lb/ac","t/ac","lb/ft2"),
                                   selected = "kg/ha"
                                 )
                               )
@@ -2732,8 +2737,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                       column(
                         12,
                         selectizeInput(
-                          "irrigation_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                          options = list(maxItems = 20, placeholder = "Select one..."), 
+                          "irrigation_to_collect_field", label = "To be collected in the field", multiple = TRUE, 
+                          options = list(maxItems = 20, placeholder = "Select ..."), 
                           choices = magm_label$get("irrigation")
                           # choices = c("Start date",
                           #             "End date",
@@ -2758,8 +2763,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                       column(
                         12,
                         selectizeInput(
-                          "weeding_to_collect_field", label = "To collect in the field", multiple = TRUE, 
-                          options = list(maxItems = 20, placeholder = "Select one..."), 
+                          "weeding_to_collect_field", label = "To be collected in the field", multiple = TRUE, 
+                          options = list(maxItems = 20, placeholder = "Select ..."), 
                           choices = magm_label$get("weeding")
                           # choices = c("Start date",
                           #             "Technique",
@@ -2784,8 +2789,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                         column(
                           12,
                           selectizeInput(
-                            paste0("mono_harvest_to_collect_field"), label = "To collect in the field", multiple = TRUE, 
-                            options = list(maxItems = 20, placeholder = "Select one..."), 
+                            paste0("mono_harvest_to_collect_field"), label = "To be collected in the field", multiple = TRUE, 
+                            options = list(maxItems = 20, placeholder = "Select ..."), 
                             choices = magm_label$get("harvest")
                           )#,
                           #hr()

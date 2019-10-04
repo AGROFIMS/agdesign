@@ -117,7 +117,7 @@ get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1
   lbl_ha_area <- paste(lbl_ha_area, seq.int(ha_area$values),sep = "__")
   #lbl_ha_area <-  paste("Harvestable_area", seq.int(addId),sep = "__")
   #####################################
-  
+  #Harvest_implement_type 
   #ha_m2
   lbl_ha_area_m2 <- paste("Number_of_m2_units_harvested",seq.int(addId),sep="__") 
   #ha_ip

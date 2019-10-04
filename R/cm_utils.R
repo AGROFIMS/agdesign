@@ -4,6 +4,8 @@
 #subgroup: subgroup column name
 get_dcm_values <- function(data_dictionary=NULL, attribute = "Subgroup", crop="Potato", subgroup=NULL, measurement= NULL){
   
+  attr(data_dictionary, "spec") <-NULL
+  
   if (!is.null(data_dictionary) && !is.null(crop)) {
     
     if(attribute=="Timing"){
