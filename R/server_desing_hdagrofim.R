@@ -9555,10 +9555,10 @@ server_design_agrofims <- function(input, output, session, values){
       
       flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
       
-      print("----Labels for factors----")
-      print(flbl)
-      print(index)
-      saveRDS(allinputs,"/home/obenites/agrofims_modules/allinputs.rds")
+      #print("----Labels for factors----")
+      #print(flbl)
+      #print(index)
+      #saveRDS(allinputs,"/home/obenites/agrofims_modules/allinputs.rds")
             
       #Get especial levels
       indexEspLvl <- factorlevel$ids 
