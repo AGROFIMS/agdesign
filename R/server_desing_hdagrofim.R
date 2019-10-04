@@ -10975,7 +10975,7 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 2,
                 textInput(inputId = paste0("txtsfProductValue_",index,"_",i),
-                          label = values[i])
+                          label =  paste0(values[i]," (",input$sfProUnit,")"))
               )
             )
         )
