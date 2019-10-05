@@ -385,16 +385,25 @@ fertilizerRates <- function(fertilizers, treatments) {
 }    
 
 # Fertilizer/Product Rates (output) for Management Practices
-fertilizerRates_mgmt <- function(fertilizers, treatments) {
-  out <- fertilizers[,-1]*treatments
+#fertilizerRates_mgmt <- function(fertilizers, treatments) {
+NutrientRates_mgmt <- function(fertilizers, treatments) {
+  prod_names <- treatments$name
+  out <- (fertilizers[,-c(1,2)]*treatments[,-c(1,2)])/100
+  out$name <- prod_names
+  nc <- ncol(out) 
+  out <- out[, c(nc, 1:(nc-1))]
+  out
 }    
 
 # Fertilizer/Product Rates (output) for Management Practices
-NutrientRates_mgmt <- function(fertilizers, treatments) {
+#NutrientRates_mgmt <- function(fertilizers, treatments) {
+FertilizerRates_mgmt <- function(fertilizers, treatments) {
   
-  out<- vector(mode="list", length = nrow(fertilizers)) 
-  for(i in 1:nrow(fertilizers)){
-    out[[i]] <- fertilizers[i,-c(1,2)]*treatments[i,3]/100
+  out<- vector(mode="list", length = nrow(treatments)) 
+  for(i in 1:nrow(treatments)){
+    out[[i]] <- treatments[i,]/(fertilizers[i,-1]/100)
+    out[[i]] <- replace(out[[i]], is.na(out[[i]]), 0) #change nan values by 0
+    is.na(out[[i]]) <- do.call(cbind,lapply(out[[i]], is.infinite)) #change inf values by 0
   }
   out <- data.table::rbindlist(out) %>% as.data.frame(stringsAsFactors=FALSE)
 } 
@@ -470,7 +479,8 @@ get_nutrient_mgmt <- function(allinputs, addId="mgp_nut_1"){
   #prod_mgmt$N <- c(90,89)
   fertilizers <- prod_mgmt
   
-  outrate<- try({fertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
+  #outrate<- try({fertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
+  outrate<- try({FertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
   
   out <- list(outrate= outrate, fertilizers= fertilizers,treatments= treatments )
   

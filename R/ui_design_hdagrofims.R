@@ -6,8 +6,10 @@ design_choices_agrofims <- c(
   #"Westcott Design (WD)" = "WD",#
   "Completely Randomized Design (CRD)" = "CRD",
   "Randomized Complete Block Design (RCBD)" = "RCBD",
-  "Factorial with CRD"="FCRD",
-  "Factorial with RCBD"="FRCBD",
+  #"Factorial with CRD"="FCRD",
+  #"Factorial with RCBD"="FRCBD",
+  "Full Factorial Completely Randomized Design" = "FCRD",
+  "Full Factorial Randomized Complete Block Design" = "FRCBD",
   #"Augmented Block Design (ABD)" = "ABD",
   #"Alpha Design (AD)" = "AD",
   #"Latin Square Design (LSD)" = "LSD",
@@ -809,9 +811,34 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       Shiny.onInputChange("levelInputid", this.id);
       })'
     ),
+    tags$script(
+      '$(document).on("change", "select[id*=\'crd_lvltimingValue_\']:not([id$=\'_dateinput\'])",  function(){
+      Shiny.onInputChange("levelInput", Math.random());
+      Shiny.onInputChange("levelInputid", this.id);
+      })'
+    ),
+    tags$script(
+      '$(document).on("change", "input[id*=\'crd_lvltimingValue_\']",  function(){
+      Shiny.onInputChange("levelInput", Math.random());
+      Shiny.onInputChange("levelInputid", this.id);
+      })'
+    ),
+    
     # Levels Inputs RCBD
     tags$script(
       '$(document).on("change", "select[id*=\'rcbd_lvl_\']:not([id$=\'_dateinput\'])",  function(){
+      Shiny.onInputChange("levelInput", Math.random());
+      Shiny.onInputChange("levelInputid", this.id);
+      })'
+    ),
+    tags$script(
+      '$(document).on("change", "select[id*=\'rcbd_lvltimingValue_\']:not([id$=\'_dateinput\'])",  function(){
+      Shiny.onInputChange("levelInput", Math.random());
+      Shiny.onInputChange("levelInputid", this.id);
+      })'
+    ),
+    tags$script(
+      '$(document).on("change", "input[id*=\'rcbd_lvltimingValue_\']",  function(){
       Shiny.onInputChange("levelInput", Math.random());
       Shiny.onInputChange("levelInputid", this.id);
       })'

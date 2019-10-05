@@ -9198,7 +9198,7 @@ server_design_agrofims <- function(input, output, session, values){
                          inputId = paste0(design, "_lvltimingValue_", order, "_",i),
                          label = paste0("# ",i," ",timingValue),
                          dateFormat = "yyyy-mm-dd",
-                         value = Sys.Date(),
+                         #value = Sys.Date(),
                          placeholder = "yyyy-mm-dd",
                          addon = "none",
                          clearButton = TRUE
@@ -11418,10 +11418,14 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
   
+  ############### START Soil Fertility Nutrient Calculation - Management Practices ###########################
   # Calculate Nutrient
   observeEvent(input$btnsfNut,{
     
-    
+    # saveRDS(AllInputs(),"/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/calc_prod_mgmt.rds")
+    # print("--nutbtns")
+    # print(sfNutrientSplit$ids)
+    # 
     out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
     # nut_details <<- get_nutrient_details_magm(allinputs= AllInputs(), sfNutrientSplit$ids)
     # 
@@ -11432,76 +11436,7 @@ server_design_agrofims <- function(input, output, session, values){
     # allinputs <- AllInputs()
     # indexSoilMagp<- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
     # #out<<-get_nutrient_details_magm(allinputs, indexSoilMagp= nutIndexSoilMagp)
-    # 
-    # 
-    # 
-    # dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
-    #                     dplyr::filter(!str_detect(id, "button")) %>%
-    #                     dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
-    #                     dplyr::filter(!str_detect(id, "-selectized"))  
-    # 
-    # 
-    # #NUTRIENT SPLIT ##########################################################################
-    # out_nut_mgmt <- list()
-    # for(i in seq.int(indexSoilMagp) ){
-    #   
-    #   out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit1_",indexSoilMagp[i])))  %>% nth(2)%>% as.numeric()
-    #   out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit2_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-    #   out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit3_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-    #   out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit4_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-    #   out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit5_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-    #   out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit6_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-    #   out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit7_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-    #   out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit8_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-    #   out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit9_",indexSoilMagp[i])))   %>% nth(2)%>% as.numeric()
-    #   out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit10_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-    #   out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit11_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-    #   out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit12_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-    #   out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit13_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-    #   out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientSplit14_",indexSoilMagp[i]))) %>% nth(2)%>% as.numeric()
-    #   
-    #   out_nut_mgmt[[i]] <-data.frame(out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
-    #   names(out_nut_mgmt[[i]]) <-  c("N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
-    # }  
-    # nut_mgmt<-data.table::rbindlist(out_nut_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
-    # #nut_mgmt$N <- c(25,36)
-    # treatments<-nut_mgmt
-    # ##########################################################################################
-    # 
-    # #NUTRIENT CHOSE PRODUCT #################################################################
-    # out_prod_mgmt <- list()
-    # for(i in seq.int(indexSoilMagp) ){
-    #   
-    #   prodname <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit0_",indexSoilMagp[i],"_1" )))  %>% nth(2)
-    #   out1 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit1_",indexSoilMagp[i],"_1")))  %>% nth(2) %>% as.numeric()
-    #   out2 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit2_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out3 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit3_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out4 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit4_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out5 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit5_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out6 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit6_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out7 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit7_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out8 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit8_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out9 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit9_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out10 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit10_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out11 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit11_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out12 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit12_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out13 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit13_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   out14 <- dt %>% dplyr::filter(str_detect(id,  paste0("nutrientProductSplit14_",indexSoilMagp[i],"_1")))  %>% nth(2)%>% as.numeric()
-    #   
-    #   out_prod_mgmt[[i]] <-data.frame(prodname, out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
-    #   names(out_prod_mgmt[[i]]) <-  c("name", "N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
-    #   
-    # }  
-    # prod_mgmt <- data.table::rbindlist(out_prod_mgmt) %>% as.data.frame(stringsAsFactors=FALSE)
-    # #prod_mgmt$N <- c(90,89)
-    # fertilizers <- prod_mgmt
-    # ##########################################################################################
-    # 
-    # Nutrient Rates (output)
-    # outrate <- list()
-    
-    #out<- try({fertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
-    #}
+
     
     if(class(outrate)!="try-error")  {   
       
@@ -11518,6 +11453,10 @@ server_design_agrofims <- function(input, output, session, values){
       })
     }
   })
+  ############### END Soil Fertility Nutrient Calculation - Management Practices ###########################
+  
+  
+  
   
   # Function tht get ids's for Split Product
   getSFProductIds <- function(){
@@ -11544,20 +11483,24 @@ server_design_agrofims <- function(input, output, session, values){
     return(indexesProductValue)
   }
   
-  # Calculate Product
+  # Calculate Nutrient Amount in Prod
   observeEvent(input$btnsfPro,{
     
     #Get product input 
     print("---1")
     print(sfProductSplit$ids)
-    addId <-  sfProductSplit$ids
+    
     # Get Product indexes by split
     print("---2")
-    splitId<- getSFProductIds()
     print(getSFProductIds())
     
+    #Get Ids
+    addId <- sfProductSplit$ids
+    splitId<- getSFProductIds()
     allinputs <- AllInputs()
     #sprodIndexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
+    
+    #saveRDS(AllInputs(),file = "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/calc_nut_mgmt.rds")
     
     
     out <- try({  get_prodfert_mgmt(allinputs, addId = sfProductSplit$ids, splitId= getSFProductIds()) })
@@ -17196,24 +17139,43 @@ server_design_agrofims <- function(input, output, session, values){
       circm <- map_values(input, id_chr="int_cropCommonName_", id_ic_rand, format = "data.frame", lbl= "Crop")
       cirvar <- map_values(input, id_chr="int_cropVarietyName_", id_ic_rand,format = "data.frame", lbl= "Crop variety")
       
-      #Generate labels according to each crop ####################################
-      circm_lbl <- map_values(input, id_chr="int_cropCommonName_", id_ic_rand, format = "vector", lbl= "Crop")
-      cil<- reactiveValuesToList(input)
-      id_chr <- "int_cropVarietyName_"
-      crim_val<- crim_lbl <- NULL
-      for(i in 1:length(id_ic_rand)){
-        if( is.null( cil[[paste0(id_chr, id_ic_rand[i])]] )){
-          crim_val[[i]]<-"-"
-          crim_lbl[[i]]<- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
-        } else{
-          crim_val[[i]]<- cil[[paste0(id_chr, id_ic_rand[i])]]
-          crim_lbl[[i]] <- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
-        }
+      #print(circm)
+      #print(cirvar)
+      
+      lookup <- paste0("^","int_cropVarietyName_")
+      inter_cropdt <- AllInputs() %>% dplyr::filter(!str_detect(id, "add")) %>%
+                                      dplyr::filter(!str_detect(id, "button")) %>%
+                                      #dplyr::filter(!str_detect(id, "unit")) %>%  ##Contemplate Unit case
+                                      dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                                      dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                                      dplyr::filter(str_detect(id, lookup))  
+      variety <- NULL                                     
+      for(i in seq.int(id_ic_rand)){
+        variety[[i]] <- inter_cropdt %>% dplyr::filter(str_detect(id, id_ic_rand[i]))  
       }
-      crim_lbl<- unlist(crim_lbl)
-      #Changing labels in crop table for intercrop
-      cirvar[,1]<-crim_lbl
-      ################################################################################
+      variety<- do.call(rbind,variety)
+      variety$id <- paste(circm$res, "variety")
+      names(variety) <- c("label","res")
+      cirvar <- variety
+      #saveRDS(object = AllInputs(),"/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/multicrop_inputs.rds")
+      #Generate labels according to each crop ####################################
+      # circm_lbl <- map_values(input, id_chr="int_cropCommonName_", id_ic_rand, format = "vector", lbl= "Crop")
+      # cil<- reactiveValuesToList(input)
+      # id_chr <- "int_cropVarietyName_"
+      # crim_val<- crim_lbl <- NULL
+      # for(i in 1:length(id_ic_rand)){
+      #   if( is.null( cil[[paste0(id_chr, id_ic_rand[i])]] )){
+      #     crim_val[[i]]<-"-"
+      #     crim_lbl[[i]]<- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
+      #   } else{
+      #     crim_val[[i]]<- cil[[paste0(id_chr, id_ic_rand[i])]]
+      #     crim_lbl[[i]] <- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
+      #   }
+      # }
+      # crim_lbl<- unlist(crim_lbl)
+      # #Changing labels in crop table for intercrop
+      # cirvar[,1]<-crim_lbl
+      # ################################################################################
       
       ciarre<- map_singleform_values(input = input$fr_intercrop_arrangement, 
                                      type="combo box",format = "data.frame", label= "Intercrop arragement")
@@ -17230,6 +17192,22 @@ server_design_agrofims <- function(input, output, session, values){
       id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
       circm <- map_values(input, id_chr="rel_cropCommonName_", id_re_rand, format = "data.frame", lbl= "Select crop")
       cirvar <- map_values(input, id_chr="rel_cropVarietyName_", id_re_rand,format = "data.frame", lbl= "Crop variety(s)")
+      
+      lookup <- paste0("^","rel_cropVarietyName_")
+      inter_cropdt <- AllInputs() %>% dplyr::filter(!str_detect(id, "add")) %>%
+                                  dplyr::filter(!str_detect(id, "button")) %>%
+                                  #dplyr::filter(!str_detect(id, "unit")) %>%  ##Contemplate Unit case
+                                  dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                                  dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                                  dplyr::filter(str_detect(id, lookup))  
+      variety <- NULL                                     
+      for(i in seq.int(id_re_rand)){
+        variety[[i]] <- inter_cropdt %>% dplyr::filter(str_detect(id, id_re_rand[i]))  
+      }
+      variety<- do.call(rbind,variety)
+      variety$id <- paste(circm$res, "variety")
+      names(variety) <- c("label","res")
+      cirvar <- variety
       #ciarre<- map_singleform_values(input = input$fr_intercrop_arrangement, 
       #                               type="combo box",format = "data.frame", label= "Intercrop arragement")
       #row <- map_values(input, id_chr="intercropValue_row_crop_", id_ic_rand, format = "data.frame", lbl= "Row geometry")
@@ -17548,11 +17526,15 @@ server_design_agrofims <- function(input, output, session, values){
         rep <- as.integer(input$fcrd_rep)
         flbl<- get_factors_design(allinputs = AllInputs(), index, design = "fcrd")
         
-        print("indexEspLvl")
-        print(indexEspLvl)
-        
+        # print("design fcrd")
+        # print(flbl)
+        # print(index)
+        # print("index especial fcrbd")
+        # print(indexEspLvl)
+        # #saveRDS(AllInputs(),"/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/allinputs_fcrd.rds")
         flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                   index, factors = flbl, design="fcrd", format="list")
+        print(flvl)
         
         # flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dt_factordesign,
         #                          index, factors = flbl, design="fcrd", format="list")
@@ -17565,9 +17547,19 @@ server_design_agrofims <- function(input, output, session, values){
         #Get index from special factors and levels
         #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
         #Get levels
+        # print("design frcbd")
+        # print(flbl)
+        # print(index)
+        # print("index especial fcrbd")
+        # print(indexEspLvl)
+        # #saveRDS(AllInputs(), "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/allinputs_frcbd.rds")
+        
         flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                   index, factors = flbl, design="frcbd", format="list")
+        print(flvl)
 
+        
+        
         fb<- fbdesign_agrofims(design=design, rep=block,  fnames= flbl, flevels= flvl) 
       } else if(design =="sprcbd"){
         

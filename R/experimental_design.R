@@ -20,6 +20,9 @@ fbdesign_agrofims <- function(design, rep=2, block=2, trt=2, ntrt=NULL,
                                mplot=NULL, splot=NULL, ssplot=NULL,
                                rowf=NULL, colf=NULL){
             
+            block <-as.numeric(block)
+            rep <- as.numeric(rep)
+  
             if (design == "crd") {
               fb<- try(st4gi::cr.crd(geno = trt,nrep = rep)$book)
               names(fb)<- c("PLOT", "ROW","COL","TREATMENT")
@@ -451,8 +454,11 @@ experimental_design_label <- function(abbr_design = "frcbd"){
   if(abbr_design == "SPSP")   {out <- "Split-Splot Plot Design"} # #R.Eyzaguirre recommend to use just one split design under rcbd
   if(abbr_design == "SPLSD")  {out <- "Split Plot with Plots in LSD (SPLSD)"}
   if(abbr_design == "STRIP")  {out <- "Strip Plot Design (STRIP)"}
-  if(abbr_design == "FCRD")   {out <- "Factorial with CRD"}
-  if(abbr_design == "FRCBD")  {out <- "Factorial with RCBD"}
+  #if(abbr_design == "FCRD")   {out <- "Factorial with CRD"}
+  #if(abbr_design == "FRCBD")  {out <- "Factorial with RCBD"}
+  if(abbr_design == "FCRD")   {out <- "Full factorial Completely Randomized Design"}
+  if(abbr_design == "FRCBD")  {out <- "Full factorial Randomized Complete Block Design"}
+  
   if(abbr_design == "AD")     {out <- "Alpha Design(0,1) (AD)"}
   if(abbr_design == "WD")     {out <- "Westcott Design (AD)"}
   
