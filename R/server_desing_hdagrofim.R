@@ -7283,7 +7283,7 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 4,
                 selectizeInput(inputId = paste0(design,"_mFerTechnique_",level,"_",index,"_",i,"_",j),
-                               label = "Technique",
+                               label = "Traction",
                                multiple = TRUE,
                                options = list(maxItems = 1, placeholder = "Select one..."),
                                choices = fertCombo$get("ferTech")
@@ -7490,7 +7490,7 @@ server_design_agrofims <- function(input, output, session, values){
                 column(
                   2,
                   selectizeInput(inputId = paste0(design,"_mNutImplement_",level,"_",index,"_",i,"_",j),
-                                 label = "Implement",
+                                 label = "Traction",
                                  multiple = TRUE,
                                  options = list(maxItems = 1, placeholder = "Select one..."),
                                  choices = fertCombo$get("ferImple")
@@ -11422,15 +11422,14 @@ server_design_agrofims <- function(input, output, session, values){
   # Calculate Nutrient
   observeEvent(input$btnsfNut,{
     
-    # saveRDS(AllInputs(),"/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/calc_prod_mgmt.rds")
-    # print("--nutbtns")
-    # print(sfNutrientSplit$ids)
+    # saveRDS(AllInputs(),"/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/calc_prod_mgmt_2.rds")
+    #  print("--nutbtns")
+    #  print(sfNutrientSplit$ids)
     # 
     out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
     # nut_details <<- get_nutrient_details_magm(allinputs= AllInputs(), sfNutrientSplit$ids)
     # 
-     outrate <- out$outrate
-     fertilizers <- out$fertilizers
+    
     # 
     # #print(sfNutrientSplit$ids) #variable that store ids
     # allinputs <- AllInputs()
@@ -11438,7 +11437,10 @@ server_design_agrofims <- function(input, output, session, values){
     # #out<<-get_nutrient_details_magm(allinputs, indexSoilMagp= nutIndexSoilMagp)
 
     
-    if(class(outrate)!="try-error")  {   
+    if(class(out)!="try-error")  {   
+      
+      outrate <- out$outrate
+      fertilizers <- out$fertilizers
       
       outrate$name <- fertilizers$name
       DF<- outrate[, c(15,1:14)]
@@ -11447,7 +11449,7 @@ server_design_agrofims <- function(input, output, session, values){
         rhandsontable(DF)
       })
     } else {
-      DF<- data.frame(NoData="Please choose products correctly or fill other missing information")
+      DF<- data.frame(NoData="Please choose products correctly, check if there exist missing products")
       output[["sfoutput_nutDT"]] <- rhandsontable::renderRHandsontable({
         rhandsontable(DF)
       })
@@ -11515,13 +11517,14 @@ server_design_agrofims <- function(input, output, session, values){
     if(class(nutrate)!="try-error")  {   
     
     #DF <- data.frame()
+    
       output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
         rhandsontable(nutrate)
       })
     } else {
-      DF <- data.frame()
+      DF<- data.frame(NoData="Please choose products or nutrients correctly, check if there exist missing products or nutrients")
       output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
-        rhandsontable(nutrate)
+        rhandsontable(DF)
       })
       
     }
@@ -16987,18 +16990,22 @@ server_design_agrofims <- function(input, output, session, values){
   soil_dt<- reactive({
     
     #addId <-  soilVars$ids #as.character(soilVars$num)
-    addId <- getAddInputId(soilVars$ids, "soil_", "") 
-    soil_vars <- get_soil_variables(AllInputs(),addId= addId)
+    addId <- getAddInputId(soilVars$ids, "soil_", "")
+    
+    #print(addId)
+    #saveRDS(AllInputs(), file = "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/soil_vars_1.rds")
+    
+    soil_vars <- get_soil_variables(AllInputs(),addId= addId) #get table of variables
     
      if(nrow(soil_vars)>0){
-       soil_vars <-get_dt_soil(soil_variables = soil_vars, dt_soil=dt_soil)
+       soil_var_dt <-get_dt_soil(soil_variables = soil_vars, dt_soil=dt_soil) #get soil measrurement variables table
        
       #colnames(soildt) <- c("Group", "Measurement","TraitUnit","NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot")
       # colnames(soildt) <- c("Crop","Group","Subgroup","Measurement",
       #                   "TraitUnit","CropMeasurementPerSeason",
       #                   "CropMeasurementPerPlot","TraitName", "TraitAlias",
       #                   "TraitDataType","TraitValidation","VariableId")
-      cs<- add_season_numplot_prefix(dt=soil_vars)
+      cs<- add_season_numplot_prefix(dt=soil_var_dt)
       lbl<- cs
       
     } else {
@@ -17006,17 +17013,20 @@ server_design_agrofims <- function(input, output, session, values){
     }
     
     if(length(lbl)==0){
-      soil_vars <- data.frame()
+      soil_var_dt <- data.frame()
     } else if(nrow(fbdesign())==0 && length(lbl)>=1){
-      soil_vars <- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
-      names(soil_vars) <- lbl
+      soil_var_dt <- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
+      names(soil_var_dt) <- lbl
     } else if(nrow(fbdesign())>0 && length(lbl)>=1) {
       print("case 3")
-      soil_vars <- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
-      names(soil_vars) <- lbl
-      soil_vars <-cbind(fbdesign() ,soil_vars)
+      print(lbl)
+      print(fbdesign())
+      print("-end case 3 soil_dt")
+      soil_var_dt <- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
+      names(soil_var_dt) <- lbl
+      soil_var_dt <-cbind(fbdesign() ,soil_var_dt)
     }
-    soil_vars 
+    soil_var_dt
   })
   
   soil_list <- reactive({
@@ -18228,8 +18238,8 @@ server_design_agrofims <- function(input, output, session, values){
         #   
           print("soil fertility")
           incProgress(7/20,message = "Adding soil and fertility")
-          openxlsx::addWorksheet(wb, "Soil fertility", gridLines = TRUE)
-          openxlsx::writeDataTable(wb, "Soil fertility", x = dt_soilFertility(),
+          openxlsx::addWorksheet(wb, "Fertilizer_management", gridLines = TRUE)
+          openxlsx::writeDataTable(wb, "Fertilizer_management", x = dt_soilFertility(),
                                    colNames = TRUE, withFilter = FALSE)
 
          }
