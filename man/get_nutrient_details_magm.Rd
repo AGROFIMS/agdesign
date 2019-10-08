@@ -4,7 +4,7 @@
 \alias{get_nutrient_details_magm}
 \title{TODO: Obtener las tablas "sfNutrientSplit_", con los valores de cada elemento}
 \usage{
-get_nutrient_details_magm(allinputs, indexSoilMagp)
+get_nutrient_details_magm(allinputs, addId)
 }
 \description{
 TODO: Obtener las tablas "sfNutrientSplit_", con los valores de cada elemento

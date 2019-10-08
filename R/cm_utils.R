@@ -83,6 +83,7 @@ get_dtcmea_variables <- function(allinputs, ctype="monocrop", addId="1", crop="n
     }
     
     dt<- tibble::tibble(crop, mea, parmea, unit, as.numeric(pseason), as.numeric(pplot), timing, timValue)
+    dt<- dplyr::distinct(dt)
     names(dt) <- c("Crop", "Measurement", "Subgroup","TraitUnit",  "NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot",
                    "Timing", "TimingValue")
   } 

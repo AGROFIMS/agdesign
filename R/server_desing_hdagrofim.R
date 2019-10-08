@@ -5118,7 +5118,7 @@ server_design_agrofims <- function(input, output, session, values){
     #print(locs)
     if (nrow(locs) > 0 ){
       #chc = locs$shortn
-      shiny::selectizeInput("designFieldbook_sites", label = "Village name",
+      shiny::selectizeInput("designFieldbook_sites", label = "Site",
                             choices = fbdesign_sites_selected, selected = 1,  multiple = FALSE)
     }
   })
@@ -7283,7 +7283,7 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 4,
                 selectizeInput(inputId = paste0(design,"_mFerTechnique_",level,"_",index,"_",i,"_",j),
-                               label = "Traction",
+                               label = "Technique",
                                multiple = TRUE,
                                options = list(maxItems = 1, placeholder = "Select one..."),
                                choices = fertCombo$get("ferTech")
@@ -7292,7 +7292,7 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 2,
                 selectizeInput(inputId = paste0(design,"_mFerImplement_",level,"_",index,"_",i,"_",j),
-                               label = "Implement",
+                               label = "Traction",
                                multiple = TRUE,
                                options = list(maxItems = 1, placeholder = "Select one..."),
                                choices = fertCombo$get("ferImple")
@@ -7774,7 +7774,11 @@ server_design_agrofims <- function(input, output, session, values){
     
     out <- try({product_calculation(allinputs, dfAll=dfAll, index=index, indexEspLvl= indexEspLvl , design=design) })
     
-    if(class(out)!="try-error")  {   
+    if(class(out)!="try-error")  {  
+      
+      out <- out[,c(2,1,3)]
+      names(out)[3] <- "Product amount"
+      
       output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
         rhandsontable(out,rowHeaders = FALSE,readOnly = TRUE) 
       })
@@ -11426,6 +11430,10 @@ server_design_agrofims <- function(input, output, session, values){
     #  print("--nutbtns")
     #  print(sfNutrientSplit$ids)
     # 
+    nut_details <- try({ get_nutrient_details_magm(allinputs=AllInputs(), addId=sfNutrientSplit$ids)})
+    
+    #saveRDS(nut_details, file="tests/testthat/userInput/nut_details_mgmt_1.rds")
+    
     out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
     # nut_details <<- get_nutrient_details_magm(allinputs= AllInputs(), sfNutrientSplit$ids)
     # 
@@ -11441,9 +11449,13 @@ server_design_agrofims <- function(input, output, session, values){
       
       outrate <- out$outrate
       fertilizers <- out$fertilizers
+      splitId <- out$splitId
       
       outrate$name <- fertilizers$name
       DF<- outrate[, c(15,1:14)]
+      DF$`Application number` <- splitId
+      DF <- DF[,c(16,1:15)]
+      names(DF)[3:16] <- paste0("Amount_for_",names(DF)[3:16],"(",input$sfNutUnit,")") 
       #Calculate Nutrient 
       output[["sfoutput_nutDT"]] <- rhandsontable::renderRHandsontable({
         rhandsontable(DF)
@@ -12515,7 +12527,7 @@ server_design_agrofims <- function(input, output, session, values){
         ),
         br(),
         width = 12, 
-        solidHeader = TRUE, status = "info",
+        solidHeader = TRUE, status = "warning",
         fluidRow(
           column(
             6,
@@ -18238,8 +18250,8 @@ server_design_agrofims <- function(input, output, session, values){
         #   
           print("soil fertility")
           incProgress(7/20,message = "Adding soil and fertility")
-          openxlsx::addWorksheet(wb, "Fertilizer_management", gridLines = TRUE)
-          openxlsx::writeDataTable(wb, "Fertilizer_management", x = dt_soilFertility(),
+          openxlsx::addWorksheet(wb, "Fertilizer management", gridLines = TRUE)
+          openxlsx::writeDataTable(wb, "Fertilizer management", x = dt_soilFertility(),
                                    colNames = TRUE, withFilter = FALSE)
 
          }

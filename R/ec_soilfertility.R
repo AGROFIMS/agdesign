@@ -425,7 +425,7 @@ FertilizerRates_mgmt <- function(fertilizers, treatments) {
 
 # Get nutrient management calculation and metadata
 #
-get_nutrient_mgmt <- function(allinputs, addId="mgp_nut_1"){
+get_nutrient_mgmt <- function(allinputs, addId="mgp_nut_1", calc=TRUE){
   
   #allinputs <- allinputs #AllInputs()
   indexSoilMagp<- getAddInputId(addId = addId, pattern= "mgp_nut_", replacement="")
@@ -507,23 +507,19 @@ get_nutrient_mgmt <- function(allinputs, addId="mgp_nut_1"){
   names(fertilizers) <-  c("splitId","name", "N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
   
   #outrate<- try({fertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
-  outrate<- list()
-  for(i in seq.int(unique(prod_mgmt$splitId))  ){
-    fertilizers2 <- fertilizers %>% dplyr::filter(splitId==i) %>% dplyr::select(-splitId)
-    treatments2 <- treatments[i,]
-    print("--fert y treat 2")
-    print(fertilizers2)
-    print(treatments2)
-    
-    outrate[[i]] <- try({FertilizerRates_mgmt(fertilizers=fertilizers2, treatments= treatments2)})
-    print("--ourate---")
-    print(outrate[[i]])
-    
+  if(calc){
+    outrate<- list()
+    for(i in seq.int(unique(prod_mgmt$splitId))  ){
+      fertilizers2 <- fertilizers %>% dplyr::filter(splitId==i) %>% dplyr::select(-splitId)
+      treatments2 <- treatments[i,]
+      outrate[[i]] <- try({FertilizerRates_mgmt(fertilizers=fertilizers2, treatments= treatments2)})
+    }
+    outrate<- data.table::rbindlist(outrate) %>% as.data.frame(stringsAsFactors=FALSE)
+    out <- list(outrate= outrate, fertilizers= fertilizers,treatments= treatments, splitId= prod_mgmt$splitId)
+  } else {
+    out <- list(fertilizers= fertilizers,treatments= treatments )
   }
-  outrate<- data.table::rbindlist(outrate) %>% as.data.frame(stringsAsFactors=FALSE)
-  #outrate<- try({FertilizerRates_mgmt(fertilizers=fertilizers, treatments= treatments)})
-  
-  out <- list(outrate= outrate, fertilizers= fertilizers,treatments= treatments )
+  out
   
 } 
 

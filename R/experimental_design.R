@@ -660,10 +660,16 @@ get_fertilizer_details_design <- function(allinputs, design, index, indexEspLvl)
 # indexEspLvl: character vector (one or multiple values). Statistical design abbreviation + especial level prefix provided by Shiny. Ex "frcbd_lvl_espType_2_1"
 # Ex.: res<- get_nutrient_details(allinputs=allinputs, design=design, index =2, indexEspLvl = indexEspLvl)
 
-get_nutrient_details_magm <- function(allinputs, indexSoilMagp){
+get_nutrient_details_magm <- function(allinputs, addId){
   
  #Lookup design pattern
   #lookup <- paste0("^",design,"_")
+  
+  #allinputs <- allinputs #AllInputs()
+  indexSoilMagp<- getAddInputId(addId = addId, pattern= "mgp_nut_", replacement="")
+  #out<<-get_nutrient_details_magm(allinputs, indexSoilMagp= nutIndexSoilMagp)
+  
+  
   dt <- allinputs %>% dplyr::filter(!str_detect(id, "add")) %>%
                       dplyr::filter(!str_detect(id, "button")) %>%
                       #dplyr::filter(!str_detect(id, "unit")) %>%  ##Contemplate Unit case
@@ -691,25 +697,30 @@ get_nutrient_details_magm <- function(allinputs, indexSoilMagp){
     mTechnique <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientTechnique_",indexSoilMagp[i])))  %>% nth(2)
     if(length(mTechnique)==0){ mTechnique <- rep("", length(indexSoilMagp))}
     
-    mImplement <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientImplement_",indexSoilMagp[i]))) %>% nth(2)
-    if(length(mImplement)==0){ mImplement <- rep("", length(indexSoilMagp))}
-    
+    mTraction <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientImplement_",indexSoilMagp[i]))) %>% nth(2)
+    if(length(mTraction)==0){ mTraction <- rep("", length(indexSoilMagp))}
     
     mNutProduct <- dt %>% dplyr::filter(str_detect(id,  paste0("sfNutrientProduct_",indexSoilMagp[i]))) %>% nth(2) 
     if(length(mNutProduct)==0){ mNutProduct <- rep("", length(indexSoilMagp)) }
-    mNutProduct<- rep(mNutProduct, each = length(mImplement)/length(mNutProduct))
+    mNutProduct<- rep(mNutProduct, each = length(mTraction)/length(mNutProduct))
     
     #Table of filtered values
     #TODO: GET the correct product amount according to number of rows
     #Filter table with "mNutProduct"
     
-    nutrient_list[[i]]<- data.table::data.table(mNumTiming, mNumTimingValue, mTechnique,mImplement,mNutProduct)
+    nutrient_list[[i]]<- data.table::data.table(mNumTiming, mNumTimingValue, mTechnique, mTraction, mNutProduct)
     
   }
-  output <- data.table::rbindlist(nutrient_list)
-  output$Unit <- sfNutUnit
-  output$Split <- indexSoilMagp
-  output
+  nut_details <- data.table::rbindlist(nutrient_list)
+  nut_details$Unit <- sfNutUnit
+  nut_details$Split <- indexSoilMagp
+  
+  elements <- try({ get_nutrient_mgmt(allinputs, addId, calc=FALSE) })
+  treatment <- elements$treatments
+  fertilizer <- elements$fertilizers
+  
+  out <- list( nut_details = nut_details,  treatment=treatment, fertilizer=fertilizer )
+  
   
 }
 
