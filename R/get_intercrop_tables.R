@@ -57,6 +57,7 @@ multicrop_phe_vars <- function(dtMultiCrop,  mult_row_selected ){
   #dtMultiCrop<-ec_clean_header(dtMultiCrop)#Remove foo columns
   #row_select <- sort(inter_row_selected)
   dtMultiCrop <- dtMultiCrop[sort(mult_row_selected), ]
+  
   #lbl <- dt$Measurement
   
 }

@@ -15978,7 +15978,7 @@ server_design_agrofims <- function(input, output, session, values){
     out <- c(s1,s2,s3)
   })
   
-  # Soil Fertility     #############################################################
+  ## Soil Fertility     #############################################################
   dt_soilFertility <- reactive({
     
    collect_field <- input$soilfertility_to_collect_field
@@ -16826,7 +16826,7 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in 1:length(crop)){
         
         phe_row_selected<- input[[paste0("tblPhe_",prefix,"_phe_", id_phe_dt[i],"_rows_selected")]]  #input$tblInterPheCassava_rows_selected
-        dtPhenoMulticrop <- dt_cphe #%>% dplyr::filter(Crop==crop[i])  #dtInterPheCassava #filtrar phenota por tabla principal
+        dtPhenoMulticrop <- agdesign::dt_cphe #%>% dplyr::filter(Crop==crop[i])  #dtInterPheCassava #filtrar phenota por tabla principal
         dtPhenoMulticrop <- ec_clean_header(dtPhenoMulticrop)
         
         #"NumberofMeasurementsPerSeason"	NumberofMeasurementsPerPlot
@@ -16834,8 +16834,12 @@ server_design_agrofims <- function(input, output, session, values){
        if(!is.null(phe_row_selected)){  
           dt[[i]] <- multicrop_phe_vars(dtPhenoMulticrop, phe_row_selected) 
           dt[[i]]$Crop <- crop[i]
+          ##NEW CODE FOR KDSMART
+          dt[[i]] <- dt[[i]]  %>% dplyr::mutate(TraitName = paste0(Crop, "_", TraitName))
+          # END CODE FOR KDSMART
+          
           colnames(dt[[i]]) <- c("Crop","Group","Subgroup","Measurement",
-                                 "TraitName", "TraitUnit",
+                                 "TraitName", "TraitUnit","TraitLevel",
                                  #"CropMeasurementPerSeason",
                                  #"CropMeasurementPerPlot",
                                  "NumberofMeasurementsPerSeason",
@@ -16855,7 +16859,7 @@ server_design_agrofims <- function(input, output, session, values){
         } 
         else {
           dt[[i]] <- data.frame(Status="",Crop="", Group="", Subgroup="", Measurement="",
-                                TraitName = "",TraitUnit="",
+                                TraitName = "",TraitUnit="",TraitLevel="",
                                 NumberofMeasurementsPerSeason="",  NumberofMeasurementsPerPlot="",
                                 TraitAlias="", TraitDataType="",TraitValidation="", 
                                 VariableId="", stringsAsFactors = FALSE)
@@ -16875,7 +16879,7 @@ server_design_agrofims <- function(input, output, session, values){
     } else if(ctype=="rotation"){
       v <- getAddInputId(mea_phe_multicrop$var_PHE_rot, "rot_phe_","")
     }
-    print(v)
+    #print(v)
     out<- v 
   }
   
@@ -16890,7 +16894,7 @@ server_design_agrofims <- function(input, output, session, values){
       #row_select <- input$tblMonoPhe_rows_selected
       row_select <- input$tblPhe_mono_mea_1_rows_selected
       #dt <- dtMonocropphe[row_select, ]
-      dt<- dt_cphe[row_select, ]
+      dt<- agdesign::dt_cphe[row_select, ]
       lbl <- dt$TraitName
       
       if(length(lbl)==0 && nrow(dt)==0){
@@ -16933,6 +16937,7 @@ server_design_agrofims <- function(input, output, session, values){
       dt <- pheno_multicrop_vars()[[cropnames[i]]]
       
       print("label multicrop header")
+      print(cropnames[i])
       print(dt)
       
       lbl <- dt$TraitName
@@ -16949,7 +16954,10 @@ server_design_agrofims <- function(input, output, session, values){
       } 
       else if(nrow(fbdesign())>0 && length(lbl)>=1 ) {
         dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
-        names(dt) <- lbl
+        #names(dt) <- lbl
+        #New code
+        names(dt) <- paste0(cropnames[i],"_",lbl) #add crop
+        #end new code
         dt <-cbind(fbdesign() ,dt)
       }
       pheno_dt[[i]] <- dt
@@ -17917,7 +17925,13 @@ server_design_agrofims <- function(input, output, session, values){
       
       valid  <-lapply(protocol, function(x){length(x)!=0} ) %>% unlist()
       
-      protocol <-data.table::rbindlist(protocol[valid],fill = TRUE)
+      protocol <- data.table::rbindlist(protocol[valid],fill = TRUE)
+      ## New Code for KDSMART integration
+      #Suggested in https://docs.google.com/document/d/1pm7Qb5_fez2IhLNZwPPZ9w_GDFzgv-3NjSXRHfnAy6U/edit#
+      if(input$croppingType!="Monocrop"){
+        protocol <- protocol %>% dplyr::mutate(Group=Crop)
+      }
+      #End code for KDSMART integration
       #print(names(protocol))
       #Changes names for KDSmart's fieldbook importation
       protocol <- ec_clean_header(protocol) 
