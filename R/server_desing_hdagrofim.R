@@ -384,7 +384,7 @@ server_design_agrofims <- function(input, output, session, values){
   # Funcion que crea lista de inputs a guardar: Crop
   inputsCrop <- function() {
     df2 <- df3 <- df4 <- df5 <- data.frame()
-    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- c()
+    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- a13 <- a14 <- a15 <- c()
     b1 <- b2 <- b3 <- b4 <- b5 <- b6 <- b7 <- b8 <- b9 <- c()
     c1 <- c2 <- c3 <- c4 <- c5 <- c6 <- c7 <- c8 <- c9 <- c10 <- c11 <- c12 <- c()
     
@@ -403,7 +403,7 @@ server_design_agrofims <- function(input, output, session, values){
     if (!is.null(input$croppingType) && !is.na(input$croppingType) && input$croppingType == "Intercrop") {
       
       id_ic_rand <- getAddInputId(intercropVars$ids, "int_", "")
-      aux1 <- aux2<- aux3 <- aux4 <- c()
+      aux1 <- aux2<- aux3 <- aux4 <- aux5 <- c()
       
       for (i in 1:length(id_ic_rand)) {
         
@@ -411,24 +411,28 @@ server_design_agrofims <- function(input, output, session, values){
         aux2[i] <- paste0("int_cropCommonName_", id_ic_rand[i], "_other")
         aux3[i] <- paste0("int_cropVarietyName_", id_ic_rand[i])
         aux4[i] <- paste0("intercropValue_row_crop_", id_ic_rand[i])
+        aux5[i] <- paste0("fr_intercrop_arrangement")
         
         a1[i] <- paste0("int_cropCommonName_", i)
         a2[i] <- paste0("int_cropCommonName_", i, "_other")
         a3[i] <- paste0("int_cropVarietyName_", i)
         a4[i] <- paste0("intercropValue_row_crop_", i)
+        a5[i] <- paste0("fr_intercrop_arrangement")
         
-        a5[i] <- "selectizeInput"
-        a6[i] <- "textInput"
-        a7[i] <- "selectizeInput"
-        a8[i] <- "textInput"
+        a6[i] <- "selectizeInput"
+        a7[i] <- "textInput"
+        a8[i] <- "selectizeInput"
+        a9[i] <- "textInput"
+        a10[i] <- "selectizeInput"
 
-        a9[i] <- "n"
-        a10[i] <- "n"
-        a11[i] <- "y"
+        a11[i] <- "n"
         a12[i] <- "n"
+        a13[i] <- "y"
+        a14[i] <- "n"
+        a15[i] <- "n"
       }
       
-      df3 <- data.frame(originalInputId= c(aux1,aux2,aux3,aux4) , inputId = c(a1, a2, a3, a4), type = c(a5, a6, a7,a8), create = c(a9, a10, a11, a12), stringsAsFactors = F)
+      df3 <- data.frame(originalInputId= c(aux1,aux2,aux3,aux4,aux5) , inputId = c(a1, a2, a3, a4, a5), type = c(a6, a7, a8,a9, a10), create = c(a11, a12, a13, a14, a15), stringsAsFactors = F)
     }
 
     # inputs para: Relay crop
@@ -1959,11 +1963,11 @@ server_design_agrofims <- function(input, output, session, values){
                               inputsPersonnel(),
                               inputsSite(),
                               inputsCrop(),
-                              inputsDesign(),
-                              inputsManagmentPractices(),
-                              inputsCropMeasurement(),
-                              inputsSoil(),
-                              inputsWeather()
+                              #inputsDesign(),
+                              inputsManagmentPractices()
+                              #inputsCropMeasurement(),
+                              #inputsSoil(),
+                              #inputsWeather()
                               )
 
       
@@ -2430,9 +2434,9 @@ server_design_agrofims <- function(input, output, session, values){
         loadInputsPersonnel(uploaded_inputs)
         loadInputsCrop(uploaded_inputs)
         
-        loadInputsCropManagement(uploaded_inputs)
-        loadInputsSoil(uploaded_inputs)
-        loadInputsWeather(uploaded_inputs)
+        #loadInputsCropManagement(uploaded_inputs)
+        #loadInputsSoil(uploaded_inputs)
+        #loadInputsWeather(uploaded_inputs)
         
         
         #Creamos un nuevo dataframe para actualizar los inputs faltantes
@@ -12798,6 +12802,7 @@ server_design_agrofims <- function(input, output, session, values){
                           "Manual",
                           "Mechanized")
             ),
+            textInput(paste0(crop, "_wewd_weeding_nweedings_",index), "Number of weedings"),
             textAreaInput(paste0(crop, "_wewd_weeding_notes_", index), "Notes")
           ),
           column(
@@ -15996,8 +16001,16 @@ server_design_agrofims <- function(input, output, session, values){
   dt_protocol_soilfertility <- reactive({
     
     nutIndexSoilMagp <- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
-    out <- get_nutrient_details_magm(allinputs= AllInputs(), indexSoilMagp= nutIndexSoilMagp)  
+    out <- get_nutrient_details_magm(allinputs= AllInputs(), indexSoilMagp= nutIndexSoilMagp)
+
     
+    # 
+    # nut_details <- try({ get_nutrient_details_magm(allinputs=AllInputs(), addId=sfNutrientSplit$ids)})
+    # 
+    # 
+    # out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
+    # 
+    # out <- list(out_nut = out, nut_details = nut_details)
     
   })
   lbl_soilFertility <- reactive({
@@ -16074,10 +16087,6 @@ server_design_agrofims <- function(input, output, session, values){
         ptdt_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="intercrop", 
                                            cropId=id_rand_inter[i], addId="1")$dt
         
-        print("planting transplating 0")
-        print(names(ptdt_list[[i]]))
-        
-        
         #START: Detect collect inputs in planting tab --------------------------------------------------------------------------------------------------
         if(length( get_collectable_plantrans(AllInputs(),ctype= tolower(ct), crop=circm[i], cropId= id_rand_inter[i])  )!=0 && nrow(ptdt_list[[i]])>0){
           
@@ -16112,8 +16121,15 @@ server_design_agrofims <- function(input, output, session, values){
           ptdt_list[[i]] <-  ptdt_list[[i]][which(lgl==TRUE)]
           #Fill with empty cells the dt table (Celine's suggestions)
           ptdt_list[[i]][1,] <- ""
+          
+          #Concatenate: crop+ names(ptdt_list)
+          names(ptdt_list[[i]]) <- paste0(circm[i],"_",names(ptdt_list[[i]]))
           #Bind the field design + plant_traitdt_list
           dt <- cbind(fbdesign(),ptdt_list[[i]])
+          
+          
+          
+          
         } 
         else {
           ptdt_list[[i]] <- data.frame()
@@ -16176,6 +16192,8 @@ server_design_agrofims <- function(input, output, session, values){
           #select only columns from collect input
           ptdt_list[[i]] <-  ptdt_list[[i]][which(lgl==TRUE)]
           ptdt_list[[i]][1,] <- ""
+          #Concatenate: crop+ names(ptdt_list)
+          names(ptdt_list[[i]]) <- paste0(crecm[i],"_",names(ptdt_list[[i]]))
           dt <- cbind(fbdesign(),ptdt_list[[i]])
         } 
         else {
@@ -16198,7 +16216,6 @@ server_design_agrofims <- function(input, output, session, values){
       }
       names(dt)<- crecm
     } 
-    
     
     dt  
   })
@@ -16578,6 +16595,12 @@ server_design_agrofims <- function(input, output, session, values){
             #Fill with empty cells the dt table (Celine's suggestions)
             dt[[ cropnames[j] ]][1,] <- ""
             
+            print("--intercrop harvest--")
+            print(names(dt[[ cropnames[j] ]]))
+            
+            #Concatenate: crop+ names(ptdt_list)
+            names(dt[[ cropnames[j] ]] ) <- paste0(cropnames[j],"_",names(dt[[ cropnames[j]]])) 
+            
             dt[[ cropnames[j] ]]  <- cbind(fbdesign(), dt[[ cropnames[j] ]] )
           } else {
             dt[[ cropnames[j] ]] <- fbdesign()
@@ -16613,18 +16636,6 @@ server_design_agrofims <- function(input, output, session, values){
           #If user collect inputs, detect them:
           if(length(get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames[j], cropId= cropId, 
                                             ver="export"))>0){
-            # #Havest's fieldbook headers
-            # mpra_trait <- stringr::str_replace_all(names(dt[[ cropnames[j] ]]) , pattern = "__[0-9]+", replacement = "")
-            # #collect inputs
-            # collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames, cropId= cropId, 
-            #                                         ver="export")
-            # collect_harv <- collect_harv[stringr::str_detect(string = collect_harv, pattern = cropnames[j])]
-            # collect_harv <- stringr::str_replace_all(string = collect_harv,pattern = paste0(cropnames[j],"_"),
-            #                                          replacement = "")
-            # #match in trait_table
-            # kds_harv <- magmtprac$harv %>% dplyr::filter(Measurement %in% collect_harv)
-            # kds_harv <- kds_harv %>% dplyr::filter(TraitName %in% mpra_trait )
-            
             #Havest's fieldbook headers
             mpra_trait <- stringr::str_replace_all(names(dt[[ cropnames[j] ]]) , pattern = "__[0-9]+", replacement = "")
             #collect inputs
@@ -16648,6 +16659,10 @@ server_design_agrofims <- function(input, output, session, values){
             dt[[ cropnames[j] ]]  <- dt[[ cropnames[j] ]] [which(lgl==TRUE)]
             #Fill with empty cells the dt table (Celine's suggestions)
             dt[[ cropnames[j] ]][1,] <- ""
+            
+            #Concatenate: crop+ names(ptdt_list)
+            #names(dt[[ cropnames[j] ]] ) <- paste0(cropnames[j],"_",names( dt[[ cropnames[j] ]] ) ) 
+            
             dt[[ cropnames[j] ]]  <- cbind(fbdesign(), dt[[ cropnames[j] ]] )
           } else {
             dt[[ cropnames[j] ]] <- fbdesign()
@@ -17051,9 +17066,12 @@ server_design_agrofims <- function(input, output, session, values){
   
   soil_list <- reactive({
     
+    
     addId <- getAddInputId(soilVars$ids, "soil_", "") 
     soil_vars <- get_soil_variables(AllInputs(),addId= addId)
     soil_vars <-get_dt_soil(soil_variables = soil_vars, dt_soil=dt_soil)
+    
+    
     
   })
   ################################ END Soil DT #####################################################################
@@ -17928,9 +17946,12 @@ server_design_agrofims <- function(input, output, session, values){
       protocol <- data.table::rbindlist(protocol[valid],fill = TRUE)
       ## New Code for KDSMART integration
       #Suggested in https://docs.google.com/document/d/1pm7Qb5_fez2IhLNZwPPZ9w_GDFzgv-3NjSXRHfnAy6U/edit#
-      if(input$croppingType!="Monocrop"){
-        protocol <- protocol %>% dplyr::mutate(Group=Crop)
+      if(nrow(protocol)!=0){
+        if(input$croppingType!="Monocrop"){
+          protocol <- protocol %>% dplyr::mutate(Group=Crop)
+        }  
       }
+      
       #End code for KDSMART integration
       #print(names(protocol))
       #Changes names for KDSmart's fieldbook importation
@@ -18640,8 +18661,14 @@ server_design_agrofims <- function(input, output, session, values){
             if(length(get_collectable_plantrans(AllInputs(), ctype="intercrop",crop=circm, cropId=id_ic_rand)  )!=0){
               collect_platra <- get_collectable_plantrans(AllInputs(),ctype="intercrop", crop=circm,cropId= id_ic_rand)
               kds_platra <- kds_platra %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))
-              kds_platra <- kds_platra %>% filter(temp %in% collect_platra)
-            }
+              kds_platra <- kds_platra %>% dplyr::filter(temp %in% collect_platra)
+              print("--plata inter--")
+              print(kds_platra)
+              ### NEW CODE
+              # Mutate TraitName with: Crop+TraitName
+              #kds_platra <- kds_platra %>% dplyr::mutate(TraitName= paste0(Crop,"_",TraitName))
+              #### END CODE
+           }
             #end collectable inputs-------------------------
             
           }
@@ -18665,12 +18692,26 @@ server_design_agrofims <- function(input, output, session, values){
               collect_platra <- get_collectable_plantrans(AllInputs(),ctype="relay crop", crop=crecm, cropId= id_re_rand)
               kds_platra <- kds_platra %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))
               kds_platra <- kds_platra %>% filter(temp %in% collect_platra)
+              ### NEW CODE
+              # Mutate TraitName with: Crop+TraitName
+              #kds_platra <- kds_platra %>% dplyr::mutate(TraitName= paste0(Crop,"_",TraitName))
+              #### END CODE
             }
             #End collectable inputs-------------------------
           }
           
           kds_platra <- data.table(kds_platra)
+          
+          #NEW CODE FOR KDMSART INTEGRATION
+          if(ct!="Monocrop"){
+            if(nrow(kds_platra)>0){
+              kds_platra  <- kds_platra %>% dplyr::mutate(TraitName = paste0(Crop,"_", TraitName))
+            } 
+          }
+          #END CODE FOR KDMSART INTEGRATION
           dt_kds<-rbindlist(list(dt_kds,kds_platra),fill = TRUE)
+          
+          
           dt_kds<- ec_clean_header(dt_kds)
         }
         print("paso pt")
@@ -18786,13 +18827,17 @@ server_design_agrofims <- function(input, output, session, values){
               
               collect_harv <- vector(mode = "list",length = length(crmult))
               for(i in seq.int(crmult)){
-                # print("-dt harves ttrait list")
-                # print(names(dt_harvest()[[crmult[i]]]))
-                
-               collect_harv[[i]] <-stringr::str_replace_all(names(dt_harvest()[[crmult[i]]]) , pattern = "__[0-9]+", replacement = "")  
+               #NEW CODE FOR KDSMART INTEGRATION
+               collect_harv[[i]] <- stringr::str_replace_all(names(dt_harvest()[[crmult[i]]]) , pattern = paste0(crmult[i],"_")  , replacement = "")
+               #END NEW CODE
+               #collect_harv[[i]] <-stringr::str_replace_all(names(dt_harvest()[[crmult[i]]]) , pattern = "__[0-9]+", replacement = "")  
+               collect_harv[[i]] <-stringr::str_replace_all(collect_harv[[i]] , pattern = "__[0-9]+", replacement = "")  
                collect_harv[[i]] <- paste("Harvest",crmult[i],collect_harv[[i]], sep="_")
               }
               collect_harv <- unlist(collect_harv)
+              #print("colect harv fin")
+              #bbb<<- collect_harv
+              #print(collect_harv)
               
               #collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=crmult, cropId= id_re_rand)
               kds_harv <- kds_harv %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",TraitName))
@@ -18801,6 +18846,9 @@ server_design_agrofims <- function(input, output, session, values){
           }
           #Transform, bind and clean harvest trait data
           kds_harv <- data.table(kds_harv)
+          if(nrow(kds_harv)>0){
+            kds_harv  <- kds_harv %>% dplyr::mutate(TraitName = paste0(Crop,"_", TraitName))
+          } 
           #kds_harv$CropMeasurementPerSeason <- ns_harvest()
           dt_kds<- data.table::rbindlist(list(dt_kds,kds_harv),fill = TRUE)
           dt_kds<- ec_clean_header(dt_kds)

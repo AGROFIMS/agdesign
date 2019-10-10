@@ -424,8 +424,8 @@ server_sites_agrofims <- function(input, output, session, values){
       # )
       
       
-      #vSiteId <-  stri_rand_strings(1, 5,  '[A-Z]') #var12
-      vSiteId <- geohash::gh_encode(vLatitud,vLongitude, 10)
+      vSiteId <-  stri_rand_strings(1, 5,  '[A-Z]') #var12
+      #vSiteId <- geohash::gh_encode(vLatitud,vLongitude, 10)
       
       
       date  <- as.character(Sys.time(), "%Y%m%d%H%M%S")
