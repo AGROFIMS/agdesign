@@ -16000,19 +16000,54 @@ server_design_agrofims <- function(input, output, session, values){
   })
   dt_protocol_soilfertility <- reactive({
     
-    nutIndexSoilMagp <- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
-    out <- get_nutrient_details_magm(allinputs= AllInputs(), indexSoilMagp= nutIndexSoilMagp)
-
+    # nutIndexSoilMagp <- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
+    # out <- get_nutrient_details_magm(allinputs= AllInputs(), indexSoilMagp= nutIndexSoilMagp)
     
-    # 
-    # nut_details <- try({ get_nutrient_details_magm(allinputs=AllInputs(), addId=sfNutrientSplit$ids)})
-    # 
-    # 
-    # out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
-    # 
-    # out <- list(out_nut = out, nut_details = nut_details)
+    nut_details <- try({ get_nutrient_details_magm(allinputs=AllInputs(), addId=sfNutrientSplit$ids)})
+    out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
     
-  })
+    # if(class(out)!="error"){
+    #   if(input$rbtSoilOption=="Nutrient"){
+    #     ###
+    #     #out <- try({list(out_nut = out, nut_details = nut_details)})
+    #     nut_details <- nut_details$nut_details
+    #     Timing<- data.frame(TraitName= paste0("Timing_", "split_",1:nrow(nut_details)), 
+    #                         TraitUnit= "",
+    #                         Value= nut_details$mNumTimingValue, stringsAsFactors = FALSE)
+    #     Technique <- data.frame(TraitName= paste0("Technique_", "split_",1:nrow(nut_details)), 
+    #                             TraitUnit= "",
+    #                             Value = nut_details$mTechnique, stringsAsFactors = FALSE)
+    #     
+    #     Traction <- data.frame(TraitName= paste0("Traction_", "split_",1:nrow(nut_details)),
+    #                            TraitUnit= "",
+    #                            Value = nut_details$mTraction, stringsAsFactors = FALSE)
+    #     ##Nutrient inputs ####
+    #     treatment <- nut_details$treatment
+    #     #Combine
+    #     #combineNut <-rbind(Timing, Technique, Traction, Nutrient)
+    #     combineNut <-rbind(Timing, Technique, Traction)
+    #     Crop	<-Subgroup <-	 Measurement <- TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
+    #     Group <- combineNut$TraitName
+    #     TraitName <- combineNut$TraitName  
+    #     TraitUnit <- combineNut$TraitUnit
+    #     Timing <- ""
+    #     TimingValue <- ""
+    #     Value<- combineNut$Value
+    #     TraitLevel <- "Plot"
+    #     NumberofMeasurementsPerSeason <- NumberofMeasurementsPerPlot	<- 1	
+    #     protocol_soil<- cbind(Crop,	Group	,Subgroup,	Measurement,TraitName	,TraitUnit,	TraitLevel,	
+    #                           NumberofMeasurementsPerSeason,NumberofMeasurementsPerPlot,
+    #                           Timing, TimingValue, TraitAlias,	TraitDataType,
+    #                           TraitValidation, VariableId, Value)
+    #     protocol_soil<- as.data.frame(protocol_soil, stringsAsFactors=FALSE)
+    #     
+    #   }
+    #   else {
+    #     protocol_soil<- data.frame()
+    #   }
+    # }
+    #  protocol_soil
+})
   lbl_soilFertility <- reactive({
     
     if(!is.null(input$soilfertility_to_collect_field)){
@@ -16969,9 +17004,9 @@ server_design_agrofims <- function(input, output, session, values){
       } 
       else if(nrow(fbdesign())>0 && length(lbl)>=1 ) {
         dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
-        #names(dt) <- lbl
+        names(dt) <- lbl
         #New code
-        names(dt) <- paste0(cropnames[i],"_",lbl) #add crop
+        #names(dt) <- paste0(cropnames[i],"_",lbl) #add crop
         #end new code
         dt <-cbind(fbdesign() ,dt)
       }
@@ -17914,6 +17949,12 @@ server_design_agrofims <- function(input, output, session, values){
       }else {
         out3 <- data.frame()
       }
+      # if(is.element(el = "Soil fertility",set = input$selectAgroFeature)){
+      #   out_sfert <- dt_protocol_soilfertility()
+      # }else {
+      #   out_sfert <-data.frame()
+      # }
+      
       print("protocol 3")
       if(is.element(el = "Mulch management", set = input$selectAgroFeature)){
         out4 <- dt_protocol_mulching()
@@ -17939,7 +17980,8 @@ server_design_agrofims <- function(input, output, session, values){
         out7 <- data.frame()
       }
       print("protocol 7")
-      protocol <- list(out1, out2, out3, out4, out5, out6, out7)  
+      #protocol <- list(out1, out2, out3, out_sfert, out4, out5, out6, out7)  
+      protocol <- list(out1, out2, out3, out4, out5, out6, out7)
       
       valid  <-lapply(protocol, function(x){length(x)!=0} ) %>% unlist()
       
@@ -18153,9 +18195,11 @@ server_design_agrofims <- function(input, output, session, values){
          # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
          # x <- reactiveValuesToList(input)
          # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-         #abc1 <<- lbl_soilFertility()
-         #soil_mgt <<- dt_soilFertility()
-        
+         #abc1 <<- protocol_dt()
+         #soil_mgt <<- dt_protocol_soilfertility()
+         
+         
+         
          ##### Eliminar Start: Testing by Jose ######
          print("Entro al método.")
          #savefb()
