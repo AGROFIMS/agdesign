@@ -96,7 +96,7 @@ server_mobile_agrofims <- function(input, output, session, values){
     
     
     #Convierte a formato kdx
-    system("java -jar /home/ubuntu/agrofims2kdx-0.8.9.jar -outdir /home/obenites/AGROFIMS/kdsmart /home/ubuntu/fileNameBook1.xlsx -nogui", FALSE)
+    system("java -jar /home/ubuntu/agrofims2kdx-0.9.2.jar -outdir /home/obenites/AGROFIMS/kdsmart /home/ubuntu/fileNameBook1.xlsx -nogui", FALSE)
 
     
     #Compress more than one file.
@@ -131,7 +131,7 @@ server_mobile_agrofims <- function(input, output, session, values){
       wb = loadWorkbook(paste0(sessionpath,"/",newid,'.xlsx'))
       experimentId = readxl::read_xlsx(path = paste0(sessionpath,"/",newid,'.xlsx'),sheet = 1,col_names=FALSE, range="B2")[[1]]
       
-      system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.9.1.jar -outdir /home/obenites/AGROFIMS/kdsmart ", listOfFiles ," -nogui"), FALSE)
+      system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.9.2.jar -outdir /home/obenites/AGROFIMS/kdsmart ", listOfFiles ," -nogui"), FALSE)
       file.copy(paste0("/home/obenites/AGROFIMS/kdsmart/",experimentId,".kdx"), file)
       # END: Export in kdx format
       
@@ -161,7 +161,7 @@ server_mobile_agrofims <- function(input, output, session, values){
       wb = loadWorkbook(paste0(sessionpath,"/",newid,'.xlsx'))
       experimentId = readxl::read_xlsx(path = paste0(sessionpath,"/",newid,'.xlsx'),sheet = 1,col_names=FALSE, range="B2")[[1]]
       
-      system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.9.1.jar -outdir /home/obenites/AGROFIMS/kdsmart ", listOfFiles ," -nogui"), FALSE)
+      system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.9.2.jar -outdir /home/obenites/AGROFIMS/kdsmart ", listOfFiles ," -nogui"), FALSE)
       file.copy(paste0("/home/obenites/AGROFIMS/kdsmart/",newid,".xlsx"), file)
       # END: Export in kdx format
       
@@ -205,7 +205,7 @@ server_mobile_agrofims <- function(input, output, session, values){
   
   convertKDX <- function(fileString){
     
-    system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.8.9.jar -outdir /home/obenites/AGROFIMS/kdsmart ", filestring, " -nogui"), FALSE)
+    system(paste0("java -jar /home/ubuntu/agrofims2kdx-0.9.2.jar -outdir /home/obenites/AGROFIMS/kdsmart ", filestring, " -nogui"), FALSE)
     
   }
   

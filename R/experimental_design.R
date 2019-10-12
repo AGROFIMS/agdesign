@@ -30,7 +30,7 @@ fbdesign_agrofims <- function(design, rep=2, block=2, trt=2, ntrt=NULL,
             
             if (design == "rcbd") {
               fb<- try(st4gi::cr.rcbd(geno = trt,nb = block)$book)
-              names(fb) <- c("PLOT","ROW","COL","BLOCK","TREATMENT")
+              names(fb) <- c("PLOT","BLOCK", "ROW","COL","TREATMENT")
             }
             
             if (design == "fcrd") { ##factorial crd

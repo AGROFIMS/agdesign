@@ -1948,8 +1948,8 @@ server_design_agrofims <- function(input, output, session, values){
     if(session$userData$logged){
       expid <- input$uniqueId
       
-      if (file.exists(isolate(paste0(sessionpath,  paste0(input$uniqueId,"-", input$fieldbookId), ".csv")))) {
-        x <- read.csv(paste0(sessionpath,  paste0(input$uniqueId,"-", input$fieldbookId), ".csv"))
+      if (file.exists(isolate(paste0(sessionpath,  paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId), ".csv")))) {
+        x <- read.csv(paste0(sessionpath,  paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId), ".csv"))
         datecreate <- as.character(x[2, 4])
         datemodified <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
       } else {
@@ -2056,21 +2056,23 @@ server_design_agrofims <- function(input, output, session, values){
       MPWeeding    <- MPWeedingRowsSaveSession()
       MPHarvest    <- MPHarvestRowsSaveSession()
       
-      soilRow  <- soilRowsSaveSession()
-      weatherRow <- weatherRowsSaveSession()
+      #soilRow  <- soilRowsSaveSession()
+      #weatherRow <- weatherRowsSaveSession()
       
-      crop_MONO1_MEA <- crop_MONO1_MEARowsSaveSession()
+      #crop_MONO1_MEA <- crop_MONO1_MEARowsSaveSession()
 
       #Unimos todos los dataframe en uno solo
       final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame, 
                               expRow, persRow, cropIC, cropREL, cropROT,
-                              MPIrrigation,MPWeeding,MPHarvest,
-                              crop_MONO1_MEA,
-                              soilRow, weatherRow)
+                              MPIrrigation,MPWeeding,MPHarvest
+                              #crop_MONO1_MEA,
+                              #soilRow, weatherRow
+                              )
       
       #Almacena archivos en 2 csv's
-      write.csv(final_inputs_df, paste0(sessionpath, paste0(input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
-      write.csv(final_inputs_df, paste0(sessionpathbk, paste0(input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
+      write.csv(final_inputs_df, paste0(sessionpath, paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
+      #Backup del archivo
+      write.csv(final_inputs_df, paste0(sessionpathbk, paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
       
       # updateTextInput(session,
       #                 inputId = "uniqueId",
@@ -2718,7 +2720,7 @@ server_design_agrofims <- function(input, output, session, values){
       df <- df[,-which(names(df) == "g")]
       
       df <- df %>% dplyr::arrange(desc(f))
-      
+
       sessionVals$aux <- data.frame(df)
       
       # colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
@@ -12278,7 +12280,7 @@ server_design_agrofims <- function(input, output, session, values){
                   paste0(crop, "_ptta_trans_traction_", index), label = "Traction", 
                   multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                   choices = c("Animal",
-                              "Traction",
+                              "Manual",
                               "2 wheel tractor",
                               "4 wheel tractor",
                               "Other")
@@ -12304,7 +12306,7 @@ server_design_agrofims <- function(input, output, session, values){
                                       "ft",
                                       "in",
                                       "m"),
-                          selected = "cm"
+                          selected = "m"
                         )
                       )
                     ),
@@ -12332,7 +12334,7 @@ server_design_agrofims <- function(input, output, session, values){
                         selectizeInput(
                           paste0(crop, "_ptta_trans_distance_plants_unit_", index), label = "Unit", 
                           multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), selected="m", 
-                          choices = c("m")
+                          choices = c("m", "cm", "in", "ft") 
                         )
                       )
                     ),
@@ -16006,47 +16008,98 @@ server_design_agrofims <- function(input, output, session, values){
     nut_details <- try({ get_nutrient_details_magm(allinputs=AllInputs(), addId=sfNutrientSplit$ids)})
     out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
     
-    # if(class(out)!="error"){
-    #   if(input$rbtSoilOption=="Nutrient"){
-    #     ###
-    #     #out <- try({list(out_nut = out, nut_details = nut_details)})
-    #     nut_details <- nut_details$nut_details
-    #     Timing<- data.frame(TraitName= paste0("Timing_", "split_",1:nrow(nut_details)), 
-    #                         TraitUnit= "",
-    #                         Value= nut_details$mNumTimingValue, stringsAsFactors = FALSE)
-    #     Technique <- data.frame(TraitName= paste0("Technique_", "split_",1:nrow(nut_details)), 
-    #                             TraitUnit= "",
-    #                             Value = nut_details$mTechnique, stringsAsFactors = FALSE)
-    #     
-    #     Traction <- data.frame(TraitName= paste0("Traction_", "split_",1:nrow(nut_details)),
-    #                            TraitUnit= "",
-    #                            Value = nut_details$mTraction, stringsAsFactors = FALSE)
-    #     ##Nutrient inputs ####
-    #     treatment <- nut_details$treatment
-    #     #Combine
-    #     #combineNut <-rbind(Timing, Technique, Traction, Nutrient)
-    #     combineNut <-rbind(Timing, Technique, Traction)
-    #     Crop	<-Subgroup <-	 Measurement <- TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
-    #     Group <- combineNut$TraitName
-    #     TraitName <- combineNut$TraitName  
-    #     TraitUnit <- combineNut$TraitUnit
-    #     Timing <- ""
-    #     TimingValue <- ""
-    #     Value<- combineNut$Value
-    #     TraitLevel <- "Plot"
-    #     NumberofMeasurementsPerSeason <- NumberofMeasurementsPerPlot	<- 1	
-    #     protocol_soil<- cbind(Crop,	Group	,Subgroup,	Measurement,TraitName	,TraitUnit,	TraitLevel,	
-    #                           NumberofMeasurementsPerSeason,NumberofMeasurementsPerPlot,
-    #                           Timing, TimingValue, TraitAlias,	TraitDataType,
-    #                           TraitValidation, VariableId, Value)
-    #     protocol_soil<- as.data.frame(protocol_soil, stringsAsFactors=FALSE)
-    #     
-    #   }
-    #   else {
-    #     protocol_soil<- data.frame()
-    #   }
-    # }
-    #  protocol_soil
+    if(class(out)!="try-error"){
+      if(input$rbtSoilOption=="Nutrient"){
+        ###
+        #out <- try({list(out_nut = out, nut_details = nut_details)})
+        nut_metadata <- nut_details$nut_details
+       
+        Timing<- data.frame(TraitName= paste0("Timing_", "split_",1:nrow(nut_metadata)),
+                            TraitUnit= "",
+                            Value= nut_metadata$mNumTimingValue, stringsAsFactors = FALSE)
+        Technique <- data.frame(TraitName= paste0("Technique_", "split_",1:nrow(nut_metadata)),
+                                TraitUnit= "",
+                                Value = nut_metadata$mTechnique, stringsAsFactors = FALSE)
+
+        Traction <- data.frame(TraitName= paste0("Traction_", "split_",1:nrow(nut_metadata)),
+                               TraitUnit= "",
+                               Value = nut_metadata$mTraction, stringsAsFactors = FALSE)
+        
+        ##Nutrient inputs ################################################################################# 
+        treatment <- nut_details$treatment
+        print("-treatment-")
+        print(treatment)
+        nc <-which(colSums(treatment) != 0)
+        if(length(nc)>0){
+          
+          #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
+          if(length(nc)==1){
+            treatment<- treatment[names(nc)]
+          } else {
+            treatment <- treatment[,nc]
+          }
+            treatment <- apply(treatment, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
+            Value <- lapply(1:ncol(treatment), function(x) paste(treatment[,x],collapse=",") ) %>% unlist()
+            TraitName <- paste0("Nutrient_Split_",1:ncol(treatment))
+            Nutrient <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
+            
+          
+        } 
+        else{
+          Nutrient <- data.frame()
+        }
+        #End Nutrient inputs ################################################################################ 
+        
+        ###
+        outrate <- out$outrate
+        print("-outrate--")
+        print(outrate)
+        nc_rate <-which(colSums(outrate) != 0)
+        if(length(nc_rate)>0){
+          
+          #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
+          if(length(nc_rate)==1){
+            nut_rates <- outrate[names(nc_rate)]
+          } else {
+            nut_rates <- outrate[,nc_rate]
+          }
+          nut_rates <- apply(nut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
+          Value <- lapply(1:ncol(nut_rates), function(x) paste(nut_rates[,x],collapse=",") ) %>% unlist()
+          TraitName <- paste0("Calculation_split_",1:ncol(nut_rates))
+          NutRates <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
+        } else {
+          NutRates <- data.frame()
+        }
+        ###
+        
+        
+        #Combine
+        combineNut <-rbind(Timing, Technique, Traction, Nutrient,NutRates)
+        
+        Crop	<-Subgroup <-	 Measurement <- TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
+        Group <- combineNut$TraitName
+        TraitName <- combineNut$TraitName
+        TraitUnit <- combineNut$TraitUnit
+        Timing <- ""
+        TimingValue <- ""
+        Value<- combineNut$Value
+        TraitLevel <- "Plot"
+        NumberofMeasurementsPerSeason <- NumberofMeasurementsPerPlot	<- 1
+        protocol_soil<- cbind(Crop,	Group	,Subgroup,	Measurement,TraitName	,TraitUnit,	TraitLevel,
+                              NumberofMeasurementsPerSeason,NumberofMeasurementsPerPlot,
+                              Timing, TimingValue, TraitAlias,	TraitDataType,
+                              TraitValidation, VariableId, Value)
+        protocol_soil<- as.data.frame(protocol_soil, stringsAsFactors=FALSE)
+
+      }
+      else {
+        #TODO: PRODUCT OR FERTILIZER
+        protocol_soil<- data.frame()
+      }
+    } else {
+      protocol_soil<- data.frame()
+    }
+     protocol_soil
 })
   lbl_soilFertility <- reactive({
     
@@ -17949,11 +18002,12 @@ server_design_agrofims <- function(input, output, session, values){
       }else {
         out3 <- data.frame()
       }
-      # if(is.element(el = "Soil fertility",set = input$selectAgroFeature)){
-      #   out_sfert <- dt_protocol_soilfertility()
-      # }else {
-      #   out_sfert <-data.frame()
-      # }
+      
+      if(is.element(el = "Soil fertility",set = input$selectAgroFeature)){
+        out_sfert <- dt_protocol_soilfertility()
+      }else {
+        out_sfert <-data.frame()
+      }
       
       print("protocol 3")
       if(is.element(el = "Mulch management", set = input$selectAgroFeature)){
@@ -17980,8 +18034,8 @@ server_design_agrofims <- function(input, output, session, values){
         out7 <- data.frame()
       }
       print("protocol 7")
-      #protocol <- list(out1, out2, out3, out_sfert, out4, out5, out6, out7)  
-      protocol <- list(out1, out2, out3, out4, out5, out6, out7)
+      protocol <- list(out1, out2, out3, out_sfert, out4, out5, out6, out7)  
+      #protocol <- list(out1, out2, out3, out4, out5, out6, out7)
       
       valid  <-lapply(protocol, function(x){length(x)!=0} ) %>% unlist()
       
@@ -18185,7 +18239,7 @@ server_design_agrofims <- function(input, output, session, values){
   ######################### Donwload Fieldbook #################################################################
   output$downloadData <- downloadHandler(
     
-    filename = function()paste0(input$uniqueId,"-",input$fieldbookId, ".xlsx") ,#paste0(FbFileName(),".xlsx"),#"fileNameBook.xlsx",
+    filename = function()paste0(input$experimentId,"-",input$uniqueId,"-",input$fieldbookId, ".xlsx") ,#paste0(FbFileName(),".xlsx"),#"fileNameBook.xlsx",
     content = function(file) {
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
@@ -18956,9 +19010,9 @@ server_design_agrofims <- function(input, output, session, values){
         file.copy(from = fname, to = "/home/obenites/AGROFIMS/kdsmart/", overwrite = TRUE)
         #Then, rename the fieldbook file using the aforementioned folder path 
         file.rename(from = paste0("/home/obenites/AGROFIMS/kdsmart/", basename(fname)), 
-                    to =   paste0("/home/obenites/AGROFIMS/kdsmart/",input$uniqueId,"-",input$fieldbookId,".xlsx"))
+                    to =   paste0("/home/obenites/AGROFIMS/kdsmart/",input$experimentId,"-",input$uniqueId,"-",input$fieldbookId,".xlsx"))
         
-        print(paste0("/home/obenites/AGROFIMS/kdsmart/",input$uniqueId,"-", input$fieldbookId,".xlsx"))
+        print(paste0("/home/obenites/AGROFIMS/kdsmart/",input$experimentId,"-", input$uniqueId,"-", input$fieldbookId,".xlsx"))
 
         ### END: END SAVE FILE FOR KDSMART ###############################################################
         
@@ -19002,7 +19056,7 @@ server_design_agrofims <- function(input, output, session, values){
                                  input$uniqueId,"','",
                                  input$experimentId,"','",
                                  input$fieldbookId,"','",
-                                 paste0(input$uniqueId,"-", input$fieldbookId),"','",
+                                 paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId),"','",
                                  session$userData$userMail,"','",
                                  format(Sys.time(), '%Y-%m-%d %H:%M:%S'),"','",
                                  format(Sys.time(), '%Y-%m-%d %H:%M:%S'),"','",
