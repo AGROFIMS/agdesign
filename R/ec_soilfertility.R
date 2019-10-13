@@ -158,6 +158,7 @@ product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEs
   ## Get nutrient tables per each sub level #############################################
   out_nut<- vector(mode="list", nrow(dfAll))
   lookup <- paste0("^",design,"_")
+  #Create table of fertilizers
   for (i in 1:nrow(dfAll)){
     
     level <- dfAll[i,1]
@@ -165,6 +166,12 @@ product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEs
     levels <- dfAll[i,3]
     unit <- dfAll[i,4]
     index <- dfAll[i,5]
+    
+    if(as.numeric(levels)==0){
+      
+      out_nut[[i]] <-data.frame(0,0,0,0,0,0,0,0,0,0,0,0,0,0, stringsAsFactors = FALSE)    
+      
+    } else {
     
     #namefert <-  allinputs %>% dplyr::filter(str_detect(id,  paste0(lookup,"factorType_",level,"_",index,"_",i,"$"))) %>% dplyr::nth(2)
     out1 <- allinputs %>% dplyr::filter(str_detect(id,  paste0(lookup,"outputNutDT1_",level,"_",index,"_",i,"$"))) %>% dplyr::nth(2)%>% as.numeric()
@@ -184,18 +191,43 @@ product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEs
     out14 <- allinputs %>% dplyr::filter(str_detect(id, paste0(lookup,"outputNutDT14_",level,"_",index,"_",i,"$"))) %>% dplyr::nth(2)%>% as.numeric()
     
     out_nut[[i]] <-data.frame(out1,out2,out3,out4,out5,out6,out7,out8,out9,out10,out11,out12,out13,out14, stringsAsFactors = FALSE)    
+  }
     names(out_nut[[i]]) <-  c("N", "P", "K", "Ca", "Mg", "S" , "Mb" , "Zn", "B", "Cu", "Fe", "Mn", "Ni","Cl" )
     
   }
-  nutfert <- data.table::rbindlist(out_nut) %>% as.data.frame()
+  #end create table of fertilizers
+  nutfert <- data.table::rbindlist(out_nut) %>% as.data.frame(stringsAsFactors=FALSE)
   temp4 <- list()
+  #OLD CODE
+  # for(i in 1:nrow(dfAll)){
+  #   splits <- as.numeric(dfAll$splits)[i]
+  #   temp4[[i]] <- nutfert[rep(i,splits), ]
+  #   #sapply(df, rep.int,2) %>% as.data.frame(stringsAsFactors=FALSE) method 2
+  # }
+  # END OLD CODE
+  #NEW CODE
+  #Create matrix with zeros and 1 row
+  d0 <- data.frame(matrix(0, ncol = ncol(nutfert), nrow =1))
+  names(d0) <- names(nutfert)
   for(i in 1:nrow(dfAll)){
-    splits <- as.numeric(dfAll$splits)[i]
-    temp4[[i]] <- nutfert[rep(i,splits), ]
-    #sapply(df, rep.int,2) %>% as.data.frame(stringsAsFactors=FALSE) method 2
+    if(as.numeric(dfAll$levels[i])==0){
+      splits <- as.numeric(dfAll$splits)[i]
+      temp4[[i]] <- d0[rep(i,splits), ]
+      i <- i-1
+    }else {
+      splits <- as.numeric(dfAll$splits)[i]
+      temp4[[i]] <- nutfert[rep(i,splits), ]
+    }
   }
-  nutfert <- data.table::rbindlist(temp4) %>% as.data.frame()
+  #END NEW CODE
+  
+  print("-temp4- before")
+  print(temp4)
+  
+  nutfert <- data.table::rbindlist(temp4) %>% as.data.frame(stringsAsFactors=FALSE)
   nutfert$name <- paste(nutrients_details$mNutProduct)
+  print("-nutfert- after")
+  print(nutfert)
   nutfert <- nutfert[,c(15, 1:14)]
   names(nutfert) <- c("name", "Nitrogen","Phosphorus","Potassium","Calcium","Magnesium",  
                       "Sulfur", "Moldbenum", "Zinc", "Boron", "Copper","Iron", "Manganese", "Nickel", "Chlorine")
@@ -207,32 +239,17 @@ product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEs
   treatments <- as.list(as.numeric(nutrients_details$nutAmount))
   names(treatments) <- nutrients_details$SplitNutName
   #End get treatments##################################################################
-  
-  
+  #aaaaaa=list(treatments=treatments,fertilizers = fertilizers)
+  #saveRDS(object = aaaaaa,file= "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/nut_calculation_design_5.rds")
   
   
   out <- fertilizerRates(fertilizers= fertilizers, treatments = treatments)  
   
-  out <- unlist(out)
+  #out <- unlist(out)
   nutSplitNames <- paste(nutrients_details$SplitNutName,nutrients_details$nutAmount,nutrients_details$splitNutNum, sep="_")
   
   fertRate <- data.frame(Product=nutrients_details$mNutProduct, Nutrient=nutSplitNames ,Rates = out)
-  
-  
-  #temp3 <- list()
-  #for(i in 1:nrow(dfAll)){
-  #  splits <- as.numeric(dfAll$splits)[i]
-  #  temp3[[i]] <- dfAll[rep(i,splits), ]
-  #  temp3[[i]]$Psplits<- 1:splits 
-  #  #sapply(df, rep.int,2) %>% as.data.frame(stringsAsFactors=FALSE) method 2
-  #}
-  #temp3 <- data.table::rbindlist(temp3) %>% as.data.frame(stringsAsFactors=FALSE)
-  #out2 <- temp3 %>% dplyr::mutate(Nutrient = paste0(eleType,"_",levels, "_", Psplits )) 
-  #out2$Rates <- unlist(out)
-  #out2 <- out2[,c("Nutrient", "Rates" )]
-  #names(out2) <- c("Nutrient", "Rates")
-  #out2
-  
+
 }
 
 #Reshape fertilizer/product data
@@ -368,21 +385,38 @@ nutrientRates <- function(fertilizers, treatments) {
 }    
 
 # Fertilizer/Product Rates (output)
+# fertilizerRates <- function(fertilizers, treatments) {
+#   out <- list()
+#   for (i in 1:length(treatments)) {
+#     j <- colnames(fertilizers)  == names(treatments[i])
+#     #stopifnot(any(j))  # no match
+#     fert <- fertilizers[i,j]
+#     k <- which(fert > 0)
+#     #stopifnot(length(k)==1) # one, and only one, product must have the nutrient!
+#     out[[ i ]] <- unlist(treatments[i]) / (fert[k] / 100)
+#     if(length(out[[ i ]])==0 ){ out[[ i ]]<- ""  }
+#     names(out[[i]])<-NULL
+#   }
+#   names(out) <- names(treatments)
+#   out
+# }    
+
+#NEW CODE
+# Fertilizer/Product Rates (output)
 fertilizerRates <- function(fertilizers, treatments) {
-  out <- list()
-  for (i in 1:length(treatments)) {
-    j <- colnames(fertilizers)  == names(treatments[i])
-    #stopifnot(any(j))  # no match
-    fert <- fertilizers[i,j]
-    k <- which(fert > 0)
-    #stopifnot(length(k)==1) # one, and only one, product must have the nutrient!
-    out[[ i ]] <- unlist(treatments[i]) / (fert[k] / 100)
-    if(length(out[[ i ]])==0 ){ out[[ i ]]<- "No-Value"  }
-    names(out[[i]])<-NULL
+
+  fertilizers<- fertilizers[,-1]
+  out_product <- vector(length=length(treatments))
+  for(i in 1:length(treatments)){
+    out_product[i] <- fertilizers[i,names(treatments)[i]]*treatments[[i]]
   }
-  names(out) <- names(treatments)
-  out
-}    
+  out_product
+}
+
+
+
+
+
 
 # Fertilizer/Product Rates (output) for Management Practices
 #fertilizerRates_mgmt <- function(fertilizers, treatments) {
