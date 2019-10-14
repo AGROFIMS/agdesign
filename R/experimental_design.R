@@ -747,23 +747,23 @@ get_fertilizer_details_magm <- function(allinputs, indexSoilMagp, indexProdSplit
   
   for(i in seq.int(indexSoilMagp) ){
     
-    mProduct <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProductProduct_",indexSoilMagp[i]))) %>% dplyr::arrange(desc(values)) %>% nth(2)
+    mProduct <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProductProduct_",indexSoilMagp[i]))) %>% nth(2)
     
     #outputDTsfProProduct_1
     #TODO: OBTENER LOS VALORES DE LA TABLA AL FILTAR POR "mProduct"
     #mProduct <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"sfProductProduct_",indexEspLvl_subfix[i],"_"))) %>% dplyr::arrange(desc(values)) %>% nth(2)
     
-    mFerTiming <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProductTiming_",indexSoilMagp[i]))) %>% dplyr::arrange(desc(values)) %>% nth(2) 
+    mFerTiming <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProductTiming_",indexSoilMagp[i])))  %>% nth(2) 
     if(length(mFerTiming)==0){ mFerTiming <- rep("", length(mProduct))}
     
-    mFerTimingValue <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProTimingValue_",indexSoilMagp[i]))) %>% dplyr::arrange(desc(values)) %>% nth(2)
+    mFerTimingValue <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProTimingValue_",indexSoilMagp[i]))) %>% nth(2)
     if(length(mFerTimingValue)==0){mFerTimingValue <- rep("", length(mProduct))}
     
-    mFerTechnique <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProductTechnique_",indexSoilMagp[i]))) %>% dplyr::arrange(desc(values)) %>% nth(2)
+    mFerTechnique <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProductTechnique_",indexSoilMagp[i]))) %>% nth(2)
     if(length(mFerTechnique)==0){ mFerTechnique <- rep("", length(mProduct))}
     
-    mFerImplement <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProductImplement_",indexSoilMagp[i]))) %>% dplyr::arrange(desc(values)) %>% nth(2)
-    if(length(mFerImplement)==0){ mFerImplement <- rep("", length(mProduct))}
+    mFerTraction <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProductImplement_",indexSoilMagp[i]))) %>% nth(2)
+    if(length(mFerTraction)==0){ mFerTraction <- rep("", length(mProduct))}
     
     #'TODO Product Amount
     #txtsfProductValue_1_1 txtsfProductValue_1_2 txtsfProductValue_1_3
@@ -775,11 +775,11 @@ get_fertilizer_details_magm <- function(allinputs, indexSoilMagp, indexProdSplit
     #mNutProduct <- dt %>% dplyr::filter(str_detect(id,  paste0(lookup,"mNutProduct_",indexEspLvl_subfix[i],"_"))) %>% dplyr::arrange(desc(values)) %>% nth(2) 
     #mNutProduct<- rep(mNutProduct, each = length(mImplement)/length(mNutProduct))
     
-    fertilizer_list[[i]]<- data.table::data.table(mProduct, mFerTiming, mFerTimingValue, mFerTechnique, mFerImplement)
+    fertilizer_list[[i]]<- data.table::data.table(mProduct, mFerTiming, mFerTimingValue, mFerTechnique, mFerTraction)
     
   }
   #Juntamos las 3 listas.
-  out <- data.table::rbindlist(fertilizer_list)
+  out <- data.table::rbindlist(fertilizer_list) %>%  as.data.frame(stringsAsFactors=FALSE)
   
   
 }

@@ -11461,10 +11461,11 @@ server_design_agrofims <- function(input, output, session, values){
       DF<- outrate[, c(15,1:14)]
       DF$`Application number` <- splitId
       DF <- DF[,c(16,1:15)]
+      names(DF)[2] <- "Product"
       names(DF)[3:16] <- paste0("Amount_for_",names(DF)[3:16],"(",input$sfNutUnit,")") 
       #Calculate Nutrient 
       output[["sfoutput_nutDT"]] <- rhandsontable::renderRHandsontable({
-        rhandsontable(DF)
+        rhandsontable(DF,rowHeaders = FALSE,readOnly = TRUE)
       })
     } else {
       DF<- data.frame(NoData="Please choose products correctly, check if there exist missing products")
@@ -11505,15 +11506,6 @@ server_design_agrofims <- function(input, output, session, values){
   
   # Calculate Nutrient Amount in Prod
   observeEvent(input$btnsfPro,{
-    
-    #Get product input 
-    print("---1")
-    print(sfProductSplit$ids)
-    
-    # Get Product indexes by split
-    print("---2")
-    print(getSFProductIds())
-    
     #Get Ids
     addId <- sfProductSplit$ids
     splitId<- getSFProductIds()
@@ -11537,7 +11529,7 @@ server_design_agrofims <- function(input, output, session, values){
     #DF <- data.frame()
     
       output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
-        rhandsontable(nutrate)
+        rhandsontable(nutrate,readOnly = TRUE)
       })
     } else {
       DF<- data.frame(NoData="Please choose products or nutrients correctly, check if there exist missing products or nutrients")
@@ -16004,12 +15996,17 @@ server_design_agrofims <- function(input, output, session, values){
     
     # nutIndexSoilMagp <- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
     # out <- get_nutrient_details_magm(allinputs= AllInputs(), indexSoilMagp= nutIndexSoilMagp)
+    print("---dirimir--")
+    print(input$rbtSoilOption)
     
-    nut_details <- try({ get_nutrient_details_magm(allinputs=AllInputs(), addId=sfNutrientSplit$ids)})
-    out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
-    
-    if(class(out)!="try-error"){
-      if(input$rbtSoilOption=="Nutrient"){
+    if(length(input$rbtSoilOption)==0){
+      protocol_soil<- data.frame()
+    }
+    else if(input$rbtSoilOption=="Nutrient"){
+      nut_details <- try({ get_nutrient_details_magm(allinputs=AllInputs(), addId=sfNutrientSplit$ids)})
+      out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
+      
+      if(class(out)!="try-error"){
         ###
         #out <- try({list(out_nut = out, nut_details = nut_details)})
         nut_metadata <- nut_details$nut_details
@@ -16093,13 +16090,35 @@ server_design_agrofims <- function(input, output, session, values){
 
       }
       else {
-        #TODO: PRODUCT OR FERTILIZER
         protocol_soil<- data.frame()
       }
-    } else {
-      protocol_soil<- data.frame()
+    } 
+    else if(input$rbtSoilOption=="Product") {
+      # addId <- sfProductSplit$ids
+      # splitId<- getSFProductIds()
+      # allinputs <- AllInputs()
+      # 
+      # fert_details <-  try({  get_fertilizer_details_magm( allinputs, sfProductSplit$ids, getSFProductIds() ) })
+      # fert_list <- try({  get_prodfert_mgmt(allinputs, addId = sfProductSplit$ids, splitId= getSFProductIds()) })
+      # nutrate <- try({ NutrientRates_mgmt(fert_list$prodfert_mgmt ,fert_list$treatment_mgmt) })
+      # 
+      
+      # if(class(nutrate)!="try-error"){
+      #  
+      #   #sprodIndexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
+      #   #saveRDS(AllInputs(),file = "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/calc_nut_mgmt.rds")
+      #   # saveRDS(fert_details, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/fert_protocol_details.rds")
+      #   # saveRDS(fert_list, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/fert_list.rds")
+      #   # saveRDS(nutrate, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/nut_calc_protocols_details.rds")
+      #   protocol_soil<- data.frame()
+      # } else {
+        protocol_soil<- data.frame()
+      #}
     }
+   
+    
      protocol_soil
+     
 })
   lbl_soilFertility <- reactive({
     
@@ -16532,6 +16551,8 @@ server_design_agrofims <- function(input, output, session, values){
     
     addId <- getAddInputId(addId = expconWEEmonocrop$ids, "mono_wee_", "")
     dt<- get_ec_weed(allinputs=AllInputs(), addId=addId)$dt
+    print("-weeding prev--")
+    print(names(dt))
     if(nrow(fbdesign())==0){
       dt <- dt
     }
@@ -16541,6 +16562,8 @@ server_design_agrofims <- function(input, output, session, values){
       if(length(get_collectable_weed(AllInputs()))!=0){
         #management practices collected values
         collect_weed <- get_collectable_weed(AllInputs(), ver="export")
+        print("-weeding collect--")
+        print(collect_weed)
         collect_weed <- stringr::str_replace_all(tolower(collect_weed), pattern = "_+", replacement = " ")
         #management practices
         mpra_trait <- names(dt)
