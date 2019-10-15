@@ -1605,7 +1605,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                           selectizeInput(
                             "cultivarNameMono", label = "Variety name(s)", 
                             choices = c(), multiple = T,
-                            options = list('create' = TRUE)
+                            options = list('create' = TRUE,'persist' = FALSE,maxItems = 20)
                           )
                         )
                       )

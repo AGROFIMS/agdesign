@@ -2488,17 +2488,26 @@ server_design_agrofims <- function(input, output, session, values){
                                  selected = getInputs(uploaded_inputs[i, 4], ""))
             
             if(uploaded_inputs$inputId[i]=="cropCommonNameMono"){
-              delay(1000,loadInputsCropMeasurement(uploaded_inputs))
+              #delay(1000,loadInputsCropMeasurement(uploaded_inputs))
             }
           }
 
           if (type == "selectizeInput" && create == "y") {
+            
+            values <- unlist(strsplit(uploaded_inputs[i, 4], "&"))
 
+            # updateSelectizeInput(session,
+            #                      inputId = uploaded_inputs$inputId[i],
+            #                      selected = getInputs(uploaded_inputs[i, 4], ""),
+            #                      choices = getInputs(uploaded_inputs[i, 4], ""),
+            #                      options = list('create' = TRUE))
+            
             updateSelectizeInput(session,
                                  inputId = uploaded_inputs$inputId[i],
-                                 selected = getInputs(uploaded_inputs[i, 4], ""),
-                                 choices = getInputs(uploaded_inputs[i, 4], ""),
-                                 options = list('create' = TRUE))
+                                 selected = values,
+                                 choices = values,
+                                 options = list('create' = TRUE)
+                                 )
           }
 
           if (type == "selectInput"  && create == "n") {
@@ -2599,11 +2608,11 @@ server_design_agrofims <- function(input, output, session, values){
             }
 
             if (type == "selectizeInput" && create == "y") {
-              updateSelectizeInput(session,
-                                   inputId = uploaded_inputs2$inputId[i],
-                                   selected = getInputs(uploaded_inputs2[i, 4], ""),
-                                   choices = getInputs(uploaded_inputs2[i, 4], ""),
-                                   options = list('create' = TRUE))
+              # updateSelectizeInput(session,
+              #                      inputId = uploaded_inputs2$inputId[i],
+              #                      selected = getInputs(uploaded_inputs2[i, 4], ""),
+              #                      choices = getInputs(uploaded_inputs2[i, 4], ""),
+              #                      options = list('create' = TRUE))
 
             }
 
@@ -3270,27 +3279,29 @@ server_design_agrofims <- function(input, output, session, values){
   getInputs<- function(valor, q){
     valor <- sapply(valor, as.character)
     valor[is.na(valor)] <- " "
-    valor
+    #valor
     
+
     if (stringr::str_detect(valor, "&")) {
       if (q == "start") {
         valor <- unlist(strsplit(valor, "&"))
         valor <- valor[[1]]
-      }
-      
-      if (q == "end") {
+      }else if (q == "end") {
         valor <- unlist(strsplit(valor, "&"))
         valor <- valor[[2]]
+      }else{
+        valor<-unlist(strsplit(valor, "&"))
       }
     }
     
-    if(stringr::str_detect(valor,"&")){
-      valor<-unlist(strsplit(valor, "&"))
-    } else {
-      valor<-valor
-    }
+    # if(stringr::str_detect(valor,"&")){
+    #   valor<-unlist(strsplit(valor, "&"))
+    #   
+    # } else {
+    #   #valor<-valor
+    # }
     
-    valor
+    return(valor)
   }
   
   tutu <- function() {
@@ -11172,7 +11183,9 @@ server_design_agrofims <- function(input, output, session, values){
             column(
               style = "text-align:right",
               12,
-              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close"))
+              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close")),
+              br(),
+              br()
             ),
             column(
               style="margin-bottom:15px",
@@ -11188,7 +11201,7 @@ server_design_agrofims <- function(input, output, session, values){
                   10,
                   div(
                     id = paste0("sfNutrientSplitContainer_",sfNutrientSplit$num),
-                    class = "sfProductRow sfProductRowName",
+                    class = "sfProductRow",
                     style="display: flex;vertical-align:top;",
                     #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
                     textInput(inputId = paste0("sfNutrientSplit1_",sfNutrientSplit$num),value = 0, label = "N" ),
@@ -18968,7 +18981,9 @@ server_design_agrofims <- function(input, output, session, values){
           #Transform, bind and clean harvest trait data
           kds_harv <- data.table(kds_harv)
           if(nrow(kds_harv)>0){
-            kds_harv  <- kds_harv %>% dplyr::mutate(TraitName = paste0(Crop,"_", TraitName))
+            if(ct!="Monocrop"){
+              kds_harv  <- kds_harv %>% dplyr::mutate(TraitName = paste0(Crop,"_", TraitName))
+            }
           } 
           #kds_harv$CropMeasurementPerSeason <- ns_harvest()
           dt_kds<- data.table::rbindlist(list(dt_kds,kds_harv),fill = TRUE)

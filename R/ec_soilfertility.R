@@ -221,13 +221,8 @@ product_calculation <- function(allinputs, dfAll, index="1", indexEspLvl=indexEs
   }
   #END NEW CODE
   
-  print("-temp4- before")
-  print(temp4)
-  
   nutfert <- data.table::rbindlist(temp4) %>% as.data.frame(stringsAsFactors=FALSE)
   nutfert$name <- paste(nutrients_details$mNutProduct)
-  print("-nutfert- after")
-  print(nutfert)
   nutfert <- nutfert[,c(15, 1:14)]
   names(nutfert) <- c("name", "Nitrogen","Phosphorus","Potassium","Calcium","Magnesium",  
                       "Sulfur", "Moldbenum", "Zinc", "Boron", "Copper","Iron", "Manganese", "Nickel", "Chlorine")
@@ -406,9 +401,14 @@ nutrientRates <- function(fertilizers, treatments) {
 fertilizerRates <- function(fertilizers, treatments) {
 
   fertilizers<- fertilizers[,-1]
-  out_product <- vector(length=length(treatments))
+  out_product <- vector(mode= "numeric", length=length(treatments))
   for(i in 1:length(treatments)){
-    out_product[i] <- fertilizers[i,names(treatments)[i]]*treatments[[i]]
+    
+    if(treatments[[i]]==0){
+      out_product[i] <- 0
+    } else {
+      out_product[i] <- treatments[[i]]/(fertilizers[i,names(treatments)[i]]/100)
+    }
   }
   out_product
 }
