@@ -446,16 +446,6 @@ FertilizerRates_mgmt <- function(fertilizers, treatments) {
   #out <- data.table::rbindlist(out) %>% as.data.frame(stringsAsFactors=FALSE)
 } 
 
-# FertilizerRates_mgmt <- function(fertilizers, treatments) {
-#   
-#   out<- vector(mode="list", length = nrow(treatments)) 
-#   for(i in 1:nrow(treatments)){
-#     out[[i]] <- treatments[i,]  /(fertilizers[i,-1]/100)
-#     out[[i]] <- replace(out[[i]], is.na(out[[i]]), 0) #change nan values by 0
-#     is.na(out[[i]]) <- do.call(cbind,lapply(out[[i]], is.infinite)) #change inf values by 0
-#   }
-#   out <- data.table::rbindlist(out) %>% as.data.frame(stringsAsFactors=FALSE)
-# } 
 
 # Get nutrient management calculation and metadata
 #
@@ -610,6 +600,9 @@ get_prodfert_mgmt <- function(allinputs, addId="mgp_pro_1", splitId){
   out <- list(treatment_mgmt= treatment_mgmt, prodfert_mgmt= prodfert_mgmt)
   
 }
+
+
+# Get protocol-calculation table ------------------------------------------
 
 
 

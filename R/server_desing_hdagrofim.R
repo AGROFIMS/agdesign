@@ -16037,8 +16037,6 @@ server_design_agrofims <- function(input, output, session, values){
         
         ##Nutrient inputs ################################################################################# 
         treatment <- nut_details$treatment
-        print("-treatment-")
-        print(treatment)
         nc <-which(colSums(treatment) != 0)
         if(length(nc)>0){
           
@@ -16052,8 +16050,6 @@ server_design_agrofims <- function(input, output, session, values){
             Value <- lapply(1:ncol(treatment), function(x) paste(treatment[,x],collapse=",") ) %>% unlist()
             TraitName <- paste0("Nutrient_Split_",1:ncol(treatment))
             Nutrient <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
-            
-          
         } 
         else{
           Nutrient <- data.frame()
@@ -16082,9 +16078,8 @@ server_design_agrofims <- function(input, output, session, values){
         }
         ###
         
-        
         #Combine
-        combineNut <-rbind(Timing, Technique, Traction, Nutrient,NutRates)
+        combineNut <-rbind(Timing, Technique, Traction, Nutrient, NutRates)
         
         Crop	<-Subgroup <-	 Measurement <- TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
         Group <- combineNut$TraitName
@@ -16107,32 +16102,96 @@ server_design_agrofims <- function(input, output, session, values){
       }
     } 
     else if(input$rbtSoilOption=="Product") {
-      # addId <- sfProductSplit$ids
-      # splitId<- getSFProductIds()
-      # allinputs <- AllInputs()
-      # 
-      # fert_details <-  try({  get_fertilizer_details_magm( allinputs, sfProductSplit$ids, getSFProductIds() ) })
-      # fert_list <- try({  get_prodfert_mgmt(allinputs, addId = sfProductSplit$ids, splitId= getSFProductIds()) })
-      # nutrate <- try({ NutrientRates_mgmt(fert_list$prodfert_mgmt ,fert_list$treatment_mgmt) })
-      # 
       
-      # if(class(nutrate)!="try-error"){
-      #  
-      #   #sprodIndexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
-      #   #saveRDS(AllInputs(),file = "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/calc_nut_mgmt.rds")
-      #   # saveRDS(fert_details, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/fert_protocol_details.rds")
-      #   # saveRDS(fert_list, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/fert_list.rds")
-      #   # saveRDS(nutrate, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/nut_calc_protocols_details.rds")
-      #   protocol_soil<- data.frame()
-      # } else {
+      indexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
+      splitId <- getAddInputId(addId = getSFProductIds(), pattern= "mgp_proidx_", replacement="")
+      allinputs <- AllInputs()
+    
+      fert_details <-  try({  get_fertilizer_details_magm( allinputs, indexSoilMagp = indexSoilMagp ,indexProdSplit=  splitId ) })
+      fert_list <- try({  get_prodfert_mgmt(allinputs, addId = indexSoilMagp, splitId= splitId) })
+      fernutrate <- try({ NutrientRates_mgmt(fert_list$prodfert_mgmt ,fert_list$treatment_mgmt) })
+      
+      if(class(fernutrate)!="try-error" && nrow(fert_details)>0){
+        
+        print("fert details --1")
+        print(fert_details)
+        
+        saveRDS(fert_details, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_mgmt_fert_details.rds")
+        saveRDS(fert_list, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_list.rds")
+        saveRDS(fernutrate, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_nutrate.rds")
+        saveRDS(allinputs, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_allinputs.rds")
+        
+        FTiming<- data.frame(TraitName= paste0("Timing_", "split_",1:nrow(fert_details)),
+                            TraitUnit= "",
+                            Value= fert_details$mFerTimingValue, stringsAsFactors = FALSE)
+        FTechnique <- data.frame(TraitName= paste0("Technique_", "split_",1:nrow(fert_details)),
+                                TraitUnit= "",
+                                Value = fert_details$mFerTechnique, stringsAsFactors = FALSE)
+        
+        FTraction <- data.frame(TraitName= paste0("Traction_", "split_",1:nrow(fert_details)),
+                               TraitUnit= "",
+                               Value = fert_details$mFerTraction, stringsAsFactors = FALSE)
+        
+        ###################################################################################################
+        
+        feroutrate <- fernutrate[,-1]
+        nc_rate <-which(colSums(feroutrate) != 0)
+        if(length(nc_rate)>0){
+          
+          #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
+          if(length(nc_rate)==1){
+            fernut_rates <- feroutrate[names(nc_rate)]
+          } else {
+            fernut_rates <- feroutrate[,nc_rate]
+          }
+          
+          fernut_rates <- apply(fernut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
+          Value <- lapply(1:ncol(fernut_rates), function(x) paste(fernut_rates[,x],collapse=",") ) %>% unlist()
+          TraitName <- paste0("Calculation_split_",1:ncol(fernut_rates))
+          FertNutCalc <- data.frame(TraitName, TraitUnit=fert_details$Unit, Value, stringsAsFactors = FALSE)
+          
+        }else{
+          FertNutCalc <- data.frame()
+        }
+        ###################################################################################################
+        #Combine data
+        combineFert <-rbind(FTiming, FTechnique, FTraction, FertNutCalc)
+        
+        ########################################################
+        Crop	<-Subgroup <-	 Measurement <- TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
+        Group <- combineFert$TraitName
+        TraitName <- combineFert$TraitName
+        TraitUnit <- combineFert$TraitUnit
+        Timing <- ""
+        TimingValue <- ""
+        Value<- combineFert$Value
+        TraitLevel <- "Plot"
+        NumberofMeasurementsPerSeason <- NumberofMeasurementsPerPlot	<- 1
+        protocol_soil<- cbind(Crop,	Group	,Subgroup,	Measurement,TraitName	,TraitUnit,	TraitLevel,
+                              NumberofMeasurementsPerSeason,NumberofMeasurementsPerPlot,
+                              Timing, TimingValue, TraitAlias,	TraitDataType,
+                              TraitValidation, VariableId, Value)
+        protocol_soil<- as.data.frame(protocol_soil, stringsAsFactors=FALSE)
+        
+        #sprodIndexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
+        #saveRDS(AllInputs(),file = "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/calc_nut_mgmt.rds")
+        # saveRDS(fert_details, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/fert_protocol_details.rds")
+        # saveRDS(fert_list, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/fert_list.rds")
+        # saveRDS(nutrate, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/nut_calc_protocols_details.rds")
+        #protocol_soil<- data.frame()
+      } else {
         protocol_soil<- data.frame()
       #}
-    }
+      }
    
+    }
+    
     
      protocol_soil
      
-})
+  
+  })
+  
   lbl_soilFertility <- reactive({
     
     if(!is.null(input$soilfertility_to_collect_field)){
@@ -18286,7 +18345,8 @@ server_design_agrofims <- function(input, output, session, values){
          # x <- reactiveValuesToList(input)
          # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
          #abc1 <<- protocol_dt()
-         #soil_mgt <<- dt_protocol_soilfertility()
+         
+         soil_mgt <<- dt_protocol_soilfertility()
          
          
          

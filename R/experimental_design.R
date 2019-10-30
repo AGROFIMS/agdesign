@@ -743,10 +743,11 @@ get_fertilizer_details_magm <- function(allinputs, indexSoilMagp, indexProdSplit
                       dplyr::filter(!str_detect(id, "-selectized")) #%>%  
   
   mProduct<- mFerTiming<- mFerTimingValue<- mFerTechnique <- mFerImplement <- NULL
+  sfFerUnit <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProUnit")))  %>% nth(2)
   fertilizer_list<- list()
   
   for(i in seq.int(indexSoilMagp) ){
-    
+    #sfProductProduct_1
     mProduct <- dt %>% dplyr::filter(str_detect(id,  paste0("sfProductProduct_",indexSoilMagp[i]))) %>% nth(2)
     
     #outputDTsfProProduct_1
@@ -779,8 +780,13 @@ get_fertilizer_details_magm <- function(allinputs, indexSoilMagp, indexProdSplit
     
   }
   #Juntamos las 3 listas.
-  out <- data.table::rbindlist(fertilizer_list) %>%  as.data.frame(stringsAsFactors=FALSE)
+  fert_details <- data.table::rbindlist(fertilizer_list) %>%  as.data.frame(stringsAsFactors=FALSE)
   
+  fert_details$Unit <- sfFerUnit
+  fert_details$Split <- indexSoilMagp
+  
+  fert_details
+  #out <- list( fert_details = out )
   
 }
 
