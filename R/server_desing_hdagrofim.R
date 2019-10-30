@@ -16113,14 +16113,14 @@ server_design_agrofims <- function(input, output, session, values){
       
       if(class(fernutrate)!="try-error" && nrow(fert_details)>0){
         
-        print("fert details --1")
-        print(fert_details)
+        #print("fert details --1")
+        #print(fert_details)
         
-        saveRDS(fert_details, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_mgmt_fert_details.rds")
-        saveRDS(fert_list, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_list.rds")
-        saveRDS(fernutrate, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_nutrate.rds")
-        saveRDS(allinputs, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_allinputs.rds")
-        
+        # saveRDS(fert_details, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_mgmt_fert_details.rds")
+        # saveRDS(fert_list, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_list.rds")
+        # saveRDS(fernutrate, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_nutrate.rds")
+        # saveRDS(allinputs, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_allinputs.rds")
+        # 
         FTiming<- data.frame(TraitName= paste0("Timing_", "split_",1:nrow(fert_details)),
                             TraitUnit= "",
                             Value= fert_details$mFerTimingValue, stringsAsFactors = FALSE)
@@ -18346,7 +18346,7 @@ server_design_agrofims <- function(input, output, session, values){
          # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
          #abc1 <<- protocol_dt()
          
-         soil_mgt <<- dt_protocol_soilfertility()
+         #soil_mgt <<- dt_protocol_soilfertility()
          
          
          
