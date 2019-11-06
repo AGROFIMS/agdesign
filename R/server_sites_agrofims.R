@@ -42,7 +42,7 @@ server_sites_agrofims <- function(input, output, session, values){
 
     strCreate = "Create"
     strCreateId = "btCreateSite"
-    boxTitle <- "Create Site information"
+    boxTitle <- "Create new site"
     boxIcon <- "plus-circle"
     veg <- NULL
     if(is.null(pData)){
@@ -96,7 +96,7 @@ server_sites_agrofims <- function(input, output, session, values){
           column( width = 8,
                   br(),
                   HTML("<center>"),
-                  radioButtons("mymap_radiobutton_type", "Map view type", c("Default", "Street map", "Geo map"), selected="Default",inline = T),
+                  radioButtons("mymap_radiobutton_type", "", c("Default", "Street map", "Geo map"), selected="Default",inline = T),
                   HTML("</center>"),
                   ### Start: LEAFTLET MAP ###
                   leafletOutput("mymap"), 

@@ -1286,11 +1286,11 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       column(
         6, align = "right", style = "margin-top: 11px;",
         #actionButton("xtest", "Test"),
-        actionButton('newfieldbook', 'Refresh', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
+        actionButton('newfieldbook', 'New', icon("file"), class = "btn-primary", style="color: #fff;", width = "75px"),
         #actionButton('openfieldbook', 'Open', icon("folder-open"), width = "75px", onclick = "openTab('uisessionagrofims')"),
         actionButton('savefieldbook', 'Save', icon("save"), class = "btn-success", style="color: #fff;", width = "75px"),
         #actionButton("testsession", "test"),
-        htmlOutput("lastsaved"),
+        #htmlOutput("lastsaved"), ----> temporalmente escondido issue 222 (Celine)
         uiOutput("saveUI")
         #bookmarkButton(),
         #actionButton("btnlocalstorage", "Save Local Storage"),
@@ -1349,9 +1349,9 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   column(
                     6, 
                     align = "right",
-                    br(),
-                    imageOutput("myqr"),
-                    uiOutput("IdUI")
+                    br()#,
+                    #imageOutput("myqr")#,
+                    #uiOutput("IdUI")
                   )
                 )
               ),
@@ -1549,15 +1549,15 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 fluidRow(
                   column(
                     6,
-                    h2("Fieldbook details"),
+                    #h2("Fieldbook details"),
                     uiOutput("fieldbookIdUI")
                   ),
                   
                   column(
                     6, 
                     align = "right",
-                    br(),
-                    imageOutput("myqr2")
+                    br() #,
+                    #imageOutput("myqr2")
                   )
                 )
               ),
@@ -1565,7 +1565,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 6,
                 h2("Description of crops sown"),
                 shiny::selectInput(
-                  "croppingType", "Cropping type",
+                  "croppingType", "Cropping system",
                   choices = c("Monocrop",
                               "Intercrop",
                               "Relay crop"
@@ -1582,7 +1582,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     column(
                       12,
                       br(),
-                      h2("Crop information"),
+                      #h2("Crop information"),
                       fluidRow(
                         column(
                           6,
@@ -1618,12 +1618,12 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   fluidRow(id="fr_intercrop_boxes"),
                   actionButton("addIntercrop", "Add crop"),
                   br(),br(),
-                  h2("Intercrop arrangement"),
+                  h2("Intercrop details"),
                   fluidRow(
                     column(
                       6,
                       selectizeInput(
-                        "fr_intercrop_arrangement", "", multiple = TRUE,
+                        "fr_intercrop_arrangement", "Intercrop arragement", multiple = TRUE,
                         options = list(maxItems = 1, placeholder = "Select one..."),
                         choices = c("Mixed intercropping",
                                     "Row intercropping")             
@@ -1633,7 +1633,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   fluidRow(
                     column(
                       12,
-                      h2("Intercrop row geometry"),
+                      #h2("Intercrop row geometry"),
                       fluidRow(id="fr_intercrop_geometry_boxes")
                     )
                   )               
@@ -1654,12 +1654,12 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   br(),br()
                 ),
                 br(),
-                h2("Previous crop or fallow"),
+                #h2("Previous crop or fallow"),
                 fluidRow(
                   column(
                     6,
                     selectizeInput(
-                      "prevCropName", "", multiple = TRUE,
+                      "prevCropName", "Previous crop or fallow", multiple = TRUE,
                       options = list(maxItems = 1, placeholder = "Select one..."),
                       choices = c("Cassava",
                                   "Common bean",
@@ -1711,7 +1711,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   input.designFieldbook_agrofims == 'FRCBD'",
                   h2("Experimental unit"),
                   selectizeInput(
-                    "info_experiment_unit", "Information on experimental unit", multiple = T,
+                    "info_experiment_unit", "", multiple = T,
                     options = list(maxItems =1, placeholder="Select one..."),
                     choices = c("plot",
                                 "field",

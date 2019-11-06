@@ -4311,26 +4311,26 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   # Funcion que renderiza en imagen png el codigo qr para fieldbook
-  output$myqr <- renderImage({
-    validate(need(input$experimentId, ""))
-    
-    if (input$experimentId != "" || !is.null(input$experimentId)) {
-      outfile <- tempfile(fileext = '.png')
-      
-      png(outfile, width = 100, height = 100)
-      par(mar=c(0,0,0,0))
-      image(qrencode_raster(veriqr()),
-            asp=1, col=c("white", "black"), axes=FALSE,
-            xlab="", ylab="")
-      dev.off()
-      
-      list(src = outfile,
-           contentType = 'image/png',
-           width = "100px",
-           height = "100px",
-           alt = "This is alternate text")
-    }
-  }, deleteFile = TRUE)
+  # output$myqr <- renderImage({
+  #   validate(need(input$experimentId, ""))
+  #   
+  #   if (input$experimentId != "" || !is.null(input$experimentId)) {
+  #     outfile <- tempfile(fileext = '.png')
+  #     
+  #     png(outfile, width = 100, height = 100)
+  #     par(mar=c(0,0,0,0))
+  #     image(qrencode_raster(veriqr()),
+  #           asp=1, col=c("white", "black"), axes=FALSE,
+  #           xlab="", ylab="")
+  #     dev.off()
+  #     
+  #     list(src = outfile,
+  #          contentType = 'image/png',
+  #          width = "100px",
+  #          height = "100px",
+  #          alt = "This is alternate text")
+  #   }
+  # }, deleteFile = TRUE)
   
   ###################### END SERVER: PRINCIPAL ID ######################
   
@@ -5250,29 +5250,29 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   # Funcion que renderiza en imagen png el codigo qr para fieldbook
-  output$myqr2 <- renderImage({
-    # delay(
-    #   1000,
-    validate(need(input$fieldbookId, ""))
-    
-    if (input$fieldbookId != "" || !is.null(input$fieldbookId)) {
-      outfile <- tempfile(fileext = '.png')
-      
-      png(outfile, width = 100, height = 100)
-      par(mar=c(0,0,0,0))
-      image(qrencode_raster(veriqr2()),
-            asp=1, col=c("white", "black"), axes=FALSE,
-            xlab="", ylab="")
-      dev.off()
-      
-      list(src = outfile,
-           contentType = 'image/png',
-           width = "100px",
-           height = "100px",
-           alt = "This is alternate text")
-    }
-    #)
-  }, deleteFile = TRUE)
+  # output$myqr2 <- renderImage({
+  #   # delay(
+  #   #   1000,
+  #   validate(need(input$fieldbookId, ""))
+  #   
+  #   if (input$fieldbookId != "" || !is.null(input$fieldbookId)) {
+  #     outfile <- tempfile(fileext = '.png')
+  #     
+  #     png(outfile, width = 100, height = 100)
+  #     par(mar=c(0,0,0,0))
+  #     image(qrencode_raster(veriqr2()),
+  #           asp=1, col=c("white", "black"), axes=FALSE,
+  #           xlab="", ylab="")
+  #     dev.off()
+  #     
+  #     list(src = outfile,
+  #          contentType = 'image/png',
+  #          width = "100px",
+  #          height = "100px",
+  #          alt = "This is alternate text")
+  #   }
+  #   #)
+  # }, deleteFile = TRUE)
   
   ###################### END: FIELDBOOK DETAILS ######################
   
@@ -14751,7 +14751,7 @@ server_design_agrofims <- function(input, output, session, values){
     fluidRow(
       column(
         width = 12,
-        h2("Weather details"),
+        h2("Weather measurement"),
         fluidRow(
           column(6,  
                  div(
@@ -15070,7 +15070,7 @@ server_design_agrofims <- function(input, output, session, values){
     fluidRow(
       column(
         width = 12,
-        h2("Soil details"),
+        h2("Soil measurement"),
         fluidRow(
           column(6,  
                  div(
@@ -15447,7 +15447,7 @@ server_design_agrofims <- function(input, output, session, values){
     updateSelectizeInput(session, "cropCommonNameMono", selected = "Cassava")
     updateSelectizeInput(session, "cultivarNameMono", selected = c("Variety name 1", "Variety name 2"), choices = c("Variety name 1", "Variety name 2"), options = list('create' = TRUE))
     #Previous crop or fallow
-    updateSelectizeInput(session, "prevCropName", selected = "Maize")
+    updateSelectizeInput(session, "prevCropName",label = "Previous crop or fallow", selected = "Maize")
     
     delay(500, c(## Experiment
       updateTextInput(session, "fundName_1", value = "Institution name"),

@@ -8,7 +8,7 @@
 #' @export
 #'
 
-ui_listsites_agrofims <- function(type = "tab", title = "List Sites", name = "listSites"){
+ui_listsites_agrofims <- function(type = "tab", title = "", name = "listSites"){
   
   shinydashboard::tabItem(tabName = name,
                           

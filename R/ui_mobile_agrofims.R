@@ -14,11 +14,11 @@ ui_mobile_agrofims <- function(type="tab",title="KDSmart manage",name="kdsmart_f
     tabName = name,
     
     fluidRow(
-      column(12, style = "margin-top: -16px; margin-bottom: 16px;", h1("Export FieldBook"))
+      column(12, style = "margin-top: -16px; margin-bottom: 16px;", h1(""))
     ),
     fluidRow(
       box(
-        title = tagList(shiny::icon("list"), "List sessions"), status = "primary", solidHeader = TRUE, collapsible = TRUE, width = 12,
+        title = tagList(shiny::icon("list"), "Export fieldbook"), status = "primary", solidHeader = TRUE, collapsible = TRUE, width = 12,
         column(
           12,
           fluidRow(

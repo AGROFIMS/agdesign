@@ -33,11 +33,11 @@ ui_session_agrofims <- function(type="tab",title="Session manage",name="session_
     tabName = name,
     
     fluidRow(
-      column(12, style = "margin-top: -16px; margin-bottom: 16px;", h1("Manage Fieldbook"))
+      column(12, style = "margin-top: -16px; margin-bottom: 16px;", h1(""))
     ),
     fluidRow(
       box(
-        title = tagList(shiny::icon("list"), "List sessions"), status = "primary", solidHeader = TRUE, collapsible = TRUE, width = 12,
+        title = tagList(shiny::icon("list"), "Manage fieldbook"), status = "primary", solidHeader = TRUE, collapsible = TRUE, width = 12,
         column(
           12,
           fluidRow(
