@@ -282,20 +282,20 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     
                     .box.box-solid.box-info>.box-header {
                     color:#000;
-                    background:#f2dede;
+                    background:#e3f2fd;
                     /*padding-top:0px*/
                     }
                     
                     .box.box-solid.box-info>.box-body {
                     color:#000;
-                    background:#f2dede
+                    background:#e3f2fd
                     }
                     
                     .box.box-solid.box-info{
-                    border-bottom-color:#f2dede;
-                    border-left-color:#f2dede;
-                    border-right-color:#f2dede;
-                    border-top-color:#f2dede;
+                    border-bottom-color:#e3f2fd;
+                    border-left-color:#e3f2fd;
+                    border-right-color:#e3f2fd;
+                    border-top-color:#e3f2fd;
                     }
                     
                     #gh {
@@ -630,11 +630,19 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
     
     ###################### START: CROP ######################
     
+    # When multicrop is selected
+    tags$script('$(document).on("change", "select[id*=\'_cropCommonName_\']",  function(){
+                Shiny.onInputChange("cropBoxMultiVar", Math.random());
+                Shiny.onInputChange("cropBoxMultiVarId", this.id);
+                })
+                '),
+    
+    
     # When intercrop is selected
     tags$script('$(document).on("change", "select[id*=\'_cropCommonName_\']",  function(){
                 Shiny.onInputChange("cropBoxInterVar", Math.random());
                 Shiny.onInputChange("cropBoxInterVarId", this.id);
-})
+                })
                 '),
     
     # When 'other crop' name is filled multicrop
@@ -674,6 +682,17 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
       Shiny.onInputChange("cropMonoChangeId", this.id);
       })'
     ),
+    
+    
+    # Green Manure Crop
+    tags$script(
+      '$(document).on("change", "[id*=\'_cropGreenManureOpt_\']",  function(){
+      Shiny.onInputChange("multicropGreenManureChange", Math.random());
+      Shiny.onInputChange("multicropGreenManureChangeId", this.id);
+      })'
+    ),
+    
+    
     
     
     ###################### END: CROP ######################
@@ -1431,12 +1450,16 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   column(
                     6,
                     h2("Site information"),
-                    fluidRow(
-                      column(6, style = "margin-top: 25px;", actionButton("refreshSiteList", "Refresh all sites", icon("sync")))
-                    ),
+                    
                     shiny::uiOutput("fbDesign_country", inline = TRUE, width = 500),
                     shiny::uiOutput("fbDesign_countrySite", inline = TRUE, width = 500),
-                    actionLink("fbLinkNewSite", "Click here to create new site!", onclick = "openTab('newSiteAgrofims')"),
+                    
+                    fluidRow(
+                      column(2, style = "margin-top: 10px;", actionButton("refreshSiteList", "Refresh list", icon("sync"))),
+                      column(3, style = "margin-top: 10px;", actionButton("fbLinkNewSite", "Create new site", onclick = "openTab('newSiteAgrofims')"))
+                      #column(6, actionLink("fbLinkNewSite", "Click here to create new site!", onclick = "openTab('newSiteAgrofims')"))
+                    ),
+                    
                     br(),
                     h2("Site description"),
                     selectizeInput(
@@ -1591,6 +1614,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                             options = list(maxItems = 1, placeholder = "Select one..."),
                             choices = c("Cassava",
                                         "Common bean",
+                                        "Green manure",
                                         "Maize",
                                         "Potato",
                                         "Rice",
@@ -1598,6 +1622,18 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                                         "Wheat",
                                         "Other")            
                           ),
+                          hidden(selectizeInput(
+                            "monoCropGreenManureOpt", "", multiple = TRUE,
+                            options = list(maxItems = 1, placeholder = "Select one..."),
+                            choices = c("Alfalfa",
+                                        "Azolla",
+                                        "Buckwheat",
+                                        "Clover",
+                                        "Cowpea",
+                                        "Fava beans",
+                                        "Fenugreek",
+                                        "Other")            
+                          )),
                           hidden(textInput("cropCommonNameMono_other", ""))
                         ),
                         column(
@@ -1606,7 +1642,27 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                             "cultivarNameMono", label = "Variety name(s)", 
                             choices = c(), multiple = T,
                             options = list('create' = TRUE,'persist' = FALSE,maxItems = 20)
-                          )
+                           )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          6,
+                          selectizeInput(
+                            "monoprevCropName", "Previous crop or fallow", multiple = TRUE,
+                            options = list(maxItems = 1, placeholder = "Select one..."),
+                            choices = c("Cassava",
+                                        "Common bean",
+                                        "Maize",
+                                        "Potato",
+                                        "Rice",
+                                        "Sweetpotato",
+                                        "Wheat",
+                                        "Fallow",
+                                        "Pasture",
+                                        "Other")
+                          ),
+                          hidden(textInput("monoprevCropName_other", ""))
                         )
                       )
                     )
@@ -1614,10 +1670,30 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 ),
                 conditionalPanel(
                   "input.croppingType == 'Intercrop'",
-                  h2("Crop information"),
+                  #h2("Crop information"),
                   fluidRow(id="fr_intercrop_boxes"),
                   actionButton("addIntercrop", "Add crop"),
                   br(),br(),
+                  fluidRow(
+                    column(
+                      6,
+                      selectizeInput(
+                        "prevCropName", "Previous crop or fallow", multiple = TRUE,
+                        options = list(maxItems = 1, placeholder = "Select one..."),
+                        choices = c("Cassava",
+                                    "Common bean",
+                                    "Maize",
+                                    "Potato",
+                                    "Rice",
+                                    "Sweetpotato",
+                                    "Wheat",
+                                    "Fallow",
+                                    "Pasture",
+                                    "Other")
+                      ),
+                      hidden(textInput("prevCropName_other", ""))
+                    )
+                  ),
                   h2("Intercrop details"),
                   fluidRow(
                     column(
@@ -1634,16 +1710,37 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     column(
                       12,
                       #h2("Intercrop row geometry"),
+                      HTML(paste0("<h5><b> Intercrop row geomtry </b></h5>")),
                       fluidRow(id="fr_intercrop_geometry_boxes")
                     )
                   )               
                 ),
                 conditionalPanel(
                   "input.croppingType == 'Relay crop'",
-                  h2("Crop information"),
+                  #h2("Crop information"),
                   fluidRow(id="fr_relaycrop_boxes"),
                   actionButton("addRelaycrop", "Add crop"),
-                  br(),br()
+                  br(),br(),
+                  fluidRow(
+                    column(
+                      6,
+                      selectizeInput(
+                        "relprevCropName", "Previous crop or fallow", multiple = TRUE,
+                        options = list(maxItems = 1, placeholder = "Select one..."),
+                        choices = c("Cassava",
+                                    "Common bean",
+                                    "Maize",
+                                    "Potato",
+                                    "Rice",
+                                    "Sweetpotato",
+                                    "Wheat",
+                                    "Fallow",
+                                    "Pasture",
+                                    "Other")
+                      ),
+                      hidden(textInput("relprevCropName_other", ""))
+                    )
+                  )
                 ),
                 
                 conditionalPanel(
@@ -1651,30 +1748,32 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   h2("Crop information"),
                   fluidRow(id="fr_rotationcrop_boxes"),
                   actionButton("addRotationcrop", "Add crop"),
-                  br(),br()
-                ),
-                br(),
-                #h2("Previous crop or fallow"),
-                fluidRow(
-                  column(
-                    6,
-                    selectizeInput(
-                      "prevCropName", "Previous crop or fallow", multiple = TRUE,
-                      options = list(maxItems = 1, placeholder = "Select one..."),
-                      choices = c("Cassava",
-                                  "Common bean",
-                                  "Maize",
-                                  "Potato",
-                                  "Rice",
-                                  "Sweetpotato",
-                                  "Wheat",
-                                  "Fallow",
-                                  "Pasture",
-                                  "Other")
-                    ),
-                    hidden(textInput("prevCropName_other", ""))
+                  br(),br(),
+                  fluidRow(
+                    column(
+                      6,
+                      selectizeInput(
+                        "rotprevCropName", "Previous crop or fallow", multiple = TRUE,
+                        options = list(maxItems = 1, placeholder = "Select one..."),
+                        choices = c("Cassava",
+                                    "Common bean",
+                                    "Maize",
+                                    "Potato",
+                                    "Rice",
+                                    "Sweetpotato",
+                                    "Wheat",
+                                    "Fallow",
+                                    "Pasture",
+                                    "Other")
+                      ),
+                      hidden(textInput("rotprevCropName_other", ""))
+                    )
                   )
                 )
+                #,
+                #br(),
+                #h2("Previous crop or fallow"),
+                
               ),
               
               sidebarPanel(
@@ -1795,11 +1894,13 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 ),
                 conditionalPanel(
                   "input.designFieldbook_agrofims == 'SPRCBD'",
-                  h2("Information on experimental unit"),
+                  #h2("Information on experimental unit"),
+                  h2("Experimental unit"),
                   fluidRow(
                     column(
                       12, 
-                      h4("Information on main plot")
+                      #h4("Information on main plot")
+                      h4("Main plot")
                     )
                   ),
                   fluidRow(
@@ -1825,7 +1926,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   fluidRow(
                     column(
                       12, 
-                      h4("Information on sub plot")
+                      #h4("Information on sub plot")
+                      h4("Sub plot")
                     )
                   ),
                   fluidRow(
@@ -1851,11 +1953,13 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 ),
                 conditionalPanel(
                   "input.designFieldbook_agrofims == 'SPSP'",
-                  h2("Information on experimental unit"),
+                  #h2("Information on experimental unit"),
+                  h2("Experimental unit"),
                   fluidRow(
                     column(
                       12, 
-                      h4("Information on main plot")
+                      #h4("Information on main plot")
+                      h4("Main plot")
                     )
                   ),
                   fluidRow(
@@ -1881,7 +1985,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   fluidRow(
                     column(
                       12, 
-                      h4("Information on sub plot")
+                      #h4("Information on sub plot")
+                      h4("Sub plot")
                     )
                   ),
                   fluidRow(
@@ -1907,7 +2012,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   fluidRow(
                     column(
                       12, 
-                      h4("Information on sub-sub plot")
+                      #h4("Information on sub-sub plot")
+                      h4("Sub-sub plot")
                     )
                   ),
                   fluidRow(
@@ -1935,11 +2041,13 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 ### START STRIP 
                 conditionalPanel(
                   "input.designFieldbook_agrofims == 'STRIP'",
-                  h2("Information on experimental unit"),
+                  #h2("Information on experimental unit"),
+                  h2("Experimental unit"),
                   fluidRow(
                     column(
                       12, 
-                      h4("Information on main plot")
+                      #h4("Information on main plot")
+                      h4("Main plot")
                     )
                   ),
                   fluidRow(
@@ -1965,7 +2073,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   fluidRow(
                     column(
                       12, 
-                      h4("Information on sub plot")
+                      #h4("Information on sub plot")
+                      h4("Sub plot")
                     )
                   ),
                   fluidRow(
@@ -2164,8 +2273,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 "selectAgroFeature", "", multiple = TRUE, 
                 choices = c("Residue management",
                             "Seedbed preparation",
-                            "Soil fertility",
-                            "Planting and transplanting",
+                            "Fertilizer management",
+                            "Planting, transplanting",
                             "Mulch management",
                             "Irrigation",
                             "Weeding",
@@ -2186,7 +2295,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     fluidRow(
                       box(
                         id = "residue_description_boxid",
-                        title = checkboxInput("residueDesc_checkbox", actionLink("residue_description_titleId", "Residue description"), T),
+                        title = actionLink("residue_description_titleId", "Residue description"),
+                        #title = checkboxInput("residueDesc_checkbox", actionLink("residue_description_titleId", "Residue description"), T),
                         status = "primary", solidHeader = TRUE,
                         width = 12, collapsible = TRUE, collapsed = TRUE,
                         fluidRow(
@@ -2259,7 +2369,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                       ), 
                       box(
                         id="residue_management_boxid",
-                        title = checkboxInput("residueManag_checkbox", actionLink("residue_management_titleId", "Residue management"), T),
+                        title = actionLink("residue_management_titleId", "Residue management"),
+                        #title = checkboxInput("residueManag_checkbox", actionLink("residue_management_titleId", "Residue management"), T),
                         status = "primary", solidHeader = TRUE,
                         width = 12, collapsible = TRUE,  collapsed = TRUE,
                         fluidRow(
@@ -2333,7 +2444,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     fluidRow(
                       box(
                         id = "land_levelling_boxid",
-                        title = checkboxInput("landLevelling_checkbox" , actionLink("land_levelling_titleId", "Land Levelling"), F),
+                        title = actionLink("land_levelling_titleId", "Land Levelling"),
+                        #title = checkboxInput("landLevelling_checkbox" , actionLink("land_levelling_titleId", "Land Levelling"), F),
                         status = "primary", solidHeader = TRUE,
                         width = 12, collapsible = TRUE,  collapsed = TRUE,
                         fluidRow(
@@ -2404,7 +2516,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     fluidRow(
                       box(
                         id = "puddling_boxid",
-                        title = checkboxInput("puddling_checkbox", actionLink("puddling_titleId", "Puddling"), F),
+                        title = actionLink("puddling_titleId", "Puddling"),
+                        #title = checkboxInput("puddling_checkbox", actionLink("puddling_titleId", "Puddling"), F),
                         solidHeader = TRUE, status = "primary",
                         width = 12, collapsible = TRUE,  collapsed = TRUE,
                         fluidRow(
@@ -2491,7 +2604,8 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     fluidRow(
                       box(
                         id="tillage_boxid",
-                        title = checkboxInput("tillage_checkbox", actionLink("tillage_titleId", "Tillage"), F),
+                        title = actionLink("tillage_titleId", "Tillage"),
+                        #title = checkboxInput("tillage_checkbox", actionLink("tillage_titleId", "Tillage"), F),
                         status = "primary", solidHeader = TRUE,
                         width = 12, collapsible = TRUE,  collapsed = TRUE,
                         fluidRow(
@@ -2584,14 +2698,14 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                   )
                 ),
                 tabPanel(
-                  div(id = "gh", "Soil fertility"), value = "tabSoil",
+                  div(id = "gh", "Fertilizer management"), value = "tabSoil",
                   column(
                     12,
                     uiOutput("uiSoilFertility")
                   )
                 ),
                 tabPanel(
-                  div(id = "gh", "Planting and transplanting"), value="tabPlanting",
+                  div(id = "gh", "Planting, transplanting"), value="tabPlanting",
                   column(
                     12,
                     br(),

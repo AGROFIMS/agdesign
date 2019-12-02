@@ -51,7 +51,7 @@ get_ec_resdesc <- function(input, lbl){
            )
   
   #Label for spreadsheet and kdsmart headers
-  lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
+  lbl_dt <- lbl # hide for issue 236 #paste(lbl, rep("1", length(lbl)) ,sep="__") 
   
   dt <- data.frame(plantp, cmoi, r_thick, r_amount, r_cov,  r_notes, stringsAsFactors = FALSE)
   names(dt) <- lbl_dt
@@ -123,7 +123,7 @@ get_ec_resmgt <- function(input, lbl){
       
      
       #LABEL FOR SPREADSHEET AND KDSMART with underscore
-      lbl_dt <- paste(lbl, rep("1", length(lbl)) ,sep="__") 
+      lbl_dt <-  lbl # hide for issue 236 #paste(lbl, rep("1", length(lbl)) ,sep="__") 
       names(dt) <- lbl_dt
       
       
@@ -146,7 +146,7 @@ get_ec_resmgt <- function(input, lbl){
 get_protocol_resdesc <- function(input){
   
   out<- get_ec_resdesc(input)$dt 
-  names(out) <- stringr::str_replace_all(names(out),"__1","")
+  #names(out) <- stringr::str_replace_all(names(out),"__1","") # hide for issue 236
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
   out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
   names(out) <- c("TraitName","Value")
@@ -158,7 +158,7 @@ get_protocol_resdesc <- function(input){
 get_protocol_resmgt <- function(input){
 
   out<- get_ec_resmgt(input)$dt
-  names(out) <- stringr::str_replace_all(names(out),"__1","")
+  #names(out) <- stringr::str_replace_all(names(out),"__1","") # hide for issue 236
   out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
   out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
   names(out) <- c("TraitName","Value")

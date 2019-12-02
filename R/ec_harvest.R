@@ -153,8 +153,12 @@ get_ec_harv <- function(allinputs, input, ctype="monocrop", cropId="1", addId="1
   
   
   #transpose data as rows  and create table 
-  dt_harv<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
+  dt_harv<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE) #transpose as data.frame
   names(dt_harv) <- dt$id #changes names
+  if(length(addId)==1){
+   names(dt_harv) <- str_replace_all(string = names(dt_harv), pattern = "__1",replacement = "")
+  }
+  
   
   #LABEL FOR TRAITLIST
   lbl <- str_replace_all(string = names(dt_harv), pattern = "__[:digit:]+$",replacement = "") %>% unique()

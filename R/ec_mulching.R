@@ -79,7 +79,7 @@ get_ec_mulching <- function(allinputs){
   
   
   #LABELS FOR SPREADSHEETS and KDSMART
-  lbl_dt<- paste(lbl, rep("1", length(lbl)) ,sep="__") 
+  lbl_dt<- lbl #paste(lbl, rep("1", length(lbl)) ,sep="__") 
   
   #TODO : AGREGAR END DATE "Mulch_end_date"
   names(dt) <- lbl_dt #changes names
@@ -91,7 +91,7 @@ get_ec_mulching <- function(allinputs){
 # Get protocol values for mulching experiments  #############################
 get_protocol_mulching <- function(allinputs){
     out<- get_ec_mulching(allinputs)$dt 
-    names(out) <- stringr::str_replace_all(names(out),"__1","")
+    #names(out) <- stringr::str_replace_all(names(out),"__1","")
     out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
     out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
     names(out) <- c("TraitName","Value")

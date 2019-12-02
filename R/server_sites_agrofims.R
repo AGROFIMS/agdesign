@@ -89,7 +89,14 @@ server_sites_agrofims <- function(input, output, session, values){
                  uiOutput("fbsites_ui_admin3"),
                  uiOutput("fbsites_ui_admin4"),
                  uiOutput("fbsites_ui_admin5"),
-                 textInput("inSiteNearestPlace", label = "Nearest populated place", value=vData[[11]]), 
+                 br(),
+                 br(),
+                 
+                 # We use "div" to align this text input with the next two ones.
+                 div(style = "margin-top:2px",
+                   textInput("inSiteNearestPlace", label = "Nearest populated place", value=vData[[11]])),
+
+                 
                  shiny::numericInput(inputId = "inSiteElevation" ,label = "Site elevation (meters)", value = vData[[12]] )
                  
           ), 
@@ -101,6 +108,8 @@ server_sites_agrofims <- function(input, output, session, values){
                   ### Start: LEAFTLET MAP ###
                   leafletOutput("mymap"), 
                   ### End: LEAFTLET MAP ###
+                  br(),
+                  br(),
                   fluidRow(
                     column(width = 6, 
                            shiny::numericInput(inputId = "inSiteLatitude" , label = "Site latitude (in decimal degrees)", value = vData[[13]] )

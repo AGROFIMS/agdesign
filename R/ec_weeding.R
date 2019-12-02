@@ -22,8 +22,10 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
              )
     
     lbl_weed <- vector(mode = "character",length = 0L)
+    
+   
     for(i in 1:length(addId)){
-      lbl_weed <- append(lbl_weed, paste(lbl, i,sep="__"))
+        lbl_weed <- append(lbl_weed, paste(lbl, i,sep="__"))
     }
     
     #order by id_rand
@@ -70,7 +72,7 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     dt<- arrange_by_pattern(dt, pattern = addId)
     #extract and tranpose column with valus
     dt <- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
-    dt<- dt %>%  dplyr::mutate_all(as.character)
+    dt_weed<- dt %>%  dplyr::mutate_all(as.character)
     
     # TODO : AGREGAR ESTAS COLUMNAS
     # Weeding_end_date
@@ -79,14 +81,17 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     # Weeding_biomass_dry_weight
     # Weeding_biomass_subsample_dry_weight
     
-    names(dt) <- lbl_weed #changes names
+    names(dt_weed) <- lbl_weed #changes names
+    if(length(addId)==1){
+      names(dt_weed) <- stringr::str_replace_all(string = names(dt_weed), pattern = "__1",replacement = "")
+    }
     #dta
     
     #LABEL FOR TRAITLIST
-    lbl <- str_replace_all(string = names(dt), pattern = "__[:digit:]+$",replacement = "") %>% unique()
+    lbl <- stringr::str_replace_all(string = names(dt_weed), pattern = "__[:digit:]+$",replacement = "") %>% unique()
     
     #OUTPUT
-    out<- list(dt=dt, lbl = lbl)
+    out<- list(dt=dt_weed, lbl = lbl)
     
     
 }

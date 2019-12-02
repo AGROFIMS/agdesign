@@ -17,7 +17,7 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
   }
   
   #Direct seeding
-  if(isTRUE(input[[paste0(lookup,"_directSeeding_checkbox_",addId)]])){
+  #if(isTRUE(input[[paste0(lookup,"_directSeeding_checkbox_",addId)]])){
     
     #direct seedling -------------------------------------------------------------
     ptdi <- allinputs %>%  dplyr::filter(!str_detect(id, "button")) %>%
@@ -105,20 +105,20 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
     )
     
     
-    lbl_di <-   lbl_dt <- paste(lbl_di, rep("1", length(lbl_di)) ,sep="__") 
+    #lbl_di <-   lbl_dt <- paste(lbl_di, rep("1", length(lbl_di)) ,sep="__") 
     
     
     #TODO: AGREGAR END DATE "Planting_direct_seeding_end_date"
     
     dt_di <- t(dt_di$values) %>% as.data.frame(stringAsFactors=FALSE)
     names(dt_di) <- lbl_di
-  }
-  else {
-    dt_di<- data.frame()
-  }
+  #}
+  #else {
+  #  dt_di<- data.frame()
+  #}
   
   #Transplating  
-  if(isTRUE(input[[paste0(lookup,"_transplanting_checkbox_",addId)]])){
+  #if(isTRUE(input[[paste0(lookup,"_transplanting_checkbox_",addId)]])){
     
     #planting transplanting ----------------------------------------------------
     ptta <- allinputs %>%  filter(!str_detect(id, "button")) %>%
@@ -198,15 +198,15 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
                 "Transplanting_notes") 
     
     
-    lbl_ta <-   lbl_ta <- paste(lbl_ta, rep("1", length(lbl_ta)) ,sep="__") 
+    #lbl_ta <-   lbl_ta <- paste(lbl_ta, rep("1", length(lbl_ta)) ,sep="__") 
     
     
     dt_ta <- t(dt_ta$values) %>% as.data.frame(stringAsFactors=FALSE)
     names(dt_ta) <- lbl_ta
-  }
-  else{
-    dt_ta <- data.frame()
-  }
+  #}
+  #else{
+  #  dt_ta <- data.frame()
+  #}
   
   #Bind table
   dt_plantrans<- smart_colbind(dt_di,dt_ta)
@@ -226,7 +226,7 @@ get_protocol_plantrans <- function(allinputs, input, ctype="monocrop", cropId, a
   
   out<- get_ec_plantrans(allinputs, input, ctype= ctype, cropId=cropId, addId= addId)$dt
   if(nrow(out)!=0){
-    names(out) <- stringr::str_replace_all(names(out),"__1","")
+    #names(out) <- stringr::str_replace_all(names(out),"__1","")
     out <- t(out) %>% as.data.frame(stringsAsFactors=FALSE) %>% tibble::rownames_to_column()
     out <- out %>% dplyr::filter(V1!="") %>% dplyr::filter(!stringr::str_detect(V1, "^NA$"))
     names(out) <- c("TraitName","Value")
