@@ -5524,14 +5524,8 @@ server_design_agrofims <- function(input, output, session, values){
               hidden(selectizeInput(
                 paste0(typeCrop,"_cropGreenManureOpt_",index), "", multiple = TRUE,
                 options = list(maxItems = 1, placeholder = "Select one..."),
-                choices = c("Alfalfa",
-                            "Azolla",
-                            "Buckwheat",
-                            "Clover",
-                            "Cowpea",
-                            "Fava beans",
-                            "Fenugreek",
-                            "Other")            
+                
+                choices = crop_grem$get("green_manure")         
               )),
               hidden(textInput(paste0(typeCrop, "_cropCommonName_", index, "_other"), "", value = ""))
             ),
@@ -7847,9 +7841,10 @@ server_design_agrofims <- function(input, output, session, values){
     out <- try({  fertilizer_calculation(allinputs, dfAll, index=index, indexEspLvl=indexEspLvl , design=design) })
     
     if(class(out)!="try-error")  {     
-    
+        out <- as.data.frame(out,stringsAsFactors=FALSE)
+        names(out)[1] <- "Treatment"
         output[[paste0(design,"_outputFERT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
-          rhandsontable(as.data.frame(out),rowHeaders = FALSE) 
+          rhandsontable(out,rowHeaders = FALSE) 
         })
         
     } 
@@ -11650,6 +11645,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     if(class(nutrate)!="try-error")  {   
     
+      names(nutrate)[1]<- "Product"
       output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
         rhandsontable(nutrate,readOnly = TRUE)
       })

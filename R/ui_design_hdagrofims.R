@@ -1447,16 +1447,15 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
               column(
                 12,
                 fluidRow(
-                  column(
-                    6,
+                  column(6,
                     h2("Site information"),
                     
                     shiny::uiOutput("fbDesign_country", inline = TRUE, width = 500),
                     shiny::uiOutput("fbDesign_countrySite", inline = TRUE, width = 500),
                     
                     fluidRow(
-                      column(2, style = "margin-top: 10px;", actionButton("refreshSiteList", "Refresh list", icon("sync"))),
-                      column(3, style = "margin-top: 10px;", actionButton("fbLinkNewSite", "Create new site", onclick = "openTab('newSiteAgrofims')"))
+                      column(3,  actionButton("refreshSiteList", "Refresh list", icon("sync"))),
+                      column(3, actionButton("fbLinkNewSite", "Create new site",icon("plus-square"), onclick = "openTab('newSiteAgrofims')"))
                       #column(6, actionLink("fbLinkNewSite", "Click here to create new site!", onclick = "openTab('newSiteAgrofims')"))
                     ),
                     
@@ -1625,14 +1624,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                           hidden(selectizeInput(
                             "monoCropGreenManureOpt", "", multiple = TRUE,
                             options = list(maxItems = 1, placeholder = "Select one..."),
-                            choices = c("Alfalfa",
-                                        "Azolla",
-                                        "Buckwheat",
-                                        "Clover",
-                                        "Cowpea",
-                                        "Fava beans",
-                                        "Fenugreek",
-                                        "Other")            
+                            choices = crop_grem$get("green_manure")      
                           )),
                           hidden(textInput("cropCommonNameMono_other", ""))
                         ),
@@ -1699,7 +1691,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     column(
                       6,
                       selectizeInput(
-                        "fr_intercrop_arrangement", "Intercrop arragement", multiple = TRUE,
+                        "fr_intercrop_arrangement", "Intercrop arrangement", multiple = TRUE,
                         options = list(maxItems = 1, placeholder = "Select one..."),
                         choices = c("Mixed intercropping",
                                     "Row intercropping")             
@@ -1710,7 +1702,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                     column(
                       12,
                       #h2("Intercrop row geometry"),
-                      HTML(paste0("<h5><b> Intercrop row geomtry </b></h5>")),
+                      HTML(paste0("<h5><b> Intercrop row geometry </b></h5>")),
                       fluidRow(id="fr_intercrop_geometry_boxes")
                     )
                   )               
