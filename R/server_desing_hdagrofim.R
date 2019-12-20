@@ -4962,12 +4962,12 @@ server_design_agrofims <- function(input, output, session, values){
             selectizeInput(
               paste0("personnel_type_", index), "Person type", multiple=TRUE,
               options = list(maxItems = 1, placeholder = "Select one..."),
-              choices = c("Farmer",
-                          "Researcher",
-                          "Student",
-                          "Research station worker",
+              choices = c("Enumerator",
                           "Extension agent",
                           "Faculty member",
+                          "Farmer,Researcher",
+                          "Research station worker",
+                          "Student",
                           "Other")
             ),
             hidden(textInput(paste0("personnel_type_", index, "_other"), "", value = "")),
