@@ -7843,6 +7843,10 @@ server_design_agrofims <- function(input, output, session, values){
     if(class(out)!="try-error")  {     
         out <- as.data.frame(out,stringsAsFactors=FALSE)
         names(out)[1] <- "Treatment"
+        
+        file_name <- paste0("/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/FertCalcDesign/","fertcalc_",index,"_",input$experimentId,".rds")
+        saveRDS(out, file= file_name)
+        
         output[[paste0(design,"_outputFERT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
           rhandsontable(out,rowHeaders = FALSE) 
         })
@@ -7912,6 +7916,9 @@ server_design_agrofims <- function(input, output, session, values){
       
       out <- out[,c(2,1,3)]
       names(out)[3] <- "Product amount"
+      
+      file_name <- paste0("/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/NutrientCalcDesign/","nutcalc_",index,"_",input$experimentId,".rds")
+      saveRDS(out, file= file_name)
       
       output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
         rhandsontable(out,rowHeaders = FALSE,readOnly = TRUE) 
@@ -14324,7 +14331,7 @@ server_design_agrofims <- function(input, output, session, values){
                                            label = timingValue)
                                }else if(timingValue == "Other")
                                {
-                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",index,"_1"),
+                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
                                                 label = timingValue,
                                                 multiple = TRUE,
                                                 choices = c(),
@@ -14337,7 +14344,7 @@ server_design_agrofims <- function(input, output, session, values){
                                  )
                                }
                                else{
-                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",index,"_1"),
+                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
                                                 label = timingValue,
                                                 multiple = TRUE,
                                                 choices = c(),
@@ -14569,18 +14576,19 @@ server_design_agrofims <- function(input, output, session, values){
                  ),
                  column(
                    1,
-                   textInput(paste0(typeCrop, "_per_season_", index), "Per season",value = "1")
+                   textInput(paste0(typeCrop, "_per_season_", index), "Samples Per season",value = "1")
                  ),
                  column(
                    1,
-                   textInput(paste0(typeCrop, "_per_plot_", index), "Per plot",value = "1")
+                   textInput(paste0(typeCrop, "_per_plot_", index), "Samples Per plot",value = "1")
                  ),
                  column(
                    2,
                    selectizeInput(
                      paste0(typeCrop, "_timing_", index), "Timing", multiple = TRUE,
                      options = list(maxItems = 1, placeholder = "Select one..."),
-                     choices = c(timing), selected = "Days after planting"
+                     choices = c(timing), selected = ""
+                     #choices = c(timing), selected = "Days after planting"
                    ),
                    fluidRow(
                      column(
@@ -15085,7 +15093,8 @@ server_design_agrofims <- function(input, output, session, values){
                    paste0("weather_timing_", index), "Timing", multiple = TRUE,
                    options = list(maxItems = 1, placeholder = "Select one..."),
                    choices = c(timing), 
-                   selected = "Days after planting"
+                   selected = ""
+                   #selected = "Days after planting"
                  ),
                  fluidRow(
                    column(
@@ -15439,7 +15448,8 @@ server_design_agrofims <- function(input, output, session, values){
                    paste0("soil_timing_", index), "Timing", multiple = TRUE,
                    options = list(maxItems = 1, placeholder = "Select one..."),
                    choices = c(timing), 
-                   selected = "Days after planting"
+                   selected = ""
+                   #selected = "Days after planting"
                  ),
                  fluidRow(
                    column(
@@ -16097,6 +16107,99 @@ server_design_agrofims <- function(input, output, session, values){
     out <- c(s1,s2,s3)
   })
   
+  ## Nutrient Design-Calculations Protocol
+  
+  ############# nut calculation data.frame
+  
+  dt_protocol_calcnut <- reactive({
+  
+    experimentId <- input$experimentId
+    nut_file <- list.files(path = "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/NutrientCalcDesign/", pattern = experimentId, full.names = TRUE)
+    nut_calc_list <- vector(mode = "list", length = length(nut_file))  
+    #TODO poner vacio cuando no hay datos
+    if(length(nut_file)!=0){
+      for(i in seq.int(nut_file)){
+        nut_calc_list[[i]] <- readRDS(file = nut_file[i])  
+      }
+      nut_calc_data <- data.table::rbindlist(nut_calc_list)
+      class(nut_calc_data) <- "data.frame"
+      
+      nut_calc_data <- nut_calc_data %>% dplyr::mutate(Group=paste0(Nutrient,"_", Product)) 
+      nut_calc_data <- nut_calc_data %>% dplyr::mutate(TraitName= Group)
+      
+      Crop <- Subgroup<-	Measurement <- TraitAlias<-TraitDataType<- TraitValidation<- VariableId<-""
+      Group<- nut_calc_data$Group
+      TraitName <- nut_calc_data$TraitName
+      TraitUnit <- "kg/ha"
+      Timing <- ""
+      TimingValue <- ""
+      Value<- nut_calc_data$`Product amount`
+      TraitLevel <- "Plot"
+      NumberofMeasurementsPerSeason <- NumberofMeasurementsPerPlot	<- 1
+      prot_nut_calc_data <- cbind(Crop,	Group	,Subgroup,	Measurement, TraitName, TraitUnit,	TraitLevel,
+                                  NumberofMeasurementsPerSeason,NumberofMeasurementsPerPlot,
+                                  Timing, TimingValue, TraitAlias, TraitDataType,
+                                  TraitValidation, VariableId, Value)
+      prot_nut_calc_data <- prot_nut_calc_data %>% as.data.frame(stringsAsFactors=FALSE) 
+      
+    } else {
+      prot_nut_calc_data <- data.frame()
+    }
+    prot_nut_calc_data
+  })
+  ########## end Nutrient Design-Calculations Protocol
+  
+  ## Fertilizer Design-Calculations Protocol
+  dt_protocol_calcfert <- reactive({
+
+    experimentId <- input$experimentId
+    fert_file <- list.files(path = "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/FertCalcDesign/", pattern = experimentId, full.names = TRUE)
+    fert_calc_list <- vector(mode = "list", length = length(fert_file))
+    #TODO poner vacio cuando no hay datos
+    if(length(fert_file)!=0){
+      for(i in seq.int(fert_file)){
+        fert_calc_list[[i]] <- readRDS(file = fert_file[i])
+      }
+      fert_calc_data <- data.table::rbindlist(fert_calc_list)
+      class(fert_calc_data) <- "data.frame"
+
+      treatment <- fert_calc_data[,1]
+      fert_calc_data <- fert_calc_data[,-1]
+      nc_rate <- which(colSums(fert_calc_data) != 0)
+      if(length(nc_rate)>0){
+        
+        #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
+       
+        
+        if(length(nc_rate)==1){
+          fernut_rates <- fert_calc_data[names(nc_rate)]
+        } else {
+          fernut_rates <- fert_calc_data[,nc_rate]
+        }
+        
+        fernut_rates <- apply(fernut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
+        Value <- lapply(1:nrow(fernut_rates), function(x) paste(fernut_rates[x,],collapse=",") ) %>% unlist()
+        TraitName <- treatment #paste0("Calculation_split_",1:length(fernut_rates))
+        prot_fert_calc_data <- data.frame(TraitName, TraitUnit="kg/ha", Value, stringsAsFactors = FALSE)
+        print("protocol calc fert")
+        print(prot_fert_calc_data)
+        
+      } else{
+        prot_fert_calc_data <- data.frame()
+      }
+    } else {
+      prot_fert_calc_data <- data.frame()
+    }
+    print("protocol calc fert")
+    print( prot_fert_calc_data)
+    prot_fert_calc_data
+  })
+  # ########## end Nutrient Design-Calculations Protocol
+  
+  
+  ##
+
+  
   ## Soil Fertility     #############################################################
   dt_soilFertility <- reactive({
     
@@ -16112,6 +16215,7 @@ server_design_agrofims <- function(input, output, session, values){
    }
     dt
   })
+  
   dt_protocol_soilfertility <- reactive({
     
     # nutIndexSoilMagp <- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
@@ -16220,14 +16324,6 @@ server_design_agrofims <- function(input, output, session, values){
       
       if(class(fernutrate)!="try-error" && nrow(fert_details)>0){
         
-        #print("fert details --1")
-        #print(fert_details)
-        
-        # saveRDS(fert_details, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_mgmt_fert_details.rds")
-        # saveRDS(fert_list, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_list.rds")
-        # saveRDS(fernutrate, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_nutrate.rds")
-        # saveRDS(allinputs, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/cb_fert_allinputs.rds")
-        # 
         FTiming<- data.frame(TraitName= paste0("Timing_", "split_",1:nrow(fert_details)),
                             TraitUnit= "",
                             Value= fert_details$mFerTimingValue, stringsAsFactors = FALSE)
@@ -16242,7 +16338,7 @@ server_design_agrofims <- function(input, output, session, values){
         ###################################################################################################
         
         feroutrate <- fernutrate[,-1]
-        nc_rate <-which(colSums(feroutrate) != 0)
+        nc_rate <- which(colSums(feroutrate) != 0)
         if(length(nc_rate)>0){
           
           #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
@@ -16257,8 +16353,10 @@ server_design_agrofims <- function(input, output, session, values){
           TraitName <- paste0("Calculation_split_",1:ncol(fernut_rates))
           FertNutCalc <- data.frame(TraitName, TraitUnit=fert_details$Unit, Value, stringsAsFactors = FALSE)
           
-        }else{
+        } else{
+          
           FertNutCalc <- data.frame()
+          
         }
         ###################################################################################################
         #Combine data
@@ -16292,9 +16390,11 @@ server_design_agrofims <- function(input, output, session, values){
       }
    
     }
+
     
     
-     protocol_soil
+    
+    protocol_soil
      
   
   })
@@ -18238,7 +18338,11 @@ server_design_agrofims <- function(input, output, session, values){
         out7 <- data.frame()
       }
       print("protocol 7")
-      protocol <- list(out1, out2, out3, out_sfert, out4, out5, out6, out7)  
+      print(dt_protocol_calcnut())
+      print(dt_protocol_calcfert())
+      
+      
+      protocol <- list(out1, out2, out3, dt_protocol_calcnut(), dt_protocol_calcfert(),out_sfert, out4, out5, out6, out7)  
       #protocol <- list(out1, out2, out3, out4, out5, out6, out7)
       
       valid  <-lapply(protocol, function(x){length(x)!=0} ) %>% unlist()
@@ -18455,16 +18559,7 @@ server_design_agrofims <- function(input, output, session, values){
         # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
         #soil_mgt <<- dt_protocol_soilfertility()
         
-        out <- try({  get_prodfert_mgmt(AllInputs(), addId = sfProductSplit$ids, splitId= getSFProductIds()) })
-        nutrate <- try({ NutrientRates_mgmt(out$prodfert_mgmt ,out$treatment_mgmt) })
-        
-        print("nutrient in design")
-        print(nutrate)
-        print(out)
-        
-        
-         
-         ##### Eliminar Start: Testing by Jose ######
+        ##### Eliminar Start: Testing by Jose ######
          print("Entro al método.")
          #savefb()
          #checkDS()

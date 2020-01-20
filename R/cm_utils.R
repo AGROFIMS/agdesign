@@ -76,9 +76,22 @@ get_dtcmea_variables <- function(allinputs, ctype="monocrop", addId="1", crop="n
         for(j in seq.int(as.integer(timNumLev[i]))){
           timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_timingValue_",addId[i],"_[[:digit:]]+","$") )) %>% dplyr::nth(2) %>% paste(., collapse = ",")
         }
-        #mono_mea_1_timingValue_1_1 #mono_mea_1_timingValue_1_2 #mono_mea_1_timingValue_1_3
-      }else {
-        timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,cropId,"_timingValue_",addId[i],"_1","$") ))  %>% dplyr::nth(2)        
+      
+      #mono_mea_1_timingValue_1_1 #mono_mea_1_timingValue_1_2 #mono_mea_1_timingValue_1_3
+      # } else if(timing[i]=="Days after planting" || timing[i]=="Growth stage"){
+      # 
+      #   if(ctype=="monocrop"){
+      #     lookup <- "mono"
+      #     cropId <- "1"
+      #   } else if(ctype=="intercrop"){
+      #     lookup <- "int_"
+      #   } else if(ctype=="relay crop"){
+      #     lookup <- "rel_"
+      #   }
+      #   timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup,"_timingValue_",addId[i],"_1","$") )) %>% dplyr::nth(2)
+
+      } else {
+        timValue[i] <- allinputs %>% dplyr::filter(str_detect(id,  paste0("^",lookup, cropId,"_timingValue_",addId[i],"_1","$") )) %>% dplyr::nth(2)        
       }
     }
     
