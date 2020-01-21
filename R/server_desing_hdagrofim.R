@@ -7795,6 +7795,10 @@ server_design_agrofims <- function(input, output, session, values){
     }
   })
   
+  # Calculation design path
+  calc_design_path <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/"
+  
+  
   # Trigger calculate for fertilizer
   observeEvent(input$calculateProdAmountFertilizer,{
       
@@ -7844,7 +7848,7 @@ server_design_agrofims <- function(input, output, session, values){
         out <- as.data.frame(out,stringsAsFactors=FALSE)
         names(out)[1] <- "Treatment"
         
-        file_name <- paste0("/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/FertCalcDesign/","fertcalc_",index,"_",input$experimentId,".rds")
+        file_name <- paste0(calc_design_path,"FertCalcDesign/","fertcalc_",index,"_",input$experimentId,".rds")
         saveRDS(out, file= file_name)
         
         output[[paste0(design,"_outputFERT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
@@ -7917,7 +7921,7 @@ server_design_agrofims <- function(input, output, session, values){
       out <- out[,c(2,1,3)]
       names(out)[3] <- "Product amount"
       
-      file_name <- paste0("/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/NutrientCalcDesign/","nutcalc_",index,"_",input$experimentId,".rds")
+      file_name <- paste0(calc_design_path,"NutrientCalcDesign/","nutcalc_",index,"_",input$experimentId,".rds")
       saveRDS(out, file= file_name)
       
       output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
@@ -16114,7 +16118,7 @@ server_design_agrofims <- function(input, output, session, values){
   dt_protocol_calcnut <- reactive({
   
     experimentId <- input$experimentId
-    nut_file <- list.files(path = "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/NutrientCalcDesign/", pattern = experimentId, full.names = TRUE)
+    nut_file <- list.files(path =  paste0(calc_design_path, "NutrientCalcDesign/"), pattern = experimentId, full.names = TRUE)
     nut_calc_list <- vector(mode = "list", length = length(nut_file))  
     #TODO poner vacio cuando no hay datos
     if(length(nut_file)!=0){
@@ -16153,7 +16157,7 @@ server_design_agrofims <- function(input, output, session, values){
   dt_protocol_calcfert <- reactive({
 
     experimentId <- input$experimentId
-    fert_file <- list.files(path = "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/FertCalcDesign/", pattern = experimentId, full.names = TRUE)
+    fert_file <- list.files(path = paste0(calc_design_path,"FertCalcDesign/"), pattern = experimentId, full.names = TRUE)
     fert_calc_list <- vector(mode = "list", length = length(fert_file))
     #TODO poner vacio cuando no hay datos
     if(length(fert_file)!=0){
