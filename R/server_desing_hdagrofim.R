@@ -12255,7 +12255,25 @@ server_design_agrofims <- function(input, output, session, values){
                         )
                       )
                     ),
-                    numericInput(paste0(crop, "_ptdi_seeding_density_number_rows_", index),  label = "Number of rows", min = 0, max = 100, step = 1, value = NULL),
+                    
+                    fluidRow(
+                    
+                      column(6, numericInput(paste0(crop, "_ptdi_seeding_density_number_rows_", index),  label = "Number of rows", min = 0, max = 100, step = 1, value = NULL)),
+                      column(
+                        6,
+                    selectizeInput(
+                      paste0(crop, "_ptdi_seeding_density_number_rows_unit_", index), label = "Unit", 
+                      multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                      choices = c("rows/plot",
+                                  "rows/m2",
+                                  "rows/f2",
+                                  "rows/ac",
+                                  "rows/ha"),
+                      selected = "rows/plot"
+                        )
+                      )
+                    ),
+                    
                     fluidRow(
                       column(6, numericInput(paste0(crop, "_ptdi_seeding_plant_density_", index),  label = "Plant density", min = 0, max = 100, step = 0.1, value = NULL)),
                       column(
@@ -12273,6 +12291,7 @@ server_design_agrofims <- function(input, output, session, values){
                         )
                       )
                     ),
+                    
                     fluidRow(
                       column(6, numericInput(paste0(crop, "_ptdi_seeding_distance_bunds_", index),  label = "Distance between bunds", min = 0, max = 100, step = 0.1, value = NULL)),
                       column(
@@ -12449,7 +12468,29 @@ server_design_agrofims <- function(input, output, session, values){
                         )
                       )
                     ),
-                    numericInput(paste0(crop, "_ptta_trans_num_rows_", index), "Number of rows", value ="", min = 0, max = 100, step = 1),
+                    #new
+                    #numericInput(paste0(crop, "_ptta_trans_num_rows_", index), "Number of rows", value ="", min = 0, max = 100, step = 1),
+                    
+                    fluidRow(
+                      column(6,  numericInput(paste0(crop, "_ptta_trans_num_rows_", index), "Number of rows", value ="", min = 0, max = 100, step = 1)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptta_trans_num_rows_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("rows/plot",
+                                      "rows/m2",
+                                      "rows/f2",
+                                      "rows/ac",
+                                      "rows/ha"),
+                          selected = "rows/plot"
+                        )
+                      )
+                    ),
+                    
+                    
+                    #end new
+                    
                     fluidRow(
                       column(6, numericInput(paste0(crop, "_ptta_trans_distance_plants_", index),  label = "Distance between plants", value = "", min = 0, max = 100, step = 0.1)),
                       column(

@@ -63,6 +63,7 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
     
     #number of rows
     numrow <- ptdi %>% dplyr::filter(str_detect(id, paste0(lookup, "_ptdi_seeding_density_number_rows_[:digit:]+$")))
+    numrow_unit <- ptdi %>% dplyr::filter(str_detect(id, paste0(lookup, "_ptdi_seeding_density_number_rows_unit_[:digit:]+$")))
     
     #plan density
     plden<- ptdi %>% dplyr::filter(str_detect(id,  paste0(lookup,"_ptdi_seeding_plant_density_[:digit:]+$")))
@@ -98,7 +99,8 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
                 paste("Seeding_density_distance_between_rows","_",row_unit$values,sep=""),
                 paste("Seeding_rate","_",rate_unit$values,sep=""),  
                 paste("Seeding_density_distance_between_plants","_",plan_unit$values,sep=""),
-                "Seeding_density_number_of_rows/plot",  ##Check with Celine #74  Direct seeding
+                paste("Seeding_density_number_of","_",numrow_unit$values,sep=""),
+                ##Check with Celine #74  Direct seeding
                 paste("Seeding_plant_density","_",plden_unit$values,sep=""),
                 paste("Seeding_density_distance_between_bunds","_",bund_unit$values,sep=""),
                 "Seeding_notes"
@@ -160,6 +162,7 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
     
     #Number of rows
     ta_numrow <- ptta %>% filter(str_detect(id,paste0(lookup,"_ptta_trans_num_rows_[:digit:]+$")))
+    ta_numrow_unit <- ptta %>% filter(str_detect(id,paste0(lookup, "_ptta_trans_num_rows_unit_[:digit:]+$")))
     
     #distance plants
     ta_dplan<- ptta %>% filter(str_detect(id, paste0(lookup,"_ptta_trans_distance_plants_[:digit:]+$")))
@@ -192,7 +195,7 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
                 "Transplanting_traction",
                 paste0("Transplanting_density_distance_between_rows","_",ta_drow_unit$values,sep=""),
                 paste0("Transplanting_seedling_density","_",ta_sden_unit$values,sep=""),
-                "Transplanting_density_number_of_rows/plot", ##Check with Celine #87 Transplanting
+                paste0("Transplanting_density_number_of_", ta_numrow_unit$values, sep=""),##Check with Celine #87 Transplanting
                 paste0("Transplanting_density_distance_between_plants","_",ta_dplan_unit$values,sep=""),
                 paste0("Transplanting_density_distance between_bunds","_",ta_bunds_unit$values,sep=""),
                 "Transplanting_notes") 
