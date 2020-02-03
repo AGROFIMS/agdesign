@@ -16327,7 +16327,7 @@ server_design_agrofims <- function(input, output, session, values){
           }
           nut_rates <- apply(nut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
           Value <- lapply(1:ncol(nut_rates), function(x) paste(nut_rates[,x],collapse=",") ) %>% unlist()
-          TraitName <- paste0("Calculation_split_",1:ncol(nut_rates))
+          TraitName <- paste0("Nutrient_added_split_",1:ncol(nut_rates))
           NutRates <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
         } else {
           NutRates <- data.frame()
@@ -16395,7 +16395,7 @@ server_design_agrofims <- function(input, output, session, values){
           
           fernut_rates <- apply(fernut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
           Value <- lapply(1:ncol(fernut_rates), function(x) paste(fernut_rates[,x],collapse=",") ) %>% unlist()
-          TraitName <- paste0("Calculation_split_",1:ncol(fernut_rates))
+          TraitName <- paste0("Product_amount_split_",1:ncol(fernut_rates))
           FertNutCalc <- data.frame(TraitName, TraitUnit=fert_details$Unit, Value, stringsAsFactors = FALSE)
           
         } else{
@@ -16436,9 +16436,6 @@ server_design_agrofims <- function(input, output, session, values){
    
     }
 
-    
-    
-    
     protocol_soil
      
   
