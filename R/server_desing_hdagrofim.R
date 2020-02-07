@@ -4965,7 +4965,7 @@ server_design_agrofims <- function(input, output, session, values){
               choices = c("Enumerator",
                           "Extension agent",
                           "Faculty member",
-                          "Farmer,Researcher",
+                          "Farmer","Researcher",
                           "Research station worker",
                           "Student",
                           "Other")
