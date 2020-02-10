@@ -16280,14 +16280,14 @@ server_design_agrofims <- function(input, output, session, values){
         #out <- try({list(out_nut = out, nut_details = nut_details)})
         nut_metadata <- nut_details$nut_details
        
-        Timing<- data.frame(TraitName= paste0("Timing_", "split_",1:nrow(nut_metadata)),
+        Timing<- data.frame(TraitName= paste0("Fertilizer_timing_", "split_",1:nrow(nut_metadata)),
                             TraitUnit= "",
                             Value= nut_metadata$mNumTimingValue, stringsAsFactors = FALSE)
-        Technique <- data.frame(TraitName= paste0("Technique_", "split_",1:nrow(nut_metadata)),
+        Technique <- data.frame(TraitName= paste0("Fertilizer_technique_", "split_",1:nrow(nut_metadata)),
                                 TraitUnit= "",
                                 Value = nut_metadata$mTechnique, stringsAsFactors = FALSE)
 
-        Traction <- data.frame(TraitName= paste0("Traction_", "split_",1:nrow(nut_metadata)),
+        Traction <- data.frame(TraitName= paste0("Fertilizer_traction_", "split_",1:nrow(nut_metadata)),
                                TraitUnit= "",
                                Value = nut_metadata$mTraction, stringsAsFactors = FALSE)
         
@@ -16304,7 +16304,7 @@ server_design_agrofims <- function(input, output, session, values){
           }
             treatment <- apply(treatment, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
             Value <- lapply(1:ncol(treatment), function(x) paste(treatment[,x],collapse=",") ) %>% unlist()
-            TraitName <- paste0("Nutrient_Split_",1:ncol(treatment))
+            TraitName <- paste0("Fertilizer_nutrientadded_split_",1:ncol(treatment))
             Nutrient <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
         } 
         else{
@@ -16327,7 +16327,7 @@ server_design_agrofims <- function(input, output, session, values){
           }
           nut_rates <- apply(nut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
           Value <- lapply(1:ncol(nut_rates), function(x) paste(nut_rates[,x],collapse=",") ) %>% unlist()
-          TraitName <- paste0("Nutrient_added_split_",1:ncol(nut_rates))
+          TraitName <- paste0("Fertilizer_nutrientadded_split_",1:ncol(nut_rates))
           NutRates <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
         } else {
           NutRates <- data.frame()
@@ -16337,8 +16337,11 @@ server_design_agrofims <- function(input, output, session, values){
         #Combine
         combineNut <-rbind(Timing, Technique, Traction, Nutrient, NutRates)
         
-        Crop	<-Subgroup <-	 Measurement <- TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
-        Group <- combineNut$TraitName
+        Crop	<- ""
+        Subgroup <-	"Fertilizer type" 
+        Measurement <- "Fertilizer type"
+        TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId <-VariableId <-""
+        Group <- "Fertilizer management" #combineNut$TraitName
         TraitName <- combineNut$TraitName
         TraitUnit <- combineNut$TraitUnit
         Timing <- ""
@@ -16369,14 +16372,14 @@ server_design_agrofims <- function(input, output, session, values){
       
       if(class(fernutrate)!="try-error" && nrow(fert_details)>0){
         
-        FTiming<- data.frame(TraitName= paste0("Timing_", "split_",1:nrow(fert_details)),
+        FTiming<- data.frame(TraitName= paste0("Fertilizer_timing_", "split_",1:nrow(fert_details)),
                             TraitUnit= "",
                             Value= fert_details$mFerTimingValue, stringsAsFactors = FALSE)
-        FTechnique <- data.frame(TraitName= paste0("Technique_", "split_",1:nrow(fert_details)),
+        FTechnique <- data.frame(TraitName= paste0("Fertilizer_technique_", "split_",1:nrow(fert_details)),
                                 TraitUnit= "",
                                 Value = fert_details$mFerTechnique, stringsAsFactors = FALSE)
         
-        FTraction <- data.frame(TraitName= paste0("Traction_", "split_",1:nrow(fert_details)),
+        FTraction <- data.frame(TraitName= paste0("Fertilizer_traction_", "split_",1:nrow(fert_details)),
                                TraitUnit= "",
                                Value = fert_details$mFerTraction, stringsAsFactors = FALSE)
         
@@ -16395,7 +16398,7 @@ server_design_agrofims <- function(input, output, session, values){
           
           fernut_rates <- apply(fernut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
           Value <- lapply(1:ncol(fernut_rates), function(x) paste(fernut_rates[,x],collapse=",") ) %>% unlist()
-          TraitName <- paste0("Product_amount_split_",1:ncol(fernut_rates))
+          TraitName <- paste0("Fertilizer_nutrientadded_split_",1:ncol(fernut_rates))
           FertNutCalc <- data.frame(TraitName, TraitUnit=fert_details$Unit, Value, stringsAsFactors = FALSE)
           
         } else{
@@ -16408,8 +16411,11 @@ server_design_agrofims <- function(input, output, session, values){
         combineFert <-rbind(FTiming, FTechnique, FTraction, FertNutCalc)
         
         ########################################################
-        Crop	<-Subgroup <-	 Measurement <- TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
-        Group <- combineFert$TraitName
+        Crop	<- ""
+        Subgroup <-	"Fertilizer type" 
+        Measurement <- "Type"
+        TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
+        Group <- "Fertilizer management" #combineFert$TraitName
         TraitName <- combineFert$TraitName
         TraitUnit <- combineFert$TraitUnit
         Timing <- ""
