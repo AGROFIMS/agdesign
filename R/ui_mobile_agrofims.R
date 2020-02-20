@@ -35,6 +35,7 @@ ui_mobile_agrofims <- function(type="tab",title="KDSmart manage",name="kdsmart_f
                    actionButton("refreshsession2", "Refresh", icon("refresh"), width = "100px"),
                    #actionButton('load_inputs2', 'Load', icon("download"), class = "btn-primary", style = "color: #fff;", onclick = "openTab('newFieldbookAgrofims')", width = "100px"),
                    downloadButton("downloadExcel", "Export Excel file", icon("download"), class = "btn-primary", style = "color: #fff;"),
+                   #downloadButton("downloadFbApp", "Export Field Book App file", icon("download"), class = "btn-primary", style = "color: #fff;"),
                    downloadButton("downloadKDX", "Export KDSmart file", icon("download"), class = "btn-primary", style = "color: #fff;")
             )
           ),

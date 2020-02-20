@@ -2392,6 +2392,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                               "rmgt_residue_technique", label = "Technique", multiple = TRUE, 
                               options = list(maxItems =1, placeholder ="Select one..."), 
                               choices = c("Burning",
+                                          "Removal",
                                           "Incorporation",
                                           "Spreading",
                                           "Other")
