@@ -768,7 +768,7 @@ get_fertilizer_details_magm <- function(allinputs, indexSoilMagp, indexProdSplit
     
     #'TODO Product Amount
     #txtsfProductValue_1_1 txtsfProductValue_1_2 txtsfProductValue_1_3
-    #mProductAmount <- dt %>% dplyr::filter(str_detect(id,  paste0("txtsfProductValue_",indexProdSplit[i]))) %>% dplyr::arrange(desc(values)) %>% nth(2)
+    mProductAmount <- dt %>% dplyr::filter(str_detect(id,  paste0("txtsfProductValue_",indexProdSplit[i]))) %>% dplyr::arrange(desc(values)) %>% nth(2)
     
     
     #mFerImplement

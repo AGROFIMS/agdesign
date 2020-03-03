@@ -16159,6 +16159,9 @@ server_design_agrofims <- function(input, output, session, values){
   dt_protocol_calcnut <- reactive({
   
     experimentId <- input$experimentId
+    print("experiment id calc nut")
+    print(experimentId)
+    
     nut_file <- list.files(path =  paste0(calc_design_path, "NutrientCalcDesign/"), pattern = experimentId, full.names = TRUE)
     nut_calc_list <- vector(mode = "list", length = length(nut_file))  
     #TODO poner vacio cuando no hay datos
@@ -16173,7 +16176,7 @@ server_design_agrofims <- function(input, output, session, values){
       nut_calc_data <- nut_calc_data %>% dplyr::mutate(TraitName= Group)
       
       Crop <- Subgroup<-	Measurement <- TraitAlias<-TraitDataType<- TraitValidation<- VariableId<-""
-      Group<- nut_calc_data$Group
+      Group<- nut_calc_data$TraitName
       TraitName <- nut_calc_data$TraitName
       TraitUnit <- "kg/ha"
       Timing <- ""
@@ -16225,7 +16228,8 @@ server_design_agrofims <- function(input, output, session, values){
         fernut_rates <- apply(fernut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
         Value <- lapply(1:nrow(fernut_rates), function(x) paste(fernut_rates[x,],collapse=",") ) %>% unlist()
         TraitName <- treatment #paste0("Calculation_split_",1:length(fernut_rates))
-        prot_fert_calc_data <- data.frame(TraitName, TraitUnit="kg/ha", Value, stringsAsFactors = FALSE)
+        Group<- TraitName
+        prot_fert_calc_data <- data.frame(Group, TraitName, TraitUnit="kg/ha", Value, stringsAsFactors = FALSE)
         print("protocol calc fert")
         print(prot_fert_calc_data)
         
@@ -16240,9 +16244,6 @@ server_design_agrofims <- function(input, output, session, values){
     prot_fert_calc_data
   })
   # ########## end Nutrient Design-Calculations Protocol
-  
-  
-  ##
 
   
   ## Soil Fertility     #############################################################
@@ -16338,10 +16339,10 @@ server_design_agrofims <- function(input, output, session, values){
         combineNut <-rbind(Timing, Technique, Traction, Nutrient, NutRates)
         
         Crop	<- ""
-        Subgroup <-	"Fertilizer type" 
-        Measurement <- "Fertilizer type"
+        Subgroup <-	"" #"Fertilizer type" 
+        Measurement <- "" #"Fertilizer type"
         TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId <-VariableId <-""
-        Group <- "Fertilizer management" #combineNut$TraitName
+        Group <- combineNut$TraitName #"Fertilizer management" #combineNut$TraitName
         TraitName <- combineNut$TraitName
         TraitUnit <- combineNut$TraitUnit
         Timing <- ""
@@ -16370,6 +16371,9 @@ server_design_agrofims <- function(input, output, session, values){
       fert_list <- try({  get_prodfert_mgmt(allinputs, addId = indexSoilMagp, splitId= splitId) })
       fernutrate <- try({ NutrientRates_mgmt(fert_list$prodfert_mgmt ,fert_list$treatment_mgmt) })
       
+      
+      
+      
       if(class(fernutrate)!="try-error" && nrow(fert_details)>0){
         
         FTiming<- data.frame(TraitName= paste0("Fertilizer_timing_", "split_",1:nrow(fert_details)),
@@ -16389,6 +16393,33 @@ server_design_agrofims <- function(input, output, session, values){
         nc_rate <- which(colSums(feroutrate) != 0)
         if(length(nc_rate)>0){
           
+          # print("fer tltreat")
+          # print(fert_list$treatment_mgmt)
+          
+          fert_prod <- fert_list$treatment_mgmt %>% dplyr::mutate(splitId= stringr::str_remove_all(splitId,pattern = "_.*")) 
+          fert_prod <- fert_prod %>% dplyr::mutate(colu = paste(name, product, sep="_"))
+          fert_prod <- split(fert_prod, fert_prod$splitId)
+          fert_prod_amount <- list()
+          for(i in 1:length(fert_prod)){
+            fert_prod_amount[[i]] <-  paste(fert_prod[[i]][,4], collapse = ", ")
+          }
+          fert_prod <- do.call(rbind.data.frame, fert_prod_amount)
+          fert_prod[,1] <- as.character(fert_prod[,1])
+          fert_prod <- fert_prod[,1]
+          
+          
+          # fert_prod_name <- fert_list$treatment_mgmt$name
+          # fert_prod_amount <- fert_list$treatment_mgmt$product
+          # fert_prod <- paste(fert_prod_name, fert_prod_amount, sep="_")
+          
+          #Fertlizer product name and amount
+          FProduct <- data.frame(TraitName= paste0("Fertilizer_nutrientcontent_", "split_",1:length(fert_prod)),
+                                 TraitUnit= input$sfProUnit,
+                                 Value= fert_prod, stringsAsFactors = FALSE)
+          
+          # print("fproduct final")
+          # print(FProduct)
+          # 
           #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
           if(length(nc_rate)==1){
             fernut_rates <- feroutrate[names(nc_rate)]
@@ -16408,14 +16439,14 @@ server_design_agrofims <- function(input, output, session, values){
         }
         ###################################################################################################
         #Combine data
-        combineFert <-rbind(FTiming, FTechnique, FTraction, FertNutCalc)
+        combineFert <-rbind(FTiming, FTechnique, FTraction, FProduct, FertNutCalc)
         
         ########################################################
         Crop	<- ""
-        Subgroup <-	"Fertilizer type" 
-        Measurement <- "Type"
+        Subgroup <-	 "" #"Fertilizer type" 
+        Measurement <- "" #"Type"
         TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
-        Group <- "Fertilizer management" #combineFert$TraitName
+        Group <- combineFert$TraitName #"Fertilizer management" #combineFert$TraitName
         TraitName <- combineFert$TraitName
         TraitUnit <- combineFert$TraitUnit
         Timing <- ""
