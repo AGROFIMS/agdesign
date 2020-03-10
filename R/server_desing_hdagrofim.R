@@ -11,7 +11,6 @@
 
 #' 
 server_design_agrofims <- function(input, output, session, values){
-  
   ########################################################################################################################################
   ########################################################### NEW CODIGO: IVAN ###########################################################
   ########################################################################################################################################
@@ -385,7 +384,7 @@ server_design_agrofims <- function(input, output, session, values){
   # Funcion que crea lista de inputs a guardar: Crop
   inputsCrop <- function() {
     df2 <- df3 <- df4 <- df5 <- data.frame()
-    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- c()
+    a1 <- a2 <- a3 <- a4 <- a5 <- a6 <- a7 <- a8 <- a9 <- a10 <- a11 <- a12 <- a13 <- a14 <- a15 <- c()
     b1 <- b2 <- b3 <- b4 <- b5 <- b6 <- b7 <- b8 <- b9 <- c()
     c1 <- c2 <- c3 <- c4 <- c5 <- c6 <- c7 <- c8 <- c9 <- c10 <- c11 <- c12 <- c()
     
@@ -404,7 +403,7 @@ server_design_agrofims <- function(input, output, session, values){
     if (!is.null(input$croppingType) && !is.na(input$croppingType) && input$croppingType == "Intercrop") {
       
       id_ic_rand <- getAddInputId(intercropVars$ids, "int_", "")
-      aux1 <- aux2<- aux3 <- aux4 <- c()
+      aux1 <- aux2<- aux3 <- aux4 <- aux5 <- c()
       
       for (i in 1:length(id_ic_rand)) {
         
@@ -412,24 +411,28 @@ server_design_agrofims <- function(input, output, session, values){
         aux2[i] <- paste0("int_cropCommonName_", id_ic_rand[i], "_other")
         aux3[i] <- paste0("int_cropVarietyName_", id_ic_rand[i])
         aux4[i] <- paste0("intercropValue_row_crop_", id_ic_rand[i])
+        aux5[i] <- paste0("fr_intercrop_arrangement")
         
         a1[i] <- paste0("int_cropCommonName_", i)
         a2[i] <- paste0("int_cropCommonName_", i, "_other")
         a3[i] <- paste0("int_cropVarietyName_", i)
         a4[i] <- paste0("intercropValue_row_crop_", i)
+        a5[i] <- paste0("fr_intercrop_arrangement")
         
-        a5[i] <- "selectizeInput"
-        a6[i] <- "textInput"
-        a7[i] <- "selectizeInput"
-        a8[i] <- "textInput"
+        a6[i] <- "selectizeInput"
+        a7[i] <- "textInput"
+        a8[i] <- "selectizeInput"
+        a9[i] <- "textInput"
+        a10[i] <- "selectizeInput"
 
-        a9[i] <- "n"
-        a10[i] <- "n"
-        a11[i] <- "y"
+        a11[i] <- "n"
         a12[i] <- "n"
+        a13[i] <- "y"
+        a14[i] <- "n"
+        a15[i] <- "n"
       }
       
-      df3 <- data.frame(originalInputId= c(aux1,aux2,aux3,aux4) , inputId = c(a1, a2, a3, a4), type = c(a5, a6, a7,a8), create = c(a9, a10, a11, a12), stringsAsFactors = F)
+      df3 <- data.frame(originalInputId= c(aux1,aux2,aux3,aux4,aux5) , inputId = c(a1, a2, a3, a4, a5), type = c(a6, a7, a8,a9, a10), create = c(a11, a12, a13, a14, a15), stringsAsFactors = F)
     }
 
     # inputs para: Relay crop
@@ -1694,11 +1697,11 @@ server_design_agrofims <- function(input, output, session, values){
         df5 <- inputsExpConMulchResi()
       }
       
-      if (inp[i] == "Planting and transplanting") {
+      if (inp[i] == "Planting, transplanting") {
         df6 <- inputsExpPlantTrans()
       }
       
-      if (inp[i] == "Soil fertility") {
+      if (inp[i] == "Fertilizer management") {
         df7 <- inputsExpConSoilFer()
       }
       
@@ -1817,7 +1820,7 @@ server_design_agrofims <- function(input, output, session, values){
   # Funcion que crea lista de inputs a guardar: Experiment conditions -> Planting and transplanting
   inputsExpPlantTrans <- function() {
     inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
-    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Planting and transplanting")
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Planting, transplanting")
     df1 <- inputRds[c(6, 7, 8)]
     
     res <- df1
@@ -1830,7 +1833,7 @@ server_design_agrofims <- function(input, output, session, values){
     df2 <- data.frame()
     
     inputRds <- readRDS(paste0(globalpath, "inputId2_v1.rds"))
-    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Soil fertility")
+    inputRds <- dplyr::filter(as.data.frame(inputRds), tabPanel == "Experiment conditions" & subTabPanel == "Fertilizer management")
     df1 <- inputRds[c(6, 7, 8)]
     
     # inputs para: Number of applications
@@ -1944,9 +1947,9 @@ server_design_agrofims <- function(input, output, session, values){
   savesession <- function() {
     if(session$userData$logged){
       expid <- input$uniqueId
-
-      if (file.exists(isolate(paste0(sessionpath, expid, ".csv")))) {
-        x <- read.csv(paste0(sessionpath, expid, ".csv"))
+      
+      if (file.exists(isolate(paste0(sessionpath,  paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId), ".csv")))) {
+        x <- read.csv(paste0(sessionpath,  paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId), ".csv"))
         datecreate <- as.character(x[2, 4])
         datemodified <- format(Sys.time(), '%Y-%m-%d %H:%M:%S')
       } else {
@@ -1960,11 +1963,11 @@ server_design_agrofims <- function(input, output, session, values){
                               inputsPersonnel(),
                               inputsSite(),
                               inputsCrop(),
-                              inputsDesign(),
-                              inputsManagmentPractices(),
-                              inputsCropMeasurement(),
-                              inputsSoil(),
-                              inputsWeather()
+                              #inputsDesign(),
+                              inputsManagmentPractices()
+                              #inputsCropMeasurement(),
+                              #inputsSoil(),
+                              #inputsWeather()
                               )
 
       
@@ -1992,17 +1995,18 @@ server_design_agrofims <- function(input, output, session, values){
       # case3_type <- case3p[[3]]
       # case3_create <- case3p[[4]]
       
-      
-      
       for (i in 1:length(case1)) {
-        
         type <- case1_type[i]
         
         if(type == "textInput" | type == "numericInput" | type == "textAreaInput" | type == "checkboxInput" | type == "dateInput"){
           
           if (is.null(input[[paste0(case1InputAux[i])]]) || is.na(input[[paste0(case1InputAux[i])]])) {
             inputs1[i] <- ""
-          } else {
+          }
+          #else if (case1InputAux[i] == "uniqueId" ) {
+          #  inputs1[i] <- as.character(paste0(input$uniqueId,"-", input$fieldbookId))
+          #} 
+          else {
             inputs1[i] <- as.character(input[[paste0(case1InputAux[i])]])
           }
           
@@ -2052,28 +2056,31 @@ server_design_agrofims <- function(input, output, session, values){
       MPWeeding    <- MPWeedingRowsSaveSession()
       MPHarvest    <- MPHarvestRowsSaveSession()
       
-      soilRow  <- soilRowsSaveSession()
-      weatherRow <- weatherRowsSaveSession()
+      #soilRow  <- soilRowsSaveSession()
+      #weatherRow <- weatherRowsSaveSession()
       
-      crop_MONO1_MEA <- crop_MONO1_MEARowsSaveSession()
+      #crop_MONO1_MEA <- crop_MONO1_MEARowsSaveSession()
 
       #Unimos todos los dataframe en uno solo
       final_inputs_df <- rbind(nr, nr2, nr3, inputs_data_frame, 
                               expRow, persRow, cropIC, cropREL, cropROT,
-                              MPIrrigation,MPWeeding,MPHarvest,
-                              crop_MONO1_MEA,
-                              soilRow, weatherRow)
+                              MPIrrigation,MPWeeding,MPHarvest
+                              #crop_MONO1_MEA,
+                              #soilRow, weatherRow
+                              )
       
       #Almacena archivos en 2 csv's
-      write.csv(final_inputs_df, paste0(sessionpath, input$uniqueId, ".csv"), row.names = FALSE)
-      write.csv(final_inputs_df, paste0(sessionpathbk, input$uniqueId, ".csv"), row.names = FALSE)
+      write.csv(final_inputs_df, paste0(sessionpath, paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
+      #Backup del archivo
+      write.csv(final_inputs_df, paste0(sessionpathbk, paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId), ".csv"), row.names = FALSE)
       
-      updateTextInput(session,
-                      inputId = "uniqueId",
-                      value = "")
-      updateTextInput(session,
-                      inputId = "uniqueId",
-                      value = expid)
+      # updateTextInput(session,
+      #                 inputId = "uniqueId",
+      #                 value = "")
+      # 
+      # updateTextInput(session,
+      #                 inputId = "uniqueId",
+      #                 value = expid)
       
       shinyalert("Saved successfully", type = "success", timer = 1500, showConfirmButton = F)
     } else {
@@ -2226,7 +2233,6 @@ server_design_agrofims <- function(input, output, session, values){
   
   loadInputsFundingAgency <- function(uploaded_inputs){
     
-    View(as.data.frame(uploaded_inputs))
     #Funding Agency
     nrowFundingAgency <- as.data.frame(uploaded_inputs) %>% filter(inputId == "nrowFundingAgency") %>% select_("value")
     nrowFundingAgency <- as.numeric(as.character(nrowFundingAgency[[1]]))
@@ -2422,7 +2428,7 @@ server_design_agrofims <- function(input, output, session, values){
     if (length(selectedRow() != 0)) {
       
       if (file.exists(isolate(paste0(sessionpath, selectedRow(), ".csv")))){
-        uploaded_inputs <- read.csv(paste0(sessionpath, selectedRow(), ".csv"))
+        uploaded_inputs <- read.csv(paste0(sessionpath, selectedRow(), ".csv"),stringsAsFactors = FALSE)
         
         loadInputsFundingAgency(uploaded_inputs)
         loadInputsProjectManagmentEntities(uploaded_inputs)
@@ -2430,17 +2436,22 @@ server_design_agrofims <- function(input, output, session, values){
         loadInputsPersonnel(uploaded_inputs)
         loadInputsCrop(uploaded_inputs)
         
-        loadInputsCropManagement(uploaded_inputs)
-        loadInputsSoil(uploaded_inputs)
-        loadInputsWeather(uploaded_inputs)
+        #loadInputsCropManagement(uploaded_inputs)
+        #loadInputsSoil(uploaded_inputs)
+        #loadInputsWeather(uploaded_inputs)
         
         
         #Creamos un nuevo dataframe para actualizar los inputs faltantes
         uploaded_inputs2 <- uploaded_inputs  %>% filter(!str_detect(inputId, "croppingType")) %>%
                                                  filter(!str_detect(inputId, "cropCommonName")) %>%
                                                  filter(!str_detect(inputId, "selectAgroFeature")) %>%
-                                                 filter(!str_detect(inputId, "designFieldbook_typeExperiment")) 
-                                                 
+                                                 filter(!str_detect(inputId, "designFieldbook_typeExperiment")) %>%
+                                                 filter(!str_detect(inputId, "soil_unit_")) %>%
+                                                 filter(!str_detect(inputId, "soil_mea_")) %>%
+                                                 filter(!str_detect(inputId, "soil_timingValue_")) %>%
+                                                 filter(!str_detect(inputId, "soil_timing_")) %>%
+                                                 filter(!str_detect(inputId, "soil_timingValue_")) %>%
+                                                 filter(!str_detect(inputId, "soil_timing_"))
         
         # Actualizacion de Inputs
         
@@ -2477,17 +2488,26 @@ server_design_agrofims <- function(input, output, session, values){
                                  selected = getInputs(uploaded_inputs[i, 4], ""))
             
             if(uploaded_inputs$inputId[i]=="cropCommonNameMono"){
-              delay(1000,loadInputsCropMeasurement(uploaded_inputs))
+              #delay(1000,loadInputsCropMeasurement(uploaded_inputs))
             }
           }
 
           if (type == "selectizeInput" && create == "y") {
+            
+            values <- unlist(strsplit(uploaded_inputs[i, 4], "&"))
 
+            # updateSelectizeInput(session,
+            #                      inputId = uploaded_inputs$inputId[i],
+            #                      selected = getInputs(uploaded_inputs[i, 4], ""),
+            #                      choices = getInputs(uploaded_inputs[i, 4], ""),
+            #                      options = list('create' = TRUE))
+            
             updateSelectizeInput(session,
                                  inputId = uploaded_inputs$inputId[i],
-                                 selected = getInputs(uploaded_inputs[i, 4], ""),
-                                 choices = getInputs(uploaded_inputs[i, 4], ""),
-                                 options = list('create' = TRUE))
+                                 selected = values,
+                                 choices = values,
+                                 options = list('create' = TRUE)
+                                 )
           }
 
           if (type == "selectInput"  && create == "n") {
@@ -2552,8 +2572,13 @@ server_design_agrofims <- function(input, output, session, values){
         delay(3000,lapply(1:nrow(uploaded_inputs2),function(i){
             type <- as.character(uploaded_inputs2[i, 2])
             create <- as.character(uploaded_inputs2[i, 3])
+            
+            
+            #print(uploaded_inputs2$inputId[i])
+            #print(uploaded_inputs2$inputId[i,4])
 
             if (type == "textInput") {
+
               updateTextInput(session,
                               inputId = uploaded_inputs2$inputId[i],
                               value = uploaded_inputs2$value[i])
@@ -2583,11 +2608,11 @@ server_design_agrofims <- function(input, output, session, values){
             }
 
             if (type == "selectizeInput" && create == "y") {
-              updateSelectizeInput(session,
-                                   inputId = uploaded_inputs2$inputId[i],
-                                   selected = getInputs(uploaded_inputs2[i, 4], ""),
-                                   choices = getInputs(uploaded_inputs2[i, 4], ""),
-                                   options = list('create' = TRUE))
+              # updateSelectizeInput(session,
+              #                      inputId = uploaded_inputs2$inputId[i],
+              #                      selected = getInputs(uploaded_inputs2[i, 4], ""),
+              #                      choices = getInputs(uploaded_inputs2[i, 4], ""),
+              #                      options = list('create' = TRUE))
 
             }
 
@@ -2597,9 +2622,9 @@ server_design_agrofims <- function(input, output, session, values){
                                    selected = getInputs(uploaded_inputs2[i, 4], ""))
 
             }
-            
+
             if (type == "selectInput"  && create == "y") {
-              
+
               updateSelectInput(session,
                                 inputId = uploaded_inputs$inputId[i],
                                 selected = getInputs(uploaded_inputs[i, 4], ""),
@@ -2645,7 +2670,7 @@ server_design_agrofims <- function(input, output, session, values){
                                    clear = T)
               }
             }
-            
+
           }
           )
         )
@@ -2662,7 +2687,7 @@ server_design_agrofims <- function(input, output, session, values){
   # Datatable perteniciente a la vista Manage Fieldbooks
   refreshDT <- function() {
     df <- data.frame()
-    a <- b <- c <- d <- e <- f <- g <- c()
+    a <- b <- c <- d <- e <- f <- g <- h <- c()
     
     if (length(my_files()) >= 1) {
       
@@ -2670,6 +2695,7 @@ server_design_agrofims <- function(input, output, session, values){
         # Unique ID
         mf <- my_files()[i]
         mf <- unlist(strsplit(mf, "[.]"))
+        
         a[i] <- mf[1]
         
         # Experiment ID
@@ -2680,6 +2706,9 @@ server_design_agrofims <- function(input, output, session, values){
         fl <- read.csv(paste0(sessionpath, my_files()[i]))
         c[i] <- as.character(fl[6, 4])
         
+        # Unique Id
+        h[i] <- as.character(fl[4, 4])
+       
         # Experiment project name
         d[i] <- as.character(fl[7, 4])
         
@@ -2695,15 +2724,16 @@ server_design_agrofims <- function(input, output, session, values){
       
       userM <- session$userData$userMail
       
-      df <- data.frame(a, b, c, d, e, f, g, stringsAsFactors = F)
-      
-      
-      
+      df <- data.frame(a, h , b, c, d, e, f, g, stringsAsFactors = F)
       df <- dplyr::filter(as.data.frame(df), g == userM)
+      df <- df[,-which(names(df) == "g")]
+      
       df <- df %>% dplyr::arrange(desc(f))
 
       sessionVals$aux <- data.frame(df)
-      colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
+      
+      # colnames(sessionVals$aux) <- c("ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified", "User")
+      colnames(sessionVals$aux) <- c("FieldBook Name","ID", "Experiment ID", "Experiment name", "Experiment project name", "Date created", "Date modified")
 
     } else {
       
@@ -3249,27 +3279,29 @@ server_design_agrofims <- function(input, output, session, values){
   getInputs<- function(valor, q){
     valor <- sapply(valor, as.character)
     valor[is.na(valor)] <- " "
-    valor
+    #valor
     
+
     if (stringr::str_detect(valor, "&")) {
       if (q == "start") {
         valor <- unlist(strsplit(valor, "&"))
         valor <- valor[[1]]
-      }
-      
-      if (q == "end") {
+      }else if (q == "end") {
         valor <- unlist(strsplit(valor, "&"))
         valor <- valor[[2]]
+      }else{
+        valor<-unlist(strsplit(valor, "&"))
       }
     }
     
-    if(stringr::str_detect(valor,"&")){
-      valor<-unlist(strsplit(valor, "&"))
-    } else {
-      valor<-valor
-    }
+    # if(stringr::str_detect(valor,"&")){
+    #   valor<-unlist(strsplit(valor, "&"))
+    #   
+    # } else {
+    #   #valor<-valor
+    # }
     
-    valor
+    return(valor)
   }
   
   tutu <- function() {
@@ -3878,49 +3910,52 @@ server_design_agrofims <- function(input, output, session, values){
   #################### START: GENERA NUEVO FIELDBOOK ####################
   # New fieldbook button
   observeEvent(input$newfieldbook, {
-    if (session$userData$logged) {
-      showModal(modalDialog(
-        title =
-          fluidRow(
-            column(
-              6,
-              style = ("margin-top: -20px;margin-bottom: -10px;"),
-              h3("Save fieldbook?")
-            ),
-            column(
-              6,
-              align = "right",
-              style = "margin-top: 0px;",
-              actionLink("btncancel2", "X")
-            )
-          ),
-        fluidRow(
-          column(
-            1,
-            icon("exclamation-triangle", "fa-3x")
-          ),
-          column(
-            11,
-            "Save changes to fieldbook before closing?",
-            br(),
-            "Your changes will be lost if you don’t save them."
-          )
-        ),
-        br(),
-        fluidRow(
-          column(
-            12,
-            align = "center",
-            actionButton("btnsave", "Save", class = "btn-success", style="color: #fff;", width = "95px"),
-            actionButton("btndontsave", "Don't save", width = "95px"),
-            actionButton("btncancel", "Cancel", width = "95px")
-          )
-        ),
-        footer = NULL
-      ))
-    } else {
-      shinyalert("Sorry", "You must login to create new fieldbook", type = "info", timer = 1500, showConfirmButton = F)
-    }
+    
+    
+    
+    # if (session$userData$logged) {
+    #   showModal(modalDialog(
+    #     title =
+    #       fluidRow(
+    #         column(
+    #           6,
+    #           style = ("margin-top: -20px;margin-bottom: -10px;"),
+    #           h3("Save fieldbook?")
+    #         ),
+    #         column(
+    #           6,
+    #           align = "right",
+    #           style = "margin-top: 0px;",
+    #           actionLink("btncancel2", "X")
+    #         )
+    #       ),
+    #     fluidRow(
+    #       column(
+    #         1,
+    #         icon("exclamation-triangle", "fa-3x")
+    #       ),
+    #       column(
+    #         11,
+    #         "Save changes to fieldbook before closing?",
+    #         br(),
+    #         "Your changes will be lost if you don’t save them."
+    #       )
+    #     ),
+    #     br(),
+    #     fluidRow(
+    #       column(
+    #         12,
+    #         align = "center",
+    #         actionButton("btnsave", "Save", class = "btn-success", style="color: #fff;", width = "95px"),
+    #         actionButton("btndontsave", "Don't save", width = "95px"),
+    #         actionButton("btncancel", "Cancel", width = "95px")
+    #       )
+    #     ),
+    #     footer = NULL
+    #   ))
+    # } else {
+    #   shinyalert("Sorry", "You must login to create new fieldbook", type = "info", timer = 1500, showConfirmButton = F)
+    # }
   })
   
   # Boton que guarda el avance de la sesion antes que crear un nuevo fieldbook
@@ -4197,31 +4232,34 @@ server_design_agrofims <- function(input, output, session, values){
     
   }
   
-  savefbDB <- function() {
-    statusfb <- "subido"
-    
-    mydb = dbConnect(MySQL(), user='agrofims', password='cnReOdGjS851TTR140318', dbname='agrofims', host='176.34.248.121')
-    
-    query <- paste0("INSERT INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `user`, `registered`, `modified`, `status`) VALUES ('",
-                    input$uniqueId,"','",
-                    input$experimentId,"','",
-                    input$fieldbookId,"','",
-                    session$userData$userMail,"','",
-                    Sys.Date(),"','",
-                    Sys.Date(),"','",
-                    statusfb,"')")
-    
-    #print(query)
-    dbSendQuery(mydb, query)
-  }
   
-  observeEvent(input$sendKDSmart, {
-    
-    savefb()
-    checkDS()
-    savefbDB()
-    
-  })
+  # Not used
+  # savefbDB <- function() {
+  #   statusfb <- "subido"
+  #   
+  #   mydb = dbConnect(MySQL(), user='agrofims', password='cnReOdGjS851TTR140318', dbname='agrofims', host='176.34.248.121')
+  #   
+  #   query <- paste0("INSERT INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `user`, `registered`, `modified`, `status`) VALUES ('",
+  #                   input$uniqueId,"','",
+  #                   input$experimentId,"','",
+  #                   input$fieldbookId,"','",
+  #                   session$userData$userMail,"','",
+  #                   Sys.Date(),"','",
+  #                   Sys.Date(),"','",
+  #                   statusfb,"')")
+  #   
+  #   #print(query)
+  #   dbSendQuery(mydb, query)
+  # }
+  
+  # Not used
+  # observeEvent(input$sendKDSmart, {
+  #   
+  #   savefb()
+  #   checkDS()
+  #   savefbDB()
+  #   
+  # })
   
   # output$sendKDSmart <- downloadHandler(
   #   
@@ -4273,26 +4311,26 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   # Funcion que renderiza en imagen png el codigo qr para fieldbook
-  output$myqr <- renderImage({
-    validate(need(input$experimentId, ""))
-    
-    if (input$experimentId != "" || !is.null(input$experimentId)) {
-      outfile <- tempfile(fileext = '.png')
-      
-      png(outfile, width = 100, height = 100)
-      par(mar=c(0,0,0,0))
-      image(qrencode_raster(veriqr()),
-            asp=1, col=c("white", "black"), axes=FALSE,
-            xlab="", ylab="")
-      dev.off()
-      
-      list(src = outfile,
-           contentType = 'image/png',
-           width = "100px",
-           height = "100px",
-           alt = "This is alternate text")
-    }
-  }, deleteFile = TRUE)
+  # output$myqr <- renderImage({
+  #   validate(need(input$experimentId, ""))
+  #   
+  #   if (input$experimentId != "" || !is.null(input$experimentId)) {
+  #     outfile <- tempfile(fileext = '.png')
+  #     
+  #     png(outfile, width = 100, height = 100)
+  #     par(mar=c(0,0,0,0))
+  #     image(qrencode_raster(veriqr()),
+  #           asp=1, col=c("white", "black"), axes=FALSE,
+  #           xlab="", ylab="")
+  #     dev.off()
+  #     
+  #     list(src = outfile,
+  #          contentType = 'image/png',
+  #          width = "100px",
+  #          height = "100px",
+  #          alt = "This is alternate text")
+  #   }
+  # }, deleteFile = TRUE)
   
   ###################### END SERVER: PRINCIPAL ID ######################
   
@@ -4924,12 +4962,12 @@ server_design_agrofims <- function(input, output, session, values){
             selectizeInput(
               paste0("personnel_type_", index), "Person type", multiple=TRUE,
               options = list(maxItems = 1, placeholder = "Select one..."),
-              choices = c("Farmer",
-                          "Researcher",
-                          "Student",
-                          "Research station worker",
+              choices = c("Enumerator",
                           "Extension agent",
                           "Faculty member",
+                          "Farmer","Researcher",
+                          "Research station worker",
+                          "Student",
                           "Other")
             ),
             hidden(textInput(paste0("personnel_type_", index, "_other"), "", value = "")),
@@ -5059,7 +5097,7 @@ server_design_agrofims <- function(input, output, session, values){
 
 
     shiny::selectizeInput("fbDesign_countryTrial", label = "Country name",
-                          choices = cntry , selected = 1,  multiple = FALSE)
+                          choices = cntry , options = list(placeholder = "Select one...", maxItems = 1), multiple = TRUE)
 
   })
 
@@ -5097,8 +5135,8 @@ server_design_agrofims <- function(input, output, session, values){
     #print(locs)
     if (nrow(locs) > 0 ){
       #chc = locs$shortn
-      shiny::selectizeInput("designFieldbook_sites", label = "Village name",
-                            choices = fbdesign_sites_selected, selected = 1,  multiple = FALSE)
+      shiny::selectizeInput("designFieldbook_sites", label = "Site",
+                            choices = fbdesign_sites_selected, options = list(placeholder = "Select one...", maxItems = 1), multiple = TRUE)
     }
   })
   
@@ -5124,7 +5162,7 @@ server_design_agrofims <- function(input, output, session, values){
               12,
               selectizeInput(
                 inputId = "fbDesign_inSiteVegetation_other", label = "Other", 
-                choices = c("a","b","c"), multiple = T,
+                choices = c(), multiple = T,
                 options = list('create' = TRUE)
               )
             )
@@ -5212,29 +5250,29 @@ server_design_agrofims <- function(input, output, session, values){
   }
   
   # Funcion que renderiza en imagen png el codigo qr para fieldbook
-  output$myqr2 <- renderImage({
-    # delay(
-    #   1000,
-    validate(need(input$fieldbookId, ""))
-    
-    if (input$fieldbookId != "" || !is.null(input$fieldbookId)) {
-      outfile <- tempfile(fileext = '.png')
-      
-      png(outfile, width = 100, height = 100)
-      par(mar=c(0,0,0,0))
-      image(qrencode_raster(veriqr2()),
-            asp=1, col=c("white", "black"), axes=FALSE,
-            xlab="", ylab="")
-      dev.off()
-      
-      list(src = outfile,
-           contentType = 'image/png',
-           width = "100px",
-           height = "100px",
-           alt = "This is alternate text")
-    }
-    #)
-  }, deleteFile = TRUE)
+  # output$myqr2 <- renderImage({
+  #   # delay(
+  #   #   1000,
+  #   validate(need(input$fieldbookId, ""))
+  #   
+  #   if (input$fieldbookId != "" || !is.null(input$fieldbookId)) {
+  #     outfile <- tempfile(fileext = '.png')
+  #     
+  #     png(outfile, width = 100, height = 100)
+  #     par(mar=c(0,0,0,0))
+  #     image(qrencode_raster(veriqr2()),
+  #           asp=1, col=c("white", "black"), axes=FALSE,
+  #           xlab="", ylab="")
+  #     dev.off()
+  #     
+  #     list(src = outfile,
+  #          contentType = 'image/png',
+  #          width = "100px",
+  #          height = "100px",
+  #          alt = "This is alternate text")
+  #   }
+  #   #)
+  # }, deleteFile = TRUE)
   
   ###################### END: FIELDBOOK DETAILS ######################
   
@@ -5247,6 +5285,26 @@ server_design_agrofims <- function(input, output, session, values){
   observeEvent(input$cropMonoChange,{
     meaMONO$num <- 0
     meaMONO$ids <- c()
+    
+    monocropVal <- input[["cropCommonNameMono"]]
+    
+    if (monocropVal == "Green manure"){
+      shinyjs::show(id = "monoCropGreenManureOpt")
+    }else{
+      shinyjs::hide(id = "monoCropGreenManureOpt")
+    }
+    
+  })
+  
+  observeEvent(input$monoCropGreenManureOpt,{
+    greenManureVal <- input[["monoCropGreenManureOpt"]]
+    
+    if (greenManureVal == "Other"){
+      shinyjs::show(id = "cropCommonNameMono_other")
+    }else{
+      shinyjs::hide(id = "cropCommonNameMono_other")
+    }
+    
   })
   
   ###################### END: MONOCROP ######################
@@ -5406,7 +5464,7 @@ server_design_agrofims <- function(input, output, session, values){
   # Funcion GENERAL que dibuja el titulo de INTERCROP/RELAYCROP/ROTATION dependiendo del tipo de cultivo
   titleCROP <- function(index, typeCrop) {
     if (typeCrop == "int") {
-      title <- c("Select crop", "Crop variety name(s)")
+      title <- c("Crop common name", "Variety name(s)")
     } else if (typeCrop == "rel") {
       if (index == 1) {
         title <- c("First crop common name", 
@@ -5438,22 +5496,24 @@ server_design_agrofims <- function(input, output, session, values){
             12, offset = 0, 
             fluidRow(
               column(6, style = 'padding:0px; text-align:left;',
-                     h4(tagList(shiny::icon(""), "Crop"), style = "font-weight: 800;color: #555;")
+                     h4(tagList(shiny::icon(""), "Crop ",index), style = "font-weight: 800;color: #555;")
               ),
               column(6, style = 'padding:0px; text-align:right;',
                      actionButton(paste0(typeCrop, "_closeCrop_", index), "", icon("close"))
               )
-            ),
-            br()
+            )
+            #,
+            #br()
           ),
           fluidRow(
             column(
               6,
               selectizeInput(
                 paste0(typeCrop, "_cropCommonName_", index), label = title[1], selected = NULL, 
-                multiple = T , options = list(maxItems = 1, placeholder = "Select crop"),
+                multiple = T , options = list(maxItems = 1, placeholder = "Crop common name"),
                 choices = c("Cassava",
                             "Common bean",
+                            "Green Manure",
                             "Maize",
                             "Potato",
                             "Rice",
@@ -5461,6 +5521,12 @@ server_design_agrofims <- function(input, output, session, values){
                             "Wheat",
                             "Other")
               ),
+              hidden(selectizeInput(
+                paste0(typeCrop,"_cropGreenManureOpt_",index), "", multiple = TRUE,
+                options = list(maxItems = 1, placeholder = "Select one..."),
+                
+                choices = crop_grem$get("green_manure")         
+              )),
               hidden(textInput(paste0(typeCrop, "_cropCommonName_", index, "_other"), "", value = ""))
             ),
             column(
@@ -5482,13 +5548,14 @@ server_design_agrofims <- function(input, output, session, values){
             12, offset = 0, 
             fluidRow(
               column(6, style = 'padding:0px; text-align:left;',
-                     h4(tagList(shiny::icon(""), "Crop"), style="font-weight: 800;color: #555;")
+                     h4(tagList(shiny::icon(""), "Crop ", index), style="font-weight: 800;color: #555;")
               ),
               column(6, style = 'padding:0px; text-align:right;',
                      actionButton(paste0(typeCrop, "_closeCrop_", index), "", icon("close"))
               )
-            ),
-            br()
+            )
+            #,
+            #br()
           ),
           fluidRow(
             column(
@@ -5498,6 +5565,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = T , options = list(maxItems = 1, placeholder = "Select crop"),
                 choices = c("Cassava",
                             "Common bean",
+                            "Green Manure",
                             "Maize",
                             "Potato",
                             "Rice",
@@ -5505,6 +5573,18 @@ server_design_agrofims <- function(input, output, session, values){
                             "Wheat",
                             "Other")
               ),
+              hidden(selectizeInput(
+                paste0(typeCrop,"_cropGreenManureOpt_",index), "", multiple = TRUE,
+                options = list(maxItems = 1, placeholder = "Select one..."),
+                choices = c("Alfalfa",
+                            "Azolla",
+                            "Buckwheat",
+                            "Clover",
+                            "Cowpea",
+                            "Fava beans",
+                            "Fenugreek",
+                            "Other")            
+              )),
               hidden(textInput(paste0(typeCrop, "_cropCommonName_", index, "_other"), "", value = ""))
             ),
             column(
@@ -5526,13 +5606,14 @@ server_design_agrofims <- function(input, output, session, values){
             12, offset = 0, 
             fluidRow(
               column(6, style = 'padding:0px; text-align:left;',
-                     h4(tagList(shiny::icon(""), "Crop"), style="font-weight: 800;color: #555;")
+                     h4(tagList(shiny::icon(""), "Crop ",index), style="font-weight: 800;color: #555;")
               ),
               column(6, style = 'padding:0px; text-align:right;',
                      actionButton(paste0(typeCrop, "_closeCrop_", index), "", icon("close"))
               )
-            ),
-            br()
+            )
+            #,
+            #br()
           ),
           fluidRow(
             column(
@@ -5542,6 +5623,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = T , options = list(maxItems = 1, placeholder = "Select crop"),
                 choices = c("Cassava",
                             "Common bean",
+                            "Green Manure",
                             "Maize",
                             "Potato",
                             "Rice",
@@ -5549,6 +5631,18 @@ server_design_agrofims <- function(input, output, session, values){
                             "Wheat",
                             "Other")
               ),
+              hidden(selectizeInput(
+                paste0(typeCrop,"_cropGreenManureOpt_",index), "", multiple = TRUE,
+                options = list(maxItems = 1, placeholder = "Select one..."),
+                choices = c("Alfalfa",
+                            "Azolla",
+                            "Buckwheat",
+                            "Clover",
+                            "Cowpea",
+                            "Fava beans",
+                            "Fenugreek",
+                            "Other")            
+              )),
               hidden(textInput(paste0(typeCrop, "_cropCommonName_", index, "_other"), "", value = ""))
             ),
             column(
@@ -5587,6 +5681,57 @@ server_design_agrofims <- function(input, output, session, values){
       )
     )
   }
+  
+  # When multicrop is selected --> general 
+  observeEvent(input$cropBoxMultiVar,{
+    vars <- unlist(strsplit(input$cropBoxInterVarId, "_"))
+    crop_order <- vars[3]
+    cropType <- input[["croppingType"]]
+    value <- input[[input$cropBoxInterVarId]]
+    
+    if(cropType == "Intercrop"){
+      typeCrop = "int"
+    }else if (cropType == "Relay Crop"){
+      typeCrop = "rel"
+    }else if (cropType == "Rotation Crop"){
+      typeCrop = "rot"
+    }
+
+    
+    if (value == "Green Manure"){
+      shinyjs::show(id = paste0(typeCrop,"_cropGreenManureOpt_",crop_order))
+    }else{
+      shinyjs::hide(id = paste0(typeCrop,"_cropGreenManureOpt_",crop_order))
+    }
+    
+  })
+  
+  observeEvent(input$multicropGreenManureChange,{
+    
+    vars <- unlist(strsplit(input$multicropGreenManureChangeId, "_"))
+    crop_order <- vars[3]
+    cropType <- input[["croppingType"]]
+    greenManureVal <- input[[input$multicropGreenManureChangeId]]
+
+    
+    if(cropType == "Intercrop"){
+      typeCrop = "int"
+    }else if (cropType == "Relay Crop"){
+      typeCrop = "rel"
+    }else if (cropType == "Rotation Crop"){
+      typeCrop = "rot"
+    }
+    
+
+    print(greenManureVal)
+    
+    if (greenManureVal == "Other"){
+      shinyjs::show(id = paste0(typeCrop,"_cropCommonName_",crop_order,"_other"))
+    }else{
+      shinyjs::hide(id = paste0(typeCrop,"_cropCommonName_",crop_order,"_other"))
+    }
+  })
+  
   
   # When intercrop is selected --> solo para intercrop
   observeEvent(input$cropBoxInterVar, {
@@ -5730,6 +5875,8 @@ server_design_agrofims <- function(input, output, session, values){
     
     return(cropsVar$cropValues)
   }
+  
+
   
   ###################### END: FUNCIONES GENERALES INTERCROP/RELAYCROP/ROTATION  ######################
   
@@ -6235,13 +6382,13 @@ server_design_agrofims <- function(input, output, session, values){
                                                 "Add level",
                                                 icon("plus-circle"), 
                                                 class = "btn", 
-                                                style="background:#f2dede;color: #red;")),
+                                                style="background:#367fa9;color: #fff;")),
                             
                             hidden(actionButton(inputId = paste0(design,"_numLevelsESPModal_",index), 
                                                 "Fertilizer application details",
                                                 icon("plus-circle"), 
                                                 class = "btn", 
-                                                style="background:#f2dede;color: #red;"))
+                                                style="background:#367fa9;color: #fff;"))
                      )
               )
             ),
@@ -6354,11 +6501,20 @@ server_design_agrofims <- function(input, output, session, values){
                          inputId = paste0(design,"_numLevelsESP_",index), 
                          label = "Add Fertilizer"
       )
+    }else if(value =="Mulch type and amount" || 
+             value =="Irrigation amount" || 
+             value == "Biotic stress type and amount" || 
+             value == "Biotic stress control product type and amount"){
+      updateActionButton(session, 
+                        inputId = paste0(design,"_numLevelsESP_",index), 
+                        label = "Add type"
+      )
+    }else {
+      updateActionButton(session, 
+                         inputId = paste0(design,"_numLevelsESP_",index), 
+                         label = "Add level"
+      )
     }
-    
-    
-    
-    
   })
   
   
@@ -6613,8 +6769,6 @@ server_design_agrofims <- function(input, output, session, values){
     
     # We filter factors and check if the array have more than 1 element, in that case delete 
     factorFiltered <- factorlevel$ids[str_detect(factorlevel$ids,paste0(design,"_lvl_espType_", order ,"_"))]
-    
-    print(factorFiltered)
     
     if(length(factorFiltered)>1)
     {
@@ -6929,7 +7083,7 @@ server_design_agrofims <- function(input, output, session, values){
           )
           
           if (input_choice == "Irrigation timing"){
-            shinyjs::show(id = paste0(design, "_numLevelsESPModal_", index))
+            #shinyjs::show(id = paste0(design, "_numLevelsESPModal_", index))
             
             ## TODO: START: Transcribir todas estas lineas a una funcion 
             insertUI(
@@ -7134,7 +7288,9 @@ server_design_agrofims <- function(input, output, session, values){
       dfAll <- rbind(dfAll,df)
     }
     
+    
     dfAll <- dfAll[dfAll$level == modalLevel,]
+    #dfk <<- dfAll
     
     removeUI(
       selector = paste0("#",design,"_modalContainer_",modalLevel),
@@ -7171,6 +7327,7 @@ server_design_agrofims <- function(input, output, session, values){
         
         #Loading Dataframe
         #DF <- loadDataFrame()
+        ferdt <- loadDataFrame(type)
         
         insertUI(
           selector = paste0("#",design,"_modalContainer_",modalLevel),
@@ -7184,7 +7341,7 @@ server_design_agrofims <- function(input, output, session, values){
                 width = 12,
                 column(12,
                        HTML(paste0("<div style='font-weight: bold'>  Factor level ",levelNumber, " </div>")),
-                       HTML("<div style='text-align:center'> Nutrient content in product (%) </div>"),
+                       #HTML("<div style='text-align:center'> Nutrient content in product (%) </div>"),
                        
                        column(
                          
@@ -7195,7 +7352,27 @@ server_design_agrofims <- function(input, output, session, values){
                          ),
                          column(
                            9,
-                           rHandsontableOutput(paste0(design,"_outputFerLvlDT_",level,"_",index,"_",i))
+                           div(
+                             style="display: flex;vertical-align:top;",
+                             class = "designProductRow",
+                             #textInput(inputId = paste0(design,"_factorType1_",level,"_",index,"_",i),value = type, label = "Name Product" ),
+                             textInput(inputId = paste0(design,"_outputFerDT1_",level,"_",index,"_",i),value = ferdt[[2]], label = "N" ),
+                             textInput(inputId = paste0(design,"_outputFerDT2_",level,"_",index,"_",i),value = ferdt[[3]], label = "P" ),
+                             textInput(inputId = paste0(design,"_outputFerDT3_",level,"_",index,"_",i),value = ferdt[[4]], label = "K" ),
+                             textInput(inputId = paste0(design,"_outputFerDT4_",level,"_",index,"_",i),value = ferdt[[5]], label = "Ca" ),
+                             textInput(inputId = paste0(design,"_outputFerDT5_",level,"_",index,"_",i),value = ferdt[[6]], label = "Mg" ),
+                             textInput(inputId = paste0(design,"_outputFerDT6_",level,"_",index,"_",i),value = ferdt[[7]], label = "S" ),
+                             textInput(inputId = paste0(design,"_outputFerDT7_",level,"_",index,"_",i),value = ferdt[[8]], label = "Mb" ),
+                             textInput(inputId = paste0(design,"_outputFerDT8_",level,"_",index,"_",i),value = ferdt[[9]], label = "Zn" ),
+                             textInput(inputId = paste0(design,"_outputFerDT9_",level,"_",index,"_",i),value = ferdt[[10]], label = "B" ),
+                             textInput(inputId = paste0(design,"_outputFerDT10_",level,"_",index,"_",i),value = ferdt[[11]], label = "Cu" ),
+                             textInput(inputId = paste0(design,"_outputFerDT11_",level,"_",index,"_",i),value = ferdt[[12]], label = "Fe" ),
+                             textInput(inputId = paste0(design,"_outputFerDT12_",level,"_",index,"_",i),value = ferdt[[13]], label = "Mn" ),
+                             textInput(inputId = paste0(design,"_outputFerDT13_",level,"_",index,"_",i),value = ferdt[[14]], label = "Ni" ),
+                             textInput(inputId = paste0(design,"_outputFerDT14_",level,"_",index,"_",i),value = ferdt[[15]], label = "Cl" )
+                           )
+                           
+                           #rHandsontableOutput(paste0(design,"_outputFerLvlDT_",level,"_",index,"_",i))
                            #loadDataFrame(type)
                          )
                        )
@@ -7248,7 +7425,7 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 2,
                 selectizeInput(inputId = paste0(design,"_mFerImplement_",level,"_",index,"_",i,"_",j),
-                               label = "Implement",
+                               label = "Traction",
                                multiple = TRUE,
                                options = list(maxItems = 1, placeholder = "Select one..."),
                                choices = fertCombo$get("ferImple")
@@ -7257,13 +7434,7 @@ server_design_agrofims <- function(input, output, session, values){
             )
           )
         }
-        
-        output[[paste0(design,"_outputFerLvlDT_",level,"_",index,"_",i)]] <- rhandsontable::renderRHandsontable({
-          loadDataFrame(type)
-        })
       }
-      
-      
       
     }
     
@@ -7285,13 +7456,18 @@ server_design_agrofims <- function(input, output, session, values){
               column(12,
                      paste0("Nutrient: amount ",unit)
               ),
+              
               column(
                 12,
-                loadDataFrame(type),
-                ###OPTINAL NEW
+                #HTML("<div> Aca viene un rhandsometable. </div>"),
                 rHandsontableOutput(paste0(design,"_outputFERT_",modalLevel))
-                #####
+                #rhandsontable::rHandsontableOutput("output_nutDT")
               )
+              
+              # column(
+              #   12,
+              #   loadDataFrame(type)
+              # )
           )
         )
       )
@@ -7366,11 +7542,11 @@ server_design_agrofims <- function(input, output, session, values){
         numberSplit <- input[[paste0(design,"_lvl_espSplit_",level,"_",index)]]
         
         
-        removeUI(
-          selector = paste0(design,"_outputNutDT_",level,"_",index,"_",i),
-          immediate = T
-        )
-        
+        # removeUI(
+        #   selector = paste0("#",design,"_outputNutDT_",level,"_",index,"_",i,"_1"),
+        #   immediate = T
+        # )
+        # 
         #DF <- fillValuesDFNutrient(type,levels)
         
         insertUI(
@@ -7391,7 +7567,7 @@ server_design_agrofims <- function(input, output, session, values){
                 column(12,
                        style= "margin-bottom: 15px",
                        column(2,
-                              HTML(paste0("<div style='font-weight: bold'>  Factor level ",levelNumber," (",unit,") " ," </div>"))
+                              HTML(paste0("<div style='font-weight: bold'>  Factor level ",levelNumber, " (",unit,")" ," </div>"))
                        ),
                        column(
                          10,
@@ -7447,7 +7623,7 @@ server_design_agrofims <- function(input, output, session, values){
                 column(
                   2,
                   selectizeInput(inputId = paste0(design,"_mNutImplement_",level,"_",index,"_",i,"_",j),
-                                 label = "Implement",
+                                 label = "Traction",
                                  multiple = TRUE,
                                  options = list(maxItems = 1, placeholder = "Select one..."),
                                  choices = fertCombo$get("ferImple")
@@ -7465,12 +7641,23 @@ server_design_agrofims <- function(input, output, session, values){
             12,
             column(
               3,
-              selectizeInput(inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_",j),
-                             label = "Choose Product",
-                             multiple = TRUE,
-                             options = list(maxItems = 1, placeholder = "Select one..."),
-                             choices = ferdt()$name
-              )
+              if(round(as.numeric(levels)/as.numeric(numberSplit),1) == 0){
+                selectizeInput(inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1"),
+                               label = "Choose Product",
+                               multiple = TRUE,
+                               options = list(maxItems = 1, placeholder = "Select one..."),
+                               choices = c()
+                )
+                
+              }else{
+                selectizeInput(inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1"),
+                               label = "Choose Product",
+                               multiple = TRUE,
+                               options = list(maxItems = 1, placeholder = "Select one..."),
+                               choices = ferdt()$name
+                )
+              }
+              
             )
           )
         )
@@ -7482,13 +7669,12 @@ server_design_agrofims <- function(input, output, session, values){
             column(
               12,
               column(
-                12,
-                rHandsontableOutput(paste0(design,"_outputNutDT_",level,"_",index,"_",i,"_",j))
+                id = paste0("aux_",design,"_outputNutDT_",level,"_",index,"_",i,"_1"),
+                12
+                #DTOutput(paste0(design,"_outputNutDT_",level,"_",index,"_",i,"_1"))
               )
             )
         )
-        
-        #print(input[[paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i)]])
       }
     }
     
@@ -7505,70 +7691,134 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 12,
                 align="center",
-                actionButton(inputId = paste0(design,"_btnmNut_",modalLevel),"Calculate Nutrient Amount",class = "btn btn-primary", style="color:white")
+                actionButton(inputId = paste0(design,"_btnmNut_",modalLevel),"Calculate Product Amount",class = "btn btn-primary", style="color:white")
               ),
               column(12,
-                     paste0("Nutrient: amount ",unit)
+                     paste0("Amount of product to be added (", unit, ")")
               ),
               column(
                 12,
-                HTML("<div> Aca viene un rhandsometable. </div>"),
+                #HTML("<div> Aca viene un rhandsometable. </div>"),
+                
                 rHandsontableOutput(paste0(design,"_outputPADT_",modalLevel))
+                
+                #rhandsontable::rHandsontableOutput("output_nutDT") old
               )
           )
         )
       )
     )
-    
-    # lapply(1:2,function(i){
-    #   
-    #   print("id lapply")
-    #   print(paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i))
-    #   
-    #   output[[paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i)]] <- rhandsontable::renderRHandsontable({
-    # 
-    #     print(DF)
-    #     
-    #     rhandsontable(DF)
-    #     
-    #     # print(paste0(design,level,index,i))
-    #     # 
-    #     # if (!is.null(value)){
-    #     #   
-    #     #   rhandsontable(DF) 
-    #     # }
-    #   })
-    #   outputOptions(output, paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i), suspendWhenHidden = FALSE)  
-    # })
-    
   }
+  
+  
+  # Nutrient Modal Level Input Change
+  observeEvent(input$modalSFNutLevelInput,{
+    
+    vars <- unlist(strsplit(input$modalSFNutLevelInputid, "_"))
+    design = vars[1]
+    level = vars[3]
+    index = vars[4]
+    i = vars[5]
+    j = vars[6]
+    
+    
+    splitNumber <- input[[paste0(design,"_lvl_espSplit_",level,"_",index)]]
+    acum=0
+    
+    
+    type = input[[paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1")]]
+    ferdt = loadDataFrame(type)
+    
+    # We sum value of all splits
+    for (x in 1:splitNumber){
+      auxVal =  as.integer(input[[paste0(design,"_outputNutLvlDT_",level,"_",index,"_",i,"_",x)]])
+      
+      if(is.na(auxVal)){
+        auxVal = 0
+      }
+      
+      acum = acum + auxVal
+    }
+    
+    # If value 0 remove datatable, else update options
+    if(acum == 0){
+      
+      removeUI(
+        selector = paste0("#",design,"_outputNutDTContainer_",level,"_",index,"_",i),
+        immediate = T
+      )
+      
+      updateSelectizeInput(session,
+                           inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1"),
+                           choices = c(""))
+    }
+    else{
+      
+      removeUI(
+        selector = paste0("#",design,"_outputNutDTContainer_",level,"_",index,"_",i),
+        immediate = T
+      )
+      
+      insertUI(
+        selector = paste0("#aux_",design,"_outputNutDT_",level,"_",index,"_",i,"_1"),
+        immediate = T,
+        where = "beforeEnd",
+        ui = (
+          div(
+            id = paste0(design,"_outputNutDTContainer_",level,"_",index,"_",i),
+            class = "designProductRow",
+            style="display: flex;vertical-align:top;",
+            #textInput(inputId = paste0(design,"_outputNutDT_",level,"_",index,"_",i),value = type, label = "Name Product" ),
+            textInput(inputId = paste0(design,"_outputNutDT1_",level,"_",index,"_",i),value = ferdt[[2]], label = "N" ),
+            textInput(inputId = paste0(design,"_outputNutDT2_",level,"_",index,"_",i),value = ferdt[[3]], label = "P" ),
+            textInput(inputId = paste0(design,"_outputNutDT3_",level,"_",index,"_",i),value = ferdt[[4]], label = "K" ),
+            textInput(inputId = paste0(design,"_outputNutDT4_",level,"_",index,"_",i),value = ferdt[[5]], label = "Ca" ),
+            textInput(inputId = paste0(design,"_outputNutDT5_",level,"_",index,"_",i),value = ferdt[[6]], label = "Mg" ),
+            textInput(inputId = paste0(design,"_outputNutDT6_",level,"_",index,"_",i),value = ferdt[[7]], label = "S" ),
+            textInput(inputId = paste0(design,"_outputNutDT7_",level,"_",index,"_",i),value = ferdt[[8]], label = "Mb" ),
+            textInput(inputId = paste0(design,"_outputNutDT8_",level,"_",index,"_",i),value = ferdt[[9]], label = "Zn" ),
+            textInput(inputId = paste0(design,"_outputNutDT9_",level,"_",index,"_",i),value = ferdt[[10]], label = "B" ),
+            textInput(inputId = paste0(design,"_outputNutDT10_",level,"_",index,"_",i),value = ferdt[[11]], label = "Cu" ),
+            textInput(inputId = paste0(design,"_outputNutDT11_",level,"_",index,"_",i),value = ferdt[[12]], label = "Fe" ),
+            textInput(inputId = paste0(design,"_outputNutDT12_",level,"_",index,"_",i),value = ferdt[[13]], label = "Mn" ),
+            textInput(inputId = paste0(design,"_outputNutDT13_",level,"_",index,"_",i),value = ferdt[[14]], label = "Ni" ),
+            textInput(inputId = paste0(design,"_outputNutDT14_",level,"_",index,"_",i),value = ferdt[[15]], label = "Cl" )
+          )
+        )
+        
+      )
+      
+      
+      updateSelectizeInput(session,
+                           inputId = paste0(design,"_mNutProduct_",level,"_",index,"_",i,"_1"),
+                           choices = ferdt()$name)
+    }
+  })
+  
+  # Calculation design path
+  calc_design_path <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/Calculations/"
+  
   
   # Trigger calculate for fertilizer
   observeEvent(input$calculateProdAmountFertilizer,{
-    print("Fertilizer replace code here!")
-    
-    #print("Nutient replace code here!")
+      
     vars <- unlist(strsplit(input$calculateProdAmountFertilizerid, "_"))
     modalLevel <- vars[3] #Factor number
-    print("modalLevel")
-    print(modalLevel)
     
     design <- tolower(input$designFieldbook_agrofims)
     IdDesignInputs <- getFactorIds(design)
     
-    #index <- get_index_design(IdDesignInputs, design)
     index <- modalLevel
     
     allinputs <- AllInputs()
     flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
-    #Get especial levels
+    #Get especial levels and filter the actives ones
     indexEspLvl <- factorlevel$ids 
-    print(indexEspLvl)
+    indexEspLvl <- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
     
-    Inputs<-input
-    
+    #Build fertilizer input table derived from user's inputs
     dfAll <- data.frame(level=NULL,type=NULL,levels=NULL,unit=NULL,stringsAsFactors = FALSE)
-    for (i in factorlevel$ids){
+    for (i in indexEspLvl){
       
       value <- c(input[[i]])
       vars <- unlist(strsplit(i, "_"))
@@ -7577,10 +7827,8 @@ server_design_agrofims <- function(input, output, session, values){
       indexlevel <- vars[5]
       
       levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
-      #if(length(levels)==0){return()}
       unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
       split <- input[[paste0(design,"_lvl_espSplit_",level,"_",indexlevel)]]
-      #frcbd_lvl_espSplit_1_3
       
       df <- data.frame(   level = rep(level,length(levels)),
                           eleType = rep(value,length(levels)),
@@ -7593,21 +7841,25 @@ server_design_agrofims <- function(input, output, session, values){
       
       dfAll <- rbind(dfAll,df)
     }
-    dfAll2 <<- dfAll 
-    #out <- product_calculation_test(allinputs, dfAll=dfAll2, index="1", indexEspLvl= indexEspLvl , design=design)
-    #a1<<-get_fertilizer_details_design(allinputs, design, index, indexEspLvl)
-    out <- try({  fertilizer_calculation(allinputs, dfAll2, index=index, indexEspLvl=indexEspLvl , design="frcbd") })
+    dfAll <- dfAll 
+    out <- try({  fertilizer_calculation(allinputs, dfAll, index=index, indexEspLvl=indexEspLvl , design=design) })
     
     if(class(out)!="try-error")  {     
-    
+        out <- as.data.frame(out,stringsAsFactors=FALSE)
+        names(out)[1] <- "Treatment"
+        
+        file_name <- paste0(calc_design_path,"FertCalcDesign/","fertcalc_",index,"_",input$experimentId,".rds")
+        saveRDS(out, file= file_name)
+        
         output[[paste0(design,"_outputFERT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
-          rhandsontable(as.data.frame(out),rowHeaders = FALSE) 
+          rhandsontable(out,rowHeaders = FALSE) 
         })
         
-    } else {
+    } 
+    else {
       
       output[[paste0(design,"_outputFERT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
-        rhandsontable(data.frame(NoData="Please choose products or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE) 
+        rhandsontable(data.frame(NoData="Please choose products correctly or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE) 
       })
     }
     
@@ -7619,7 +7871,8 @@ server_design_agrofims <- function(input, output, session, values){
     #Id of Nutrient calculation variables
     vars <- unlist(strsplit(input$calculateProdAmountNutrientid, "_"))
     modalLevel <- vars[3] #Factor number
-    index <- modalLevel
+    index <- as.character(modalLevel)
+    
     #Get design and factor levels
     design <- tolower(input$designFieldbook_agrofims)
     IdDesignInputs <- getFactorIds(design)
@@ -7629,11 +7882,12 @@ server_design_agrofims <- function(input, output, session, values){
     flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
     
     #Get especial levels
-    indexEspLvl <- factorlevel$ids 
+    indexEspLvl <- factorlevel$ids
+    indexEspLvl <- filter_index_espLvl_design(index= index, indexEspLvl=indexEspLvl, design=design, designEspflvl="_lvl_espType_")
     
     #Build fertilizer input table derived from user's inputs
     dfAll <- data.frame(level=NULL,type=NULL,levels=NULL,unit=NULL,stringsAsFactors = FALSE)
-    for (i in factorlevel$ids){
+    for (i in indexEspLvl){
       
       value <- c(input[[i]])
       vars <- unlist(strsplit(i, "_"))
@@ -7644,7 +7898,7 @@ server_design_agrofims <- function(input, output, session, values){
       levels <- input[[paste0(design,"_lvl_espLvl_",level,"_",indexlevel)]]
       unit <- input[[paste0(design,"_lvl_espUnit_",level,"_",indexlevel)]]
       split <- input[[paste0(design,"_lvl_espSplit_",level,"_",indexlevel)]]
-
+      
       df <- data.frame(   level = rep(level,length(levels)),
                           eleType = rep(value,length(levels)),
                           levels = levels,
@@ -7658,16 +7912,25 @@ server_design_agrofims <- function(input, output, session, values){
     }
     dfAll2 <- dfAll 
     
+    listdat <-list(index=index, allinputs= allinputs, indexEspLvl= indexEspLvl, dfAll= dfAll)
+    
     out <- try({product_calculation(allinputs, dfAll=dfAll, index=index, indexEspLvl= indexEspLvl , design=design) })
     
-    if(class(out)!="try-error")  {   
-         output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
-         rhandsontable(out,rowHeaders = FALSE) 
-       })
-    
+    if(class(out)!="try-error")  {  
+      
+      out <- out[,c(2,1,3)]
+      names(out)[3] <- "Product amount"
+      
+      file_name <- paste0(calc_design_path,"NutrientCalcDesign/","nutcalc_",index,"_",input$experimentId,".rds")
+      saveRDS(out, file= file_name)
+      
+      output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(out,rowHeaders = FALSE,readOnly = TRUE) 
+      })
+      
     } else {
       output[[paste0(design,"_outputPADT_",modalLevel)]] <- rhandsontable::renderRHandsontable({
-        rhandsontable(data.frame(NoData="Please choose products or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE) 
+        rhandsontable(data.frame(NoData="Please choose products correctly or fill other missing information",stringsAsFactors = FALSE),rowHeaders = FALSE,readOnly = TRUE) 
       })
     }
     
@@ -7875,7 +8138,7 @@ server_design_agrofims <- function(input, output, session, values){
               ),
               column(
                 12,
-                HTML("<div> Aca viene un rhandsometable. </div>")
+                #HTML("<div> Aca viene un rhandsometable. </div>")
                 #rhandsontable::rHandsontableOutput("output_nutDT")
               )
           )
@@ -8153,6 +8416,11 @@ server_design_agrofims <- function(input, output, session, values){
     
     timingValue = input[[input$mNutTimingid]]
     
+    # If none of the options are selected then return.
+    if(length(timingValue)<1){
+      return()
+    }
+    
     removeUI(
       selector = paste0("#",design, "_mNutTimingContainerValue_",level,"_",index,"_",i,"_",j),
       immediate = T
@@ -8210,27 +8478,67 @@ server_design_agrofims <- function(input, output, session, values){
     )
   })
   
-  # Product change nutrient modal
+  # Product change Nutrient modal
   observeEvent(input$mProductNutModal,{
+    
     vars = unlist(strsplit(input$mProductNutModalid, "_"))
     design = vars[1]
     level = vars[3]
     index = vars[4]
     i = vars[5]
-    j = vars[6]
     
     value <- input[[input$mProductNutModalid]]
     
-    output[[paste0(design,"_outputNutDT_",level,"_",index,"_",i,"_",j)]] <- rhandsontable::renderRHandsontable({
-      if (!is.null(value)){
-        ferdt <- ferdt()
-        ferdt <- ferdt %>% dplyr::filter(name==value)
-        names(ferdt)[1] <- c("%           ")
-        rhandsontable(ferdt,rowHeaders = FALSE) %>% hot_col(col = 1,readOnly = TRUE) %>% 
-          hot_cols(names(dt_fernut)[3:16], format = "0.0") %>% 
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
-      }
-    })
+    # If value is null break method
+    if(length(value)==0)
+    {
+      return()
+      
+    }else{
+      
+      removeUI(
+        selector = paste0("#",design,"_outputNutDTContainer_",level,"_",index,"_",i),
+        immediate = T
+      )
+      
+      
+      ferdt <- ferdt()
+      ferdt <- ferdt %>% dplyr::filter(name==value)
+      
+      insertUI(
+        selector = paste0("#aux_",design,"_outputNutDT_",level,"_",index,"_",i,"_1"),
+        immediate = T,
+        where = "beforeEnd",
+        ui = (
+          div(
+            style="text-align: center;",
+            div(HTML("<h5><b> Nutrient content in product (%) </h5></b>")),
+            div(
+              id = paste0(design,"_outputNutDTContainer_",level,"_",index,"_",i),
+              class = "designProductRow",
+              style="display: flex;vertical-align:top;",
+              #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
+              textInput(inputId = paste0(design,"_outputNutDT1_",level,"_",index,"_",i),value = ferdt[[2]], label = "N" ),
+              textInput(inputId = paste0(design,"_outputNutDT2_",level,"_",index,"_",i),value = ferdt[[3]], label = "P" ),
+              textInput(inputId = paste0(design,"_outputNutDT3_",level,"_",index,"_",i),value = ferdt[[4]], label = "K" ),
+              textInput(inputId = paste0(design,"_outputNutDT4_",level,"_",index,"_",i),value = ferdt[[5]], label = "Ca" ),
+              textInput(inputId = paste0(design,"_outputNutDT5_",level,"_",index,"_",i),value = ferdt[[6]], label = "Mg" ),
+              textInput(inputId = paste0(design,"_outputNutDT6_",level,"_",index,"_",i),value = ferdt[[7]], label = "S" ),
+              textInput(inputId = paste0(design,"_outputNutDT7_",level,"_",index,"_",i),value = ferdt[[8]], label = "Mb" ),
+              textInput(inputId = paste0(design,"_outputNutDT8_",level,"_",index,"_",i),value = ferdt[[9]], label = "Zn" ),
+              textInput(inputId = paste0(design,"_outputNutDT9_",level,"_",index,"_",i),value = ferdt[[10]], label = "B" ),
+              textInput(inputId = paste0(design,"_outputNutDT10_",level,"_",index,"_",i),value = ferdt[[11]], label = "Cu" ),
+              textInput(inputId = paste0(design,"_outputNutDT11_",level,"_",index,"_",i),value = ferdt[[12]], label = "Fe" ),
+              textInput(inputId = paste0(design,"_outputNutDT12_",level,"_",index,"_",i),value = ferdt[[13]], label = "Mn" ),
+              textInput(inputId = paste0(design,"_outputNutDT13_",level,"_",index,"_",i),value = ferdt[[14]], label = "Ni" ),
+              textInput(inputId = paste0(design,"_outputNutDT14_",level,"_",index,"_",i),value = ferdt[[15]], label = "Cl" )
+            )
+          )
+        )
+      )
+      
+    }
+    
   })
   
   # Select for timing inside fertilizer modal
@@ -8244,6 +8552,11 @@ server_design_agrofims <- function(input, output, session, values){
     j      = vars[6]
     
     timingValue = input[[input$mFerTimingid]]
+    
+    # If none of the options are selected then return.
+    if(length(timingValue)<1){
+      return()
+    }
     
     removeUI(
       selector = paste0("#",design, "_mFerTimingContainerValue_",level,"_",index,"_",i,"_",j),
@@ -8309,9 +8622,14 @@ server_design_agrofims <- function(input, output, session, values){
       ferdt <- ferdt()
       ferdt <- ferdt %>% dplyr::filter(name==param)
       
-      rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
-        hot_cols(names(dt_fernut)[3:16], format = "0.0") %>% 
-        hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+      print(ferdt)
+      
+      return(ferdt)
+      
+      # rhandsontable(ferdt,rowHeaders = FALSE) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+      #   hot_cols(names(dt_fernut)[3:16], format = "0.0") %>% 
+      #   hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+      
     }
     
     
@@ -8416,7 +8734,7 @@ server_design_agrofims <- function(input, output, session, values){
               12,
               selectizeInput(
                 paste0(design, "_lvl_other_", index),
-                label = "Insert other levels",
+                label = "Specify other levels",
                 multiple = T,
                 choices = c(),
                 options = list(
@@ -8793,7 +9111,7 @@ server_design_agrofims <- function(input, output, session, values){
                   fluidRow(
                     column(12,
                            style='padding:0px; text-align:right;',
-                           actionButton(paste0(design,"_closelevel_",order,"_", num), "", icon("close"),style="background:#f2dede;")
+                           actionButton(paste0(design,"_closelevel_",order,"_", num), "", icon("close"),style="background:#367fa9;color:#fff;")
                     )
                   ),
                   fluidRow(
@@ -8838,7 +9156,8 @@ server_design_agrofims <- function(input, output, session, values){
                   4,
                   selectInput(
                     inputId = paste0(design, "_lvl_espSplit_", order,"_",num),
-                    label = "Number of splits",
+                    #label = "Number of splits",
+                    label = "Number of applications",
                     choices = c(1:10),
                     selected = 1
                   )
@@ -8871,7 +9190,7 @@ server_design_agrofims <- function(input, output, session, values){
                 fluidRow(
                   column(12,
                          style='padding:0px; text-align:right;',
-                         actionButton(paste0(design,"_closelevel_",order,"_", num), "", icon("close"),style="background:#f2dede;")
+                         actionButton(paste0(design,"_closelevel_",order,"_", num), "", icon("close"),style="background:#367fa9;color:#fff;")
                   )
                 ),
                 fluidRow(
@@ -9033,7 +9352,7 @@ server_design_agrofims <- function(input, output, session, values){
                          inputId = paste0(design, "_lvltimingValue_", order, "_",i),
                          label = paste0("# ",i," ",timingValue),
                          dateFormat = "yyyy-mm-dd",
-                         value = Sys.Date(),
+                         #value = Sys.Date(),
                          placeholder = "yyyy-mm-dd",
                          addon = "none",
                          clearButton = TRUE
@@ -9390,6 +9709,11 @@ server_design_agrofims <- function(input, output, session, values){
       
       flbl<- get_factors_design(allinputs = AllInputs(), index, design = design)
       
+      #print("----Labels for factors----")
+      #print(flbl)
+      #print(index)
+      #saveRDS(allinputs,"/home/obenites/agrofims_modules/allinputs.rds")
+            
       #Get especial levels
       indexEspLvl <- factorlevel$ids 
       print("indexEspLvl")
@@ -9924,8 +10248,8 @@ server_design_agrofims <- function(input, output, session, values){
   
   nutTabs = list("Residue management" = "tabResidue",
                  "Seedbed preparation" = "tabSeedbed",
-                 "Soil fertility" = "tabSoil",
-                 "Planting and transplanting" = "tabPlanting",
+                 "Fertilizer management" = "tabSoil",
+                 "Planting, transplanting" = "tabPlanting",
                  "Mulch management" ="tabMulching",
                  "Irrigation" = "tabIrrigation",
                  "Weeding" = "tabWeeding",
@@ -10070,6 +10394,16 @@ server_design_agrofims <- function(input, output, session, values){
     # msm <- get_dcm_values(cmdt, "Measurement",cropValue)
     fluidRow(
       fluidRow(
+        column(
+          12,
+          selectizeInput(
+            paste0("soilfertility_to_collect_field"), label = "To be collected in the field", multiple = TRUE, 
+            options = list(maxItems = 20, placeholder = "Select ..."), 
+            choices = magm_label$get("soilf")
+          )
+        )
+      ),
+      fluidRow(
         column(style="text-align:center; margin-bottom:15px",
                12,
                radioButtons(inputId = "rbtSoilOption", 
@@ -10132,21 +10466,20 @@ server_design_agrofims <- function(input, output, session, values){
     sfNutrientSplit$ids <- c(sfNutrientSplit$ids,paste0("mgp_nut_",sfNutrientSplit$num))
     
     
-    
-    DF = data.frame(
-      Nitrogen = 0,
-      Phosphorus = 0,
-      Potassium = 0,
-      Calcium = 0,
-      Magnesium = 0,
-      Sulfur = 0,
-      Copper = 0,
-      Iron = 0,
-      Manganese = 0,
-      Moldbenum = 0,
-      Boron = 0,
-      Zinc = 0,
-      stringsAsFactors = FALSE)
+    # DF = data.frame(
+    #   Nitrogen = 0,
+    #   Phosphorus = 0,
+    #   Potassium = 0,
+    #   Calcium = 0,
+    #   Magnesium = 0,
+    #   Sulfur = 0,
+    #   Copper = 0,
+    #   Iron = 0,
+    #   Manganese = 0,
+    #   Moldbenum = 0,
+    #   Boron = 0,
+    #   Zinc = 0,
+    #   stringsAsFactors = FALSE)
     
     
     # Remove Product Content
@@ -10175,7 +10508,7 @@ server_design_agrofims <- function(input, output, session, values){
                         inputId = paste0("sfNutUnit"),
                         label = "Unit",
                         choices = c(choices_unit),
-                        selected = 2
+                        selected = "kg/ha"
                       )
                     )
                     
@@ -10199,7 +10532,8 @@ server_design_agrofims <- function(input, output, session, values){
             column(
               style = "text-align:right",
               12,
-              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close"))
+              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close")),
+              br(),br()
             ),
             column(
               style="margin-bottom:15px",
@@ -10208,12 +10542,32 @@ server_design_agrofims <- function(input, output, session, values){
                 style="margin-bottom:15px",
                 12,
                 column(
-                  3,
+                  2,
                   HTML(paste0("<label> Split application ",sfNutrientSplit$num,"</label>"))
                 ),
                 column(
-                  9,
-                  rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
+                  10,
+                  div(
+                    id = paste0("sfNutrientSplitContainer_",sfNutrientSplit$num),
+                    class = "sfProductRow",
+                    style="display: flex;vertical-align:top;",
+                    #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
+                    textInput(inputId = paste0("sfNutrientSplit1_",sfNutrientSplit$num),value = 0, label = "N" ),
+                    textInput(inputId = paste0("sfNutrientSplit2_",sfNutrientSplit$num),value = 0, label = "P" ),
+                    textInput(inputId = paste0("sfNutrientSplit3_",sfNutrientSplit$num),value = 0, label = "K" ),
+                    textInput(inputId = paste0("sfNutrientSplit4_",sfNutrientSplit$num),value = 0, label = "Ca" ),
+                    textInput(inputId = paste0("sfNutrientSplit5_",sfNutrientSplit$num),value = 0, label = "Mg" ),
+                    textInput(inputId = paste0("sfNutrientSplit6_",sfNutrientSplit$num),value = 0, label = "S" ),
+                    textInput(inputId = paste0("sfNutrientSplit7_",sfNutrientSplit$num),value = 0, label = "Mb" ),
+                    textInput(inputId = paste0("sfNutrientSplit8_",sfNutrientSplit$num),value = 0, label = "Zn" ),
+                    textInput(inputId = paste0("sfNutrientSplit9_",sfNutrientSplit$num),value = 0, label = "B" ),
+                    textInput(inputId = paste0("sfNutrientSplit10_",sfNutrientSplit$num),value = 0, label = "Cu" ),
+                    textInput(inputId = paste0("sfNutrientSplit11_",sfNutrientSplit$num),value = 0, label = "Fe" ),
+                    textInput(inputId = paste0("sfNutrientSplit12_",sfNutrientSplit$num),value = 0, label = "Mn" ),
+                    textInput(inputId = paste0("sfNutrientSplit13_",sfNutrientSplit$num),value = 0, label = "Ni" ),
+                    textInput(inputId = paste0("sfNutrientSplit14_",sfNutrientSplit$num),value = 0, label = "Cl" )
+                  )
+                  #rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
                 )
               )
             ),
@@ -10246,7 +10600,7 @@ server_design_agrofims <- function(input, output, session, values){
                        column(
                          2,
                          selectizeInput(inputId = paste0("sfNutrientImplement_",sfNutrientSplit$num),
-                                        label = "Implement",
+                                        label = "Traction",
                                         multiple = TRUE,
                                         options = list(maxItems = 1, placeholder = "Select one..."),
                                         choices = fertCombo$get("ferImple")
@@ -10261,7 +10615,7 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 4,
                 selectizeInput(inputId = paste0("sfNutrientProduct_",sfNutrientSplit$num),
-                               label = "Choose Product",
+                               label = "Product",
                                multiple = TRUE,
                                options = list(maxItems = 10, placeholder = "Select one..."),
                                choices = ferdt()$name
@@ -10270,11 +10624,18 @@ server_design_agrofims <- function(input, output, session, values){
             ),
             column(
               12,
-              column(
-                12,
-                rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              # column(
+              #   12,
+              #   #rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              # )
+              div(
+                id = paste0("nutrientProductContainerAux_",sfNutrientSplit$num),
+                style="margin: 0px 0px; padding: 0px 0px;",
+                div(
+                  id = paste0("nutrientProductContainer_",sfNutrientSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;"
+                )  
               )
-              
             )
           )
           
@@ -10288,7 +10649,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     ## Adding buttons for calculate and add split application
     insertUI(
-      immediate = FALSE,
+      immediate = TRUE,
       selector = "#sfNutrientContainer",
       where = "beforeEnd",
       ui = fluidRow(
@@ -10308,31 +10669,32 @@ server_design_agrofims <- function(input, output, session, values){
               ),
               column(
                 12,
-                HTML("<div> Aca viene un rhandsometable. Soil Nutrient </div>")
-                #rhandsontable::rHandsontableOutput("output_nutDT")
+                #HTML("<div> Aca viene un rhandsometable. Soil Nutrient </div>")
+                rhandsontable::rHandsontableOutput("sfoutput_nutDT")
               )
           )
         )
       )
     )
     
-    output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
-      rhandsontable(DF)
-    })
+    # output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
+    #   rhandsontable(DF)
+    # })
     
   }
   
   # Draw Template for Product in Soil Fertility
   drawProductForSoilFertility <- function(){
     
-    
-    
-    
     #We reset the counter if the user is switching between product and nutrient
     sfProductSplit$num <- 1
     sfProductSplit$ids <- c()
     sfProductSplit$ids <- c(sfProductSplit$ids,paste0("mgp_pro_",sfProductSplit$num))
     
+    unit <- get_dfa_values(dt, choice = "Nutrient element type and amount", attribute = "UNIT")
+    
+    #Units
+    choices_unit <- strsplit(unit, ",")[[1]]
     
     # Remove Product Content
     removeUI(
@@ -10346,13 +10708,29 @@ server_design_agrofims <- function(input, output, session, values){
       immediate = T
     )
     
+    
     # Insert Container for product content
     insertUI(
       immediate = TRUE,
       selector = "#sfContainer",
       where = "beforeEnd",
-      ui = column(12,id = "sfProductContainer")
+      ui = column(12,id = "sfProductContainer",
+                  fluidRow(
+                    column(
+                      offset = 5,
+                      2,
+                      selectInput(
+                        inputId = paste0("sfProUnit"),
+                        label = "Unit",
+                        choices = c(choices_unit),
+                        selected = "kg/ha"
+                      )
+                    )
+                    
+                  )
+      )
     )
+    
     
     insertUI(
       immediate = TRUE,
@@ -10382,7 +10760,7 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 4,
                 selectizeInput(inputId = paste0("sfProductProduct_",sfProductSplit$num),
-                               label = "Choose Product",
+                               label = "Product",
                                multiple = TRUE,
                                options = list(maxItems = 10, placeholder = "Select one..."),
                                choices = ferdt()$name
@@ -10390,7 +10768,15 @@ server_design_agrofims <- function(input, output, session, values){
               ),
               column(
                 12,
-                rHandsontableOutput(paste0("outputDTsfProProduct_",sfProductSplit$num))
+                div(
+                  id = paste0("productProductContainerAux_",sfProductSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;",
+                  div(
+                    id = paste0("productProductContainer_",sfProductSplit$num),
+                    style="margin: 0px 0px; padding: 0px 0px;"
+                  )  
+                )
+                #rHandsontableOutput(paste0("outputDTsfProProduct_",sfProductSplit$num))
               )
             ),
             column(12,
@@ -10419,7 +10805,7 @@ server_design_agrofims <- function(input, output, session, values){
                    column(
                      2,
                      selectizeInput(inputId = paste0("sfProductImplement_",sfProductSplit$num),
-                                    label = "Implement",
+                                    label = "Traction",
                                     multiple = TRUE,
                                     options = list(maxItems = 1, placeholder = "Select one..."),
                                     choices = fertCombo$get("ferImple")
@@ -10434,7 +10820,15 @@ server_design_agrofims <- function(input, output, session, values){
               12,
               column(
                 12,
-                rHandsontableOutput(paste0("sfProductDT_",sfProductSplit$num))
+                div(
+                  id = paste0("productProductContainerAux_",sfProductSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;",
+                  div(
+                    id = paste0("productProductContainer_",sfProductSplit$num),
+                    style="margin: 0px 0px; padding: 0px 0px;"
+                  )  
+                )
+                #rHandsontableOutput(paste0("sfProductDT_",sfProductSplit$num))
               )
             )
           )
@@ -10444,7 +10838,7 @@ server_design_agrofims <- function(input, output, session, values){
     
     
     insertUI(
-      immediate = FALSE,
+      immediate = TRUE,
       selector = "#sfProductContainer",
       where = "beforeEnd",
       ui = fluidRow(
@@ -10458,15 +10852,15 @@ server_design_agrofims <- function(input, output, session, values){
                 12,
                 align="center",
                 actionButton(inputId = paste0("btnsfProSplit"),"Add Application",class = "btn btn-primary", icon("plus-circle"), style="color:white;"),
-                actionButton(inputId = paste0("btnsfPro"),"Calculate Product Amount",class = "btn btn-primary", style="color:white")
+                actionButton(inputId = paste0("btnsfPro"),"Calculate Nutrient Amount",class = "btn btn-primary", style="color:white")
               ),
               column(12,
-                     "Product amount "
+                     "Nutrient amount "
               ),
               column(
                 12,
-                HTML("<div> Aca viene un rhandsometable. Soil Product </div>")
-                #rhandsontable::rHandsontableOutput("output_nutDT")
+                #HTML("<div> Aca viene un rhandsometable. Soil Product </div>")
+                rhandsontable::rHandsontableOutput("sfoutput_proDT")
               )
           )
         )
@@ -10482,20 +10876,123 @@ server_design_agrofims <- function(input, output, session, values){
     
     index <- vars[2]
     
-    value <- input[[paste0("sfNutrientProduct_",index)]]
+    values <- input[[paste0("sfNutrientProduct_",index)]]
+    print("nutrient values magmetn")
+    print(values)
     
-    output[[paste0("outputDTsfNutProduct_",index)]] <- rhandsontable::renderRHandsontable({
-      if (!is.null(value)){
-        ferdt <- ferdt()
-        ferdt <- ferdt %>% dplyr::filter(name==value)
-        rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+    
+    if (!is.null(values)){
+      ferdt <- ferdt()
+      ferdt <- ferdt %>% dplyr::filter(name %in% values)
+    }
+    
+    nrow <- nrow(ferdt)
+    
+    
+    if(length(nrow)==0){
+      return()
+    }
+    
+    if(nrow == 0){
+      removeUI(
+        selector = paste0("#nutrientProductContainer_",index),
+        immediate = T
+      )
+      return()
+    }
+    
+    removeUI(
+      selector = paste0("#nutrientProductContainer_",index),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#nutrientProductContainerAux_",index),
+      where = "beforeBegin",
+      ui= (
+        div(
+          id = paste0("nutrientProductContainer_",index),
+          style="vertical-align:top;margin: 0px 0px; padding: 0px 0px;"
+        )
+      ),
+      immediate = T
+    )
+    
+    for (i in 1:nrow) {
+      if(i == 1){
+        insertUI(
+          selector = paste0("#nutrientProductContainer_",index),
+          where = "beforeEnd",
+          ui = (
+              div(
+              div(style="text-align:center;",
+                  HTML("<h5><b> Nutrient content in product (%) </b></h5>")),
+              div(
+                id = paste0("sfboxNutrientProduct_",index,"_",i),
+                class = "sfProductRow sfProductRowName",
+                style="display: flex;vertical-align:top; margin: 0px 0px !important; padding: 0px 0px;",
+                textInput(inputId = paste0("nutrientProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "Product"),
+                textInput(inputId = paste0("nutrientProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "N" ),
+                textInput(inputId = paste0("nutrientProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = "P" ),
+                textInput(inputId = paste0("nutrientProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = "K" ),
+                textInput(inputId = paste0("nutrientProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = "Ca" ),
+                textInput(inputId = paste0("nutrientProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = "Mg" ),
+                textInput(inputId = paste0("nutrientProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = "S" ),
+                textInput(inputId = paste0("nutrientProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = "Mb" ),
+                textInput(inputId = paste0("nutrientProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = "Zn" ),
+                textInput(inputId = paste0("nutrientProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = "B" ),
+                textInput(inputId = paste0("nutrientProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = "Cu" ),
+                textInput(inputId = paste0("nutrientProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = "Fe" ),
+                textInput(inputId = paste0("nutrientProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = "Mn" ),
+                textInput(inputId = paste0("nutrientProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = "Ni" ),
+                textInput(inputId = paste0("nutrientProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = "Cl" )
+              )
+            )
+          )
+        )
       }
-    })
+      else{
+        insertUI(
+          selector = paste0("#nutrientProductContainer_",index),
+          where = "beforeEnd",
+          ui = (
+              div(
+                id = paste0("sfboxNutrientProduct_",index,"_",i),
+                class = "sfProductRow sfProductRowName",
+                style="display: flex;vertical-align:top;margin: 0px 0px; line-height:0;font-size:0",
+                disabled(textInput(inputId = paste0("nutrientProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = NULL )),
+                textInput(inputId = paste0("nutrientProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = NULL ),
+                textInput(inputId = paste0("nutrientProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = NULL )
+              )
+          )
+        )
+      }
+    }
+    
+    # output[[paste0("outputDTsfNutProduct_",index)]] <- rhandsontable::renderRHandsontable({
+    #   if (!is.null(value)){
+    #     ferdt <- ferdt()
+    #     ferdt <- ferdt %>% dplyr::filter(name==value)
+    #     rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+    #       hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+    #   }
+    # })
     
   })
   
-  # Render TextInputs of Product for Soil Fertility Nutrient
+  # Render TextInputs of Product for Soil Fertility Product
   observeEvent(input$sfProductProductChange,{
     
     vars <- unlist(strsplit(input$sfProductProductChangeid,"_"))
@@ -10503,15 +11000,116 @@ server_design_agrofims <- function(input, output, session, values){
     
     values = input[[input$sfProductProductChangeid]]
     
-    output[[paste0("outputDTsfProProduct_",index)]] <- rhandsontable::renderRHandsontable({
-      if (!is.null(values)){
-        ferdt <- ferdt()
-        ferdt <- ferdt %>% dplyr::filter(name==values)
-        names(ferdt)[1] <- c("%           ")
-        rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+    
+    if (!is.null(values)){
+      ferdt <- ferdt()
+      ferdt <- ferdt %>% dplyr::filter(name %in% values)
+    }
+    
+    nrow <- nrow(ferdt)
+    
+    if(length(nrow)==0){
+      return()
+    }
+    
+    if(nrow == 0){
+      removeUI(
+        selector = paste0("#productProductContainer_",index),
+        immediate = T
+      )
+      return()
+    }
+    
+    removeUI(
+      selector = paste0("#productProductContainer_",index),
+      immediate = T
+    )
+    
+    insertUI(
+      selector = paste0("#productProductContainerAux_",index),
+      where = "beforeBegin",
+      ui= (
+        div(
+          id = paste0("productProductContainer_",index),
+          style="vertical-align:top;margin: 0px 0px; padding: 0px 0px;"
+        )
+      ),
+      immediate = T
+    )
+    
+    
+    for (i in 1:nrow) {
+      if(i == 1){
+        insertUI(
+          selector = paste0("#productProductContainer_",index),
+          where = "beforeEnd",
+          ui = (
+              div(
+              div(style="text-align:center;",
+                  HTML("<h5><b> Nutrient content in product (%) </b></h5>")),
+              div(
+                id = paste0("sfboxProductProduct_",index,"_",i),
+                class = "sfProductRow sfProductRowName",
+                style="display: flex;vertical-align:top; margin: 0px 0px !important; padding: 0px 0px;",
+                disabled(textInput(inputId = paste0("productProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = "Product" )),
+                textInput(inputId = paste0("productProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = "N" ),
+                textInput(inputId = paste0("productProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = "P" ),
+                textInput(inputId = paste0("productProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = "K" ),
+                textInput(inputId = paste0("productProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = "Ca" ),
+                textInput(inputId = paste0("productProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = "Mg" ),
+                textInput(inputId = paste0("productProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = "S" ),
+                textInput(inputId = paste0("productProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = "Mb" ),
+                textInput(inputId = paste0("productProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = "Zn" ),
+                textInput(inputId = paste0("productProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = "B" ),
+                textInput(inputId = paste0("productProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = "Cu" ),
+                textInput(inputId = paste0("productProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = "Fe" ),
+                textInput(inputId = paste0("productProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = "Mn" ),
+                textInput(inputId = paste0("productProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = "Ni" ),
+                textInput(inputId = paste0("productProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = "Cl" )
+              )
+            )
+          )
+        )
       }
-    })
+      else{
+        insertUI(
+          selector = paste0("#productProductContainer_",index),
+          where = "beforeEnd",
+          ui = (
+              div(
+                id = paste0("sfboxProductProduct_",index,"_",i),
+                class = "sfProductRow sfProductRowName",
+                style="display: flex;vertical-align:top; margin: 0px 0px; padding: 0px 0px;",
+                disabled(textInput(inputId = paste0("productProductSplit0_",index,"_",i),value = ferdt[[1]][i], label = NULL)),
+                textInput(inputId = paste0("productProductSplit1_",index,"_",i),value = ferdt[[2]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit2_",index,"_",i),value = ferdt[[3]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit3_",index,"_",i),value = ferdt[[4]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit4_",index,"_",i),value = ferdt[[5]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit5_",index,"_",i),value = ferdt[[6]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit6_",index,"_",i),value = ferdt[[7]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit7_",index,"_",i),value = ferdt[[8]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit8_",index,"_",i),value = ferdt[[9]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit9_",index,"_",i),value = ferdt[[10]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit10_",index,"_",i),value = ferdt[[11]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit11_",index,"_",i),value = ferdt[[12]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit12_",index,"_",i),value = ferdt[[13]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit13_",index,"_",i),value = ferdt[[14]][i], label = NULL ),
+                textInput(inputId = paste0("productProductSplit14_",index,"_",i),value = ferdt[[15]][i], label = NULL )
+              )
+            )
+          )
+      }
+    }
+    
+    
+    # output[[paste0("outputDTsfProProduct_",index)]] <- rhandsontable::renderRHandsontable({
+    #   if (!is.null(values)){
+    #     ferdt <- ferdt()
+    #     ferdt <- ferdt %>% dplyr::filter(name==values)
+    #     rhandsontable(ferdt) %>% hot_col(col = 1,readOnly = TRUE) %>% 
+    #       hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE)
+    #   }
+    # })
     
     removeUI(
       selector = paste0("#sfProductProContainer_",index),
@@ -10539,7 +11137,7 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 2,
                 textInput(inputId = paste0("txtsfProductValue_",index,"_",i),
-                          label = values[i])
+                          label =  paste0(values[i]," (",input$sfProUnit,")"))
               )
             )
         )
@@ -10695,21 +11293,21 @@ server_design_agrofims <- function(input, output, session, values){
     sfNutrientSplit$num = sfNutrientSplit$num + 1
     sfNutrientSplit$ids <- c(sfNutrientSplit$ids,paste0("mgp_nut_",sfNutrientSplit$num))
     
-    
-    DF = data.frame(
-      Nitrogen = 0,
-      Phosphorus = 0,
-      Potassium = 0,
-      Calcium = 0,
-      Magnesium = 0,
-      Sulfur = 0,
-      Copper = 0,
-      Iron = 0,
-      Manganese = 0,
-      Moldbenum = 0,
-      Boron = 0,
-      Zinc = 0,
-      stringsAsFactors = FALSE)
+    # 
+    #     DF = data.frame(
+    #       Nitrogen = 0,
+    #       Phosphorus = 0,
+    #       Potassium = 0,
+    #       Calcium = 0,
+    #       Magnesium = 0,
+    #       Sulfur = 0,
+    #       Copper = 0,
+    #       Iron = 0,
+    #       Manganese = 0,
+    #       Moldbenum = 0,
+    #       Boron = 0,
+    #       Zinc = 0,
+    #       stringsAsFactors = FALSE)
     
     insertUI(
       selector =paste0("#sfNutSplitAux"),
@@ -10726,7 +11324,9 @@ server_design_agrofims <- function(input, output, session, values){
             column(
               style = "text-align:right",
               12,
-              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close"))
+              actionButton(paste0("sfNutCloseBox_", sfNutrientSplit$num), "", icon("close")),
+              br(),
+              br()
             ),
             column(
               style="margin-bottom:15px",
@@ -10735,12 +11335,32 @@ server_design_agrofims <- function(input, output, session, values){
                 style="margin-bottom:15px",
                 12,
                 column(
-                  3,
+                  2,
                   HTML(paste0("<label> Split application ",sfNutrientSplit$num,"</label>"))
                 ),
                 column(
-                  9,
-                  rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
+                  10,
+                  div(
+                    id = paste0("sfNutrientSplitContainer_",sfNutrientSplit$num),
+                    class = "sfProductRow",
+                    style="display: flex;vertical-align:top;",
+                    #textInput(inputId = paste0(design,"_outputNutDTName_",level,"_",index,"_",i),value = ferdt[[1]], label = "Name Product" ),
+                    textInput(inputId = paste0("sfNutrientSplit1_",sfNutrientSplit$num),value = 0, label = "N" ),
+                    textInput(inputId = paste0("sfNutrientSplit2_",sfNutrientSplit$num),value = 0, label = "P" ),
+                    textInput(inputId = paste0("sfNutrientSplit3_",sfNutrientSplit$num),value = 0, label = "K" ),
+                    textInput(inputId = paste0("sfNutrientSplit4_",sfNutrientSplit$num),value = 0, label = "Ca" ),
+                    textInput(inputId = paste0("sfNutrientSplit5_",sfNutrientSplit$num),value = 0, label = "Mg" ),
+                    textInput(inputId = paste0("sfNutrientSplit6_",sfNutrientSplit$num),value = 0, label = "S" ),
+                    textInput(inputId = paste0("sfNutrientSplit7_",sfNutrientSplit$num),value = 0, label = "Mb" ),
+                    textInput(inputId = paste0("sfNutrientSplit8_",sfNutrientSplit$num),value = 0, label = "Zn" ),
+                    textInput(inputId = paste0("sfNutrientSplit9_",sfNutrientSplit$num),value = 0, label = "B" ),
+                    textInput(inputId = paste0("sfNutrientSplit10_",sfNutrientSplit$num),value = 0, label = "Cu" ),
+                    textInput(inputId = paste0("sfNutrientSplit11_",sfNutrientSplit$num),value = 0, label = "Fe" ),
+                    textInput(inputId = paste0("sfNutrientSplit12_",sfNutrientSplit$num),value = 0, label = "Mn" ),
+                    textInput(inputId = paste0("sfNutrientSplit13_",sfNutrientSplit$num),value = 0, label = "Ni" ),
+                    textInput(inputId = paste0("sfNutrientSplit14_",sfNutrientSplit$num),value = 0, label = "Cl" )
+                  )
+                  #rHandsontableOutput(paste0("sfNutrientSplit_",sfNutrientSplit$num))
                 )
               )
             ),
@@ -10773,7 +11393,7 @@ server_design_agrofims <- function(input, output, session, values){
                        column(
                          2,
                          selectizeInput(inputId = paste0("sfNutrientImplement_",sfNutrientSplit$num),
-                                        label = "Implement",
+                                        label = "Traction",
                                         multiple = TRUE,
                                         options = list(maxItems = 1, placeholder = "Select one..."),
                                         choices = fertCombo$get("ferImple")
@@ -10788,7 +11408,7 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 4,
                 selectizeInput(inputId = paste0("sfNutrientProduct_",sfNutrientSplit$num),
-                               label = "Choose Product",
+                               label = "Product",
                                multiple = TRUE,
                                options = list(maxItems = 10, placeholder = "Select one..."),
                                choices = ferdt()$name
@@ -10797,11 +11417,18 @@ server_design_agrofims <- function(input, output, session, values){
             ),
             column(
               12,
-              column(
-                12,
-                rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              # column(
+              #   12,
+              #   rHandsontableOutput(paste0("outputDTsfNutProduct_",sfNutrientSplit$num))
+              # )
+              div(
+                id = paste0("nutrientProductContainerAux_",sfNutrientSplit$num),
+                style="margin: 0px 0px; padding: 0px 0px;",
+                div(
+                  id = paste0("nutrientProductContainer_",sfNutrientSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;"
+                )  
               )
-              
             )
           )
           
@@ -10809,10 +11436,10 @@ server_design_agrofims <- function(input, output, session, values){
         )
     )
     
-    output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
-      rhandsontable(DF)
-    })
-    
+    # output[[paste0("sfNutrientSplit_",sfNutrientSplit$num)]] <- rhandsontable::renderRHandsontable({
+    #   rhandsontable(DF)
+    # })
+    # 
   })
   
   # Add Split for Product in Soil Fertility
@@ -10850,7 +11477,7 @@ server_design_agrofims <- function(input, output, session, values){
             column(
               4,
               selectizeInput(inputId = paste0("sfProductProduct_",sfProductSplit$num),
-                             label = "Choose Product",
+                             label = "Product",
                              multiple = TRUE,
                              options = list(maxItems = 10, placeholder = "Select one..."),
                              choices = ferdt()$name
@@ -10858,7 +11485,15 @@ server_design_agrofims <- function(input, output, session, values){
             ),
             column(
               12,
-              rHandsontableOutput(paste0("outputDTsfProProduct_",sfProductSplit$num))
+              div(
+                id = paste0("productProductContainerAux_",sfProductSplit$num),
+                style="margin: 0px 0px; padding: 0px 0px;",
+                div(
+                  id = paste0("productProductContainer_",sfProductSplit$num),
+                  style="margin: 0px 0px; padding: 0px 0px;"
+                )  
+              )
+              #rHandsontableOutput(paste0("outputDTsfProProduct_",sfProductSplit$num))
             )
           ),
           column(12,
@@ -10887,7 +11522,7 @@ server_design_agrofims <- function(input, output, session, values){
                  column(
                    2,
                    selectizeInput(inputId = paste0("sfProductImplement_",sfProductSplit$num),
-                                  label = "Implement",
+                                  label = "Traction",
                                   multiple = TRUE,
                                   options = list(maxItems = 1, placeholder = "Select one..."),
                                   choices = fertCombo$get("ferImple")
@@ -10947,19 +11582,96 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
   
+  ############### START Soil Fertility Nutrient Calculation - Management Practices ###########################
   # Calculate Nutrient
   observeEvent(input$btnsfNut,{
     
-    #Calculate Nutrient 
+    nut_details <- try({ get_nutrient_details_magm(allinputs=AllInputs(), addId=sfNutrientSplit$ids)})
+    out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
+
     
+    if(class(out)!="try-error")  {   
+      
+      outrate <- out$outrate
+      fertilizers <- out$fertilizers
+      splitId <- out$splitId
+      
+      outrate$name <- fertilizers$name
+      DF<- outrate[, c(15,1:14)]
+      DF$`Application number` <- splitId
+      DF <- DF[,c(16,1:15)]
+      names(DF)[2] <- "Product"
+      names(DF)[3:16] <- paste0("Amount_for_",names(DF)[3:16],"(",input$sfNutUnit,")") 
+      #Calculate Nutrient 
+      output[["sfoutput_nutDT"]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(DF,rowHeaders = FALSE,readOnly = TRUE)
+      })
+    } else {
+      DF<- data.frame(NoData="Please choose products correctly, check if there exist missing products")
+      output[["sfoutput_nutDT"]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(DF)
+      })
+    }
   })
+  ############### END Soil Fertility Nutrient Calculation - Management Practices ###########################
   
-  # Calculate Product
+  
+  
+  
+  # Function tht get ids's for Split Product
+  getSFProductIds <- function(){
+    
+    productIds = sfProductSplit$ids #reactive value that have id's of splits for product
+    
+    idsIndex = c()
+    indexesProductValue = c()
+    
+    for (id in productIds){
+      vars = unlist(strsplit(id, "_"))
+      index = vars[3]
+      
+      lengthProductValues = length(input[[paste0("sfProductProduct_",index)]])
+      
+      if(lengthProductValues > 0){
+        for(i in 1:lengthProductValues){
+          indexesProductValue = c(indexesProductValue,paste0("mgp_proidx_",index,"_",i))
+        }
+      }
+      
+    }
+    
+    return(indexesProductValue)
+  }
+  
+  # Calculate Nutrient Amount in Prod
   observeEvent(input$btnsfPro,{
+    #Get Ids
+    addId <- sfProductSplit$ids
+    splitId<- getSFProductIds()
+    allinputs <- AllInputs()
+
+    out <- try({  get_prodfert_mgmt(allinputs, addId = sfProductSplit$ids, splitId= getSFProductIds()) })
+    nutrate <- try({ NutrientRates_mgmt(out$prodfert_mgmt ,out$treatment_mgmt) })
+  
+    
+    if(class(nutrate)!="try-error")  {   
+    
+      names(nutrate)[1]<- "Product"
+      output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(nutrate,readOnly = TRUE)
+      })
+    } else {
+      DF<- data.frame(NoData="Please choose products or nutrients correctly, check if there exist missing products or nutrients")
+      output[["sfoutput_proDT"]] <- rhandsontable::renderRHandsontable({
+        rhandsontable(DF)
+      })
+      
+    }
     
     #Calculate Product 
     
   })
+  
   
   ###################### END: SOIL FERTILITY ######################
   
@@ -11359,15 +12071,16 @@ server_design_agrofims <- function(input, output, session, values){
   getPTUI_GEN <- function(crop, index) {
     fluidRow(
       id = paste0(crop, "_fr_plantingTrasplanting_", index),
-      box(
-        id = paste0(crop, "_plantingTransplanting_boxid_", index),
-        title = actionLink(paste0(crop, "_plantingTransplanting_titleId_", index), "Planting & Transplanting details:"),
-        status = "primary", solidHeader = TRUE,
-        width = 12, collapsible = TRUE,  collapsed = FALSE,
+      # box(
+      #   id = paste0(crop, "_plantingTransplanting_boxid_", index),
+      #   title = actionLink(paste0(crop, "_plantingTransplanting_titleId_", index), "Planting & Transplanting details:"),
+      #   status = "primary", solidHeader = TRUE,
+      #   width = 12, collapsible = TRUE,  collapsed = FALSE,
         fluidRow(
           box(
             id = paste0(crop, "_direct_seeding_boxid_", index),
-            title = checkboxInput(paste0(crop, "_directSeeding_checkbox_", index), actionLink(paste0(crop, "_direct_seeding_titleId_", index), "Direct seeding"), F),
+            title = actionLink(paste0(crop, "_direct_seeding_titleId_", index), "Direct seeding"),
+            #title = checkboxInput(paste0(crop, "_directSeeding_checkbox_", index), actionLink(paste0(crop, "_direct_seeding_titleId_", index), "Direct seeding"), F),
             status = "primary",
             solidHeader = TRUE,
             width = 12, collapsible = TRUE,  collapsed = TRUE,
@@ -11375,8 +12088,8 @@ server_design_agrofims <- function(input, output, session, values){
               column(
                 12,
                 selectizeInput(
-                  paste0(crop, "_directSeeding_to_collect_field_", index), label = "To collect in the field", multiple = TRUE, 
-                  options = list(maxItems = 20, placeholder = "Select one..."), 
+                  paste0(crop, "_directSeeding_to_collect_field_", index), label = "To be collected in the field", multiple = TRUE, 
+                  options = list(maxItems = 20, placeholder = "Select ..."), 
                   choices = magm_label$get("direct")
                   # choices = c("Start date",
                   #             "Seeding environment",
@@ -11514,8 +12227,15 @@ server_design_agrofims <- function(input, output, session, values){
                           paste0(crop, "_ptdi_seeding_rate_unit_", index), label = "Unit", 
                           multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                           choices = c("kg/ha",
+                                      "t/ha",
+                                      "kg/m2",
                                       "lb/ac",
-                                      "plants/pot"),
+                                      "g/m2",
+                                      "g/ft2",
+                                      "seeds/m2",
+                                      "seeds/ac",
+                                      "t/ac",
+                                      "lb/ft2"),
                           selected = "kg/ha"
                         )
                       )
@@ -11535,7 +12255,25 @@ server_design_agrofims <- function(input, output, session, values){
                         )
                       )
                     ),
-                    numericInput(paste0(crop, "_ptdi_seeding_density_number_rows_", index),  label = "Number of rows", min = 0, max = 100, step = 1, value = NULL),
+                    
+                    fluidRow(
+                    
+                      column(6, numericInput(paste0(crop, "_ptdi_seeding_density_number_rows_", index),  label = "Number of rows", min = 0, max = 100, step = 1, value = NULL)),
+                      column(
+                        6,
+                    selectizeInput(
+                      paste0(crop, "_ptdi_seeding_density_number_rows_unit_", index), label = "Unit", 
+                      multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                      choices = c("rows/plot",
+                                  "rows/m2",
+                                  "rows/f2",
+                                  "rows/ac",
+                                  "rows/ha"),
+                      selected = "rows/plot"
+                        )
+                      )
+                    ),
+                    
                     fluidRow(
                       column(6, numericInput(paste0(crop, "_ptdi_seeding_plant_density_", index),  label = "Plant density", min = 0, max = 100, step = 0.1, value = NULL)),
                       column(
@@ -11544,13 +12282,16 @@ server_design_agrofims <- function(input, output, session, values){
                           paste0(crop, "_ptdi_seeding_plant_density_unit_", index), label = "Unit", 
                           multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                           choices = c("plants/hill",
+                                      "plants/row",
+                                      "plants/ha",
                                       "plants/m2",
                                       "plants/pot",
-                                      "plants/row"),
-                          selected = "plants/m2"
+                                      "plants/ft2"),
+                          selected = "plants/row"
                         )
                       )
                     ),
+                    
                     fluidRow(
                       column(6, numericInput(paste0(crop, "_ptdi_seeding_distance_bunds_", index),  label = "Distance between bunds", min = 0, max = 100, step = 0.1, value = NULL)),
                       column(
@@ -11576,15 +12317,16 @@ server_design_agrofims <- function(input, output, session, values){
         fluidRow(
           box(
             id = paste0(crop, "_transplanting_boxid_", index),
-            title = checkboxInput(paste0(crop, "_transplanting_checkbox_", index), actionLink(paste0(crop, "_transplanting_titleId_", index), "Transplanting"), F),
+            title = actionLink(paste0(crop, "_transplanting_titleId_", index), "Transplanting"), 
+            #title = checkboxInput(paste0(crop, "_transplanting_checkbox_", index), actionLink(paste0(crop, "_transplanting_titleId_", index), "Transplanting"), F),
             status = "primary", solidHeader = TRUE,
             width = 12, collapsible = TRUE, collapsed = TRUE,
             fluidRow(
               column(
                 12,
                 selectizeInput(
-                  paste0(crop, "_transplanting_to_collect_field_", index), label = "To collect in the field", multiple = TRUE, 
-                  options = list(maxItems = 20, placeholder = "Select one..."), 
+                  paste0(crop, "_transplanting_to_collect_field_", index), label = "To be collected in the field", multiple = TRUE, 
+                  options = list(maxItems = 20, placeholder = "Select ..."), 
                   choices = magm_label$get("transplanting")
                   # choices = c("Start date",
                   #             "End date",
@@ -11680,7 +12422,7 @@ server_design_agrofims <- function(input, output, session, values){
                   paste0(crop, "_ptta_trans_traction_", index), label = "Traction", 
                   multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                   choices = c("Animal",
-                              "Traction",
+                              "Manual",
                               "2 wheel tractor",
                               "4 wheel tractor",
                               "Other")
@@ -11706,7 +12448,7 @@ server_design_agrofims <- function(input, output, session, values){
                                       "ft",
                                       "in",
                                       "m"),
-                          selected = "cm"
+                          selected = "m"
                         )
                       )
                     ),
@@ -11720,12 +12462,35 @@ server_design_agrofims <- function(input, output, session, values){
                           choices = c("plants/hill",
                                       "plants/m2",
                                       "plants/pot",
-                                      "plants/row"),
+                                      "plants/row",
+                                      "plants/ft2"),
                           selected = "plants/m2"
                         )
                       )
                     ),
-                    numericInput(paste0(crop, "_ptta_trans_num_rows_", index), "Number of rows", value ="", min = 0, max = 100, step = 1),
+                    #new
+                    #numericInput(paste0(crop, "_ptta_trans_num_rows_", index), "Number of rows", value ="", min = 0, max = 100, step = 1),
+                    
+                    fluidRow(
+                      column(6,  numericInput(paste0(crop, "_ptta_trans_num_rows_", index), "Number of rows", value ="", min = 0, max = 100, step = 1)),
+                      column(
+                        6,
+                        selectizeInput(
+                          paste0(crop, "_ptta_trans_num_rows_unit_", index), label = "Unit", 
+                          multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
+                          choices = c("rows/plot",
+                                      "rows/m2",
+                                      "rows/f2",
+                                      "rows/ac",
+                                      "rows/ha"),
+                          selected = "rows/plot"
+                        )
+                      )
+                    ),
+                    
+                    
+                    #end new
+                    
                     fluidRow(
                       column(6, numericInput(paste0(crop, "_ptta_trans_distance_plants_", index),  label = "Distance between plants", value = "", min = 0, max = 100, step = 0.1)),
                       column(
@@ -11733,7 +12498,7 @@ server_design_agrofims <- function(input, output, session, values){
                         selectizeInput(
                           paste0(crop, "_ptta_trans_distance_plants_unit_", index), label = "Unit", 
                           multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), selected="m", 
-                          choices = c("m")
+                          choices = c("m", "cm", "in", "ft") 
                         )
                       )
                     ),
@@ -11759,7 +12524,7 @@ server_design_agrofims <- function(input, output, session, values){
             )
           )
         )
-      )
+      #)
     )
   }
   
@@ -11932,7 +12697,7 @@ server_design_agrofims <- function(input, output, session, values){
         ),
         br(),
         width = 12, 
-        solidHeader = TRUE, status = "info",
+        solidHeader = TRUE, status = "warning",
         fluidRow(
           column(
             6,
@@ -12203,6 +12968,7 @@ server_design_agrofims <- function(input, output, session, values){
                           "Manual",
                           "Mechanized")
             ),
+            textInput(paste0(crop, "_wewd_weeding_nweedings_",index), "Number of weedings"),
             textAreaInput(paste0(crop, "_wewd_weeding_notes_", index), "Notes")
           ),
           column(
@@ -12363,8 +13129,8 @@ server_design_agrofims <- function(input, output, session, values){
                 column(
                   12,
                   selectizeInput(
-                    paste0(vals[i], "_harvest_to_collect_field_", i ), label = "To collect in the field", multiple = TRUE, 
-                    options = list(maxItems = 20, placeholder = "Select one..."), 
+                    paste0(vals[i], "_harvest_to_collect_field_", i ), label = "To be collected in the field", multiple = TRUE, 
+                    options = list(maxItems = 20, placeholder = "Select ..."), 
                     choices = magm_label$get("harvest")
                     # choices = c("Start date",
                     #             "End date",
@@ -12866,7 +13632,10 @@ server_design_agrofims <- function(input, output, session, values){
                 selectizeInput(
                   paste0(crop, "_hahd_amount_harvested_unit_", index), label="Unit", multiple = TRUE, 
                   options = list(maxItems =1, placeholder ="Select one..."), 
-                  choices=c("g", "kg", "lb", "t"), selected = "g"
+                  #choices=c("g", "kg", "lb", "t"), 
+                  choices = c("kg/ha","t/ha","q/ha","kg/m2","kg","g","g/m2","g/ft2",
+                              "q","q/ac","t","t/ac","lb","lb/ac","lb/ft2","bsh/ac","bsh"),
+                  selected = "kg/ha"
                 )
               )
             ),
@@ -13607,7 +14376,7 @@ server_design_agrofims <- function(input, output, session, values){
                                            label = timingValue)
                                }else if(timingValue == "Other")
                                {
-                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",index,"_1"),
+                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
                                                 label = timingValue,
                                                 multiple = TRUE,
                                                 choices = c(),
@@ -13620,7 +14389,7 @@ server_design_agrofims <- function(input, output, session, values){
                                  )
                                }
                                else{
-                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",index,"_1"),
+                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
                                                 label = timingValue,
                                                 multiple = TRUE,
                                                 choices = c(),
@@ -13814,6 +14583,11 @@ server_design_agrofims <- function(input, output, session, values){
     
     #parmea <- get_dcm_values(data_dictionary = cmdt, attribute = "Subgroup", crop = crop)
     parmea <- get_dcm_values(cmdt,  attribute = "Subgroup", crop = crop, measurement = measurement)
+    if(nrow(parmea)==1) {
+      temp <- parmea
+      temp$Subgroup <- ""
+      parmea <- rbind(parmea, temp)
+    }
     
     unit<- get_dcm_values(cmdt, "TraitUnit",crop = crop, subgroup= parmea[[1,1]], measurement=measurement )
     timing<- get_dcm_values(cmdt, "Timing",crop)
@@ -13847,18 +14621,19 @@ server_design_agrofims <- function(input, output, session, values){
                  ),
                  column(
                    1,
-                   textInput(paste0(typeCrop, "_per_season_", index), "Per season",value = "1")
+                   textInput(paste0(typeCrop, "_per_season_", index), "Samples Per season",value = "1")
                  ),
                  column(
                    1,
-                   textInput(paste0(typeCrop, "_per_plot_", index), "Per plot",value = "1")
+                   textInput(paste0(typeCrop, "_per_plot_", index), "Samples Per plot",value = "1")
                  ),
                  column(
                    2,
                    selectizeInput(
                      paste0(typeCrop, "_timing_", index), "Timing", multiple = TRUE,
                      options = list(maxItems = 1, placeholder = "Select one..."),
-                     choices = c(timing), selected = "Days after planting"
+                     choices = c(timing), selected = ""
+                     #choices = c(timing), selected = "Days after planting"
                    ),
                    fluidRow(
                      column(
@@ -14136,7 +14911,7 @@ server_design_agrofims <- function(input, output, session, values){
     fluidRow(
       column(
         width = 12,
-        h2("Weather details"),
+        h2("Weather measurement"),
         fluidRow(
           column(6,  
                  div(
@@ -14363,7 +15138,8 @@ server_design_agrofims <- function(input, output, session, values){
                    paste0("weather_timing_", index), "Timing", multiple = TRUE,
                    options = list(maxItems = 1, placeholder = "Select one..."),
                    choices = c(timing), 
-                   selected = "Days after planting"
+                   selected = ""
+                   #selected = "Days after planting"
                  ),
                  fluidRow(
                    column(
@@ -14455,7 +15231,7 @@ server_design_agrofims <- function(input, output, session, values){
     fluidRow(
       column(
         width = 12,
-        h2("Soil details"),
+        h2("Soil measurement"),
         fluidRow(
           column(6,  
                  div(
@@ -14717,7 +15493,8 @@ server_design_agrofims <- function(input, output, session, values){
                    paste0("soil_timing_", index), "Timing", multiple = TRUE,
                    options = list(maxItems = 1, placeholder = "Select one..."),
                    choices = c(timing), 
-                   selected = "Days after planting"
+                   selected = ""
+                   #selected = "Days after planting"
                  ),
                  fluidRow(
                    column(
@@ -14832,7 +15609,7 @@ server_design_agrofims <- function(input, output, session, values){
     updateSelectizeInput(session, "cropCommonNameMono", selected = "Cassava")
     updateSelectizeInput(session, "cultivarNameMono", selected = c("Variety name 1", "Variety name 2"), choices = c("Variety name 1", "Variety name 2"), options = list('create' = TRUE))
     #Previous crop or fallow
-    updateSelectizeInput(session, "prevCropName", selected = "Maize")
+    updateSelectizeInput(session, "prevCropName",label = "Previous crop or fallow", selected = "Maize")
     
     delay(500, c(## Experiment
       updateTextInput(session, "fundName_1", value = "Institution name"),
@@ -14944,8 +15721,12 @@ server_design_agrofims <- function(input, output, session, values){
     updateTabsetPanel(session, "fbDesignNav", selected = "tabCrop")
     shinyjs::runjs("window.scrollTo(0, 50)")
   })
-  observeEvent(input$btnDesign, {
+  observeEvent(input$btnNextDesign, {
     updateTabsetPanel(session, "fbDesignNav", selected = "tabDesign")
+    shinyjs::runjs("window.scrollTo(0, 50)")
+  })
+  observeEvent(input$btnNextManagement, {
+    updateTabsetPanel(session, "fbDesignNav", selected = "tabAgroFeat")
     shinyjs::runjs("window.scrollTo(0, 50)")
   })
   observeEvent(input$btnNextPlotInfo, {
@@ -15146,19 +15927,19 @@ server_design_agrofims <- function(input, output, session, values){
     #ai<- readRDS("/home/obenites/AGROFIMS/agdesign/inst/table_ids.rds")
     #input<-readRDS("/home/obenites/AGROFIMS/agdesign/inst/inputs.rds")
     
-    if(isTRUE(input$residueDesc_checkbox)){
+    #if(isTRUE(input$residueDesc_checkbox)){
       dt1 <- get_ec_resdesc(input=input)$dt         
-    }
-    else {
-      dt1 <- data.frame()
-    }
+    #}
+    #else {
+    #  dt1 <- data.frame()
+    #}
     
-    if(isTRUE(input$residueManag_checkbox)){
+    #if(isTRUE(input$residueManag_checkbox)){
       dt2 <- get_ec_resmgt(input=input)$dt 
-    } 
-    else{
-      dt2 <- data.frame()
-    }
+    #} 
+    #else{
+    #  dt2 <- data.frame()
+    #}
     dt <- smart_colbind(dt1,dt2) #column bind of two sub tabs (description and management)
     
     if(nrow(fbdesign())==0 &&  length(dt)>0){
@@ -15192,26 +15973,26 @@ server_design_agrofims <- function(input, output, session, values){
     #read data
     kds_resmgt<- magmtprac$resmgt
     
-    if(isTRUE(input$residueDesc_checkbox)){
+    #if(isTRUE(input$residueDesc_checkbox)){
       dt1 <- get_protocol_resdesc(input=input)
       #print(dt1)
-    } 
-    else {
-      dt1 <- data.frame()
-      print(dt1)
-    }
+    #} 
+    #else {
+    #  dt1 <- data.frame()
+    #  print(dt1)
+    #}
     
-    if(isTRUE(input$residueManag_checkbox)){
+    #if(isTRUE(input$residueManag_checkbox)){
       dt2 <- get_protocol_resmgt(input=input)
-      print(dt2)
-    } 
-    else{
-      dt2 <- data.frame()
-    }
+    #  print(dt2)
+    #} 
+    #else{
+    #  dt2 <- data.frame()
+    #}
     
     dt <- rbind(dt1,dt2) #column bind of two sub tabs (description and management)
-    print("dt")
-    print(dt)
+    #print("dt")
+    #print(dt)
     if(nrow(dt)!=0){
       dt<- dplyr::left_join(kds_resmgt, dt) %>% filter(Value!="")
     } else {
@@ -15224,16 +16005,16 @@ server_design_agrofims <- function(input, output, session, values){
   }) 
   lbl_residual <- reactive({
     
-    if(isTRUE(input$residueDesc_checkbox)){
+    #if(isTRUE(input$residueDesc_checkbox)){
       lbl1 <- get_ec_resdesc(input=input)$lbl         
-    }else {
-      lbl1 <- NULL
-    }
-    if(isTRUE(input$residueManag_checkbox)){
+    #}else {
+    #  lbl1 <- NULL
+    #}
+    #if(isTRUE(input$residueManag_checkbox)){
       lbl2 <- get_ec_resmgt(input=input)$lbl
-    } else{
-      lbl2 <- NULL
-    }
+    #} else{
+    #  lbl2 <- NULL
+    #}
     lbl<- c(lbl1,lbl2)
     if(length(lbl)==0){lbl <- "no-label"}
     lbl
@@ -15242,23 +16023,23 @@ server_design_agrofims <- function(input, output, session, values){
   ## Seedbed preparation  #############################################################
   dt_seedbed <- reactive({
     
-    if(isTRUE(input$landLevelling_checkbox)){
+    #if(isTRUE(input$landLevelling_checkbox)){
       land <- get_ec_sblalv(input=input)$dt
-    } else{
-      land <- data.frame()  
-    }
+    #} else{
+    #  land <- data.frame()  
+    #}
     
-    if(isTRUE(input$puddling_checkbox)){
+    #if(isTRUE(input$puddling_checkbox)){
       pud<- get_ec_sbpud(input= input)$dt
-    } else{
-      pud<- data.frame()
-    }
+    #} else{
+    #  pud<- data.frame()
+    #}
     
-    if(isTRUE(input$tillage_checkbox)){
+      #if(isTRUE(input$tillage_checkbox)){
       till<- get_ec_sbtill(input=input)$dt
-    } else {
-      till<- data.frame()
-    }
+      #} else {
+      #  till<- data.frame()
+      #}
     
     dt<- smart_colbind(land,pud,till)
    
@@ -15293,23 +16074,23 @@ server_design_agrofims <- function(input, output, session, values){
     #read data
     kds_seedbed <- magmtprac$seedbed  #  readxl::read_excel(paste0(globalpath, ecname),sheet = "Seedbed preparation")
     
-    if(isTRUE(input$landLevelling_checkbox)){
-      land <- get_protocol_sblavl(input=input)
-    } else{
-      land <- data.frame()  
-    }
+    #if(isTRUE(input$landLevelling_checkbox)){
+    land <- get_protocol_sblavl(input=input)
+    #} else{
+    #  land <- data.frame()  
+    #}
     
-    if(isTRUE(input$puddling_checkbox)){
-      pud<- get_protocol_sbpud(input= input)
-    } else{
-      pud<- data.frame()
-    }
+    #if(isTRUE(input$puddling_checkbox)){
+    pud<- get_protocol_sbpud(input= input)
+    #} else{
+    #  pud<- data.frame()
+    #}
     
-    if(isTRUE(input$tillage_checkbox)){
-      till<- get_protocol_sbtill(input=input)
-    } else {
-      till<- data.frame()
-    }
+    #if(isTRUE(input$tillage_checkbox)){
+    till<- get_protocol_sbtill(input=input)
+    #} else {
+    #  till<- data.frame()
+    #}
     
     dt <- rbind(land,pud,till) #column bind of two sub tabs (description and management)
     #print("dt")
@@ -15324,23 +16105,23 @@ server_design_agrofims <- function(input, output, session, values){
   })
   lbl_seedbed <- reactive({
     
-    if(isTRUE(input$landLevelling_checkbox)){
+    #if(isTRUE(input$landLevelling_checkbox)){
       s1<- get_ec_sblalv(input=input)$lbl
-    } else{
-      s1 <- NULL  
-    }
+    #} else{
+    #  s1 <- NULL  
+    #}
     
-    if(isTRUE(input$puddling_checkbox)){
+    #if(isTRUE(input$puddling_checkbox)){
       s2 <- get_ec_sbpud(input= input)$lbl
-    } else{
-      s2 <- NULL 
-    }
+    #} else{
+    #  s2 <- NULL 
+    #}
     
-    if(isTRUE(input$tillage_checkbox)){
+    #if(isTRUE(input$tillage_checkbox)){
       s3 <- get_ec_sbtill(input=input)$lbl
-    } else {
-      s3 <- NULL 
-    }
+    #} else {
+    #  s3 <- NULL 
+    #}
     
     lbl<- c(s1,s2,s3)
     if(length(lbl)==0){lbl <- "no-label"}
@@ -15351,53 +16132,359 @@ server_design_agrofims <- function(input, output, session, values){
   get_collectable_seedbed <- reactive({
     
     
-    if(isTRUE(input$landLevelling_checkbox)){
+    #if(isTRUE(input$landLevelling_checkbox)){
       s1<- get_collectable_sblavl(allinputs = AllInputs())
-    } else{
-      s1 <- NULL  
-    }
+    #} else{
+    #  s1 <- NULL  
+    #}
     
-    if(isTRUE(input$puddling_checkbox)){
+    #if(isTRUE(input$puddling_checkbox)){
       s2 <- get_collectable_sbpud(allinputs = AllInputs())
-    } else{
-      s2 <- NULL 
-    }
+    #} else{
+    #  s2 <- NULL 
+    #}
     
-    if(isTRUE(input$tillage_checkbox)){
+    #if(isTRUE(input$tillage_checkbox)){
       s3 <- get_collectable_sbtill(allinputs = AllInputs())
-    } else {
-      s3 <- NULL 
-    }
+    #} else {
+    #  s3 <- NULL 
+    #}
     out <- c(s1,s2,s3)
   })
   
-  #' Soil Fertility     #############################################################
+  ## Nutrient Design-Calculations Protocol
+  
+  ############# nut calculation data.frame
+  
+  dt_protocol_calcnut <- reactive({
+  
+    experimentId <- input$experimentId
+    print("experiment id calc nut")
+    print(experimentId)
+    
+    nut_file <- list.files(path =  paste0(calc_design_path, "NutrientCalcDesign/"), pattern = experimentId, full.names = TRUE)
+    nut_calc_list <- vector(mode = "list", length = length(nut_file))  
+    #TODO poner vacio cuando no hay datos
+    if(length(nut_file)!=0){
+      for(i in seq.int(nut_file)){
+        nut_calc_list[[i]] <- readRDS(file = nut_file[i])  
+      }
+      nut_calc_data <- data.table::rbindlist(nut_calc_list)
+      class(nut_calc_data) <- "data.frame"
+      
+      nut_calc_data <- nut_calc_data %>% dplyr::mutate(Group=paste0(Nutrient,"_", Product)) 
+      nut_calc_data <- nut_calc_data %>% dplyr::mutate(TraitName= Group)
+      
+      Crop <- Subgroup<-	Measurement <- TraitAlias<-TraitDataType<- TraitValidation<- VariableId<-""
+      Group<- nut_calc_data$TraitName
+      TraitName <- nut_calc_data$TraitName
+      TraitUnit <- "kg/ha"
+      Timing <- ""
+      TimingValue <- ""
+      Value<- nut_calc_data$`Product amount`
+      TraitLevel <- "Plot"
+      NumberofMeasurementsPerSeason <- NumberofMeasurementsPerPlot	<- 1
+      prot_nut_calc_data <- cbind(Crop,	Group	,Subgroup,	Measurement, TraitName, TraitUnit,	TraitLevel,
+                                  NumberofMeasurementsPerSeason,NumberofMeasurementsPerPlot,
+                                  Timing, TimingValue, TraitAlias, TraitDataType,
+                                  TraitValidation, VariableId, Value)
+      prot_nut_calc_data <- prot_nut_calc_data %>% as.data.frame(stringsAsFactors=FALSE) 
+      
+    } else {
+      prot_nut_calc_data <- data.frame()
+    }
+    prot_nut_calc_data
+  })
+  ########## end Nutrient Design-Calculations Protocol
+  
+  ## Fertilizer Design-Calculations Protocol
+  dt_protocol_calcfert <- reactive({
+
+    experimentId <- input$experimentId
+    fert_file <- list.files(path = paste0(calc_design_path,"FertCalcDesign/"), pattern = experimentId, full.names = TRUE)
+    fert_calc_list <- vector(mode = "list", length = length(fert_file))
+    #TODO poner vacio cuando no hay datos
+    if(length(fert_file)!=0){
+      for(i in seq.int(fert_file)){
+        fert_calc_list[[i]] <- readRDS(file = fert_file[i])
+      }
+      fert_calc_data <- data.table::rbindlist(fert_calc_list)
+      class(fert_calc_data) <- "data.frame"
+
+      treatment <- fert_calc_data[,1]
+      fert_calc_data <- fert_calc_data[,-1]
+      nc_rate <- which(colSums(fert_calc_data) != 0)
+      if(length(nc_rate)>0){
+        
+        #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
+       
+        
+        if(length(nc_rate)==1){
+          fernut_rates <- fert_calc_data[names(nc_rate)]
+        } else {
+          fernut_rates <- fert_calc_data[,nc_rate]
+        }
+        
+        fernut_rates <- apply(fernut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
+        Value <- lapply(1:nrow(fernut_rates), function(x) paste(fernut_rates[x,],collapse=",") ) %>% unlist()
+        TraitName <- treatment #paste0("Calculation_split_",1:length(fernut_rates))
+        Group<- TraitName
+        prot_fert_calc_data <- data.frame(Group, TraitName, TraitUnit="kg/ha", Value, stringsAsFactors = FALSE)
+        print("protocol calc fert")
+        print(prot_fert_calc_data)
+        
+      } else{
+        prot_fert_calc_data <- data.frame()
+      }
+    } else {
+      prot_fert_calc_data <- data.frame()
+    }
+    print("protocol calc fert")
+    print( prot_fert_calc_data)
+    prot_fert_calc_data
+  })
+  # ########## end Nutrient Design-Calculations Protocol
+
+  
+  ## Soil Fertility     #############################################################
   dt_soilFertility <- reactive({
     
-    if(is.null(input$soil_fertilizer_num_apps)){
-      napp <- 1
-    } else{
-      napp <- as.numeric(input$soil_fertilizer_num_apps)
-    }
-    dt<- get_ec_sf(allinputs= AllInputs(), napp=napp )$dt
-    
-    if(nrow(fbdesign())==0){
-      dt <- dt
-    }else {
-      dt <-cbind(fbdesign() ,dt)
-    }
-    
+   collect_field <- input$soilfertility_to_collect_field
+   
+   if(nrow(fbdesign())==0){
+     dt <- data.frame()
+   }
+   else if(nrow(fbdesign())>0 &&  length(collect_field)>0){
+     dt <- cbind(fbdesign(), get_ec_sf(input)$dt)
+   } else {
+     dt <- fbdesign()
+   }
     dt
   })
+  
+  dt_protocol_soilfertility <- reactive({
+    
+    # nutIndexSoilMagp <- getAddInputId(addId = sfNutrientSplit$ids, pattern= "mgp_nut_", replacement="")
+    # out <- get_nutrient_details_magm(allinputs= AllInputs(), indexSoilMagp= nutIndexSoilMagp)
+    print("---dirimir--")
+    print(input$rbtSoilOption)
+    
+    if(length(input$rbtSoilOption)==0){
+      protocol_soil<- data.frame()
+    }
+    else if(input$rbtSoilOption=="Nutrient"){
+      nut_details <- try({ get_nutrient_details_magm(allinputs=AllInputs(), addId=sfNutrientSplit$ids)})
+      out <- try({get_nutrient_mgmt(allinputs= AllInputs(), sfNutrientSplit$ids) })
+      
+      if(class(out)!="try-error"){
+        ###
+        #out <- try({list(out_nut = out, nut_details = nut_details)})
+        nut_metadata <- nut_details$nut_details
+       
+        Timing<- data.frame(TraitName= paste0("Fertilizer_timing_", "split_",1:nrow(nut_metadata)),
+                            TraitUnit= "",
+                            Value= nut_metadata$mNumTimingValue, stringsAsFactors = FALSE)
+        Technique <- data.frame(TraitName= paste0("Fertilizer_technique_", "split_",1:nrow(nut_metadata)),
+                                TraitUnit= "",
+                                Value = nut_metadata$mTechnique, stringsAsFactors = FALSE)
+
+        Traction <- data.frame(TraitName= paste0("Fertilizer_traction_", "split_",1:nrow(nut_metadata)),
+                               TraitUnit= "",
+                               Value = nut_metadata$mTraction, stringsAsFactors = FALSE)
+        
+        ##Nutrient inputs ################################################################################# 
+        treatment <- nut_details$treatment
+        nc <-which(colSums(treatment) != 0)
+        if(length(nc)>0){
+          
+          #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
+          if(length(nc)==1){
+            treatment<- treatment[names(nc)]
+          } else {
+            treatment <- treatment[,nc]
+          }
+            treatment <- apply(treatment, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
+            Value <- lapply(1:ncol(treatment), function(x) paste(treatment[,x],collapse=",") ) %>% unlist()
+            TraitName <- paste0("Fertilizer_nutrientadded_split_",1:ncol(treatment))
+            Nutrient <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
+        } 
+        else{
+          Nutrient <- data.frame()
+        }
+        #End Nutrient inputs ################################################################################ 
+        
+        ###
+        outrate <- out$outrate
+        print("-outrate--")
+        print(outrate)
+        nc_rate <-which(colSums(outrate) != 0)
+        if(length(nc_rate)>0){
+          
+          #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
+          if(length(nc_rate)==1){
+            nut_rates <- outrate[names(nc_rate)]
+          } else {
+            nut_rates <- outrate[,nc_rate]
+          }
+          nut_rates <- apply(nut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
+          Value <- lapply(1:ncol(nut_rates), function(x) paste(nut_rates[,x],collapse=",") ) %>% unlist()
+          TraitName <- paste0("Fertilizer_nutrientadded_split_",1:ncol(nut_rates))
+          NutRates <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
+        } else {
+          NutRates <- data.frame()
+        }
+        ###
+        
+        #Combine
+        combineNut <-rbind(Timing, Technique, Traction, Nutrient, NutRates)
+        
+        Crop	<- ""
+        Subgroup <-	"" #"Fertilizer type" 
+        Measurement <- "" #"Fertilizer type"
+        TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId <-VariableId <-""
+        Group <- combineNut$TraitName #"Fertilizer management" #combineNut$TraitName
+        TraitName <- combineNut$TraitName
+        TraitUnit <- combineNut$TraitUnit
+        Timing <- ""
+        TimingValue <- ""
+        Value<- combineNut$Value
+        TraitLevel <- "Plot"
+        NumberofMeasurementsPerSeason <- NumberofMeasurementsPerPlot	<- 1
+        protocol_soil<- cbind(Crop,	Group	,Subgroup,	Measurement,TraitName	,TraitUnit,	TraitLevel,
+                              NumberofMeasurementsPerSeason,NumberofMeasurementsPerPlot,
+                              Timing, TimingValue, TraitAlias,	TraitDataType,
+                              TraitValidation, VariableId, Value)
+        protocol_soil<- as.data.frame(protocol_soil, stringsAsFactors=FALSE)
+
+      }
+      else {
+        protocol_soil<- data.frame()
+      }
+    } 
+    else if(input$rbtSoilOption=="Product") {
+      
+      indexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
+      splitId <- getAddInputId(addId = getSFProductIds(), pattern= "mgp_proidx_", replacement="")
+      allinputs <- AllInputs()
+    
+      fert_details <-  try({  get_fertilizer_details_magm( allinputs, indexSoilMagp = indexSoilMagp ,indexProdSplit=  splitId ) })
+      fert_list <- try({  get_prodfert_mgmt(allinputs, addId = indexSoilMagp, splitId= splitId) })
+      fernutrate <- try({ NutrientRates_mgmt(fert_list$prodfert_mgmt ,fert_list$treatment_mgmt) })
+      
+      
+      
+      
+      if(class(fernutrate)!="try-error" && nrow(fert_details)>0){
+        
+        FTiming<- data.frame(TraitName= paste0("Fertilizer_timing_", "split_",1:nrow(fert_details)),
+                            TraitUnit= "",
+                            Value= fert_details$mFerTimingValue, stringsAsFactors = FALSE)
+        FTechnique <- data.frame(TraitName= paste0("Fertilizer_technique_", "split_",1:nrow(fert_details)),
+                                TraitUnit= "",
+                                Value = fert_details$mFerTechnique, stringsAsFactors = FALSE)
+        
+        FTraction <- data.frame(TraitName= paste0("Fertilizer_traction_", "split_",1:nrow(fert_details)),
+                               TraitUnit= "",
+                               Value = fert_details$mFerTraction, stringsAsFactors = FALSE)
+        
+        ###################################################################################################
+        
+        feroutrate <- fernutrate[,-1]
+        nc_rate <- which(colSums(feroutrate) != 0)
+        if(length(nc_rate)>0){
+          
+          # print("fer tltreat")
+          # print(fert_list$treatment_mgmt)
+          
+          fert_prod <- fert_list$treatment_mgmt %>% dplyr::mutate(splitId= stringr::str_remove_all(splitId,pattern = "_.*")) 
+          fert_prod <- fert_prod %>% dplyr::mutate(colu = paste(name, product, sep="_"))
+          fert_prod <- split(fert_prod, fert_prod$splitId)
+          fert_prod_amount <- list()
+          for(i in 1:length(fert_prod)){
+            fert_prod_amount[[i]] <-  paste(fert_prod[[i]][,4], collapse = ", ")
+          }
+          fert_prod <- do.call(rbind.data.frame, fert_prod_amount)
+          fert_prod[,1] <- as.character(fert_prod[,1])
+          fert_prod <- fert_prod[,1]
+          
+          
+          # fert_prod_name <- fert_list$treatment_mgmt$name
+          # fert_prod_amount <- fert_list$treatment_mgmt$product
+          # fert_prod <- paste(fert_prod_name, fert_prod_amount, sep="_")
+          
+          #Fertlizer product name and amount
+          FProduct <- data.frame(TraitName= paste0("Fertilizer_nutrientcontent_", "split_",1:length(fert_prod)),
+                                 TraitUnit= input$sfProUnit,
+                                 Value= fert_prod, stringsAsFactors = FALSE)
+          
+          # print("fproduct final")
+          # print(FProduct)
+          # 
+          #Cuando hay 1 sola columna, se hace un select usando el nombre(names) y la tabla (nc)
+          if(length(nc_rate)==1){
+            fernut_rates <- feroutrate[names(nc_rate)]
+          } else {
+            fernut_rates <- feroutrate[,nc_rate]
+          }
+          
+          fernut_rates <- apply(fernut_rates, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
+          Value <- lapply(1:ncol(fernut_rates), function(x) paste(fernut_rates[,x],collapse=",") ) %>% unlist()
+          TraitName <- paste0("Fertilizer_nutrientadded_split_",1:ncol(fernut_rates))
+          FertNutCalc <- data.frame(TraitName, TraitUnit=fert_details$Unit, Value, stringsAsFactors = FALSE)
+          
+        } else{
+          
+          FertNutCalc <- data.frame()
+          
+        }
+        ###################################################################################################
+        #Combine data
+        combineFert <-rbind(FTiming, FTechnique, FTraction, FProduct, FertNutCalc)
+        
+        ########################################################
+        Crop	<- ""
+        Subgroup <-	 "" #"Fertilizer type" 
+        Measurement <- "" #"Type"
+        TraitAlias <- TraitDataType	<-TraitValidation<-	AgroFIMSId<-VariableId <-""
+        Group <- combineFert$TraitName #"Fertilizer management" #combineFert$TraitName
+        TraitName <- combineFert$TraitName
+        TraitUnit <- combineFert$TraitUnit
+        Timing <- ""
+        TimingValue <- ""
+        Value<- combineFert$Value
+        TraitLevel <- "Plot"
+        NumberofMeasurementsPerSeason <- NumberofMeasurementsPerPlot	<- 1
+        protocol_soil<- cbind(Crop,	Group	,Subgroup,	Measurement,TraitName	,TraitUnit,	TraitLevel,
+                              NumberofMeasurementsPerSeason,NumberofMeasurementsPerPlot,
+                              Timing, TimingValue, TraitAlias,	TraitDataType,
+                              TraitValidation, VariableId, Value)
+        protocol_soil<- as.data.frame(protocol_soil, stringsAsFactors=FALSE)
+        
+        #sprodIndexSoilMagp <- getAddInputId(addId = sfProductSplit$ids, pattern= "mgp_pro_", replacement="")
+        #saveRDS(AllInputs(),file = "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/calc_nut_mgmt.rds")
+        # saveRDS(fert_details, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/fert_protocol_details.rds")
+        # saveRDS(fert_list, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/fert_list.rds")
+        # saveRDS(nutrate, file="/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/nut_calc_protocols_details.rds")
+        #protocol_soil<- data.frame()
+      } else {
+        protocol_soil<- data.frame()
+      #}
+      }
+   
+    }
+
+    protocol_soil
+     
+  
+  })
+  
   lbl_soilFertility <- reactive({
     
-    if(is.null(input$soil_fertilizer_num_apps)){
-      napp <- 1
+    if(!is.null(input$soilfertility_to_collect_field)){
+      lbl <-  get_ec_sf(input)$lbl
     } else{
-      napp <- as.numeric(input$soil_fertilizer_num_apps)
+      lbl <-  "no-label"
     }
-    lbl<- get_ec_sf(allinputs= AllInputs(), napp=napp )$lbl
-    if(length(lbl)==0){lbl <- "no-label"}
     lbl
     
   })
@@ -15410,7 +16497,7 @@ server_design_agrofims <- function(input, output, session, values){
     if(ct=="Monocrop"){
       dt<- get_ec_plantrans(allinputs=AllInputs(), input, ctype="monocrop", cropId= "1", addId="1")$dt
       
-      print("monocrop plantrsans header")
+      #print("monocrop plantrsans header")
       
       if(nrow(fbdesign())==0 && length(dt)>0){
         dt <- dt
@@ -15465,10 +16552,6 @@ server_design_agrofims <- function(input, output, session, values){
         ptdt_list[[i]] <- get_ec_plantrans(allinputs=AllInputs(), input=input, ctype="intercrop", 
                                            cropId=id_rand_inter[i], addId="1")$dt
         
-        print("planting transplating 0")
-        print(names(ptdt_list[[i]]))
-        
-        
         #START: Detect collect inputs in planting tab --------------------------------------------------------------------------------------------------
         if(length( get_collectable_plantrans(AllInputs(),ctype= tolower(ct), crop=circm[i], cropId= id_rand_inter[i])  )!=0 && nrow(ptdt_list[[i]])>0){
           
@@ -15503,8 +16586,15 @@ server_design_agrofims <- function(input, output, session, values){
           ptdt_list[[i]] <-  ptdt_list[[i]][which(lgl==TRUE)]
           #Fill with empty cells the dt table (Celine's suggestions)
           ptdt_list[[i]][1,] <- ""
+          
+          #Concatenate: crop+ names(ptdt_list)
+          names(ptdt_list[[i]]) <- paste0(circm[i],"_",names(ptdt_list[[i]]))
           #Bind the field design + plant_traitdt_list
           dt <- cbind(fbdesign(),ptdt_list[[i]])
+          
+          
+          
+          
         } 
         else {
           ptdt_list[[i]] <- data.frame()
@@ -15567,6 +16657,8 @@ server_design_agrofims <- function(input, output, session, values){
           #select only columns from collect input
           ptdt_list[[i]] <-  ptdt_list[[i]][which(lgl==TRUE)]
           ptdt_list[[i]][1,] <- ""
+          #Concatenate: crop+ names(ptdt_list)
+          names(ptdt_list[[i]]) <- paste0(crecm[i],"_",names(ptdt_list[[i]]))
           dt <- cbind(fbdesign(),ptdt_list[[i]])
         } 
         else {
@@ -15589,7 +16681,6 @@ server_design_agrofims <- function(input, output, session, values){
       }
       names(dt)<- crecm
     } 
-    
     
     dt  
   })
@@ -15818,6 +16909,8 @@ server_design_agrofims <- function(input, output, session, values){
     
     addId <- getAddInputId(addId = expconWEEmonocrop$ids, "mono_wee_", "")
     dt<- get_ec_weed(allinputs=AllInputs(), addId=addId)$dt
+    print("-weeding prev--")
+    print(names(dt))
     if(nrow(fbdesign())==0){
       dt <- dt
     }
@@ -15827,6 +16920,8 @@ server_design_agrofims <- function(input, output, session, values){
       if(length(get_collectable_weed(AllInputs()))!=0){
         #management practices collected values
         collect_weed <- get_collectable_weed(AllInputs(), ver="export")
+        print("-weeding collect--")
+        print(collect_weed)
         collect_weed <- stringr::str_replace_all(tolower(collect_weed), pattern = "_+", replacement = " ")
         #management practices
         mpra_trait <- names(dt)
@@ -15969,6 +17064,12 @@ server_design_agrofims <- function(input, output, session, values){
             #Fill with empty cells the dt table (Celine's suggestions)
             dt[[ cropnames[j] ]][1,] <- ""
             
+            print("--intercrop harvest--")
+            print(names(dt[[ cropnames[j] ]]))
+            
+            #Concatenate: crop+ names(ptdt_list)
+            names(dt[[ cropnames[j] ]] ) <- paste0(cropnames[j],"_",names(dt[[ cropnames[j]]])) 
+            
             dt[[ cropnames[j] ]]  <- cbind(fbdesign(), dt[[ cropnames[j] ]] )
           } else {
             dt[[ cropnames[j] ]] <- fbdesign()
@@ -16004,18 +17105,6 @@ server_design_agrofims <- function(input, output, session, values){
           #If user collect inputs, detect them:
           if(length(get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames[j], cropId= cropId, 
                                             ver="export"))>0){
-            # #Havest's fieldbook headers
-            # mpra_trait <- stringr::str_replace_all(names(dt[[ cropnames[j] ]]) , pattern = "__[0-9]+", replacement = "")
-            # #collect inputs
-            # collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=cropnames, cropId= cropId, 
-            #                                         ver="export")
-            # collect_harv <- collect_harv[stringr::str_detect(string = collect_harv, pattern = cropnames[j])]
-            # collect_harv <- stringr::str_replace_all(string = collect_harv,pattern = paste0(cropnames[j],"_"),
-            #                                          replacement = "")
-            # #match in trait_table
-            # kds_harv <- magmtprac$harv %>% dplyr::filter(Measurement %in% collect_harv)
-            # kds_harv <- kds_harv %>% dplyr::filter(TraitName %in% mpra_trait )
-            
             #Havest's fieldbook headers
             mpra_trait <- stringr::str_replace_all(names(dt[[ cropnames[j] ]]) , pattern = "__[0-9]+", replacement = "")
             #collect inputs
@@ -16039,6 +17128,10 @@ server_design_agrofims <- function(input, output, session, values){
             dt[[ cropnames[j] ]]  <- dt[[ cropnames[j] ]] [which(lgl==TRUE)]
             #Fill with empty cells the dt table (Celine's suggestions)
             dt[[ cropnames[j] ]][1,] <- ""
+            
+            #Concatenate: crop+ names(ptdt_list)
+            #names(dt[[ cropnames[j] ]] ) <- paste0(cropnames[j],"_",names( dt[[ cropnames[j] ]] ) ) 
+            
             dt[[ cropnames[j] ]]  <- cbind(fbdesign(), dt[[ cropnames[j] ]] )
           } else {
             dt[[ cropnames[j] ]] <- fbdesign()
@@ -16217,7 +17310,7 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in 1:length(crop)){
         
         phe_row_selected<- input[[paste0("tblPhe_",prefix,"_phe_", id_phe_dt[i],"_rows_selected")]]  #input$tblInterPheCassava_rows_selected
-        dtPhenoMulticrop <- dt_cphe #%>% dplyr::filter(Crop==crop[i])  #dtInterPheCassava #filtrar phenota por tabla principal
+        dtPhenoMulticrop <- agdesign::dt_cphe #%>% dplyr::filter(Crop==crop[i])  #dtInterPheCassava #filtrar phenota por tabla principal
         dtPhenoMulticrop <- ec_clean_header(dtPhenoMulticrop)
         
         #"NumberofMeasurementsPerSeason"	NumberofMeasurementsPerPlot
@@ -16225,8 +17318,12 @@ server_design_agrofims <- function(input, output, session, values){
        if(!is.null(phe_row_selected)){  
           dt[[i]] <- multicrop_phe_vars(dtPhenoMulticrop, phe_row_selected) 
           dt[[i]]$Crop <- crop[i]
+          ##NEW CODE FOR KDSMART
+          dt[[i]] <- dt[[i]]  %>% dplyr::mutate(TraitName = paste0(Crop, "_", TraitName))
+          # END CODE FOR KDSMART
+          
           colnames(dt[[i]]) <- c("Crop","Group","Subgroup","Measurement",
-                                 "TraitName", "TraitUnit",
+                                 "TraitName", "TraitUnit","TraitLevel",
                                  #"CropMeasurementPerSeason",
                                  #"CropMeasurementPerPlot",
                                  "NumberofMeasurementsPerSeason",
@@ -16246,7 +17343,7 @@ server_design_agrofims <- function(input, output, session, values){
         } 
         else {
           dt[[i]] <- data.frame(Status="",Crop="", Group="", Subgroup="", Measurement="",
-                                TraitName = "",TraitUnit="",
+                                TraitName = "",TraitUnit="",TraitLevel="",
                                 NumberofMeasurementsPerSeason="",  NumberofMeasurementsPerPlot="",
                                 TraitAlias="", TraitDataType="",TraitValidation="", 
                                 VariableId="", stringsAsFactors = FALSE)
@@ -16266,7 +17363,7 @@ server_design_agrofims <- function(input, output, session, values){
     } else if(ctype=="rotation"){
       v <- getAddInputId(mea_phe_multicrop$var_PHE_rot, "rot_phe_","")
     }
-    print(v)
+    #print(v)
     out<- v 
   }
   
@@ -16281,7 +17378,7 @@ server_design_agrofims <- function(input, output, session, values){
       #row_select <- input$tblMonoPhe_rows_selected
       row_select <- input$tblPhe_mono_mea_1_rows_selected
       #dt <- dtMonocropphe[row_select, ]
-      dt<- dt_cphe[row_select, ]
+      dt<- agdesign::dt_cphe[row_select, ]
       lbl <- dt$TraitName
       
       if(length(lbl)==0 && nrow(dt)==0){
@@ -16324,6 +17421,7 @@ server_design_agrofims <- function(input, output, session, values){
       dt <- pheno_multicrop_vars()[[cropnames[i]]]
       
       print("label multicrop header")
+      print(cropnames[i])
       print(dt)
       
       lbl <- dt$TraitName
@@ -16341,6 +17439,9 @@ server_design_agrofims <- function(input, output, session, values){
       else if(nrow(fbdesign())>0 && length(lbl)>=1 ) {
         dt<- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
         names(dt) <- lbl
+        #New code
+        #names(dt) <- paste0(cropnames[i],"_",lbl) #add crop
+        #end new code
         dt <-cbind(fbdesign() ,dt)
       }
       pheno_dt[[i]] <- dt
@@ -16393,18 +17494,22 @@ server_design_agrofims <- function(input, output, session, values){
   soil_dt<- reactive({
     
     #addId <-  soilVars$ids #as.character(soilVars$num)
-    addId <- getAddInputId(soilVars$ids, "soil_", "") 
-    soil_vars <- get_soil_variables(AllInputs(),addId= addId)
+    addId <- getAddInputId(soilVars$ids, "soil_", "")
+    
+    #print(addId)
+    #saveRDS(AllInputs(), file = "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/soil_vars_1.rds")
+    
+    soil_vars <- get_soil_variables(AllInputs(),addId= addId) #get table of variables
     
      if(nrow(soil_vars)>0){
-       soil_vars <-get_dt_soil(soil_variables = soil_vars, dt_soil=dt_soil)
+       soil_var_dt <-get_dt_soil(soil_variables = soil_vars, dt_soil=dt_soil) #get soil measrurement variables table
        
       #colnames(soildt) <- c("Group", "Measurement","TraitUnit","NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot")
       # colnames(soildt) <- c("Crop","Group","Subgroup","Measurement",
       #                   "TraitUnit","CropMeasurementPerSeason",
       #                   "CropMeasurementPerPlot","TraitName", "TraitAlias",
       #                   "TraitDataType","TraitValidation","VariableId")
-      cs<- add_season_numplot_prefix(dt=soil_vars)
+      cs<- add_season_numplot_prefix(dt=soil_var_dt)
       lbl<- cs
       
     } else {
@@ -16412,24 +17517,30 @@ server_design_agrofims <- function(input, output, session, values){
     }
     
     if(length(lbl)==0){
-      soil_vars <- data.frame()
+      soil_var_dt <- data.frame()
     } else if(nrow(fbdesign())==0 && length(lbl)>=1){
-      soil_vars <- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
-      names(soil_vars) <- lbl
+      soil_var_dt <- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
+      names(soil_var_dt) <- lbl
     } else if(nrow(fbdesign())>0 && length(lbl)>=1) {
       print("case 3")
-      soil_vars <- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
-      names(soil_vars) <- lbl
-      soil_vars <-cbind(fbdesign() ,soil_vars)
+      print(lbl)
+      print(fbdesign())
+      print("-end case 3 soil_dt")
+      soil_var_dt <- t(rep("", length(lbl)))%>% as.data.frame(stringAsFactors=FALSE)
+      names(soil_var_dt) <- lbl
+      soil_var_dt <-cbind(fbdesign() ,soil_var_dt)
     }
-    soil_vars 
+    soil_var_dt
   })
   
   soil_list <- reactive({
     
+    
     addId <- getAddInputId(soilVars$ids, "soil_", "") 
     soil_vars <- get_soil_variables(AllInputs(),addId= addId)
     soil_vars <-get_dt_soil(soil_variables = soil_vars, dt_soil=dt_soil)
+    
+    
     
   })
   ################################ END Soil DT #####################################################################
@@ -16545,24 +17656,43 @@ server_design_agrofims <- function(input, output, session, values){
       circm <- map_values(input, id_chr="int_cropCommonName_", id_ic_rand, format = "data.frame", lbl= "Crop")
       cirvar <- map_values(input, id_chr="int_cropVarietyName_", id_ic_rand,format = "data.frame", lbl= "Crop variety")
       
-      #Generate labels according to each crop ####################################
-      circm_lbl <- map_values(input, id_chr="int_cropCommonName_", id_ic_rand, format = "vector", lbl= "Crop")
-      cil<- reactiveValuesToList(input)
-      id_chr <- "int_cropVarietyName_"
-      crim_val<- crim_lbl <- NULL
-      for(i in 1:length(id_ic_rand)){
-        if( is.null( cil[[paste0(id_chr, id_ic_rand[i])]] )){
-          crim_val[[i]]<-"-"
-          crim_lbl[[i]]<- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
-        } else{
-          crim_val[[i]]<- cil[[paste0(id_chr, id_ic_rand[i])]]
-          crim_lbl[[i]] <- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
-        }
+      #print(circm)
+      #print(cirvar)
+      
+      lookup <- paste0("^","int_cropVarietyName_")
+      inter_cropdt <- AllInputs() %>% dplyr::filter(!str_detect(id, "add")) %>%
+                                      dplyr::filter(!str_detect(id, "button")) %>%
+                                      #dplyr::filter(!str_detect(id, "unit")) %>%  ##Contemplate Unit case
+                                      dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                                      dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                                      dplyr::filter(str_detect(id, lookup))  
+      variety <- NULL                                     
+      for(i in seq.int(id_ic_rand)){
+        variety[[i]] <- inter_cropdt %>% dplyr::filter(str_detect(id, id_ic_rand[i]))  
       }
-      crim_lbl<- unlist(crim_lbl)
-      #Changing labels in crop table for intercrop
-      cirvar[,1]<-crim_lbl
-      ################################################################################
+      variety<- do.call(rbind,variety)
+      variety$id <- paste(circm$res, "variety")
+      names(variety) <- c("label","res")
+      cirvar <- variety
+      #saveRDS(object = AllInputs(),"/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/multicrop_inputs.rds")
+      #Generate labels according to each crop ####################################
+      # circm_lbl <- map_values(input, id_chr="int_cropCommonName_", id_ic_rand, format = "vector", lbl= "Crop")
+      # cil<- reactiveValuesToList(input)
+      # id_chr <- "int_cropVarietyName_"
+      # crim_val<- crim_lbl <- NULL
+      # for(i in 1:length(id_ic_rand)){
+      #   if( is.null( cil[[paste0(id_chr, id_ic_rand[i])]] )){
+      #     crim_val[[i]]<-"-"
+      #     crim_lbl[[i]]<- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
+      #   } else{
+      #     crim_val[[i]]<- cil[[paste0(id_chr, id_ic_rand[i])]]
+      #     crim_lbl[[i]] <- paste(circm_lbl[i], "variety", 1:length(crim_val[[i]]))
+      #   }
+      # }
+      # crim_lbl<- unlist(crim_lbl)
+      # #Changing labels in crop table for intercrop
+      # cirvar[,1]<-crim_lbl
+      # ################################################################################
       
       ciarre<- map_singleform_values(input = input$fr_intercrop_arrangement, 
                                      type="combo box",format = "data.frame", label= "Intercrop arragement")
@@ -16579,6 +17709,22 @@ server_design_agrofims <- function(input, output, session, values){
       id_re_rand <- getAddInputId(relaycropVars$ids, "rel_", "")
       circm <- map_values(input, id_chr="rel_cropCommonName_", id_re_rand, format = "data.frame", lbl= "Select crop")
       cirvar <- map_values(input, id_chr="rel_cropVarietyName_", id_re_rand,format = "data.frame", lbl= "Crop variety(s)")
+      
+      lookup <- paste0("^","rel_cropVarietyName_")
+      inter_cropdt <- AllInputs() %>% dplyr::filter(!str_detect(id, "add")) %>%
+                                  dplyr::filter(!str_detect(id, "button")) %>%
+                                  #dplyr::filter(!str_detect(id, "unit")) %>%  ##Contemplate Unit case
+                                  dplyr::filter(!str_detect(id, "_sel_factor_")) %>%
+                                  dplyr::filter(!str_detect(id, "-selectized")) %>%  
+                                  dplyr::filter(str_detect(id, lookup))  
+      variety <- NULL                                     
+      for(i in seq.int(id_re_rand)){
+        variety[[i]] <- inter_cropdt %>% dplyr::filter(str_detect(id, id_re_rand[i]))  
+      }
+      variety<- do.call(rbind,variety)
+      variety$id <- paste(circm$res, "variety")
+      names(variety) <- c("label","res")
+      cirvar <- variety
       #ciarre<- map_singleform_values(input = input$fr_intercrop_arrangement, 
       #                               type="combo box",format = "data.frame", label= "Intercrop arragement")
       #row <- map_values(input, id_chr="intercropValue_row_crop_", id_ic_rand, format = "data.frame", lbl= "Row geometry")
@@ -16657,9 +17803,9 @@ server_design_agrofims <- function(input, output, session, values){
       wif_main <- paste(wi_main, wunit_main)
       lenf_main <-  paste(len_main, lunit_main)
       
-      iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
-      ow_main<- data.frame(Factor = "Experimental plot width", Value = wif_main )
-      ol_main<- data.frame(Factor = "Experimental plot length",Value = lenf_main )
+      #iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
+      ow_main<- data.frame(Factor = "Main plot width", Value = wif_main )
+      ol_main<- data.frame(Factor = "Main plot length",Value = lenf_main )
       
       ## Sub plot ##
       
@@ -16670,16 +17816,18 @@ server_design_agrofims <- function(input, output, session, values){
       wif_sub <- paste(wi_sub, wunit_sub)
       lenf_sub <-  paste(len_sub, lunit_sub)
       
-      iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
-      ow_sub<- data.frame(Factor = "Experimental plot width", Value = wif_sub )
-      ol_sub<- data.frame(Factor = "Experimental plot length",Value = lenf_sub )
+      #iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
+      ow_sub<- data.frame(Factor = "Sub plot width", Value = wif_sub )
+      ol_sub<- data.frame(Factor = "Sub plot length",Value = lenf_sub )
       
       ## Consolidation of all main, sub plot
-      out_main <- rbind(iou_main, ow_main, ol_main)
-      out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      #out_main <- rbind(iou_main, ow_main, ol_main) 
+      out_main <- rbind(ow_main, ol_main)
+      #out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      out_sub<- rbind(ow_sub, ol_sub)
       out<- rbind(out_main, out_sub)
       
-      
+
     } 
     else if(input$designFieldbook_agrofims=="SPSP"){
       
@@ -16690,9 +17838,9 @@ server_design_agrofims <- function(input, output, session, values){
       wif_main <- paste(wi_main, wunit_main)
       lenf_main <-  paste(len_main, lunit_main)
       
-      iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
-      ow_main<- data.frame(Factor = "Experimental plot width", Value = wif_main )
-      ol_main<- data.frame(Factor = "Experimental plot length",Value = lenf_main )
+      #iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
+      ow_main<- data.frame(Factor = "Main plot width", Value = wif_main )
+      ol_main<- data.frame(Factor = "Main plot length",Value = lenf_main )
       
       ## Sub plot ##
       
@@ -16703,9 +17851,9 @@ server_design_agrofims <- function(input, output, session, values){
       wif_sub <- paste(wi_sub, wunit_sub)
       lenf_sub <-  paste(len_sub, lunit_sub)
       
-      iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
-      ow_sub<- data.frame(Factor = "Experimental sub plot width", Value = wif_sub )
-      ol_sub<- data.frame(Factor = "Experimental sub plot length",Value = lenf_sub )
+      #iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
+      ow_sub<- data.frame(Factor = "Sub sub plot width", Value = wif_sub )
+      ol_sub<- data.frame(Factor = "Sub plot length",Value = lenf_sub )
       
       ## Sub-Sub Plot ##
       
@@ -16716,14 +17864,18 @@ server_design_agrofims <- function(input, output, session, values){
       wif_subsub <- paste(wi_subsub, wunit_subsub)
       lenf_subsub <-  paste(len_subsub, lunit_subsub)
       
-      iou_subsub<- data.frame(Factor = "Information on experimental unit", Value = "Sub-sub plot" )
-      ow_subsub<- data.frame(Factor = "Experimental sub-sub plot width", Value = wif_subsub )
-      ol_subsub<- data.frame(Factor = "Experimental sub-sub plot length",Value = lenf_subsub )
+      #iou_subsub<- data.frame(Factor = "Information on experimental unit", Value = "Sub-sub plot" )
+      ow_subsub<- data.frame(Factor = "Sub-sub plot width", Value = wif_subsub )
+      ol_subsub<- data.frame(Factor = "Sub-sub plot length",Value = lenf_subsub )
       
       ## Consolidation of all main, sub and sub-sub plot
-      out_main <- rbind(iou_main, ow_main, ol_main)
-      out_sub <- rbind(iou_sub, ow_sub, ol_sub)
-      out_subsub <- rbind(iou_subsub, ow_subsub, ol_subsub)
+      #out_main <- rbind(iou_main, ow_main, ol_main)
+      out_main <- rbind(ow_main, ol_main)
+      #out_sub <- rbind(iou_sub, ow_sub, ol_sub)
+      out_sub <- rbind( ow_sub, ol_sub)
+      #out_subsub <- rbind(iou_subsub, ow_subsub, ol_subsub)
+      out_subsub <- rbind(ow_subsub, ol_subsub)
+      #Combine data
       out <- rbind(out_main, out_sub,out_subsub)
       
     }
@@ -16737,9 +17889,9 @@ server_design_agrofims <- function(input, output, session, values){
       wif_main <- paste(wi_main, wunit_main)
       lenf_main <-  paste(len_main, lunit_main)
       
-      iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
-      ow_main<- data.frame(Factor = "Experimental plot width", Value = wif_main )
-      ol_main<- data.frame(Factor = "Experimental plot length",Value = lenf_main )
+      #iou_main<- data.frame(Factor = "Information on experimental unit", Value = "Main plot" )
+      ow_main<- data.frame(Factor = "Main plot width", Value = wif_main )
+      ol_main<- data.frame(Factor = "Main plot length",Value = lenf_main )
       
       ## Sub plot ##
       
@@ -16750,13 +17902,15 @@ server_design_agrofims <- function(input, output, session, values){
       wif_sub <- paste(wi_sub, wunit_sub)
       lenf_sub <-  paste(len_sub, lunit_sub)
       
-      iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
-      ow_sub<- data.frame(Factor = "Experimental plot width", Value = wif_sub )
-      ol_sub<- data.frame(Factor = "Experimental plot length",Value = lenf_sub )
+      #iou_sub<- data.frame(Factor = "Information on experimental unit", Value = "Sub plot" )
+      ow_sub<- data.frame(Factor = "Sub plot width", Value = wif_sub )
+      ol_sub<- data.frame(Factor = "Sub plot length",Value = lenf_sub )
       
       ## Consolidation of all main, sub plot
-      out_main <- rbind(iou_main, ow_main, ol_main)
-      out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      #out_main <- rbind(iou_main, ow_main, ol_main)
+      out_main <- rbind(ow_main, ol_main)
+      #out_sub<- rbind(iou_sub, ow_sub, ol_sub)
+      out_sub<- rbind(ow_sub, ol_sub)
       out<- rbind(out_main, out_sub)
       
       
@@ -16885,15 +18039,20 @@ server_design_agrofims <- function(input, output, session, values){
         flvl<- get_nonfactorial_levels(input,"rcbd")
         fb<- fbdesign_agrofims(design=design, block=block, trt=flvl)
         
-      } else if(design=="fcrd"){
+      } 
+      else if(design=="fcrd"){
         rep <- as.integer(input$fcrd_rep)
         flbl<- get_factors_design(allinputs = AllInputs(), index, design = "fcrd")
         
-        print("indexEspLvl")
-        print(indexEspLvl)
-        
+        # print("design fcrd")
+        # print(flbl)
+        # print(index)
+        # print("index especial fcrbd")
+        # print(indexEspLvl)
+        # #saveRDS(AllInputs(),"/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/allinputs_fcrd.rds")
         flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                   index, factors = flbl, design="fcrd", format="list")
+        print(flvl)
         
         # flvl<- get_levels_design(allinputs = AllInputs(), data_dictionary=dt_factordesign,
         #                          index, factors = flbl, design="fcrd", format="list")
@@ -16906,11 +18065,22 @@ server_design_agrofims <- function(input, output, session, values){
         #Get index from special factors and levels
         #lvlEsp <- get_index_espLvl_design(indexEspLvl = indexEspLvl, designEspflvl = paste0(design,"_lvl_espType_",index,"_"))
         #Get levels
+        # print("design frcbd")
+        # print(flbl)
+        # print(index)
+        # print("index especial fcrbd")
+        # print(indexEspLvl)
+        # #saveRDS(AllInputs(), "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/allinputs_frcbd.rds")
+        
         flvl <- get_levels_design(allinputs = AllInputs(), indexEspLvl=indexEspLvl, data_dictionary=dt_factordesign, 
                                   index, factors = flbl, design="frcbd", format="list")
+        print(flvl)
 
+        
+        
         fb<- fbdesign_agrofims(design=design, rep=block,  fnames= flbl, flevels= flvl) 
-      } else if(design =="sprcbd"){
+      } 
+      else if(design =="sprcbd"){
         
         block <- as.integer(input$sp1_block)
         flbl<- get_factors_design(allinputs = AllInputs(), index, design = "sprcbd")
@@ -16923,7 +18093,8 @@ server_design_agrofims <- function(input, output, session, values){
         
         fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl) 
         
-      } else if(design =="spsp"){
+      } 
+      else if(design =="spsp"){
         block<- as.integer(input$spsp2_block)
         flbl<- get_factors_design(allinputs = AllInputs(), index, design = "spsp")
         #Get index from special factors and levels
@@ -16934,7 +18105,8 @@ server_design_agrofims <- function(input, output, session, values){
         
         fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl)
       
-      } else if(design =="strip"){
+      } 
+      else if(design =="strip"){
         block<- as.integer(input$strip_block)
         flbl<- get_factors_design(allinputs = AllInputs(), index, design = "strip")
         #Get index from special factors and levels
@@ -16944,8 +18116,6 @@ server_design_agrofims <- function(input, output, session, values){
                                   index, factors = flbl, design="strip", format="list")
         fb<- fbdesign_agrofims(design=design, block=block,  fnames= flbl, flevels= flvl)
       }
-      
-      
       
       fb
     }) #end try
@@ -17210,11 +18380,18 @@ server_design_agrofims <- function(input, output, session, values){
         out2 <- data.frame()
       }
       print("protocol 2")
-      if(is.element(el = "Planting and transplanting",set = input$selectAgroFeature)){
+      if(is.element(el = "Planting, transplanting",set = input$selectAgroFeature)){
         out3 <- dt_protocol_plantrans()
       }else {
         out3 <- data.frame()
       }
+      
+      if(is.element(el = "Fertilizer management",set = input$selectAgroFeature)){
+        out_sfert <- dt_protocol_soilfertility()
+      }else {
+        out_sfert <-data.frame()
+      }
+      
       print("protocol 3")
       if(is.element(el = "Mulch management", set = input$selectAgroFeature)){
         out4 <- dt_protocol_mulching()
@@ -17240,11 +18417,25 @@ server_design_agrofims <- function(input, output, session, values){
         out7 <- data.frame()
       }
       print("protocol 7")
-      protocol <- list(out1, out2, out3, out4, out5, out6, out7)  
+      print(dt_protocol_calcnut())
+      print(dt_protocol_calcfert())
+      
+      
+      protocol <- list(out1, out2, out3, dt_protocol_calcnut(), dt_protocol_calcfert(),out_sfert, out4, out5, out6, out7)  
+      #protocol <- list(out1, out2, out3, out4, out5, out6, out7)
       
       valid  <-lapply(protocol, function(x){length(x)!=0} ) %>% unlist()
       
-      protocol <-data.table::rbindlist(protocol[valid],fill = TRUE)
+      protocol <- data.table::rbindlist(protocol[valid],fill = TRUE)
+      ## New Code for KDSMART integration
+      #Suggested in https://docs.google.com/document/d/1pm7Qb5_fez2IhLNZwPPZ9w_GDFzgv-3NjSXRHfnAy6U/edit#
+      if(nrow(protocol)!=0){
+        if(input$croppingType!="Monocrop"){
+          protocol <- protocol %>% dplyr::mutate(Group=Crop)
+        }  
+      }
+      
+      #End code for KDSMART integration
       #print(names(protocol))
       #Changes names for KDSmart's fieldbook importation
       protocol <- ec_clean_header(protocol) 
@@ -17425,30 +18616,29 @@ server_design_agrofims <- function(input, output, session, values){
     
   })
   
+  #FbFileName <- function(){
+    #function()paste0(input$uniqueId,"-",input$fieldbookId, ".xlsx")
+  #  out
+  #}
+  
   
   
   ######################### Donwload Fieldbook #################################################################
   output$downloadData <- downloadHandler(
     
-    filename = "fileNameBook.xlsx",
+    filename = function()paste0(input$experimentId,"-",input$uniqueId,"-",input$fieldbookId, ".xlsx") ,#paste0(FbFileName(),".xlsx"),#"fileNameBook.xlsx",
     content = function(file) {
       
       withProgress(message = 'Downloading fieldbook', value = 0, {
         
-        #  ai <- AllInputs()
-        # # #fesplvl <<- factorlevel$ids
-        #  saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
-        #  x <- reactiveValuesToList(input)
-        #  saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
-
-         #  crop <- map_singleform_values(input$cropCommonNameMono, input_other = input$cropCommonNameMono_other, type= "combo box", format = "vector",label = "Crop")
-         #  addId <- getAddInputId(meaMONO$ids, "mono_mea_1_fluidRow_", "")
-         #  dt_measurements <<- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 
-         #                                          addId=addId, crop=crop, cropId= "1")
-         #  
-         #  trait2 <<- trait_dt()
-         # # 
-         ##### Eliminar Start: Testing by Jose ######
+        # ai <- AllInputs()
+        # fesplvl <<- factorlevel$ids
+        # saveRDS(ai, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/table_ids.rds")
+        # x <- reactiveValuesToList(input)
+        # saveRDS(x, "/home/obenites/AGROFIMS/agdesign/tests/testthat/userInput/inputs.rds")
+        #soil_mgt <<- dt_protocol_soilfertility()
+        
+        ##### Eliminar Start: Testing by Jose ######
          print("Entro al método.")
          #savefb()
          #checkDS()
@@ -17573,18 +18763,18 @@ server_design_agrofims <- function(input, output, session, values){
           
         }
         
-        # if(is.element("Soil fertility",input$selectAgroFeature)){
+         if(is.element("Soil fertility",input$selectAgroFeature)){
         #   
-        #   print("soil fertility")
-        #   incProgress(7/20,message = "Adding soil and fertility")
-        #   openxlsx::addWorksheet(wb, "Soil fertility", gridLines = TRUE)
-        #   openxlsx::writeDataTable(wb, "Soil fertility", x = dt_soilFertility(),
-        #                            colNames = TRUE, withFilter = FALSE)
-        #   
-        # }
+          print("soil fertility")
+          incProgress(7/20,message = "Adding soil and fertility")
+          openxlsx::addWorksheet(wb, "Fertilizer management", gridLines = TRUE)
+          openxlsx::writeDataTable(wb, "Fertilizer management", x = dt_soilFertility(),
+                                   colNames = TRUE, withFilter = FALSE)
+
+         }
         
         ######################### Planting and transplanting #####################################################
-        if(is.element("Planting and transplanting",input$selectAgroFeature)){
+        if(is.element("Planting, transplanting",input$selectAgroFeature)){
           print("Adding planting")
           if(ct=="Monocrop"){
             if(nrow(dt_plantrans())!=0){
@@ -17911,17 +19101,17 @@ server_design_agrofims <- function(input, output, session, values){
           dt_kds <- ec_clean_header(dt_kds)
         }
         print("seedbed pt")
-        # if(is.element("Soil fertility",input$selectAgroFeature)){
-        #   globalpath <- "/home/obenites/AGROFIMS/hagrofims/inst/hidap_agrofims/www/internal_files/"
-        #   kds_soilf<- readxl::read_excel(paste0(globalpath, ecname),sheet = "Soil fertility")
-        #   kds_soilf <- ec_filter_data(kds_soilf)
-        #   kds_soilf <- kds_soilf %>% dplyr::filter(TraitName %in% lbl_soilFertility())
-        #   
-        #   kds_soilf <- data.table(kds_soilf)
-        #   dt_kds<-rbindlist(list(dt_kds,kds_soilf),fill = TRUE)
-        #   dt_kds<-ec_clean_header(dt_kds)
-        # }
-        if(is.element("Planting and transplanting",input$selectAgroFeature)){
+        if(is.element("Fertilizer management",input$selectAgroFeature)){
+          
+          kds_sferti <- magmtprac$sferti
+          kds_sferti <- ec_filter_data(kds_sferti)
+          #kds_sedbed <- kds_sedbed %>% dplyr::filter(Fieldbook_download %in% lbl_seedbed()) #deprecated
+          kds_sferti <- kds_sferti %>% dplyr::filter(TraitName %in% lbl_soilFertility())
+          kds_sferti <- data.table(kds_sferti)
+          dt_kds<-rbindlist(list(dt_kds,kds_sferti),fill = TRUE)
+          dt_kds<-ec_clean_header(dt_kds)
+       }
+        if(is.element("Planting, transplanting",input$selectAgroFeature)){
           
           kds_platra <- magmtprac$platrans
           kds_platra <- ec_filter_data(kds_platra)
@@ -17953,8 +19143,14 @@ server_design_agrofims <- function(input, output, session, values){
             if(length(get_collectable_plantrans(AllInputs(), ctype="intercrop",crop=circm, cropId=id_ic_rand)  )!=0){
               collect_platra <- get_collectable_plantrans(AllInputs(),ctype="intercrop", crop=circm,cropId= id_ic_rand)
               kds_platra <- kds_platra %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))
-              kds_platra <- kds_platra %>% filter(temp %in% collect_platra)
-            }
+              kds_platra <- kds_platra %>% dplyr::filter(temp %in% collect_platra)
+              print("--plata inter--")
+              print(kds_platra)
+              ### NEW CODE
+              # Mutate TraitName with: Crop+TraitName
+              #kds_platra <- kds_platra %>% dplyr::mutate(TraitName= paste0(Crop,"_",TraitName))
+              #### END CODE
+           }
             #end collectable inputs-------------------------
             
           }
@@ -17978,12 +19174,26 @@ server_design_agrofims <- function(input, output, session, values){
               collect_platra <- get_collectable_plantrans(AllInputs(),ctype="relay crop", crop=crecm, cropId= id_re_rand)
               kds_platra <- kds_platra %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",Measurement))
               kds_platra <- kds_platra %>% filter(temp %in% collect_platra)
+              ### NEW CODE
+              # Mutate TraitName with: Crop+TraitName
+              #kds_platra <- kds_platra %>% dplyr::mutate(TraitName= paste0(Crop,"_",TraitName))
+              #### END CODE
             }
             #End collectable inputs-------------------------
           }
           
           kds_platra <- data.table(kds_platra)
+          
+          #NEW CODE FOR KDMSART INTEGRATION
+          if(ct!="Monocrop"){
+            if(nrow(kds_platra)>0){
+              kds_platra  <- kds_platra %>% dplyr::mutate(TraitName = paste0(Crop,"_", TraitName))
+            } 
+          }
+          #END CODE FOR KDMSART INTEGRATION
           dt_kds<-rbindlist(list(dt_kds,kds_platra),fill = TRUE)
+          
+          
           dt_kds<- ec_clean_header(dt_kds)
         }
         print("paso pt")
@@ -18019,8 +19229,9 @@ server_design_agrofims <- function(input, output, session, values){
             kds_irri <- kds_irri %>%  dplyr::filter(temp %in% collect_irri)
             print("--irri3")
           }#end collectalbe ids
-          #print("irri names")
-          #names(kds_irri)
+          print(names(kds_irri))
+          print(kds_irri)
+          
           
           kds_irri$NumberofMeasurementsPerSeason <- ns_irrigation()
           print("--irri4")
@@ -18099,13 +19310,17 @@ server_design_agrofims <- function(input, output, session, values){
               
               collect_harv <- vector(mode = "list",length = length(crmult))
               for(i in seq.int(crmult)){
-                # print("-dt harves ttrait list")
-                # print(names(dt_harvest()[[crmult[i]]]))
-                
-               collect_harv[[i]] <-stringr::str_replace_all(names(dt_harvest()[[crmult[i]]]) , pattern = "__[0-9]+", replacement = "")  
+               #NEW CODE FOR KDSMART INTEGRATION
+               collect_harv[[i]] <- stringr::str_replace_all(names(dt_harvest()[[crmult[i]]]) , pattern = paste0(crmult[i],"_")  , replacement = "")
+               #END NEW CODE
+               #collect_harv[[i]] <-stringr::str_replace_all(names(dt_harvest()[[crmult[i]]]) , pattern = "__[0-9]+", replacement = "")  
+               collect_harv[[i]] <-stringr::str_replace_all(collect_harv[[i]] , pattern = "__[0-9]+", replacement = "")  
                collect_harv[[i]] <- paste("Harvest",crmult[i],collect_harv[[i]], sep="_")
               }
               collect_harv <- unlist(collect_harv)
+              #print("colect harv fin")
+              #bbb<<- collect_harv
+              #print(collect_harv)
               
               #collect_harv <- get_collectable_harvest(AllInputs(),ctype= tolower(ct), crop=crmult, cropId= id_re_rand)
               kds_harv <- kds_harv %>% dplyr::mutate(temp=paste0(Group,"_",Crop,"_",TraitName))
@@ -18114,6 +19329,11 @@ server_design_agrofims <- function(input, output, session, values){
           }
           #Transform, bind and clean harvest trait data
           kds_harv <- data.table(kds_harv)
+          if(nrow(kds_harv)>0){
+            if(ct!="Monocrop"){
+              kds_harv  <- kds_harv %>% dplyr::mutate(TraitName = paste0(Crop,"_", TraitName))
+            }
+          } 
           #kds_harv$CropMeasurementPerSeason <- ns_harvest()
           dt_kds<- data.table::rbindlist(list(dt_kds,kds_harv),fill = TRUE)
           dt_kds<- ec_clean_header(dt_kds)
@@ -18166,25 +19386,35 @@ server_design_agrofims <- function(input, output, session, values){
         
         print("inicio18")  
         incProgress(19/20,message = "Downloading file...")
+        print(fname)
         saveWorkbook(wb, file = fname , overwrite = TRUE)
         
         ##### START: SAVE FILE FOR KDSMART ##############################################################
         
+        
+        print("inicio19: create file in format kdx")
         #First copy the file to specific folder
         file.copy(from = fname, to = "/home/obenites/AGROFIMS/kdsmart/", overwrite = TRUE)
         #Then, rename the fieldbook file using the aforementioned folder path 
         file.rename(from = paste0("/home/obenites/AGROFIMS/kdsmart/", basename(fname)), 
-                    to =   paste0("/home/obenites/AGROFIMS/kdsmart/",input$uniqueId,".xlsx"))
+                    to =   paste0("/home/obenites/AGROFIMS/kdsmart/",input$experimentId,"-",input$uniqueId,"-",input$fieldbookId,".xlsx"))
         
-        print(paste0("/home/obenites/AGROFIMS/kdsmart/",input$uniqueId,".xlsx"))
+        print(paste0("/home/obenites/AGROFIMS/kdsmart/",input$experimentId,"-", input$uniqueId,"-", input$fieldbookId,".xlsx"))
 
         ### END: END SAVE FILE FOR KDSMART ###############################################################
         
         file.rename(fname, file)
         
-        #}################# END ######################
+        ################## END ######################
+        
+        ###############  START : SAVE FILE IN CSV FORMAT #############
+        print("inicio20: save sesion")
+        savesession()
+        
+        ###############  END : SAVE FILE IN CSV FORMAT #############
         
         ###############  START : SEND FIELDBOOK DATA TO KDSMART TABLE IN DATABASE #############
+        print("inicio20: save kdsmart data on database")
         sendFieldBookToDB()
         
         ###############  END : SEND FIELDBOOK DATA TO KDSMART TABLE IN DATABASE #############
@@ -18207,15 +19437,19 @@ server_design_agrofims <- function(input, output, session, values){
   sendFieldBookToDB <- function(){
     
     mydb <- conexionDB()
+    
     #Use "ignore" to avoid mistakes when trying to insert a row with an ID that already exists in the database.
-    query <- paste0("INSERT IGNORE INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `user`, `registered`, `modified`, `status`) VALUES ('",
+    query <- paste0("INSERT INTO `kdsmart`(`uniqueId`, `experimentId`, `fieldbookId`, `fieldbookName`, `user`, `registered`, `modified`, `status`) VALUES ('",
                                  input$uniqueId,"','",
                                  input$experimentId,"','",
                                  input$fieldbookId,"','",
+                                 paste0(input$experimentId,"-",input$uniqueId,"-", input$fieldbookId),"','",
                                  session$userData$userMail,"','",
-                                 Sys.Date(),"','",
-                                 Sys.Date(),"','",
-                                 "subido","')")
+                                 format(Sys.time(), '%Y-%m-%d %H:%M:%S'),"','",
+                                 format(Sys.time(), '%Y-%m-%d %H:%M:%S'),"','",
+                                 "subido","') ON DUPLICATE KEY UPDATE `modified`='",format(Sys.time()),"'")
+    
+    print(query)
 
     dbSendQuery(mydb, query)
   }

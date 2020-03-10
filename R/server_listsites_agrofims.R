@@ -40,7 +40,7 @@ server_listsites_agrofims <- function(input, output, session, values){
       box(
         #shinysky::showshinyalert(session, "alert_hagroSites", paste("New site has been successfully added"), styleclass = "success"),
         # title = " List site information",
-        title = tagList(shiny::icon("list-ol"), "List site information"),
+        title = tagList(shiny::icon("list-ol"), "Manage sites"),
         status = "primary", solidHeader = TRUE,
         collapsible = TRUE, width = 12,
         

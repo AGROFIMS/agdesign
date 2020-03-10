@@ -42,6 +42,8 @@ get_weather_variables <- function(allinputs,addId="1"){
     }
     
     dt<- tibble::tibble(crop, group, subgroup, mea, unit, as.numeric(pseason), as.numeric(pplot), timing, timValue)
+    dt <- dplyr::distinct(dt)
+    
     names(dt) <- c("Crop", "Group","Subgroup", "Measurement", "TraitUnit",  "NumberofMeasurementsPerSeason",
                    "NumberofMeasurementsPerPlot","Timing","TimingValue")
     
@@ -123,6 +125,7 @@ get_soil_variables <- function(allinputs,addId="1"){
     
     dt<- tibble::tibble(crop, group, subgroup, mea, unit, as.numeric(pseason), as.numeric(pplot), depth, 
                         as.numeric(depthUnit), timing,timValue)
+    dt <- dplyr::distinct(dt)
     names(dt) <- c("Crop", "Group","Subgroup", "Measurement","TraitUnit", "NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot",
                    "SoilDepth", "DepthUnit", "Timing","TimingValue")
     

@@ -5,6 +5,7 @@ Authors@R: c(
           person("Omar", "Benites-Alfaro", email = "obacc07@gmail.com", role = c("aut", "cre")),
           person("Ivan", "Perez-Masias", , "ivanpe834@gmail.com", "aut"),
           person("Raul", "Arias-Levano", , "r.arias@uni.edu.pe", "aut"),
+          person("Jose.", "Medina-Donayre", , "j.medina@cgiar.org", "aut"),
           person("CIP-RIU", "Research Informatic", , "cip-riu@cgiar.org", "cph", comment = "Partial copyright holder of the R code"),
           person("International Potato Center (CIP)", role = "cph", comment = "Partial copyright holder of the R code")
           )

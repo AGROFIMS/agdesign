@@ -13,6 +13,7 @@
 #server_design <- function(input, output, session, dom="hot_fieldbook_design", values){
 
 server_sites_agrofims <- function(input, output, session, values){
+
   
   constUserDB <- "agrofims"
   constPassDB <- "cnReOdGjS851TTR140318"
@@ -38,9 +39,10 @@ server_sites_agrofims <- function(input, output, session, values){
   })
   
   uiTrialSiteNew <- function(pData = NULL){
+
     strCreate = "Create"
     strCreateId = "btCreateSite"
-    boxTitle <- "Create Site information"
+    boxTitle <- "Create new site"
     boxIcon <- "plus-circle"
     veg <- NULL
     if(is.null(pData)){
@@ -54,7 +56,6 @@ server_sites_agrofims <- function(input, output, session, values){
       boxIcon  <- "edit"
       # veg <-  strsplit(vData[[13]], ',')[[1]]
     }
-    
     
     mchoices = c("Farmer field", "Experiment station field", "Greenhouse/screenhouse", "Government forest", "Private forest", "Pasture", "Water body")
     fluidRow(
@@ -88,17 +89,27 @@ server_sites_agrofims <- function(input, output, session, values){
                  uiOutput("fbsites_ui_admin3"),
                  uiOutput("fbsites_ui_admin4"),
                  uiOutput("fbsites_ui_admin5"),
-                 textInput("inSiteNearestPlace", label = "Nearest populated place", value=vData[[11]]), 
+                 br(),
+                 br(),
+                 
+                 # We use "div" to align this text input with the next two ones.
+                 div(style = "margin-top:2px",
+                   textInput("inSiteNearestPlace", label = "Nearest populated place", value=vData[[11]])),
+
+                 
                  shiny::numericInput(inputId = "inSiteElevation" ,label = "Site elevation (meters)", value = vData[[12]] )
                  
           ), 
           column( width = 8,
                   br(),
                   HTML("<center>"),
-                  radioButtons("mymap_radiobutton_type", "Map view type", c("Default", "Street map", "Geo map"), selected="Default",inline = T),
+                  radioButtons("mymap_radiobutton_type", "", c("Default", "Street map", "Geo map"), selected="Default",inline = T),
                   HTML("</center>"),
-                  
+                  ### Start: LEAFTLET MAP ###
                   leafletOutput("mymap"), 
+                  ### End: LEAFTLET MAP ###
+                  br(),
+                  br(),
                   fluidRow(
                     column(width = 6, 
                            shiny::numericInput(inputId = "inSiteLatitude" , label = "Site latitude (in decimal degrees)", value = vData[[13]] )
@@ -422,8 +433,8 @@ server_sites_agrofims <- function(input, output, session, values){
       # )
       
       
-      #vSiteId <-  stri_rand_strings(1, 5,  '[A-Z]') #var12
-      vSiteId <- geohash::gh_encode(vLatitud,vLongitude, 10)
+      vSiteId <-  stri_rand_strings(1, 5,  '[A-Z]') #var12
+      #vSiteId <- geohash::gh_encode(vLatitud,vLongitude, 10)
       
       
       date  <- as.character(Sys.time(), "%Y%m%d%H%M%S")

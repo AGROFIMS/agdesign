@@ -139,25 +139,30 @@ get_ec_irri <- function(allinputs, ctype="monocrop", addId ){
     
     lbl_amount <- paste(paste("Irrigation_amount", amount_unit$values, sep="_"),  1:length(addId),sep = "__")
     lbl_notes<- paste("Irrigation_notes", 1:length(addId),sep = "__")
-
+    
+    
+    
     #Ensemble all irrigation labels
     lbl_irri <- c(lbl_start, lbl_end, lbl_tech, lbl_irri_system, 
-                  lbl_source, lbl_source_dis, lbl_amount,lbl_notes)
-    
+                    lbl_source, lbl_source_dis, lbl_amount,lbl_notes)
+ 
     #Special case:
     #Swichtching id values by irrigation labels (lbl_irr)
     dt$id <- lbl_irri
     
     #Remove NoLabel or NonData rows
     dt <- arrange_by_pattern(dt, as.character(1:length(addId))) %>% 
-          dplyr::filter(!stringr::str_detect(id,"NoLabel__"))  
+                              dplyr::filter(!stringr::str_detect(id,"NoLabel__"))  
     
     #transpose data as rows and create table  
     dt_irri<- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
     #Fill the templates with empty values 
     dt_irri<- dt_irri %>%  dplyr::mutate_all(as.character)
     names(dt_irri) <- dt$id #changes names
-   
+    if(length(addId)==1){
+      names(dt_irri) <- stringr::str_replace_all(string = names(dt_irri), pattern = "__1",replacement = "")
+    }
+    
     #LABEL FOR TRAITLIST
     lbl <- stringr::str_replace_all(string = names(dt_irri), pattern = "__[:digit:]+$",replacement = "") %>% unique()
     

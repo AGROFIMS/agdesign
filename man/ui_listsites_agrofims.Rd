@@ -5,8 +5,7 @@
 \title{UI List Sites for managing new trial site in for HIDAP-AGROFIMS
 Returns user friendly ui for for HIDAP-AGROFIMS}
 \usage{
-ui_listsites_agrofims(type = "tab", title = "List Sites",
-  name = "listSites")
+ui_listsites_agrofims(type = "tab", title = "", name = "listSites")
 }
 \arguments{
 \item{type}{type of UI element, default is a tab in a shinydashboard}

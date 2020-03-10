@@ -20,6 +20,4 @@ proccess all information provided by users
 }
 \author{
 Omar Benites / Ivan Perez
-
-Soil Fertility     #############################################################
 }

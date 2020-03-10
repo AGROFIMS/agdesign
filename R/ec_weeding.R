@@ -12,17 +12,20 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     # lbl <- c("Weeding_start_date", "Weeding_technique", 
     #          "Weeding_notes", "Weeding_implement_type", "Weeding_implement_traction")
     
-    lbl <- c("Weeding_start_date", "Weeding_technique", 
+    lbl <- c("Weeding_start_date", "Weeding_technique", "Weeding_number",
              "Weeding_notes", "Weeding_implement_type", "Weeding_traction_type",
              "Weed_biomass_fresh_weight_kg/ha",
              "Weed_biomass_subsample_fresh_weight_kg/ha",
              "Weed_biomass_dry_weight_kg/ha",
-             "Weed_biomass_subsample_dry_weight_kg/ha"
+             "Weed_biomass_subsample_dry_weight_kg/ha",
+             "Weeding_timing","Weeding_end_date"
              )
     
     lbl_weed <- vector(mode = "character",length = 0L)
+    
+   
     for(i in 1:length(addId)){
-      lbl_weed <- append(lbl_weed, paste(lbl, i,sep="__"))
+        lbl_weed <- append(lbl_weed, paste(lbl, i,sep="__"))
     }
     
     #order by id_rand
@@ -30,9 +33,12 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     
     #start date
     startD <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_start_date_")))
-     
+    
     #technique
     tech <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_technique_")))
+    
+    #number of weeding monocrop_wewd_weeding_nweedings_1
+    numberwed <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_nweedings_")))
     
     #notes
     notes <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_notes_")))
@@ -47,6 +53,13 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     traction_other <- w %>% filter(str_detect(id, paste0("^",ctype,"_wewd_weeding_traction_[:digit:]+_other$")))
     traction<- dt_inputs(traction, traction_other)
     
+    #End date
+    wendate <- data.frame(id= paste0(ctype,"_wewd_weeding_end_date_",seq.int(addId)) , values= rep("",length(addId)), stringsAsFactors = FALSE)
+    
+    #Timing
+    wtim <- data.frame(id= paste0(ctype,"_wewd_weeding_timing_",seq.int(addId)) , values= rep("",length(addId)), stringsAsFactors = FALSE)
+    
+    #Weed biomass fresh weight
     wbiofw <- data.frame(id= paste0(ctype,"_wewd_weeding_wbiofw_",seq.int(addId)) , values= rep("",length(addId)), stringsAsFactors = FALSE) #"Weed_biomass_fresh_weight_kg/ha",
     #wbiosubfw <-  data.frame(id="non_indexed" , values= "") #Weed_biomass_subsample_fresh_weight_kg/ha",
     wbiosubfw <- data.frame(id= paste0(ctype,"_wewd_weeding_wbiosubfw_",seq.int(addId)) , values= rep("",length(addId)), stringsAsFactors = FALSE)
@@ -55,11 +68,11 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     wbsubdw <-  data.frame(id= paste0(ctype,"_wewd_weeding_wbsubdw_",seq.int(addId)) , values= rep("",length(addId)), stringsAsFactors = FALSE) #"Weed_biomass_subsample_dry_weight_kg/ha"
      
 
-    dt<- rbind(startD, tech, notes, type, traction, wbiofw, wbiosubfw, wbdw ,wbsubdw )
+    dt<- rbind(startD, tech, numberwed, notes, type, traction, wbiofw, wbiosubfw, wbdw ,wbsubdw, wtim,wendate )
     dt<- arrange_by_pattern(dt, pattern = addId)
     #extract and tranpose column with valus
     dt <- t(dt$values) %>% as.data.frame(stringAsFactors=FALSE)
-    dt<- dt %>%  dplyr::mutate_all(as.character)
+    dt_weed<- dt %>%  dplyr::mutate_all(as.character)
     
     # TODO : AGREGAR ESTAS COLUMNAS
     # Weeding_end_date
@@ -68,14 +81,17 @@ get_ec_weed<- function(allinputs, addId, ctype="monocrop" ){
     # Weeding_biomass_dry_weight
     # Weeding_biomass_subsample_dry_weight
     
-    names(dt) <- lbl_weed #changes names
+    names(dt_weed) <- lbl_weed #changes names
+    if(length(addId)==1){
+      names(dt_weed) <- stringr::str_replace_all(string = names(dt_weed), pattern = "__1",replacement = "")
+    }
     #dta
     
     #LABEL FOR TRAITLIST
-    lbl <- str_replace_all(string = names(dt), pattern = "__[:digit:]+$",replacement = "") %>% unique()
+    lbl <- stringr::str_replace_all(string = names(dt_weed), pattern = "__[:digit:]+$",replacement = "") %>% unique()
     
     #OUTPUT
-    out<- list(dt=dt, lbl = lbl)
+    out<- list(dt=dt_weed, lbl = lbl)
     
     
 }
@@ -117,6 +133,7 @@ get_collectable_weed <- function(allinputs, ver ="default"){
     }
     else if(ver=="export"){
       out <- ifelse(str_detect(string = out,pattern = "technique"), paste0("weeding technique"), out)
+      out <- ifelse(str_detect(string = out,pattern = "number|Number"), paste0("weeding number"), out)
     }
   }
   out
