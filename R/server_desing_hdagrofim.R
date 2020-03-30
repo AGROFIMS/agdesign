@@ -12147,11 +12147,13 @@ server_design_agrofims <- function(input, output, session, values){
                       column(12, h4("Planting, transplanting method", style="font-weight: 800;color: #555;"))
                     ),
                     selectizeInput(
-                      paste0(crop, "_ptdi_seeding_environment_", index), label = "Seeding environment", 
+                      ##TODO: CAMBIAR SEEDING ENVIRONMENT PR SEEDIND type
+                      paste0(crop, "_ptdi_seeding_environment_", index), label = "Seedbed type", 
                       multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-                      choices = c("Flat seed bed",
+                      choices = c("Flat",
                                   "Hill",
-                                  "Ridge", 
+                                  "Ridge",
+                                  "Sunken",
                                   "Other")
                     ),
                     hidden(textInput(paste0(crop, "_ptdi_seeding_environment_", index, "_other"), "", value="")),
@@ -12799,7 +12801,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                 choices = c("Center pivot irrigation",
                             "Irrigation by lateral move",
-                            "Irrigation by side move",
+                            "Irrigation by side roll",
                             "Other")
               ),
               hidden(textInput(paste0(crop, "_irid_irrigation_using_sprinkler_systems_", index, "_other"), ""))
@@ -12982,7 +12984,9 @@ server_design_agrofims <- function(input, output, session, values){
               choices = c("Cultivator",
                           "Manual",
                           "Sprayer",
-                          "Weed cutter/puller",
+                          "Sickle",
+                          "Mower",
+                          "Weed puller",
                           "Other")
             ),
             hidden(textInput(paste0(crop, "_wewd_weeding_type_",index, "_other" ), "")),
@@ -18980,6 +18984,10 @@ server_design_agrofims <- function(input, output, session, values){
           if(length(trait_dt)>0){
             cm_tl  <- trait_dt()
             
+            print("trait list (only crop measurements)")
+            print(cm_tl)
+            
+            
           } else{
             cm_tl<- data.frame()
           }
@@ -19401,6 +19409,9 @@ server_design_agrofims <- function(input, output, session, values){
         
         print(paste0("/home/obenites/AGROFIMS/kdsmart/",input$experimentId,"-", input$uniqueId,"-", input$fieldbookId,".xlsx"))
 
+        
+        
+        
         ### END: END SAVE FILE FOR KDSMART ###############################################################
         
         file.rename(fname, file)
