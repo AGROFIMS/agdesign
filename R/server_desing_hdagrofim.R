@@ -16309,7 +16309,7 @@ server_design_agrofims <- function(input, output, session, values){
           }
             treatment <- apply(treatment, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
             Value <- lapply(1:ncol(treatment), function(x) paste(treatment[,x],collapse=",") ) %>% unlist()
-            TraitName <- paste0("Fertilizer_nutrientadded_split_",1:ncol(treatment))
+            TraitName <- paste0("Fertilizer_nutrientcontent_split_",1:ncol(treatment))
             Nutrient <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
         } 
         else{
@@ -16376,8 +16376,6 @@ server_design_agrofims <- function(input, output, session, values){
       fernutrate <- try({ NutrientRates_mgmt(fert_list$prodfert_mgmt ,fert_list$treatment_mgmt) })
       
       
-      
-      
       if(class(fernutrate)!="try-error" && nrow(fert_details)>0){
         
         FTiming<- data.frame(TraitName= paste0("Fertilizer_timing_", "split_",1:nrow(fert_details)),
@@ -16417,7 +16415,7 @@ server_design_agrofims <- function(input, output, session, values){
           # fert_prod <- paste(fert_prod_name, fert_prod_amount, sep="_")
           
           #Fertlizer product name and amount
-          FProduct <- data.frame(TraitName= paste0("Fertilizer_nutrientcontent_", "split_",1:length(fert_prod)),
+          FProduct <- data.frame(TraitName= paste0("Fertilizer_amount_", "split_",1:length(fert_prod)),
                                  TraitUnit= input$sfProUnit,
                                  Value= fert_prod, stringsAsFactors = FALSE)
           
