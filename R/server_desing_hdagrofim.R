@@ -5513,7 +5513,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = T , options = list(maxItems = 1, placeholder = "Crop common name"),
                 choices = c("Cassava",
                             "Common bean",
-                            "Green Manure",
+                            "Green manure",
                             "Maize",
                             "Potato",
                             "Rice",
@@ -5565,7 +5565,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = T , options = list(maxItems = 1, placeholder = "Select crop"),
                 choices = c("Cassava",
                             "Common bean",
-                            "Green Manure",
+                            "Green manure",
                             "Maize",
                             "Potato",
                             "Rice",
@@ -5623,7 +5623,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = T , options = list(maxItems = 1, placeholder = "Select crop"),
                 choices = c("Cassava",
                             "Common bean",
-                            "Green Manure",
+                            "Green manure",
                             "Maize",
                             "Potato",
                             "Rice",
@@ -5698,7 +5698,7 @@ server_design_agrofims <- function(input, output, session, values){
     }
 
     
-    if (value == "Green Manure"){
+    if (value == "Green manure"){
       shinyjs::show(id = paste0(typeCrop,"_cropGreenManureOpt_",crop_order))
     }else{
       shinyjs::hide(id = paste0(typeCrop,"_cropGreenManureOpt_",crop_order))
@@ -14376,12 +14376,15 @@ server_design_agrofims <- function(input, output, session, values){
                                  )
                                }else if(timingValue == "Frequency")
                                {
-                                 textInput(paste0(typeCrop,"_mea_",index,"_timingValue_",boxIndex,"_",i),
+                                 #textInput(paste0(typeCrop,"_",index,"_timingValue_",boxIndex,"_",i),
+                                 #           label = timingValue)
+                                 textInput(paste0(typeCrop,"_mea_",index,"_timingValue_",boxIndex),
                                            label = timingValue)
                                }else if(timingValue == "Other")
                                {
-                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
-                                                label = timingValue,
+                                 #selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
+                                 selectizeInput(inputId = paste0(typeCrop,"_mea_" ,index, "_timingValue_",boxIndex),
+                                                 label = timingValue,
                                                 multiple = TRUE,
                                                 choices = c(),
                                                 options = list(
@@ -14393,7 +14396,8 @@ server_design_agrofims <- function(input, output, session, values){
                                  )
                                }
                                else{
-                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
+                                 #selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
+                                 selectizeInput(inputId = paste0(typeCrop,"_mea_" ,index,"_timingValue_",boxIndex),
                                                 label = timingValue,
                                                 multiple = TRUE,
                                                 choices = c(),
