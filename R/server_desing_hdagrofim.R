@@ -5513,7 +5513,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = T , options = list(maxItems = 1, placeholder = "Crop common name"),
                 choices = c("Cassava",
                             "Common bean",
-                            "Green Manure",
+                            "Green manure",
                             "Maize",
                             "Potato",
                             "Rice",
@@ -5565,7 +5565,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = T , options = list(maxItems = 1, placeholder = "Select crop"),
                 choices = c("Cassava",
                             "Common bean",
-                            "Green Manure",
+                            "Green manure",
                             "Maize",
                             "Potato",
                             "Rice",
@@ -5623,7 +5623,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = T , options = list(maxItems = 1, placeholder = "Select crop"),
                 choices = c("Cassava",
                             "Common bean",
-                            "Green Manure",
+                            "Green manure",
                             "Maize",
                             "Potato",
                             "Rice",
@@ -5698,7 +5698,7 @@ server_design_agrofims <- function(input, output, session, values){
     }
 
     
-    if (value == "Green Manure"){
+    if (value == "Green manure"){
       shinyjs::show(id = paste0(typeCrop,"_cropGreenManureOpt_",crop_order))
     }else{
       shinyjs::hide(id = paste0(typeCrop,"_cropGreenManureOpt_",crop_order))
@@ -12147,11 +12147,13 @@ server_design_agrofims <- function(input, output, session, values){
                       column(12, h4("Planting, transplanting method", style="font-weight: 800;color: #555;"))
                     ),
                     selectizeInput(
-                      paste0(crop, "_ptdi_seeding_environment_", index), label = "Seeding environment", 
+                      ##TODO: CAMBIAR SEEDING ENVIRONMENT PR SEEDIND type
+                      paste0(crop, "_ptdi_seeding_environment_", index), label = "Seedbed type", 
                       multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
-                      choices = c("Flat seed bed",
+                      choices = c("Flat",
                                   "Hill",
-                                  "Ridge", 
+                                  "Ridge",
+                                  "Sunken",
                                   "Other")
                     ),
                     hidden(textInput(paste0(crop, "_ptdi_seeding_environment_", index, "_other"), "", value="")),
@@ -12799,7 +12801,7 @@ server_design_agrofims <- function(input, output, session, values){
                 multiple = TRUE, options = list(maxItems =1, placeholder ="Select one..."), 
                 choices = c("Center pivot irrigation",
                             "Irrigation by lateral move",
-                            "Irrigation by side move",
+                            "Irrigation by side roll",
                             "Other")
               ),
               hidden(textInput(paste0(crop, "_irid_irrigation_using_sprinkler_systems_", index, "_other"), ""))
@@ -12982,7 +12984,9 @@ server_design_agrofims <- function(input, output, session, values){
               choices = c("Cultivator",
                           "Manual",
                           "Sprayer",
-                          "Weed cutter/puller",
+                          "Sickle",
+                          "Mower",
+                          "Weed puller",
                           "Other")
             ),
             hidden(textInput(paste0(crop, "_wewd_weeding_type_",index, "_other" ), "")),
@@ -14372,12 +14376,15 @@ server_design_agrofims <- function(input, output, session, values){
                                  )
                                }else if(timingValue == "Frequency")
                                {
-                                 textInput(paste0(typeCrop,"_mea_",index,"_timingValue_",boxIndex,"_",i),
+                                 #textInput(paste0(typeCrop,"_",index,"_timingValue_",boxIndex,"_",i),
+                                 #           label = timingValue)
+                                 textInput(paste0(typeCrop,"_mea_",index,"_timingValue_",boxIndex),
                                            label = timingValue)
                                }else if(timingValue == "Other")
                                {
-                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
-                                                label = timingValue,
+                                 #selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
+                                 selectizeInput(inputId = paste0(typeCrop,"_mea_" ,index, "_timingValue_",boxIndex),
+                                                 label = timingValue,
                                                 multiple = TRUE,
                                                 choices = c(),
                                                 options = list(
@@ -14389,7 +14396,8 @@ server_design_agrofims <- function(input, output, session, values){
                                  )
                                }
                                else{
-                                 selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
+                                 #selectizeInput(inputId = paste0(typeCrop,"_timingValue_",boxIndex,"_1"),
+                                 selectizeInput(inputId = paste0(typeCrop,"_mea_" ,index,"_timingValue_",boxIndex),
                                                 label = timingValue,
                                                 multiple = TRUE,
                                                 choices = c(),
@@ -16305,7 +16313,7 @@ server_design_agrofims <- function(input, output, session, values){
           }
             treatment <- apply(treatment, 1, function(x) paste0(names(x),"_",x)) %>% as.data.frame(stringsAsFactors=FALSE)
             Value <- lapply(1:ncol(treatment), function(x) paste(treatment[,x],collapse=",") ) %>% unlist()
-            TraitName <- paste0("Fertilizer_nutrientadded_split_",1:ncol(treatment))
+            TraitName <- paste0("Fertilizer_nutrientcontent_split_",1:ncol(treatment))
             Nutrient <- data.frame(TraitName, TraitUnit=nut_metadata$Unit, Value, stringsAsFactors = FALSE)
         } 
         else{
@@ -16372,8 +16380,6 @@ server_design_agrofims <- function(input, output, session, values){
       fernutrate <- try({ NutrientRates_mgmt(fert_list$prodfert_mgmt ,fert_list$treatment_mgmt) })
       
       
-      
-      
       if(class(fernutrate)!="try-error" && nrow(fert_details)>0){
         
         FTiming<- data.frame(TraitName= paste0("Fertilizer_timing_", "split_",1:nrow(fert_details)),
@@ -16413,7 +16419,7 @@ server_design_agrofims <- function(input, output, session, values){
           # fert_prod <- paste(fert_prod_name, fert_prod_amount, sep="_")
           
           #Fertlizer product name and amount
-          FProduct <- data.frame(TraitName= paste0("Fertilizer_nutrientcontent_", "split_",1:length(fert_prod)),
+          FProduct <- data.frame(TraitName= paste0("Fertilizer_amount_", "split_",1:length(fert_prod)),
                                  TraitUnit= input$sfProUnit,
                                  Value= fert_prod, stringsAsFactors = FALSE)
           
@@ -18980,6 +18986,10 @@ server_design_agrofims <- function(input, output, session, values){
           if(length(trait_dt)>0){
             cm_tl  <- trait_dt()
             
+            print("trait list (only crop measurements)")
+            print(cm_tl)
+            
+            
           } else{
             cm_tl<- data.frame()
           }
@@ -19401,6 +19411,9 @@ server_design_agrofims <- function(input, output, session, values){
         
         print(paste0("/home/obenites/AGROFIMS/kdsmart/",input$experimentId,"-", input$uniqueId,"-", input$fieldbookId,".xlsx"))
 
+        
+        
+        
         ### END: END SAVE FILE FOR KDSMART ###############################################################
         
         file.rename(fname, file)

@@ -91,7 +91,7 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
     #             paste("Direct_seeding_distance_between_bunds","_",bund_unit$values,sep=""),
     #             "Direct_seeding_notes"
     # )
-    lbl_di <- c("Seeding_start_date", "Seeding_environment",
+    lbl_di <- c("Seeding_start_date", "Seedbed_type",
                 "Seeding_technique",
                 "Seeding_seed_treatment", "Seeding_implement_type", 
                 "Seeding_traction" ,  
@@ -190,7 +190,7 @@ get_ec_plantrans <- function(allinputs, input, ctype="monocrop", cropId, addId="
     #             "Transplanting_notes")      
     
     lbl_ta <- c("Transplanting_start_date", "Transplanting_end_date",
-                "Transplanting_age_of_seedling","Transplanting_seedling_environment",
+                "Transplanting_age_of_seedling","Transplanting_seedbed_type",
                 "Transplanting_technique","Transplanting_seed_treatment",
                 "Transplanting_traction",
                 paste0("Transplanting_density_distance_between_rows","_",ta_drow_unit$values,sep=""),
