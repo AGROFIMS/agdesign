@@ -1542,7 +1542,7 @@ server_design_agrofims <- function(input, output, session, values){
       c6[i]  <- paste0("selectizeInput")
       c7[i]  <- paste0("textInput")
       c8[i]  <- paste0("selectizeInput")
-      
+      #test in sites
       d1[i]  <- "n"
       d2[i]  <- "n"
       d3[i]  <- "n"
