@@ -1571,7 +1571,7 @@ ui_fieldbook_agrofims <- function(type="tab",title="Design Fieldbook",name="phen
                 fluidRow(
                   column(
                     6,
-                    #h2("Fieldbook details"),
+                    h2("Fieldbook details"),
                     uiOutput("fieldbookIdUI")
                   ),
                   
