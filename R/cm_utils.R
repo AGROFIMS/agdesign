@@ -131,20 +131,20 @@ get_trait_dt <- function(dtcmea_variables, dt_cmea, crop_name){
    if(is.element(el = "Leaf Area Index (LAI)",set = trait_dt$Measurement)){
      
      trait_dt <- as.data.frame(trait_dt, stringsAsFactors=FALSE)
-     print("nuevo 1")
-     print(trait_dt)
-     print(grep("Leaf Area Index",trait_dt$Measurement))
+     #print("nuevo 1")
+     #print(trait_dt)
+     #print(grep("Leaf Area Index",trait_dt$Measurement))
      trait_leaf_dt <- trait_dt[grep("Leaf Area Index",trait_dt$Measurement),]   #dplyr::filter(trait_dt, Measurement == "Leaf Area Index (LAI)")
-     print("nuevo 2")
-     print(trait_leaf_dt)
+     #print("nuevo 2")
+     #print(trait_leaf_dt)
      trait_leaf_dt$Group <- "Growth and development"
      trait_leaf_dt$TraitLevel <- "Plot"
      trait_leaf_dt$TraitAlias <- 	paste0(crop_name,"_LAI")
      trait_leaf_dt$TraitDataType	<- "DECIMAL"
      trait_leaf_dt$TraitValidation	<- "0.00 <= x <= 10.00"
      trait_leaf_dt$VariableId <- sample.int(c(10000,90000), 1)
-     print("nuevo 3")
-     print(trait_leaf_dt)
+     #print("nuevo 3")
+     #print(trait_leaf_dt)
      #trait_dt[grep("Leaf Area Index",trait_dt$Measurement),] 
      trait_dt[grep("Leaf Area Index",trait_dt$Measurement),] <-  trait_leaf_dt
      trait_dt <- as_tibble(trait_dt)
