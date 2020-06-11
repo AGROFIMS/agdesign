@@ -95,6 +95,13 @@ get_dtcmea_variables <- function(allinputs, ctype="monocrop", addId="1", crop="n
       }
     }
     
+    choices = c("Cassava","Common bean","Green manure","Maize","Potato","Rice","Sweetpotato","Wheat")
+    if(is.element(crop, choices)){
+        crop <- crop
+    }else{
+        crop <- "Other"
+    }
+    
     dt<- tibble::tibble(crop, mea, parmea, unit, as.numeric(pseason), as.numeric(pplot), timing, timValue)
     dt<- dplyr::distinct(dt)
     names(dt) <- c("Crop", "Measurement", "Subgroup","TraitUnit",  "NumberofMeasurementsPerSeason", "NumberofMeasurementsPerPlot",
@@ -110,12 +117,43 @@ get_dtcmea_variables <- function(allinputs, ctype="monocrop", addId="1", crop="n
 
 #Get trait data
 # trait_variables: variables selected in the Crop Measurement interface 
-get_trait_dt <- function(dtcmea_variables, dt_cmea){
+get_trait_dt <- function(dtcmea_variables, dt_cmea, crop_name){
 
  if(nrow(dtcmea_variables)!=0){
+   
    trait_dt <- dplyr::left_join(dtcmea_variables, 
                           dplyr::select(dt_cmea, -c("NumberofMeasurementsPerSeason",	"NumberofMeasurementsPerPlot",	"Timing",	"TimingValue")))
+   trait_dt$Crop <- crop_name
    trait_dt <- trait_dt %>% dplyr::mutate(TraitName = paste(Crop, Subgroup, Measurement, TraitUnit, sep="_"))
+   
+   
+   #is.element reconoce caractres especiales como LAI
+   if(is.element(el = "Leaf Area Index (LAI)",set = trait_dt$Measurement)){
+     
+     trait_dt <- as.data.frame(trait_dt, stringsAsFactors=FALSE)
+     print("nuevo 1")
+     print(trait_dt)
+     print(grep("Leaf Area Index",trait_dt$Measurement))
+     trait_leaf_dt <- trait_dt[grep("Leaf Area Index",trait_dt$Measurement),]   #dplyr::filter(trait_dt, Measurement == "Leaf Area Index (LAI)")
+     print("nuevo 2")
+     print(trait_leaf_dt)
+     trait_leaf_dt$Group <- "Growth and development"
+     trait_leaf_dt$TraitLevel <- "Plot"
+     trait_leaf_dt$TraitAlias <- 	paste0(crop_name,"_LAI")
+     trait_leaf_dt$TraitDataType	<- "DECIMAL"
+     trait_leaf_dt$TraitValidation	<- "0.00 <= x <= 10.00"
+     trait_leaf_dt$VariableId <- sample.int(c(10000,90000), 1)
+     print("nuevo 3")
+     print(trait_leaf_dt)
+     #trait_dt[grep("Leaf Area Index",trait_dt$Measurement),] 
+     trait_dt[grep("Leaf Area Index",trait_dt$Measurement),] <-  trait_leaf_dt
+     trait_dt <- as_tibble(trait_dt)
+   }
+   
+   
+   
+   
+   #trait_dt$Crop <- crop_name
  } else {
    trait_dt <- data.frame()
  }

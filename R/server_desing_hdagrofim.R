@@ -14598,6 +14598,7 @@ server_design_agrofims <- function(input, output, session, values){
     }
     
     unit<- get_dcm_values(cmdt, "TraitUnit",crop = crop, subgroup= parmea[[1,1]], measurement=measurement )
+    if(is.na(unit)){unit <- ""}
     timing<- get_dcm_values(cmdt, "Timing",crop)
 
     fluidRow(id = paste0(typeCrop, "_fluidRow_", index),
@@ -18315,8 +18316,8 @@ server_design_agrofims <- function(input, output, session, values){
       dt_measurements <- get_dtcmea_variables(allinputs=AllInputs(), ctype="monocrop", 
                                               addId=addId, crop=crop, cropId= "1")
    
-      list_dt_cmeasurements <- get_trait_dt(dtcmea_variables=dt_measurements, dt_cmea=dt_cmea)    #dplyr::left_join(dt_measurements, dt_cmea)
-      #class(list_dt_cmeasurements) <- "monocrop"
+      list_dt_cmeasurements <- get_trait_dt(dtcmea_variables = dt_measurements, dt_cmea=dt_cmea, crop_name=crop)    #dplyr::left_join(dt_measurements, dt_cmea)
+      #list_dt_cmeasurements$Crop <- crop
       
     } 
     else if(input$croppingType=="Intercrop"){
@@ -18330,7 +18331,8 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in seq.int(crop)){
         list_dt_cmeasurements[[i]] <- get_dtcmea_variables(allinputs=AllInputs(), ctype="intercrop",  
                                                            addId=addId[[i]], crop=crop[i], cropId= cropId[i])
-        list_dt_cmeasurements[[i]] <- get_trait_dt(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea)
+        list_dt_cmeasurements[[i]] <- get_trait_dt(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea, crop_name=crop[i])
+        #list_dt_cmeasurements[[i]]$Crop <- crop[i]
       }
       names(list_dt_cmeasurements) <- crop
     } 
@@ -18343,8 +18345,8 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in seq.int(crop)){
         list_dt_cmeasurements[[i]] <- get_dtcmea_variables(allinputs=AllInputs(), ctype="relay crop",  
                                                            addId=addId[[i]], crop=crop[i], cropId= cropId[i])
-        list_dt_cmeasurements[[i]] <- get_trait_dt(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea)
-        
+        list_dt_cmeasurements[[i]] <- get_trait_dt(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea, crop_name=crop[i])
+        #list_dt_cmeasurements[[i]]$Crop <- crop[i]
       }
       names(list_dt_cmeasurements) <- crop
     } 
@@ -18358,8 +18360,8 @@ server_design_agrofims <- function(input, output, session, values){
       for(i in seq.int(crop)){
         list_dt_cmeasurements[[i]] <- get_dtcmea_variables(allinputs=AllInputs(), ctype="rotation",  
                                                            addId=addId[[i]], crop=crop[i], cropId= cropId[i])
-        list_dt_cmeasurements[[i]] <- get_trait_dt(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea)
-        
+        list_dt_cmeasurements[[i]] <- get_trait_dt(dtcmea_variables=list_dt_cmeasurements[[i]], dt_cmea=dt_cmea,crop_name=crop[i])
+        #list_dt_cmeasurements[[i]]$Crop <- crop[i]
       }
       names(list_dt_cmeasurements) <- crop
     }
