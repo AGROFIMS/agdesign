@@ -125,7 +125,7 @@ get_trait_dt <- function(dtcmea_variables, dt_cmea, crop_name){
                           dplyr::select(dt_cmea, -c("NumberofMeasurementsPerSeason",	"NumberofMeasurementsPerPlot",	"Timing",	"TimingValue")))
    trait_dt$Crop <- crop_name
    trait_dt <- trait_dt %>% dplyr::mutate(TraitName = paste(Crop, Subgroup, Measurement, TraitUnit, sep="_"))
-   
+   trait_dt$TraitAlias <- str_replace_all(string = trait_dt$TraitAlias, pattern = "^Crop_", replacement = paste0(crop_name,"_"))
    
    #is.element reconoce caractres especiales como LAI
    if(is.element(el = "Leaf Area Index (LAI)",set = trait_dt$Measurement)){
@@ -149,9 +149,6 @@ get_trait_dt <- function(dtcmea_variables, dt_cmea, crop_name){
      trait_dt[grep("Leaf Area Index",trait_dt$Measurement),] <-  trait_leaf_dt
      trait_dt <- as_tibble(trait_dt)
    }
-   
-   
-   
    
    #trait_dt$Crop <- crop_name
  } else {

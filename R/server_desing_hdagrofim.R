@@ -17327,6 +17327,7 @@ server_design_agrofims <- function(input, output, session, values){
           dt[[i]]$Crop <- crop[i]
           ##NEW CODE FOR KDSMART
           dt[[i]] <- dt[[i]]  %>% dplyr::mutate(TraitName = paste0(Crop, "_", TraitName))
+          dt[[i]] <- dt[[i]]  %>% dplyr::mutate(TraitAlias = paste0(Crop, "_", TraitAlias))
           # END CODE FOR KDSMART
           
           colnames(dt[[i]]) <- c("Crop","Group","Subgroup","Measurement",
@@ -17427,10 +17428,10 @@ server_design_agrofims <- function(input, output, session, values){
       
       dt <- pheno_multicrop_vars()[[cropnames[i]]]
       
-      print("label multicrop header")
-      print(cropnames[i])
-      print(dt)
-      
+       print("label multicrop header")
+      # print(cropnames[i])
+      # print(dt)
+      # 
       lbl <- dt$TraitName
      
       if(all(dt[,1]=="")){
@@ -19006,9 +19007,6 @@ server_design_agrofims <- function(input, output, session, values){
         
         ############# START SOIL MEASUREMENT FOR TRAIT LIST  ###############################################################
         if(nrow(soil_dt())!=0){
-          
-          #print(soil_list())
-          
           soil_tl<- soil_list()
         }
         else{
@@ -19043,11 +19041,6 @@ server_design_agrofims <- function(input, output, session, values){
             dt <- dt_cphe[row_select, ]
             dt <- ec_clean_header(dt)
             ph_tl <- dt
-            #ph_tl$CropMeasurementPerSeason <- ph_tl$CropMeasurementPerPlot <- 1
-            #print("---pheno mono trial list")
-            #print(names(ph_tl))
-            # ph_tl <- data.table::setnames(x = ph_tl, old = c("CropMeasurementPerSeason","CropMeasurementPerPlot"),
-            #                               new = c("NumberofMeasurementsPerSeason","NumberofMeasurementsPerPlot"))
             ph_tl$NumberofMeasurementsPerSeason <- ph_tl$NumberofMeasurementsPerPlot <- 1
           } else  {
             ph_tl <- data.frame()
@@ -19056,7 +19049,7 @@ server_design_agrofims <- function(input, output, session, values){
         }
         else {
           ph_tl <- rbindlist(pheno_multicrop_vars(),fill = TRUE)
-         print(pheno_multicrop_vars())
+          print(pheno_multicrop_vars())
          
           #ph_tl$CropMeasurementPerSeason <- pheno_vars$CropMeasurementPerPlot <- 1
           ph_tl$NumberofMeasurementsPerSeason <- ph_tl$NumberofMeasurementsPerPlot <- 1
